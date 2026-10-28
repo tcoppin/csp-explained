@@ -1,5 +1,5 @@
-/** Public URL of the site, used in generated reports. Update once the domain is chosen. */
-export const SITE_URL = 'https://csp-explained.example';
+/** Public URL of the site, used in generated reports. */
+export const SITE_URL = 'https://csp-explained.com';
 
 /** GitHub repository hosting the code and the vendor catalogue. */
 export const REPO_URL = 'https://github.com/tcoppin/csp-explained';

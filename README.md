@@ -53,7 +53,10 @@ Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalo
 ## Deploy (AWS)
 
 1. Create the GitHub repository and set `REPO_URL` in `src/config.ts` and `githubRepo` in `infra/cdk.json`.
-2. Choose the domain: set `SITE_URL` in `src/config.ts`. For a custom domain, create an ACM certificate in **us-east-1** and pass `-c domainName=… -c certificateArn=…`.
+2. Choose the domain: set `SITE_URL` in `src/config.ts`. For a custom domain, its Route 53 hosted zone must exist
+   (created automatically when the domain is registered with Route 53). Create an ACM certificate in **us-east-1**
+   for the domain and its `www.`, then set `domainName`, `certificateArn` and `hostedZoneId` in `infra/cdk.json`.
+   The stack adds the DNS records and redirects `www.` to the domain.
 3. Deploy the infrastructure once from your machine:
    ```sh
    cd infra

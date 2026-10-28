@@ -3,6 +3,8 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import type { Construct } from 'constructs';
 import { HEADER_POLICY } from '../../src/site-policy.ts';
@@ -12,9 +14,13 @@ export interface SiteStackProps extends StackProps {
   githubRepo: string;
   /** Existing GitHub OIDC provider ARN; one is created when absent (only one per account is allowed). */
   githubOidcProviderArn?: string;
-  /** Custom domain and its ACM certificate (must be in us-east-1). Both or neither. */
+  /**
+   * Custom domain (apex, e.g. `example.com`), its ACM certificate (us-east-1, covering the apex and `www.`)
+   * and its Route 53 hosted zone. All three or none. `www.` redirects to the apex.
+   */
   domainName?: string;
   certificateArn?: string;
+  hostedZoneId?: string;
 }
 
 /**
@@ -32,13 +38,37 @@ export class SiteStack extends Stack {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
+    const domain = props.domainName && props.certificateArn && props.hostedZoneId ? props.domainName : undefined;
+    if (!domain && (props.domainName || props.certificateArn || props.hostedZoneId)) {
+      throw new Error('domainName, certificateArn and hostedZoneId must be provided together');
+    }
+
     // Astro builds /learn as /learn/index.html: map clean URLs to their file.
+    // With a custom domain, www. redirects to the apex first.
     const cleanUrls = new cloudfront.Function(this, 'CleanUrls', {
       runtime: cloudfront.FunctionRuntime.JS_2_0,
       code: cloudfront.FunctionCode.fromInline(`
+var WWW_HOST = ${JSON.stringify(domain ? `www.${domain}` : null)};
+var CANONICAL = ${JSON.stringify(domain ? `https://${domain}` : null)};
+
 function handler(event) {
   var request = event.request;
   var uri = request.uri;
+  if (WWW_HOST && request.headers.host && request.headers.host.value === WWW_HOST) {
+    var query = Object.keys(request.querystring).map(function (key) {
+      var param = request.querystring[key];
+      var values = param.multiValue ? param.multiValue : [param];
+      return values.map(function (v) { return v.value === '' ? key : key + '=' + v.value; }).join('&');
+    }).join('&');
+    return {
+      statusCode: 301,
+      statusDescription: 'Moved Permanently',
+      headers: {
+        location: { value: CANONICAL + uri + (query ? '?' + query : '') },
+        'strict-transport-security': { value: 'max-age=31536000; includeSubDomains' },
+      },
+    };
+  }
   if (uri.endsWith('/')) {
     request.uri = uri + 'index.html';
   } else if (!uri.split('/').pop().includes('.')) {
@@ -65,18 +95,14 @@ function handler(event) {
       },
     });
 
-    if (Boolean(props.domainName) !== Boolean(props.certificateArn)) {
-      throw new Error('domainName and certificateArn must be provided together');
-    }
-
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       comment: 'CSP Explained',
       defaultRootObject: 'index.html',
       priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
-      ...(props.domainName && props.certificateArn
+      ...(domain && props.certificateArn
         ? {
-            domainNames: [props.domainName],
+            domainNames: [domain, `www.${domain}`],
             minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
             certificate: acm.Certificate.fromCertificateArn(this, 'Certificate', props.certificateArn),
           }
@@ -94,6 +120,15 @@ function handler(event) {
         { httpStatus: 404, responseHttpStatus: 404, responsePagePath: '/404.html', ttl: Duration.minutes(5) },
       ],
     });
+
+    if (domain && props.hostedZoneId) {
+      const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'Zone', { hostedZoneId: props.hostedZoneId, zoneName: domain });
+      const target = route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution));
+      for (const [id, recordName] of [['Apex', domain], ['Www', `www.${domain}`]] as const) {
+        new route53.ARecord(this, `${id}A`, { zone, recordName, target });
+        new route53.AaaaRecord(this, `${id}Aaaa`, { zone, recordName, target });
+      }
+    }
 
     // GitHub Actions deploys with short-lived credentials: no AWS keys stored in GitHub.
     const providerArn =
@@ -122,7 +157,7 @@ function handler(event) {
 
     new CfnOutput(this, 'BucketName', { value: bucket.bucketName });
     new CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
-    new CfnOutput(this, 'SiteUrl', { value: `https://${props.domainName ?? distribution.distributionDomainName}` });
+    new CfnOutput(this, 'SiteUrl', { value: `https://${domain ?? distribution.distributionDomainName}` });
     new CfnOutput(this, 'DeployRoleArn', { value: deployRole.roleArn });
   }
 }

@@ -38,4 +38,4 @@ jobs:
       - run: yarn workspace csp-explained-infra synth --quiet
         env:
           CDK_DEFAULT_ACCOUNT: '000000000000'
-          CDK_DEFAULT_REGION: eu-west-3
+          CDK_DEFAULT_REGION: ca-central-1

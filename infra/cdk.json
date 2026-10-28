@@ -2,6 +2,9 @@
   "app": "yarn tsx bin/app.ts",
   "context": {
     "githubRepo": "tcoppin/csp-explained",
-    "region": "eu-west-3"
+    "region": "ca-central-1",
+    "domainName": "csp-explained.com",
+    "certificateArn": "arn:aws:acm:us-east-1:873379166683:certificate/31e1f094-7ae8-4cd4-b3f8-8d58a6d45add",
+    "hostedZoneId": "Z088736226REIDDMOWBHE"
   }
 }
