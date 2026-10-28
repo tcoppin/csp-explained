@@ -189,8 +189,7 @@
   cursor: text;
 }
 textarea.code,
-.site-field input,
-.vendor-picker input {
+.site-field input {
   width: 100%;
   border: 2px solid var(--rule);
   border-radius: var(--radius);
@@ -200,8 +199,7 @@ textarea.code,
   font-size: var(--step-0);
 }
 textarea.code:focus,
-.site-field input:focus,
-.vendor-picker input:focus {
+.site-field input:focus {
   border-color: var(--action);
   outline: none;
 }
@@ -471,35 +469,154 @@ button.tok:hover {
   color: var(--warn);
 }
 
-/* Vendors */
-.vendor-picker {
-  display: grid;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+/* Vendors: searchable multi-select */
+.tool-picker {
+  max-width: 34rem;
+  margin-bottom: 2rem;
 }
-.vendor-picker input {
-  max-width: 24rem;
-}
-.vendor-list {
+.picked {
   list-style: none;
-  margin: 0;
+  margin: 0 0 0.75rem;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
-.vendor-toggle {
-  border: 2px solid var(--rule);
-  background: var(--surface);
-  border-radius: 999px;
-  padding: 0.3rem 0.9rem;
-  font-weight: 700;
-}
-.vendor-toggle[aria-pressed='true'] {
-  border-color: var(--action);
+.picked-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px solid var(--action);
   background: var(--action);
   color: var(--action-ink);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem 0.15rem 0.8rem;
+  font-weight: 700;
 }
+.picked-tool svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.picked-tool:hover svg {
+  transform: scale(1.15);
+}
+.combo {
+  position: relative;
+}
+.combo input {
+  width: 100%;
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.65rem 2.5rem 0.65rem 0.75rem;
+  font-size: var(--step-0);
+}
+.combo input:focus {
+  border-color: var(--action);
+  outline: none;
+}
+.combo-chevron {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  translate: 0 -50%;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.combo input[aria-expanded='true'] + .combo-chevron {
+  rotate: 180deg;
+}
+.popover {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: min(24rem, 60vh);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: 0 0.75rem 2rem -0.75rem color-mix(in srgb, var(--ink) 35%, transparent);
+  padding: 0.35rem 0;
+}
+.popover ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.group-label {
+  display: block;
+  padding: 0.6rem 0.9rem 0.2rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  /* Keyboard scrolling keeps the category label above the first option visible */
+  scroll-margin-top: 2rem;
+}
+.option.active {
+  background: var(--paper);
+}
+.check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--rule);
+  border-radius: 4px;
+}
+.check svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: var(--action-ink);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+.option[aria-selected='true'] .check {
+  background: var(--action);
+  border-color: var(--action);
+}
+.option[aria-selected='true'] .check svg {
+  visibility: visible;
+}
+.option-note {
+  margin-left: auto;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.no-match {
+  padding: 0.5rem 0.9rem;
+  margin: 0;
+  color: var(--ink-soft);
+}
+.suggest {
+  margin: 0.35rem 0 0;
+  padding: 0.5rem 0.9rem 0.3rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--step--1);
+}
+
 .vendor-result {
   border-left: 4px solid var(--rule);
   padding: 0.5rem 0 0.5rem 1.25rem;

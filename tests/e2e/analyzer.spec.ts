@@ -16,6 +16,12 @@ async function openAnalyzer(page: Page, path = '/') {
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
 }
 
+/** Adds a tool through the searchable multi-select. */
+async function pickTool(page: Page, name: string) {
+  await page.getByRole('combobox', { name: 'Add a tool' }).fill(name);
+  await page.getByRole('option', { name }).click();
+}
+
 const POLICY = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' data:; object-src 'none'";
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
@@ -36,7 +42,7 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
 
   // Check a tool: the tab shows how many are blocked.
   await page.getByRole('tab', { name: /Will my tools work/ }).click();
-  await page.getByRole('button', { name: 'Google Tag Manager', exact: true }).click();
+  await pickTool(page, 'Google Tag Manager');
   await expect(page.locator('.vendor-result')).toContainText('Blocked by this policy');
   await expect(page.getByRole('tab', { name: /Will my tools work/ })).toContainText('1 blocked');
 
@@ -61,7 +67,7 @@ test('restores the analysis from a share link', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
   await page.getByRole('tab', { name: /Will my tools work/ }).click();
-  await page.getByRole('button', { name: 'Intercom Messenger' }).click();
+  await pickTool(page, 'Intercom Messenger');
   await page.getByRole('radio', { name: 'Developers' }).click();
   const url = page.url();
   expect(url).toContain('#p=');
@@ -74,6 +80,42 @@ test('restores the analysis from a share link', async ({ page }) => {
   await expect(other.locator('.vendor-result h3')).toHaveText('Intercom Messenger');
   await other.getByRole('button', { name: 'Edit' }).click();
   await expect(other.getByRole('textbox', { name: 'Paste a Content-Security-Policy' })).toHaveValue(POLICY);
+});
+
+test('tools are picked from a searchable multi-select', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+
+  const combo = page.getByRole('combobox', { name: 'Add a tool' });
+  const picked = page.getByRole('list', { name: 'Selected tools' });
+
+  // Abbreviations work, Enter picks the highlighted option and the list stays open.
+  await combo.fill('gtm');
+  await expect(page.getByRole('option')).toHaveCount(1);
+  await combo.press('Enter');
+  await expect(picked.getByRole('button', { name: 'Remove Google Tag Manager' })).toBeVisible();
+  await expect(page.getByRole('listbox')).toBeVisible();
+  await expect(combo).toHaveValue('');
+
+  // Arrow keys move through the full list; picked options are marked selected.
+  await combo.press('ArrowDown');
+  await combo.press('Enter');
+  await expect(page.getByRole('option', { name: 'Google Tag Manager' })).toHaveAttribute('aria-selected', 'true');
+  await expect(picked.getByRole('listitem')).toHaveCount(2);
+
+  // Backspace in the empty field removes the last tool; Escape closes the list.
+  await combo.press('Backspace');
+  await expect(picked.getByRole('listitem')).toHaveCount(1);
+  await combo.press('Escape');
+  await expect(page.getByRole('listbox')).toBeHidden();
+
+  // Chips remove their tool; unknown tools offer a suggestion link.
+  await picked.getByRole('button', { name: 'Remove Google Tag Manager' }).click();
+  await expect(page.locator('.vendor-result')).toHaveCount(0);
+  await combo.fill('no such tool');
+  await expect(page.getByText('No tool matches')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Missing a tool? Suggest it' })).toBeVisible();
 });
 
 test('views can be switched with the keyboard', async ({ page }) => {

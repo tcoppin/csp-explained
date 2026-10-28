@@ -101,13 +101,13 @@
   "vendors": {
     "title": "Check my tools",
     "intro": "Pick the tools you use (or want to use) and see whether this policy lets them work.",
-    "search": "Search tools",
+    "search": "Add a tool",
     "features": "Features used",
     "verified": "Checked against the official docs on {date}",
     "partial": "Partially verified: the official docs list more than what we check today",
     "sources": "Official documentation",
     "reportOutdated": "Report an outdated entry",
-    "none": "Select a tool to check it against this policy.",
+    "none": "Add the tools you use to check them against this policy.",
     "verdict": {
       "allowed": "Works with this policy",
       "blocked": "Blocked by this policy",
@@ -121,7 +121,13 @@
       "needs-nonce": "{directive} only trusts scripts carrying the page's one-time code (nonce)",
       "reported": "Would be reported by the report-only policy"
     },
-    "nonceHow": "How this tool works with nonces"
+    "nonceHow": "How this tool works with nonces",
+    "searchPlaceholder": "Add a tool, e.g. GTM or Hotjar",
+    "selected": "Selected tools",
+    "remove": "Remove {name}",
+    "noMatch": "No tool matches “{query}” yet.",
+    "suggest": "Missing a tool? Suggest it",
+    "partialShort": "partly verified"
   },
   "report": {
     "title": "Your report",

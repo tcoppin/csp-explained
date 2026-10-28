@@ -1,22 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { REPO_URL } from '../../config';
+import { groupByCategory } from '../../lib/catalogue/categories';
 import { content } from '../../lib/content';
 
-const CATEGORY: Record<string, string> = {
-  'tag-management': 'Tag management',
-  analytics: 'Analytics',
-  advertising: 'Advertising',
-  experimentation: 'A/B testing & personalisation',
-  'session-replay': 'Session replay & heatmaps',
-  consent: 'Consent management',
-  chat: 'Chat & support',
-  other: 'Other',
-};
-
-const groups = Object.entries(CATEGORY)
-  .map(([id, label]) => ({ label, vendors: content.vendors.filter((v) => v.category === id) }))
-  .filter((g) => g.vendors.length > 0);
+const groups = groupByCategory(content.vendors);
 ---
 
 <Base title="Tools" description="What popular marketing and analytics tools need in your Content-Security-Policy, taken from their official documentation.">

@@ -1,10 +1,10 @@
-import { useState } from 'preact/hooks';
 import { outdatedIssueUrl } from '../config';
 import { t } from '../i18n';
 import type { VendorCheck } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { RequirementResult } from '../lib/csp/compat';
 import type { Audience } from '../lib/csp/model';
+import { ToolPicker } from './ToolPicker';
 
 interface Props {
   vendors: Vendor[];
@@ -27,14 +27,11 @@ function requirementText(r: RequirementResult): string {
 }
 
 export function VendorChecker({ vendors, selected, checks, audience, onChange }: Props) {
-  const [query, setQuery] = useState('');
-  const q = query.trim().toLowerCase();
-  const visible = vendors.filter((v) => !q || v.name.toLowerCase().includes(q) || v.category.includes(q));
-
-  const toggleVendor = (v: Vendor) => {
+  const toggleVendor = (id: string) => {
     const next = { ...selected };
-    if (next[v.id]) delete next[v.id];
-    else next[v.id] = v.features.filter((f) => f.default).map((f) => f.id);
+    const vendor = vendors.find((v) => v.id === id);
+    if (next[id]) delete next[id];
+    else if (vendor) next[id] = vendor.features.filter((f) => f.default).map((f) => f.id);
     onChange(next);
   };
 
@@ -46,21 +43,7 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
 
   return (
     <div class="vendors">
-      <div class="vendor-picker">
-        <label class="visually-hidden" for="vendor-search">
-          {t('vendors.search')}
-        </label>
-        <input id="vendor-search" type="search" placeholder={t('vendors.search')} value={query} onInput={(e) => setQuery(e.currentTarget.value)} />
-        <ul class="vendor-list">
-          {visible.map((v) => (
-            <li key={v.id}>
-              <button type="button" class="vendor-toggle" aria-pressed={v.id in selected} onClick={() => toggleVendor(v)}>
-                {v.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ToolPicker vendors={vendors} selected={Object.keys(selected)} onToggle={toggleVendor} />
 
       {checks.length === 0 && <p class="muted">{t('vendors.none')}</p>}
 
