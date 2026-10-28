@@ -7,7 +7,7 @@ add the date when an idea comes in so old ones can be reviewed.
 
 - [x] Publish the repository (`tcoppin/csp-explained`, public): code under MIT with the Commons Clause, vendor
       catalogue under CC BY-NC 4.0.
-- [ ] GitHub settings for a public repository: secret scanning and push protection, private vulnerability
+- [x] GitHub settings for a public repository: secret scanning and push protection, private vulnerability
       reporting, a ruleset blocking force pushes and deletion on `main`, and approval before workflows run for
       outside contributors.
 - [ ] `cspexplained.com` registration failed (AWS support contacted).
