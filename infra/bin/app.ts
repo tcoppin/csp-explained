@@ -6,7 +6,7 @@ const ctx = (key: string): string | undefined => app.node.tryGetContext(key) || 
 
 new SiteStack(app, 'CspExplainedSite', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: ctx('region') ?? process.env.CDK_DEFAULT_REGION ?? 'ca-central-1' },
-  githubRepo: ctx('githubRepo') ?? 'tcoppin/csp-explained',
+  githubRepo: ctx('githubRepo') ?? 'tcoppin@8035204/csp-explained@1437464064',
   githubOidcProviderArn: ctx('githubOidcProviderArn'),
   domainName: ctx('domainName'),
   certificateArn: ctx('certificateArn'),

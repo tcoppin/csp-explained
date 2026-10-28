@@ -10,7 +10,10 @@ import type { Construct } from 'constructs';
 import { HEADER_POLICY } from '../../src/site-policy.ts';
 
 export interface SiteStackProps extends StackProps {
-  /** `owner/repo` allowed to deploy through GitHub Actions OIDC. */
+  /**
+   * Repository allowed to deploy through GitHub Actions OIDC, as GitHub writes it in the token's `sub` claim:
+   * `owner@ownerId/repo@repoId` for newer repositories (the IDs survive renames), `owner/repo` for older ones.
+   */
   githubRepo: string;
   /** Existing GitHub OIDC provider ARN; one is created when absent (only one per account is allowed). */
   githubOidcProviderArn?: string;
@@ -142,9 +145,9 @@ function handler(event) {
       description: `Deploys the site from ${props.githubRepo} (main branch)`,
       maxSessionDuration: Duration.hours(1),
       assumedBy: new iam.WebIdentityPrincipal(providerArn, {
-        StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
         // Jobs that use a GitHub environment identify as the environment, not the branch.
-        StringLike: {
+        StringEquals: {
+          'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
           'token.actions.githubusercontent.com:sub': [
             `repo:${props.githubRepo}:ref:refs/heads/main`,
             `repo:${props.githubRepo}:environment:production`,

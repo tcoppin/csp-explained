@@ -52,7 +52,9 @@ Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalo
 
 ## Deploy (AWS)
 
-1. Create the GitHub repository and set `REPO_URL` in `src/config.ts` and `githubRepo` in `infra/cdk.json`.
+1. Create the GitHub repository and set `REPO_URL` in `src/config.ts` and `githubRepo` in `infra/cdk.json`. Newer
+   repositories need `githubRepo` as GitHub writes it in the deploy token, with IDs (`owner@123/repo@456`): a refused
+   deploy shows it as `userName` in the `AssumeRoleWithWebIdentity` event in CloudTrail.
 2. Choose the domain: set `SITE_URL` in `src/config.ts`. For a custom domain, its Route 53 hosted zone must exist
    (created automatically when the domain is registered with Route 53). Create an ACM certificate in **us-east-1**
    for both `example.com` and `*.example.com` (a wildcard alone doesn't cover the bare domain), then set

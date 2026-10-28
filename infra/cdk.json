@@ -1,7 +1,7 @@
 {
   "app": "yarn tsx bin/app.ts",
   "context": {
-    "githubRepo": "tcoppin/csp-explained",
+    "githubRepo": "tcoppin@8035204/csp-explained@1437464064",
     "region": "ca-central-1",
     "domainName": "csp-explained.com",
     "certificateArn": "arn:aws:acm:us-east-1:873379166683:certificate/26c6e15c-d804-433f-86c5-5a7e8579bd3b",
