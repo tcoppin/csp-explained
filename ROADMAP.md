@@ -5,13 +5,17 @@ add the date when an idea comes in so old ones can be reviewed.
 
 ## Before launch
 
-- [ ] Push to the GitHub repository (`tcoppin/csp-explained`, private).
+- [x] Publish the repository (`tcoppin/csp-explained`, public): code under MIT with the Commons Clause, vendor
+      catalogue under CC BY-NC 4.0.
+- [ ] GitHub settings for a public repository: secret scanning and push protection, private vulnerability
+      reporting, a ruleset blocking force pushes and deletion on `main`, and approval before workflows run for
+      outside contributors.
 - [ ] `cspexplained.com` registration failed (AWS support contacted).
 - [x] Register `csp-explained.com` (Route 53).
 - [x] Certificate in us-east-1; set `certificateArn` and `hostedZoneId` in `infra/cdk.json` (see README › Deploy).
-- [ ] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
-- [ ] Check the console snippet's `copy()` by hand in Firefox and Safari since it became synchronous (verified in
-      Chrome only).
+- [x] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
+- [x] Check the console snippet's `copy()` by hand in Chrome, Firefox and Safari (synchronous since Firefox
+      ignored late calls).
 - [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
 - [ ] Open Graph image and description for link previews; `sitemap.xml` and `robots.txt`.
 
