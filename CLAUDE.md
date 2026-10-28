@@ -51,9 +51,10 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - **Yarn 4 refuses versions published in the last few days** (`npmMinimalAgeGate`). If an install fails with
   "quarantined", pick the previous version; don't disable the gate. Missing peer dependencies go in
   `packageExtensions` in `.yarnrc.yml`.
-- **DevTools' `copy()` only exists while the console evaluates the pasted line.** The console snippet keeps a
-  reference before its first `await`. Test console code through CDP `Runtime.evaluate` with
-  `includeCommandLineAPI: true`, not with a fake global.
+- **DevTools' `copy()` only works while the console evaluates the pasted code.** Chrome removes it after the first
+  `await`; Firefox keeps it but silently does nothing. The console snippet is fully synchronous (sync XHR, no
+  `await`). Test console code through CDP `Runtime.evaluate` with `includeCommandLineAPI: true`, not with a fake
+  global.
 - **Google's `csp_evaluator` can throw** on unusual values (browser `new URL` is stricter than Node's). We pass
   it only values our parser recognised, and run each check in its own `try`.
 - **The island hydrates after first paint.** Tests must wait for `astro-island:not([ssr])` before typing.

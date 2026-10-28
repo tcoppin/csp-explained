@@ -2,18 +2,22 @@
  * Code people paste into their browser's DevTools console, on their own site, to collect its CSP.
  * It is shown verbatim on /find-my-csp, so it must stay short, readable and dependency-free.
  *
- * `copy()` is a DevTools console helper that only exists while the console evaluates the pasted
- * line: after the first `await` it is gone ("copy is not defined"). The snippet therefore keeps a
- * reference to it before awaiting anything.
+ * It runs synchronously from start to end, on purpose: the console's `copy()` helper only works
+ * while the pasted code runs. Chrome removes it after the first `await` ("copy is not defined");
+ * Firefox keeps it but only writes to the clipboard when the evaluation ends, so a later call does
+ * nothing. Hence a synchronous XMLHttpRequest instead of `fetch`, despite the deprecation warning
+ * some browsers print for it.
  */
-export const FIND_CSP_SNIPPET = `(async () => {
-  // The console's copy() helper disappears after the first await: keep it now.
-  const toClipboard = typeof copy === 'function' ? copy : null;
+export const FIND_CSP_SNIPPET = `(() => {
+  // Runs in one go, without waiting: the console's copy() only works until the pasted code ends.
   // Reload this page's response headers, then look for <meta> CSP tags.
-  const res = await fetch(location.href, { cache: 'no-store', credentials: 'include' });
+  const req = new XMLHttpRequest();
+  req.open('GET', location.href, false);
+  req.setRequestHeader('Cache-Control', 'no-cache');
+  req.send();
   const found = [];
   for (const name of ['Content-Security-Policy', 'Content-Security-Policy-Report-Only']) {
-    const value = res.headers.get(name);
+    const value = req.getResponseHeader(name);
     if (value) found.push(name + ': ' + value);
   }
   for (const meta of document.querySelectorAll('meta[http-equiv]')) {
@@ -22,7 +26,7 @@ export const FIND_CSP_SNIPPET = `(async () => {
   const result = found.join('\\n') || 'No Content-Security-Policy found on ' + location.href;
   console.log(result);
   try {
-    toClipboard(result);
+    copy(result);
     console.log('Copied to your clipboard.');
   } catch {
     console.log('Could not copy automatically: select the text above and copy it.');

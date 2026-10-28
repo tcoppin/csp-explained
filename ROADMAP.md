@@ -10,7 +10,8 @@ add the date when an idea comes in so old ones can be reviewed.
 - [x] Register `csp-explained.com` (Route 53).
 - [x] Certificate in us-east-1; set `certificateArn` and `hostedZoneId` in `infra/cdk.json` (see README › Deploy).
 - [ ] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
-- [ ] Check the console snippet's `copy()` by hand in Firefox and Safari (verified in Chrome only).
+- [ ] Check the console snippet's `copy()` by hand in Firefox and Safari since it became synchronous (verified in
+      Chrome only).
 - [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
 - [ ] Open Graph image and description for link previews; `sitemap.xml` and `robots.txt`.
 

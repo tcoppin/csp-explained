@@ -63,10 +63,18 @@ const browsers = [
           <summary>Is it safe to paste code into the console?</summary>
           <p>
             Be careful with code from people you don't know: anything pasted into the console runs as you, on that website.
-            That's why Chrome may ask you to type <code>allow pasting</code> first. Every line of this snippet is shown above, so
+            That's why Chrome and Firefox may ask you to type <code>allow pasting</code> first. Every line of this snippet is shown above, so
             you can check what it does before running it.
           </p>
         </details>
+        <details class="more">
+          <summary>I see a yellow warning about "synchronous XMLHttpRequest"</summary>
+          <p>
+            It's harmless. The snippet reads the page in one go, without waiting, because that's the only way the browser lets it
+            copy the result for you.
+          </p>
+        </details>
+
         <details class="more">
           <summary>I see an error such as "Refused to connect"</summary>
           <p>Your policy blocks the snippet itself. Use the Network tab instead.</p>

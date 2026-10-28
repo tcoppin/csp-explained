@@ -230,7 +230,9 @@ test('the find-my-csp snippet works in the DevTools console, copy() included', a
   const logs: string[] = [];
   cdp.on('Runtime.inspectRequested', (e) => e.hints?.copyToClipboard && copied.push(e.object.value));
   cdp.on('Runtime.consoleAPICalled', (e) => logs.push(e.args.map((a) => a.value).join(' ')));
-  await cdp.send('Runtime.evaluate', { expression: snippet!, includeCommandLineAPI: true, replMode: true, awaitPromise: true });
+  const { result } = await cdp.send('Runtime.evaluate', { expression: snippet!, includeCommandLineAPI: true, replMode: true });
+  // Firefox only honours copy() calls made before the pasted code ends: the snippet must not wait for anything.
+  expect(result.type).toBe('string');
 
   // What the user sees: the policy printed, then copied to the clipboard by DevTools.
   const expected = `Content-Security-Policy: default-src 'self'\n<meta http-equiv="Content-Security-Policy" content="img-src *">`;
