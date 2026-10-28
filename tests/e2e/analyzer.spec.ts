@@ -211,6 +211,28 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('text fits a 360px phone screen', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  // Optimizely has the longest tool name, the learn page a long host in its example policy.
+  for (const path of ['/', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about']) {
+    await page.goto(path);
+    // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
+    const overflowing = await page.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      const found: string[] = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim() || node.parentElement?.closest('pre, .visually-hidden, [hidden]')) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        if ([...range.getClientRects()].some((r) => r.right > width + 1)) found.push(node.textContent.trim());
+      }
+      return found;
+    });
+    expect(overflowing, path).toEqual([]);
+  }
+});
+
 test('links to other websites open in a new tab and say so', async ({ page }) => {
   let checked = 0;
   for (const path of ['/', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src']) {

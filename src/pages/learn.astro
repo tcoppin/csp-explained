@@ -97,6 +97,10 @@ import Base from '../layouts/Base.astro';
     margin: 0;
     max-width: none;
   }
+  /* Long hosts wrap on phones rather than hiding behind a sideways scroll. */
+  .example-policy code {
+    overflow-wrap: anywhere;
+  }
   .tok {
     font-family: var(--mono);
     border-radius: 3px;

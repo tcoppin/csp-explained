@@ -127,9 +127,12 @@ h3 {
   line-height: 1.15;
   margin: 0 0 0.5em;
   text-wrap: balance;
+  /* A single word wider than the screen (a long tool name) wraps instead of spilling out. */
+  overflow-wrap: break-word;
 }
 h1 {
-  font-size: var(--step-4);
+  /* Smaller on phones so names like "Experimentation" fit on one line; full size from ~435px wide. */
+  font-size: min(var(--step-4), 11.5vw);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
