@@ -90,6 +90,13 @@ test('find my CSP shows one method at a time', async ({ page }) => {
   await expect(page.locator('#console')).toBeVisible();
   await expect(page.locator('#terminal')).toBeHidden();
 
+  // The snippet is visible and copied from inside its box.
+  const snippetBox = page.locator('.code-block', { has: page.locator('#snippet') });
+  await expect(snippetBox.locator('pre')).toBeVisible();
+  await snippetBox.getByRole('button', { name: 'Copy this' }).click();
+  await expect(snippetBox.getByRole('button', { name: 'Copied' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await snippetBox.locator('pre').textContent());
+
   await page.getByRole('tab', { name: /Network tab/ }).click();
   await expect(page).toHaveURL(/#devtools$/);
   await expect(page.locator('#console')).toBeHidden();

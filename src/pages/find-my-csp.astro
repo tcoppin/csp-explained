@@ -1,4 +1,5 @@
 ---
+import CodeBlock from '../components/CodeBlock.astro';
 import Base from '../layouts/Base.astro';
 import { FIND_CSP_SNIPPET } from '../lib/snippets/find-csp-console';
 
@@ -48,10 +49,8 @@ const browsers = [
           </li>
           <li>Click the <strong>Console</strong> tab.</li>
           <li>
-            Copy the snippet, paste it into the console and press <kbd>Enter</kbd>.
-            <p class="step-action">
-              <button type="button" class="button" id="copy-snippet" data-copied="Snippet copied">Copy snippet</button>
-            </p>
+            Copy this snippet, paste it into the console and press <kbd>Enter</kbd>.
+            <CodeBlock id="snippet" caption="Paste into the browser console" code={FIND_CSP_SNIPPET} />
           </li>
           <li>The policy is now in your clipboard: <a href="/">paste it into the analyzer</a>.</li>
         </ol>
@@ -61,15 +60,11 @@ const browsers = [
         </p>
 
         <details class="more">
-          <summary>Show the code</summary>
-          <pre id="snippet"><code>{FIND_CSP_SNIPPET}</code></pre>
-        </details>
-        <details class="more">
           <summary>Is it safe to paste code into the console?</summary>
           <p>
             Be careful with code from people you don't know: anything pasted into the console runs as you, on that website.
-            That's why Chrome may ask you to type <code>allow pasting</code> first. You can read every line of this snippet with
-            "Show the code" above.
+            That's why Chrome may ask you to type <code>allow pasting</code> first. Every line of this snippet is shown above, so
+            you can check what it does before running it.
           </p>
         </details>
         <details class="more">
@@ -141,7 +136,7 @@ const browsers = [
       <section id="terminal" class="method">
         <h2>From a terminal</h2>
         <p>Shows the headers your server returns. Paste the whole output into the analyzer.</p>
-        <pre><code>curl -sI https://www.example.com | grep -i content-security-policy</code></pre>
+        <CodeBlock caption="Run in a terminal, with your site's address" code="curl -sI https://www.example.com | grep -i content-security-policy" />
         <details class="more">
           <summary>Where is the policy usually configured?</summary>
           <ul>
@@ -190,19 +185,6 @@ Content Security Policy directive: "script-src 'self' https://www.googletagmanag
 
 <script>
   import '../scripts/tabs';
-
-  const button = document.getElementById('copy-snippet');
-  const code = document.getElementById('snippet');
-  button?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(code?.textContent ?? '');
-      const label = button.textContent;
-      button.textContent = button.dataset.copied ?? 'Copied';
-      setTimeout(() => (button.textContent = label), 1800);
-    } catch {
-      // Clipboard blocked: the code stays readable under "Show the code".
-    }
-  });
 </script>
 
 <style>
@@ -290,9 +272,6 @@ Content Security Policy directive: "script-src 'self' https://www.googletagmanag
     margin-bottom: 0.6rem;
     padding-left: 0.25rem;
   }
-  .step-action {
-    margin: 0.6rem 0 0.25rem;
-  }
   kbd {
     border: 1px solid var(--rule);
     border-bottom-width: 3px;
@@ -316,9 +295,6 @@ Content Security Policy directive: "script-src 'self' https://www.googletagmanag
   }
   .more[open] summary {
     margin-bottom: 0.5rem;
-  }
-  .more pre {
-    font-size: var(--step--1);
   }
 
   /* Browser switch inside the Network tab method */
