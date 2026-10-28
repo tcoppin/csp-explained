@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["bin", "lib", "../src/site-policy.ts"]
+  "include": ["bin", "lib", "lambda", "../src/site-policy.ts", "../src/usage.ts"]
 }

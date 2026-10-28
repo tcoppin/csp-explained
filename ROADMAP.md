@@ -5,13 +5,17 @@ add the date when an idea comes in so old ones can be reviewed.
 
 ## Before launch
 
-- [ ] Push to the GitHub repository (`tcoppin/csp-explained`, private).
+- [x] Publish the repository (`tcoppin/csp-explained`, public): code under MIT with the Commons Clause, vendor
+      catalogue under CC BY-NC 4.0.
+- [x] GitHub settings for a public repository: secret scanning and push protection, private vulnerability
+      reporting, a ruleset blocking force pushes and deletion on `main`, and approval before workflows run for
+      outside contributors.
 - [ ] `cspexplained.com` registration failed (AWS support contacted).
 - [x] Register `csp-explained.com` (Route 53).
 - [x] Certificate in us-east-1; set `certificateArn` and `hostedZoneId` in `infra/cdk.json` (see README › Deploy).
-- [ ] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
-- [ ] Check the console snippet's `copy()` by hand in Firefox and Safari since it became synchronous (verified in
-      Chrome only).
+- [x] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
+- [x] Check the console snippet's `copy()` by hand in Chrome, Firefox and Safari (synchronous since Firefox
+      ignored late calls).
 - [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
 - [ ] Open Graph image and description for link previews; `sitemap.xml` and `robots.txt`.
 
@@ -91,6 +95,6 @@ the plain-language voice better than "CSP Explainer".
 - [ ] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like.
 - [ ] Trusted Types explainer and compatibility notes per tool.
 - [ ] Print-friendly / PDF export of the reports.
-- [ ] Privacy-friendly usage counts, only if compatible with the "no trackers" promise (e.g. server-side,
-      aggregate, no cookies). Otherwise skip it.
+- [x] Privacy-friendly usage counts: daily totals per event through our own `/e` endpoint and a CloudWatch
+      dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
 - [ ] Accessibility audit with a screen reader user.

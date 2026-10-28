@@ -6,13 +6,17 @@ import type { Audience } from '../lib/csp/model';
 import { deploySnippet, developerReport, policyDiff, TARGETS, type Target } from '../lib/reports/developer';
 import { countByLevel, securityReport } from '../lib/reports/security';
 import { itRequest, type MessageFormat } from '../lib/reports/simple';
+import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 
-function CopyButton({ text, label = t('report.copy') }: { text: string; label?: string }) {
+type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
+
+function CopyButton({ text, label = t('report.copy'), onCopy }: { text: string; label?: string; onCopy?: () => void }) {
   const [done, setDone] = useState(false);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(text);
+      onCopy?.();
       setDone(true);
       setTimeout(() => setDone(false), 1800);
     } catch {
@@ -63,6 +67,7 @@ interface Props {
 export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
   const [format, setFormat] = useState<MessageFormat>('email');
   const [target, setTarget] = useState<Target>('nginx');
+  const copied = (kind: ReportPart) => () => track('copy-report', { audience, kind });
 
   const noTools = (
     <div class="empty">
@@ -81,7 +86,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
         <Tabs items={FORMATS} value={format} onChange={setFormat} label={t('report.title')} />
         <textarea class="code message" readOnly rows={Math.min(28, text.split('\n').length + 1)} value={text} aria-label={t('report.title')} />
         <div class="actions">
-          <CopyButton text={text} />
+          <CopyButton text={text} onCopy={copied('message')} />
         </div>
       </div>
     );
@@ -98,7 +103,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
         ) : (
           <>
             <h3>{t('report.developer.diff')}</h3>
-            <CodeBox caption={t('report.developer.diffCaption')} copyText={patchedPolicies(analysis).map((p) => p.text).join('\n')} class="diff">
+            <CodeBox caption={t('report.developer.diffCaption')} copyText={patchedPolicies(analysis).map((p) => p.text).join('\n')} class="diff" onCopy={copied('diff')}>
               {policyDiff(analysis)
                 .split('\n')
                 .map((l, i) => (
@@ -110,7 +115,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
             </CodeBox>
             <h3>{t('report.developer.deploy')}</h3>
             <Tabs items={TARGETS} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
-            <CodeBox caption={TARGETS.find((x) => x.id === target)?.caption ?? ''} copyText={snippet} />
+            <CodeBox caption={TARGETS.find((x) => x.id === target)?.caption ?? ''} copyText={snippet} onCopy={copied('deploy')} />
           </>
         )}
         {analysis.vendors.some((v) => v.verdict === 'needs-nonce') && (
@@ -129,7 +134,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
         )}
         <p class="muted">{t('report.developer.verify')}</p>
         <div class="actions">
-          <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} />
+          <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} onCopy={copied('markdown')} />
           <button type="button" class="button quiet" onClick={() => download('csp-change.md', markdown)}>
             {t('report.download')}
           </button>
@@ -170,7 +175,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
       {analysis.findings.length === 0 ? <p>{t('report.security.noFindings')}</p> : findingList(analysis.findings)}
       <p class="muted">{t('report.security.attribution')}</p>
       <div class="actions">
-        <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} />
+        <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} onCopy={copied('markdown')} />
         <button type="button" class="button quiet" onClick={() => download('csp-security-review.md', markdown)}>
           {t('report.download')}
         </button>

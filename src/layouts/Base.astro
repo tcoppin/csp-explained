@@ -42,7 +42,7 @@ const themes = [
       } catch {}
     </script>
   </head>
-  <body>
+  <body data-page={Astro.url.pathname}>
     <a class="skip visually-hidden" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="wrap bar">
@@ -86,6 +86,12 @@ const themes = [
 </html>
 
 <script>
+  import { track } from '../scripts/track';
+
+  // A visit: this page was opened from outside the site (no cookie needed to tell).
+  const from = document.referrer ? new URL(document.referrer).origin : '';
+  if (from !== location.origin) track('visit', { page: document.body.dataset.page });
+
   // Theme switch: Auto follows the system; Light and Dark are remembered on this device.
   const KEY = 'csp-explained:theme';
   const root = document.documentElement;

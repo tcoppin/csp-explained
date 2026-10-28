@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
 import { t } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
+import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
 import { PolicyView, type Selection } from './PolicyView';
@@ -14,6 +15,13 @@ import { VendorChecker } from './VendorChecker';
 import './analyzer.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
+
+/** Why nothing could be analysed: a pasted console error gets its own explanation. */
+function emptyMessage(issues: ParseResult['issues']): string {
+  const violation = issues.find((i) => i.code === 'violation-message');
+  if (!violation) return t('issues.empty-input');
+  return violation.directive ? t('issues.violation-message', { directive: violation.directive }) : t('issues.violation-message-unnamed');
+}
 
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
@@ -40,6 +48,9 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
   const [selection, setSelection] = useState<Selection | undefined>();
   const [policyIndex, setPolicyIndex] = useState(0);
   const [shared, setShared] = useState(false);
+  // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
+  const typed = useRef(false);
+  const counted = useRef(false);
 
   // Restore from the link and from the remembered audience once, in the browser.
   useEffect(() => {
@@ -50,7 +61,11 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
     if (s.policy) {
       setInput(s.policy);
       setEditing(false);
-    } else if (early) setInput(early);
+      track('shared');
+    } else if (early) {
+      setInput(early);
+      typed.current = true;
+    }
     if (s.site) setSite(s.site);
     if (s.vendors) setSelectedVendors(s.vendors);
     if (s.view) setView(s.view);
@@ -85,6 +100,16 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
       : policy && policy.directives.length > 0
         ? { policyIndex: currentIndex, directiveIndex: 0 }
         : undefined;
+
+  // Count one analysis of the visitor's own policy per page load, once they stop typing.
+  useEffect(() => {
+    if (counted.current || !typed.current || !hasPolicy || input === EXAMPLE_POLICY) return;
+    const timer = setTimeout(() => {
+      counted.current = true;
+      track('analyze');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [input, hasPolicy]);
 
   const setPolicy = (text: string, collapse: boolean) => {
     setInput(text);
@@ -150,12 +175,16 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
               autocomplete="off"
               placeholder={t('analyzer.placeholder')}
               value={input}
-              onInput={(e) => setPolicy(e.currentTarget.value, false)}
+              onInput={(e) => {
+                typed.current = true;
+                setPolicy(e.currentTarget.value, false);
+              }}
               onPaste={(e) => {
                 // A paste is a complete policy: show the analysis right away.
                 const text = e.clipboardData?.getData('text') ?? '';
                 if (text.trim() && !input.trim()) {
                   e.preventDefault();
+                  typed.current = true;
                   setPolicy(text, true);
                 }
               }}
@@ -166,7 +195,10 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
                   {t('analyzer.hideEditor')}
                 </button>
               ) : (
-                <button type="button" class="button quiet" onClick={() => setPolicy(EXAMPLE_POLICY, true)}>
+                <button type="button" class="button quiet" onClick={() => {
+                    track('example');
+                    setPolicy(EXAMPLE_POLICY, true);
+                  }}>
                   {t('analyzer.example')}
                 </button>
               )}
@@ -180,7 +212,11 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
               <p class="muted">{t('analyzer.siteHint')}</p>
             </details>
             {!hasPolicy &&
-              (input.trim() !== '' ? <p class="issue">{t('issues.empty-input')}</p> : <p class="what-you-get">{t('analyzer.whatYouGet')}</p>)}
+              (input.trim() !== '' ? (
+                <p class="issue">{emptyMessage(parsed.issues)}</p>
+              ) : (
+                <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
+              ))}
           </>
         ) : (
           <>

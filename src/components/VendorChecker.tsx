@@ -4,6 +4,7 @@ import type { VendorCheck } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { RequirementResult } from '../lib/csp/compat';
 import type { Audience } from '../lib/csp/model';
+import { track } from '../scripts/track';
 import { NewTabLink } from './NewTabLink';
 import { ToolPicker } from './ToolPicker';
 
@@ -32,7 +33,10 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
     const next = { ...selected };
     const vendor = vendors.find((v) => v.id === id);
     if (next[id]) delete next[id];
-    else if (vendor) next[id] = vendor.features.filter((f) => f.default).map((f) => f.id);
+    else if (vendor) {
+      next[id] = vendor.features.filter((f) => f.default).map((f) => f.id);
+      track('tool', { tool: id });
+    }
     onChange(next);
   };
 

@@ -37,6 +37,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - `src/i18n/en.json`: every user-facing string, including report text. No hard-coded copy in components.
 - `src/site-policy.ts`: this site's own CSP (meta part via Astro, header part via CloudFront in `infra/`).
+- `src/usage.ts`: the usage events we count, shared by `track()` (`src/scripts/track.ts`) and the Lambda in
+  `infra/lambda/`. Never send what the visitor typed. The About page and the README list what we count: keep
+  them in sync.
 
 ## Pitfalls we already hit
 

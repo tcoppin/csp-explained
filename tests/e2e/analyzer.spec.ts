@@ -10,6 +10,17 @@ function watchErrors(page: Page): string[] {
   return errors;
 }
 
+/** Usage events sent to `/e` during the test, as query strings. There is no `/e` in `astro preview`. */
+let usage: URLSearchParams[] = [];
+test.beforeEach(async ({ context }) => {
+  usage = [];
+  await context.route('**/e?*', (route) => {
+    usage.push(new URL(route.request().url()).searchParams);
+    return route.fulfill({ status: 204 });
+  });
+});
+const sent = () => usage.map((q) => q.toString());
+
 /** Waits until the analyzer island is interactive. */
 async function openAnalyzer(page: Page, path = '/') {
   await page.goto(path);
@@ -67,6 +78,48 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
   await expect(page.locator('.findings').first()).toBeVisible();
 
   expect(errors).toEqual([]);
+});
+
+test('counts usage without ever sending the policy', async ({ page, context }) => {
+  await openAnalyzer(page);
+  await expect.poll(sent).toEqual(['n=visit&page=%2F']);
+
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await expect.poll(sent).toContain('n=example');
+
+  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await expect.poll(sent).toContain('n=analyze');
+
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  await expect.poll(sent).toContain('n=tool&tool=google-tag-manager');
+
+  await page.getByRole('button', { name: 'Write the request to IT' }).click();
+  await page.getByRole('button', { name: 'Copy', exact: true }).click();
+  await expect.poll(sent).toContain('n=copy-report&audience=simple&kind=message');
+
+  // A share link opened elsewhere counts as such; moving within the site isn't a new visit.
+  const other = await context.newPage();
+  await openAnalyzer(other, page.url().replace(/^.*?\/\/[^/]+/, ''));
+  await expect.poll(sent).toContain('n=shared');
+  await other.getByRole('button', { name: 'Edit' }).click();
+  await other.getByRole('link', { name: "Here's how to find it" }).click();
+  await other.locator('.code-block', { has: other.locator('#snippet') }).getByRole('button', { name: 'Copy this' }).click();
+  await expect.poll(sent).toContain('n=copy-snippet');
+
+  expect(sent().filter((q) => q.startsWith('n=visit'))).toHaveLength(2);
+  expect(sent().filter((q) => q === 'n=analyze')).toHaveLength(1);
+  for (const q of sent()) expect(q).not.toMatch(/self|googletagmanager\.com|src/);
+});
+
+test('a pasted console error is explained, not analysed', async ({ page }) => {
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill(`Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following\nContent Security Policy directive: "script-src 'self'".`);
+  await expect(page.locator('.issue')).toContainText('This is an error message, not your policy');
+  await expect(page.locator('.policy')).toHaveCount(0);
 });
 
 test('restores the analysis from a share link', async ({ page }) => {

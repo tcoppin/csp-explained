@@ -9,15 +9,17 @@ interface Props {
   /** Where the code is meant to be used, e.g. "Paste into the browser console". */
   caption: string;
   id?: string;
+  /** Usage event counted when the code is copied. */
+  track?: 'copy-snippet';
 }
 
-const { code, caption, id } = Astro.props;
+const { code, caption, id, track } = Astro.props;
 ---
 
 <figure class="code-block">
   <figcaption>
     <span>{caption}</span>
-    <button type="button" class="copy" data-copy hidden>
+    <button type="button" class="copy" data-copy data-track={track} hidden>
       <svg class="icon icon-copy" viewBox="0 0 16 16" aria-hidden="true">
         <rect x="5.5" y="5.5" width="8" height="8" rx="1.5"></rect>
         <path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5"></path>
@@ -32,6 +34,8 @@ const { code, caption, id } = Astro.props;
 </figure>
 
 <script>
+  import { track } from '../scripts/track';
+
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
     button.hidden = false;
     const label = button.querySelector('.copy-label');
@@ -39,6 +43,7 @@ const { code, caption, id } = Astro.props;
     button.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(code?.textContent ?? '');
+        if (button.dataset.track === 'copy-snippet') track('copy-snippet');
         button.classList.add('done');
         if (label) label.textContent = 'Copied';
         setTimeout(() => {

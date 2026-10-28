@@ -9,6 +9,35 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).
 
+## Usage counts
+
+To know whether the site is useful, it counts visits and a few actions. That's all it measures:
+
+| Event | Counted when | Label sent with it |
+|---|---|---|
+| `visit` | A page is opened from outside the site | The page |
+| `analyze` | A policy pasted or typed by the visitor is analysed (once per page load; not the example) | None |
+| `example` | "Try an example" is clicked | None |
+| `shared` | A share link is opened | None |
+| `tool` | A tool is added in the tool picker | The tool's catalogue id |
+| `copy-report` | A report is copied | The audience and the part copied (message, diff, deploy snippet, Markdown) |
+| `copy-snippet` | The Find my CSP console snippet is copied | None |
+
+What is never sent: the policy, the site address, the share link, any identifier. There are no cookies, nothing is stored
+in the browser for counting, and no third-party service is involved.
+
+How it works, so you can check it:
+
+- The page sends a request to the site's own `/e` with the event name and its label, without a referrer
+  ([`src/scripts/track.ts`](src/scripts/track.ts)).
+- CloudFront forwards only the query string to a small Lambda: no headers, so no IP address or user agent
+  ([`infra/lib/site-stack.ts`](infra/lib/site-stack.ts)).
+- The Lambda drops unknown events and any label that isn't a short id, then writes one log line that CloudWatch turns
+  into a daily count ([`src/usage.ts`](src/usage.ts), [`infra/lambda/usage.ts`](infra/lambda/usage.ts)). Logs are kept
+  13 months.
+
+The list above, [`src/usage.ts`](src/usage.ts) and the About page must stay in sync.
+
 ## Develop
 
 Uses Yarn 4 (committed in `.yarn/releases`, so any global `yarn` picks the right version). `infra/` is a Yarn workspace.
@@ -35,6 +64,7 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 | `src/components/` | The analyzer (Preact island). |
 | `src/pages/` | Analyzer, Find my CSP, What is a CSP, tool pages, directive pages, about. |
 | `src/site-policy.ts` | This site's own CSP (meta policy + header policy). |
+| `src/usage.ts` | The usage events counted (daily totals, no cookies), shared with the Lambda in `infra/lambda/`. |
 | `infra/` | AWS CDK app: S3 + CloudFront, security headers, GitHub OIDC deploy role. |
 | `scripts/` | Catalogue validation and vendor documentation watcher. |
 

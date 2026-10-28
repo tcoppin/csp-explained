@@ -72,6 +72,27 @@ describe('parse', () => {
     expect(codes('')).toContain('empty-input');
   });
 
+  it('recognises a console error message instead of reading it as a policy', () => {
+    const errors = {
+      chrome: `Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following Content Security Policy directive: "script-src 'self' https://www.googletagmanager.com".`,
+      // Copied from a console or a page that wrapped the message onto two lines.
+      wrapped: `Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following\nContent Security Policy directive: "script-src 'self'".`,
+      firefox: `Content-Security-Policy: The page’s settings blocked the loading of a resource (script-src-elem) at https://cdn.vendor.example/tag.js because it violates the following directive: “script-src 'self'”`,
+      safari: `Refused to load https://cdn.vendor.example/tag.js because it does not appear in the script-src directive of the Content Security Policy.`,
+    };
+    for (const [browser, message] of Object.entries(errors)) {
+      const result = parse(message);
+      expect(result.policies, browser).toEqual([]);
+      expect(result.issues.find((i) => i.code === 'violation-message')?.directive, browser).toMatch(/^script-src/);
+    }
+  });
+
+  it('still reads a policy pasted together with an error message', () => {
+    const result = parse(`Content-Security-Policy: script-src 'self'\nRefused to load the script because it violates the following Content Security Policy directive: "script-src 'self'".`);
+    expect(result.policies).toHaveLength(1);
+    expect(result.issues.map((i) => i.code)).not.toContain('violation-message');
+  });
+
   it('marks the second occurrence of a directive as duplicate', () => {
     const ds = parse("script-src 'self'; script-src *").policies[0]!.directives;
     expect(ds.map((d) => d.duplicate)).toEqual([false, true]);

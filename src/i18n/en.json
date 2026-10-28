@@ -58,6 +58,8 @@
   "issues": {
     "title": "Things to check",
     "empty-input": "We couldn't find any directive in this text.",
+    "violation-message": "This is an error message, not your policy. It only shows the rule that blocked something ({directive}). Find the whole policy, then paste it here.",
+    "violation-message-unnamed": "This is an error message, not your policy. It only shows the rule that blocked something. Find the whole policy, then paste it here.",
     "unknown-directive": "\"{directive}\" isn't a CSP directive, so browsers ignore it. Is it a typo?",
     "duplicate-directive": "\"{directive}\" appears more than once. Browsers only use the first one and ignore the rest.",
     "deprecated-directive": "\"{directive}\" is deprecated or has no effect in modern browsers.",
