@@ -95,6 +95,6 @@ the plain-language voice better than "CSP Explainer".
 - [ ] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like.
 - [ ] Trusted Types explainer and compatibility notes per tool.
 - [ ] Print-friendly / PDF export of the reports.
-- [x] Privacy-friendly usage counts: daily totals per event through our own `/e` endpoint and a CloudWatch
-      dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
+- [x] Privacy-friendly usage counts: one anonymous log line per event through our own `/e` endpoint, counted on a
+      CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
 - [ ] Accessibility audit with a screen reader user.
