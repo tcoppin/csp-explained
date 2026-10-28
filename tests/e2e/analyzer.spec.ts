@@ -57,6 +57,12 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
   // Other audiences get their own report.
   await page.getByRole('radio', { name: /Developers/ }).click();
   await expect(page.locator('pre.diff')).toContainText('+ connect-src');
+
+  // Server snippets use the same in-box copy control as other code blocks.
+  const snippetBox = page.locator('.code-block', { hasText: 'Add to your nginx server block' });
+  await snippetBox.getByRole('button', { name: 'Copy this' }).click();
+  await expect(snippetBox.getByRole('button', { name: 'Copied' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/^add_header Content-Security-Policy ".*googletagmanager.*" always;$/);
   await page.getByRole('radio', { name: /Security/ }).click();
   await expect(page.locator('.findings').first()).toBeVisible();
 

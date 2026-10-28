@@ -2,6 +2,7 @@
 /**
  * A block of code with a slim bar saying where to use it and a "Copy this" control.
  * The copy control needs JavaScript, so it stays hidden until the script below enables it.
+ * Styles live in global.css (.code-block), shared with the CodeBox island component.
  */
 interface Props {
   code: string;
@@ -50,67 +51,3 @@ const { code, caption, id } = Astro.props;
     });
   }
 </script>
-
-<style>
-  .code-block {
-    margin: 0.75rem 0 1rem;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius);
-    background: var(--surface);
-    overflow: hidden;
-  }
-  figcaption {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.3rem 0.4rem 0.3rem 1rem;
-    border-bottom: 1px solid var(--rule);
-    color: var(--ink-soft);
-    font-size: var(--step--1);
-  }
-  pre {
-    margin: 0;
-    border: 0;
-    border-radius: 0;
-    font-size: var(--step--1);
-    /* Readers check what the code does: every line stays readable without sideways scrolling */
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  .copy {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    border: 0;
-    border-radius: 4px;
-    background: none;
-    color: var(--action);
-    font-size: var(--step--1);
-    font-weight: 700;
-    padding: 0.25rem 0.5rem;
-    white-space: nowrap;
-  }
-  .copy:hover {
-    background: var(--paper);
-  }
-  .icon {
-    width: 1rem;
-    height: 1rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .icon-done,
-  .copy.done .icon-copy {
-    display: none;
-  }
-  .copy.done {
-    color: var(--ok);
-  }
-  .copy.done .icon-done {
-    display: block;
-  }
-</style>

@@ -1,11 +1,12 @@
 import { useState } from 'preact/hooks';
 import { SITE_URL } from '../config';
 import { t } from '../i18n';
-import type { Analysis } from '../lib/analysis';
+import { patchedPolicies, type Analysis } from '../lib/analysis';
 import type { Audience } from '../lib/csp/model';
 import { deploySnippet, developerReport, policyDiff, TARGETS, type Target } from '../lib/reports/developer';
 import { countByLevel, securityReport } from '../lib/reports/security';
 import { itRequest, type MessageFormat } from '../lib/reports/simple';
+import { CodeBox } from './CodeBox';
 
 function CopyButton({ text, label = t('report.copy') }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
@@ -97,7 +98,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
         ) : (
           <>
             <h3>{t('report.developer.diff')}</h3>
-            <pre class="diff">
+            <CodeBox caption={t('report.developer.diffCaption')} copyText={patchedPolicies(analysis).map((p) => p.text).join('\n')} class="diff">
               {policyDiff(analysis)
                 .split('\n')
                 .map((l, i) => (
@@ -106,13 +107,10 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
                     {'\n'}
                   </span>
                 ))}
-            </pre>
+            </CodeBox>
             <h3>{t('report.developer.deploy')}</h3>
             <Tabs items={TARGETS} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
-            <pre>{snippet}</pre>
-            <div class="actions">
-              <CopyButton text={snippet} />
-            </div>
+            <CodeBox caption={TARGETS.find((x) => x.id === target)?.caption ?? ''} copyText={snippet} />
           </>
         )}
         {analysis.vendors.some((v) => v.verdict === 'needs-nonce') && (

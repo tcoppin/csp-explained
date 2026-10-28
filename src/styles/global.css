@@ -222,3 +222,66 @@ pre {
     animation: none !important;
   }
 }
+
+/* Code block with a caption bar and an in-box copy control (CodeBlock.astro, CodeBox.tsx) */
+.code-block {
+  margin: 0.75rem 0 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+.code-block figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0.4rem 0.3rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+.code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: var(--step--1);
+  /* Readers check what the code does: every line stays readable without sideways scrolling */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.code-block .copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--action);
+  font-size: var(--step--1);
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+.code-block .copy:hover {
+  background: var(--paper);
+}
+.code-block .icon {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.code-block .icon-done,
+.code-block .copy.done .icon-copy {
+  display: none;
+}
+.code-block .copy.done {
+  color: var(--ok);
+}
+.code-block .copy.done .icon-done {
+  display: block;
+}

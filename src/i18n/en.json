@@ -173,7 +173,8 @@
       "full": "Updated policy",
       "deploy": "Where to set it",
       "needsNonce": "Needs nonce propagation",
-      "verify": "Test it first with Content-Security-Policy-Report-Only, then watch the browser console for \"Refused to load\" messages."
+      "verify": "Test it first with Content-Security-Policy-Report-Only, then watch the browser console for \"Refused to load\" messages.",
+      "diffCaption": "Changes, rule by rule. Copying gives the full updated policy."
     },
     "security": {
       "title": "Security review",
@@ -198,7 +199,8 @@
       "developer": "See the change to make",
       "security": "See the security review"
     },
-    "pickTools": "Pick my tools"
+    "pickTools": "Pick my tools",
+    "copyThis": "Copy this"
   },
   "views": {
     "label": "Analysis",

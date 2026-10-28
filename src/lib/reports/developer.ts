@@ -3,14 +3,14 @@ import { patchedPolicies, type Analysis } from '../analysis';
 
 export type Target = 'nginx' | 'apache' | 'cloudfront' | 'netlify' | 'vercel' | 'express' | 'meta';
 
-export const TARGETS: { id: Target; label: string }[] = [
-  { id: 'nginx', label: 'nginx' },
-  { id: 'apache', label: 'Apache' },
-  { id: 'cloudfront', label: 'AWS CloudFront' },
-  { id: 'netlify', label: 'Netlify' },
-  { id: 'vercel', label: 'Vercel' },
-  { id: 'express', label: 'Express (helmet)' },
-  { id: 'meta', label: '<meta> tag' },
+export const TARGETS: { id: Target; label: string; caption: string }[] = [
+  { id: 'nginx', label: 'nginx', caption: 'Add to your nginx server block' },
+  { id: 'apache', label: 'Apache', caption: 'Add to your Apache config or .htaccess' },
+  { id: 'cloudfront', label: 'AWS CloudFront', caption: 'Response headers policy (CloudFormation)' },
+  { id: 'netlify', label: 'Netlify', caption: 'Add to your _headers file' },
+  { id: 'vercel', label: 'Vercel', caption: 'Add to vercel.json' },
+  { id: 'express', label: 'Express (helmet)', caption: 'Add to your Express app' },
+  { id: 'meta', label: '<meta> tag', caption: 'Add to the <head> of every page' },
 ];
 
 const headerName = (reportOnly: boolean) => (reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy');
