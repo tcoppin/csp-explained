@@ -4,7 +4,7 @@
     "githubRepo": "tcoppin/csp-explained",
     "region": "ca-central-1",
     "domainName": "csp-explained.com",
-    "certificateArn": "arn:aws:acm:us-east-1:873379166683:certificate/31e1f094-7ae8-4cd4-b3f8-8d58a6d45add",
+    "certificateArn": "arn:aws:acm:us-east-1:873379166683:certificate/26c6e15c-d804-433f-86c5-5a7e8579bd3b",
     "hostedZoneId": "Z088736226REIDDMOWBHE"
   }
 }
