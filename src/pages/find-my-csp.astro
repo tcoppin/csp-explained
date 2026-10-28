@@ -8,7 +8,7 @@ const methods = [
   { id: 'devtools', label: 'Network tab' },
   { id: 'source', label: 'Page source' },
   { id: 'terminal', label: 'Terminal', hint: 'developers' },
-  { id: 'errors', label: 'From an error' },
+  { id: 'errors', label: 'Read an error' },
 ];
 
 const browsers = [
@@ -23,7 +23,8 @@ const browsers = [
     <h1>Find your website's CSP</h1>
     <p class="lead">
       Your website sends its policy along with every page, usually out of sight. Pick one of these ways to get a copy. The
-      snippet is the quickest; the terminal is for developers.
+      snippet is the quickest; the terminal is for developers. An error message doesn't contain the policy, but it tells you
+      which rule blocked something.
     </p>
 
     <div class="methods" data-tabs data-tabs-hash>
@@ -158,10 +159,12 @@ const browsers = [
       </section>
 
       <section id="errors" class="method">
-        <h2>From an error message</h2>
-        <p>When a tool doesn't work, the console (<kbd>F12</kbd>, <strong>Console</strong> tab) often shows a red message like this:</p>
-        <pre class="error-sample"><code>Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following
-Content Security Policy directive: "script-src 'self' https://www.googletagmanager.com".</code></pre>
+        <h2>Read an error message</h2>
+        <p>
+          An error message isn't your policy, so there's nothing to copy here. But it tells you what was blocked and why. When a
+          tool doesn't work, the console (<kbd>F12</kbd>, <strong>Console</strong> tab) often shows a red message like this:
+        </p>
+        <pre class="error-sample"><code>Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following Content Security Policy directive: "script-src 'self' https://www.googletagmanager.com".</code></pre>
         <dl class="reading">
           <dt>What was blocked</dt>
           <dd>The address after <em>Refused to load</em>: a script from <code>cdn.vendor.example</code>.</dd>
@@ -170,7 +173,10 @@ Content Security Policy directive: "script-src 'self' https://www.googletagmanag
           <dt>What the rule allows today</dt>
           <dd>The values after the rule name.</dd>
         </dl>
-        <p class="note">The message only shows one rule. To analyse the whole policy, use one of the other ways.</p>
+        <p class="note">
+          Don't paste the message into the analyzer: it only shows one rule of your policy. To check the whole policy, get a copy
+          with the <a href="#console">snippet</a> or one of the other ways.
+        </p>
       </section>
     </div>
 
