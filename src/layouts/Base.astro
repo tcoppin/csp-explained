@@ -18,6 +18,12 @@ const nav = [
   { href: '/vendors', label: t('site.nav.vendors') },
   { href: '/about', label: t('site.nav.about') },
 ];
+
+const themes = [
+  { id: 'system', label: t('site.theme.system'), icon: '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11a5.5 5.5 0 0 0 0-11z" class="filled"/>' },
+  { id: 'light', label: t('site.theme.light'), icon: '<circle cx="8" cy="8" r="3"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3 3l1 1M12 12l1 1M3 13l1-1M12 4l1-1"/>' },
+  { id: 'dark', label: t('site.theme.dark'), icon: '<path d="M13.5 9.5A5.5 5.5 0 1 1 6.5 2.5a4.5 4.5 0 0 0 7 7z"/>' },
+];
 ---
 
 <!doctype html>
@@ -28,6 +34,13 @@ const nav = [
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      // Apply the saved theme before the first paint (see the theme switch below).
+      try {
+        const theme = localStorage.getItem('csp-explained:theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
   </head>
   <body>
     <a class="skip visually-hidden" href="#main">Skip to content</a>
@@ -47,6 +60,18 @@ const nav = [
             }
           </ul>
         </nav>
+        <div class="theme-switch" role="radiogroup" aria-label={t('site.theme.label')} data-theme-switch hidden>
+          {
+            themes.map((theme) => (
+              <button type="button" role="radio" aria-checked="false" data-value={theme.id} title={theme.label}>
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <Fragment set:html={theme.icon} />
+                </svg>
+                <span class="visually-hidden">{theme.label}</span>
+              </button>
+            ))
+          }
+        </div>
       </div>
     </header>
     <main id="main">
@@ -59,6 +84,32 @@ const nav = [
     </footer>
   </body>
 </html>
+
+<script>
+  // Theme switch: Auto follows the system; Light and Dark are remembered on this device.
+  const KEY = 'csp-explained:theme';
+  const root = document.documentElement;
+  for (const group of document.querySelectorAll<HTMLElement>('[data-theme-switch]')) {
+    const buttons = [...group.querySelectorAll<HTMLButtonElement>('button')];
+    const show = (value: string) => buttons.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.value === value)));
+    show(root.dataset.theme ?? 'system');
+    group.hidden = false;
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const value = button.dataset.value ?? 'system';
+        if (value === 'system') delete root.dataset.theme;
+        else root.dataset.theme = value;
+        try {
+          if (value === 'system') localStorage.removeItem(KEY);
+          else localStorage.setItem(KEY, value);
+        } catch {
+          // Not remembered, but still applied for this visit.
+        }
+        show(value);
+      });
+    }
+  }
+</script>
 
 <style>
   .skip:focus {
@@ -74,10 +125,49 @@ const nav = [
   .bar {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
     gap: 0.5rem 2rem;
     padding-block: 1rem;
+  }
+  .bar nav {
+    margin-left: auto;
+  }
+  .theme-switch {
+    display: flex;
+    gap: 0.15rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.15rem;
+  }
+  .theme-switch button {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink-soft);
+  }
+  .theme-switch button:hover {
+    color: var(--ink);
+  }
+  .theme-switch button[aria-checked='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .theme-switch svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .theme-switch :global(.filled) {
+    fill: currentColor;
+    stroke: none;
   }
   .brand {
     font-weight: 800;

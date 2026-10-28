@@ -9,7 +9,13 @@
       "vendors": "Tools",
       "about": "About"
     },
-    "footer": "Independent and free. Your policy never leaves your browser."
+    "footer": "Independent and free. Your policy never leaves your browser.",
+    "theme": {
+      "label": "Colour theme",
+      "system": "Match my system",
+      "light": "Light",
+      "dark": "Dark"
+    }
   },
   "audience": {
     "label": "Explain it for",

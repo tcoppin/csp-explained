@@ -85,6 +85,24 @@ test('views can be switched with the keyboard', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toContainText('Scripts');
 });
 
+test('the colour theme can be chosen and is remembered', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/learn');
+  const html = page.locator('html');
+  await expect(page.getByRole('radio', { name: 'Match my system' })).toHaveAttribute('aria-checked', 'true');
+
+  await page.getByRole('radio', { name: 'Dark' }).click();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  await page.reload();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('radio', { name: 'Dark' })).toHaveAttribute('aria-checked', 'true');
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(39, 40, 34)');
+
+  await page.getByRole('radio', { name: 'Match my system' }).click();
+  await expect(html).not.toHaveAttribute('data-theme', /.+/);
+  expect(errors).toEqual([]);
+});
+
 test('find my CSP shows one method at a time', async ({ page }) => {
   await page.goto('/find-my-csp');
   await expect(page.locator('#console')).toBeVisible();

@@ -6,14 +6,15 @@
 
 :root {
   color-scheme: light;
-  --paper: #f5f7fa;
+  /* Light: aubergine ink, raspberry pen */
+  --paper: #f6f3f6;
   --surface: #ffffff;
-  --ink: #1b2236;
-  --ink-soft: #4a5370;
-  --rule: #d9dee8;
-  --action: #2747d8;
+  --ink: #2a1d2e;
+  --ink-soft: #625568;
+  --rule: #e4dce6;
+  --action: #b0175f;
   --action-ink: #ffffff;
-  --focus: #2747d8;
+  --focus: #b0175f;
 
   /* Highlighters, one per kind of token */
   --hl-keyword: #ffe66d;
@@ -21,12 +22,13 @@
   --hl-scheme: #dccbff;
   --hl-nonce: #bdf2cf;
   --hl-unsafe: #ffb8b0;
-  --hl-invalid: #e4e7ee;
+  --hl-invalid: #ebe5ec;
 
-  --ok: #157f4e;
-  --bad: #c42b3b;
-  --warn: #9a5b00;
-  --info: #4a5370;
+  /* Status colours; "bad" leans vermilion so it never reads as the raspberry action colour */
+  --ok: #1e7a3c;
+  --bad: #c2361f;
+  --warn: #8a5800;
+  --info: #625568;
 
   --font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
   --mono: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
@@ -44,27 +46,53 @@
   --radius: 6px;
 }
 
+/*
+ * Dark: a warm olive-brown editor theme (after Monokai), never navy.
+ * Applied when chosen explicitly (data-theme="dark"), or by the system unless light was chosen.
+ * The two blocks must stay identical.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #272822;
+  --surface: #2f302a;
+  --ink: #f8f8f2;
+  --ink-soft: #b4ae97;
+  --rule: #45463c;
+  --action: #ff5c93;
+  --action-ink: #272822;
+  --focus: #ff5c93;
+  --hl-keyword: #6b6322;
+  --hl-host: #1f5560;
+  --hl-scheme: #4e3b7a;
+  --hl-nonce: #3e5a18;
+  --hl-unsafe: #7d1f42;
+  --hl-invalid: #46473d;
+  --ok: #a6e22e;
+  --bad: #ff7350;
+  --warn: #e6db74;
+  --info: #b4ae97;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     color-scheme: dark;
-    --paper: #12161f;
-    --surface: #1a202c;
-    --ink: #e6e9f0;
-    --ink-soft: #a8b0c4;
-    --rule: #2e3646;
-    --action: #8ea2ff;
-    --action-ink: #0f1424;
-    --focus: #8ea2ff;
-    --hl-keyword: #6b5a00;
-    --hl-host: #0e5560;
-    --hl-scheme: #4a3780;
-    --hl-nonce: #1d5a36;
-    --hl-unsafe: #7a2a22;
-    --hl-invalid: #343b4b;
-    --ok: #5cd39b;
-    --bad: #ff8a95;
-    --warn: #f0b356;
-    --info: #a8b0c4;
+    --paper: #272822;
+    --surface: #2f302a;
+    --ink: #f8f8f2;
+    --ink-soft: #b4ae97;
+    --rule: #45463c;
+    --action: #ff5c93;
+    --action-ink: #272822;
+    --focus: #ff5c93;
+    --hl-keyword: #6b6322;
+    --hl-host: #1f5560;
+    --hl-scheme: #4e3b7a;
+    --hl-nonce: #3e5a18;
+    --hl-unsafe: #7d1f42;
+    --hl-invalid: #46473d;
+    --ok: #a6e22e;
+    --bad: #ff7350;
+    --warn: #e6db74;
+    --info: #b4ae97;
   }
 }
 
@@ -84,6 +112,7 @@ html {
 }
 
 body {
+  accent-color: var(--action);
   margin: 0;
   background: var(--paper);
   color: var(--ink);
