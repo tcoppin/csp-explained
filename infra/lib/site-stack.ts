@@ -143,7 +143,13 @@ function handler(event) {
       maxSessionDuration: Duration.hours(1),
       assumedBy: new iam.WebIdentityPrincipal(providerArn, {
         StringEquals: { 'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com' },
-        StringLike: { 'token.actions.githubusercontent.com:sub': `repo:${props.githubRepo}:ref:refs/heads/main` },
+        // Jobs that use a GitHub environment identify as the environment, not the branch.
+        StringLike: {
+          'token.actions.githubusercontent.com:sub': [
+            `repo:${props.githubRepo}:ref:refs/heads/main`,
+            `repo:${props.githubRepo}:environment:production`,
+          ],
+        },
       }),
     });
     bucket.grantReadWrite(deployRole);
