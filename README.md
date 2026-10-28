@@ -48,10 +48,7 @@ Each `catalogue/vendors/<id>.yaml` lists, per feature, what the tool needs (`typ
 
 Keeping it current: `.github/workflows/vendor-watch.yml` runs weekly. It extracts the CSP-relevant tokens (directives, keywords, hosts) from every documentation page, compares them with `catalogue/doc-snapshots.json`, and opens a pull request listing added or removed tokens. Pages that block automated reads (Hotjar at the moment) are reported for a manual check.
 
-Known gaps:
-- **Hotjar**: help center returns 403 to automated tools. The entry is based on its `default-src` template; verify the stricter template by hand.
-- **Contentsquare**: `img-src` tracking domains, `blob:` workers and `csxd.` frames not captured yet.
-- **VWO**: requirements are only shown inside the VWO app, so it isn't in the catalogue.
+Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalogue).
 
 ## Deploy (AWS)
 
@@ -65,3 +62,8 @@ Known gaps:
    ```
 4. In GitHub, add the repository variables printed as outputs: `AWS_DEPLOY_ROLE_ARN`, `SITE_BUCKET`, `DISTRIBUTION_ID`, plus `AWS_REGION`, and create a `production` environment.
 5. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`.
+
+## Roadmap
+
+What's next and the ideas backlog live in [ROADMAP.md](ROADMAP.md). Conventions and known pitfalls for working on
+the code (including with Claude Code) are in [CLAUDE.md](CLAUDE.md).
