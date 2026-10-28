@@ -124,7 +124,14 @@ function handler(event) {
       retention: logs.RetentionDays.THIRTEEN_MONTHS,
       removalPolicy: RemovalPolicy.RETAIN,
     });
+    // Its own role, allowed only to write to its log group (an inline policy, not AWSLambdaBasicExecutionRole).
+    const usageRole = new iam.Role(this, 'UsageRole', {
+      description: 'CSP Explained usage counts: writes its log lines',
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+    });
+    usageLogs.grantWrite(usageRole);
     const usageFunction = new lambda.Function(this, 'Usage', {
+      role: usageRole,
       description: 'CSP Explained usage counts',
       code: lambda.Code.fromInline(bundle('../lambda/usage.ts')),
       handler: 'index.handler',
