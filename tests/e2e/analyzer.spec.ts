@@ -69,6 +69,15 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
   expect(errors).toEqual([]);
 });
 
+test('a pasted console error is explained, not analysed', async ({ page }) => {
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill(`Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following\nContent Security Policy directive: "script-src 'self'".`);
+  await expect(page.locator('.issue')).toContainText('This is an error message, not your policy');
+  await expect(page.locator('.policy')).toHaveCount(0);
+});
+
 test('restores the analysis from a share link', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

@@ -18,6 +18,10 @@ interface RawPolicy {
 
 const HEADER_LINE = /^\s*(content-security-policy(?:-report-only)?)\s*:\s*(.*)$/i;
 const META_TAG = /<meta\b[^>]*>/gi;
+// Console messages for a blocked resource (Chrome, Firefox, Safari). They name one rule, not the policy.
+const VIOLATION =
+  /violates\s+the\s+following\s+(?:content\s+security\s+policy\s+)?directive|directive\s+of\s+the\s+content\s+security\s+policy|content[- ]security[- ]policy:\s+the\s+page.s\s+settings\s+blocked/i;
+const VIOLATED_DIRECTIVE = /directive:?\s*["“]([a-z-]+)|in\s+the\s+([a-z-]+)\s+directive|\(“?([a-z-]+)”?\)/i;
 
 /**
  * Parses whatever the user pasted: a bare policy, one or more
@@ -27,6 +31,12 @@ const META_TAG = /<meta\b[^>]*>/gi;
 export function parse(input: string): ParseResult {
   const issues: ParseIssue[] = [];
   const raws = extractPolicies(input);
+
+  if (raws.every((r) => r.origin === 'raw') && VIOLATION.test(input)) {
+    const m = VIOLATED_DIRECTIVE.exec(input);
+    const directive = (m?.[1] ?? m?.[2] ?? m?.[3])?.toLowerCase();
+    return { input, policies: [], issues: [{ code: 'empty-input', policyIndex: 0 }, { code: 'violation-message', policyIndex: 0, directive }] };
+  }
   const policies = raws.map((raw, i) => parsePolicy(raw, i, issues));
 
   if (policies.length === 0 || policies.every((p) => p.directives.length === 0)) {
@@ -38,7 +48,8 @@ export function parse(input: string): ParseResult {
 function extractPolicies(input: string): RawPolicy[] {
   const headers = input
     .split(/\r?\n/)
-    .filter((l) => !/<meta\b/i.test(l))
+    // Firefox console errors also start with "Content-Security-Policy:".
+    .filter((l) => !/<meta\b/i.test(l) && !VIOLATION.test(l))
     .map((l) => HEADER_LINE.exec(l))
     .filter((m) => m !== null)
     .flatMap((m) =>

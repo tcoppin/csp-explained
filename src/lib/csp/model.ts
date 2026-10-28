@@ -55,6 +55,7 @@ export interface Policy {
 
 export type IssueCode =
   | 'empty-input'
+  | 'violation-message'
   | 'unknown-directive'
   | 'duplicate-directive'
   | 'deprecated-directive'

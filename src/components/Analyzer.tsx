@@ -15,6 +15,13 @@ import './analyzer.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
 
+/** Why nothing could be analysed: a pasted console error gets its own explanation. */
+function emptyMessage(issues: ParseResult['issues']): string {
+  const violation = issues.find((i) => i.code === 'violation-message');
+  if (!violation) return t('issues.empty-input');
+  return violation.directive ? t('issues.violation-message', { directive: violation.directive }) : t('issues.violation-message-unnamed');
+}
+
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
   if (parsed.policies.length < 2) return null;
@@ -180,7 +187,11 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
               <p class="muted">{t('analyzer.siteHint')}</p>
             </details>
             {!hasPolicy &&
-              (input.trim() !== '' ? <p class="issue">{t('issues.empty-input')}</p> : <p class="what-you-get">{t('analyzer.whatYouGet')}</p>)}
+              (input.trim() !== '' ? (
+                <p class="issue">{emptyMessage(parsed.issues)}</p>
+              ) : (
+                <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
+              ))}
           </>
         ) : (
           <>
