@@ -144,6 +144,10 @@ h3 {
 }
 p {
   margin: 0 0 1em;
+}
+
+/* Long-form pages keep a comfortable reading width; interface text uses its column's width */
+.prose :is(p, li, dd) {
   max-width: var(--measure);
 }
 
