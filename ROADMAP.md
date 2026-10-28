@@ -6,6 +6,8 @@ add the date when an idea comes in so old ones can be reviewed.
 ## Before launch
 
 - [ ] Create the GitHub repository (private) and push.
+- [ ] Check that `cspexplained.*` is available.
+- [ ] Rename the repository from `csp-parser` to `csp-explained`.
 - [ ] Choose the domain; replace the placeholders `SITE_URL` and `REPO_URL` in `src/config.ts` and
       `githubRepo` in `infra/cdk.json`.
 - [ ] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
@@ -60,6 +62,17 @@ How it would run and what to watch:
   some sites block automated browsers.
 - The live check runs our browser on someone else's site, so keep it to one page load per request, with a
   clear user agent.
+
+## Name and wider scope
+
+Decided 2026-10-28: keep **CSP Explained**. "Explained" matches what people search for ("CSP explained") and
+the plain-language voice better than "CSP Explainer".
+
+- [ ] If the site grows beyond CSP to other security headers (HSTS, Permissions-Policy, COOP/COEP, CORS,
+      cookies), choose an umbrella name then, with CSP as its main section (`/csp`) and the current domain
+      redirecting there. Each header gets the same three voices.
+- Stay clearly apart from securityheaders.com (a grading scanner): avoid names close to it and don't drift
+  into scoring sites.
 
 ## Phase 3: more value, maybe paid
 
