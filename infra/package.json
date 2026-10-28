@@ -8,7 +8,7 @@
     "deploy": "cdk deploy",
     "typecheck": "tsc --noEmit"
   },
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN ../LICENSE",
   "type": "module",
   "dependencies": {
     "aws-cdk-lib": "^2.275.0",

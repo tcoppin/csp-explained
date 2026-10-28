@@ -73,3 +73,14 @@ Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalo
 
 What's next and the ideas backlog live in [ROADMAP.md](ROADMAP.md). Conventions and known pitfalls for working on
 the code (including with Claude Code) are in [CLAUDE.md](CLAUDE.md).
+
+## Licence
+
+Free to use, host, modify and share. Not to be sold.
+
+- Code: [MIT with the Commons Clause](LICENSE). The Commons Clause removes the right to sell the software,
+  including paid hosting or support services built mainly on it.
+- Vendor catalogue (`catalogue/`): [CC BY-NC 4.0](catalogue/LICENSE). Reuse it with credit, for non-commercial
+  purposes: "Vendor catalogue from CSP Explained (https://csp-explained.com)".
+
+Neither is an OSI-approved open source licence, because both restrict commercial use.

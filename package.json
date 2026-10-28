@@ -14,7 +14,7 @@
     "infra:synth": "yarn workspace csp-explained-infra synth",
     "infra:deploy": "yarn workspace csp-explained-infra deploy"
   },
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "dependencies": {
     "@astrojs/preact": "^6.1.1",
