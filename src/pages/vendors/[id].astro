@@ -1,0 +1,143 @@
+---
+import Base from '../../layouts/Base.astro';
+import { outdatedIssueUrl } from '../../config';
+import { t } from '../../i18n';
+import { requirementsOf, type Feature } from '../../lib/catalogue/schema';
+import { content } from '../../lib/content';
+import { CANONICAL_DIRECTIVE } from '../../lib/csp/directives';
+
+export function getStaticPaths() {
+  return content.vendors.map((vendor) => ({ params: { id: vendor.id }, props: { vendor } }));
+}
+
+const { vendor } = Astro.props;
+
+/** The directive lines a feature needs, grouped as people would write them. */
+function linesFor(feature: Feature): string[] {
+  const byDirective = new Map<string, string[]>();
+  for (const r of requirementsOf(feature)) {
+    const d = CANONICAL_DIRECTIVE[r.type];
+    const values = byDirective.get(d) ?? [];
+    if (!values.includes(r.source)) values.push(r.source);
+    byDirective.set(d, values);
+  }
+  return [...byDirective].map(([d, values]) => `${d} ${values.join(' ')};`);
+}
+
+const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).map((f) => f.id).join('+')}`;
+---
+
+<Base title={`${vendor.name} and Content-Security-Policy`} description={`What ${vendor.name} needs in your Content-Security-Policy, from its official documentation.`}>
+  <article class="wrap vendor-page">
+    <p class="crumb"><a href="/vendors">{t('site.nav.vendors')}</a></p>
+    <h1>{vendor.name}</h1>
+    <p class="provenance">
+      {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.
+      {' '}
+      {vendor.sources.map((s) => <a href={s} rel="noopener noreferrer">{t('vendors.sources')}</a>)}
+    </p>
+    <p><a class="button" href={checkLink}>Check {vendor.name} against my policy</a></p>
+
+    {vendor.notes && <p>{vendor.notes}</p>}
+
+    {
+      vendor.nonce?.how && (
+        <section class="nonce">
+          <h2>The safer option: nonces</h2>
+          <p>{vendor.nonce.how}</p>
+        </section>
+      )
+    }
+
+    {
+      vendor.features.map((f) => (
+        <section>
+          <h2>{f.label}</h2>
+          {f.description && <p>{f.description}</p>}
+          <pre><code>{linesFor(f).join('\n')}</code></pre>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Content</th>
+                <th scope="col">Allowed source</th>
+                <th scope="col">Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              {f.requirements.map((r) => (
+                <tr>
+                  <td>{t(`resources.${r.type}`)}</td>
+                  <td>
+                    {r.sources.map((s) => (
+                      <code class="src">{s}</code>
+                    ))}
+                  </td>
+                  <td>{r.reason}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))
+    }
+
+    <p class="muted">
+      Something changed? <a href={outdatedIssueUrl(vendor.id, vendor.name)} rel="noopener noreferrer">{t('vendors.reportOutdated')}</a>.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .vendor-page section {
+    margin-top: 2.5rem;
+  }
+  .crumb {
+    margin-bottom: 0.25rem;
+  }
+  .provenance {
+    color: var(--ink-soft);
+  }
+  .nonce {
+    border-left: 4px solid var(--hl-nonce);
+    padding-left: 1rem;
+  }
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .src {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 40rem) {
+    table,
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+    thead {
+      display: none;
+    }
+    tr {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    td {
+      border: 0;
+      padding: 0.1rem 0;
+    }
+  }
+</style>

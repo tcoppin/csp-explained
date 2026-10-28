@@ -1,0 +1,55 @@
+id: google-tag-manager
+name: Google Tag Manager
+category: tag-management
+website: https://tagmanager.google.com
+sources:
+  - https://developers.google.com/tag-platform/security/guides/csp
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Add a per-response nonce to script-src-elem and use Google's nonce-aware container snippet.
+    Tag Manager then passes the nonce on to every script it adds, so 'unsafe-inline' is not needed.
+notes: >-
+  Google discourages the 'unsafe-inline' fallback. Tags fired by the container (analytics, ads, …)
+  have their own requirements: check those vendors too.
+features:
+  - id: container
+    label: Load the container
+    default: true
+    requirements:
+      - type: script
+        sources: [https://www.googletagmanager.com]
+        reason: Downloads the Tag Manager container script.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The container snippet is a small inline script (not needed with the nonce snippet).
+      - type: img
+        sources: [https://www.googletagmanager.com]
+        reason: Sends requests as image pixels.
+      - type: connect
+        sources: [https://www.googletagmanager.com, https://www.google.com]
+        reason: Sends requests to Google's servers.
+  - id: custom-js-variables
+    label: Custom JavaScript variables
+    description: Without it these variables evaluate to undefined. Google recommends Custom Templates instead.
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Custom JavaScript variables are evaluated with eval().
+  - id: preview
+    label: Preview / debug mode
+    requirements:
+      - type: script
+        sources: [https://www.googletagmanager.com, https://tagmanager.google.com]
+        reason: Loads the preview panel scripts.
+      - type: style
+        sources: [https://www.googletagmanager.com, https://tagmanager.google.com, https://fonts.googleapis.com]
+        reason: Loads the preview panel styles.
+      - type: img
+        sources: [https://www.googletagmanager.com, https://ssl.gstatic.com, https://www.gstatic.com]
+        reason: Loads the preview panel images.
+      - type: font
+        sources: [https://fonts.gstatic.com, "data:"]
+        reason: Loads the preview panel fonts.

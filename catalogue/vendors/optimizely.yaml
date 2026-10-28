@@ -1,0 +1,46 @@
+id: optimizely
+name: Optimizely Web Experimentation
+category: experimentation
+website: https://www.optimizely.com
+sources:
+  - https://docs.optimizely.com/web-experimentation/docs/update-your-site-s-content-security-policies-csp
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Put a nonce on the snippet script tag and use 'nonce-…' 'strict-dynamic' in script-src.
+    Browsers that support 'strict-dynamic' then only need the nonce.
+notes: >-
+  Cross-domain targeting needs frame-src https://a<account-id>.cdn.optimizely.com
+  (and https://a<account-id>.cdn-pci.optimizely.com with PCI). These depend on your account ID and are not checked here.
+features:
+  - id: client
+    label: Client script, preview and geotargeting
+    default: true
+    requirements:
+      - type: script
+        sources:
+          - "'self'"
+          - https://*.optimizely.com
+          - https://optimizely.s3.amazonaws.com
+          - https://cdn-assets-prod.s3.amazonaws.com
+        reason: Loads the client script, the preview client and geotargeting.
+      - type: connect
+        sources: [https://logx.optimizely.com, https://*.optimizely.com]
+        reason: Logs events.
+      - type: img
+        sources: [https://cdn.optimizely.com]
+        reason: Loads images uploaded through the Visual Editor.
+      - type: style
+        sources: [https://*.optimizely.com]
+        reason: Experiment CSS changes.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Experiment CSS changes are injected inline.
+  - id: custom-js-audiences
+    label: Audiences with custom JavaScript conditions
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Custom JavaScript conditions are evaluated with eval().

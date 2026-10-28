@@ -1,0 +1,82 @@
+---
+import Base from '../../layouts/Base.astro';
+import { content, type DirectiveDoc } from '../../lib/content';
+import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
+
+export function getStaticPaths() {
+  return [...DIRECTIVES.values()].map((info) => ({
+    params: { name: info.name },
+    props: { info, doc: content.directives[info.name]! },
+  }));
+}
+
+const { info, doc } = Astro.props as { info: DirectiveInfo; doc: DirectiveDoc };
+const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === info.name).map((d) => d.name);
+---
+
+<Base title={`${info.name}: ${doc.title}`} description={doc.simple}>
+  <article class="wrap directive-page">
+    <p class="crumb"><a href="/directives">All directives</a></p>
+    <h1><code>{info.name}</code></h1>
+    <p class="title">{doc.title}</p>
+    {info.deprecated && <p class="warn">Deprecated or unsupported: browsers ignore it today.</p>}
+
+    <section>
+      <h2>In plain words</h2>
+      <p>{doc.simple}</p>
+    </section>
+    <section>
+      <h2>For developers</h2>
+      <p>{doc.developer}</p>
+      <ul class="facts">
+        <li>
+          {
+            info.fallback.length > 0 ? (
+              <>When absent, the browser uses <code>{info.fallback.join(' → ')}</code>.</>
+            ) : (
+              <>No fallback: when absent, nothing is restricted.</>
+            )
+          }
+        </li>
+        {fallsBackHere.length > 0 && <li>Used in place of {fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={`/directives/${n}`}><code>{n}</code></a></>)} when those are absent.</li>}
+        {info.ignoredInMeta && <li>Ignored when the policy is delivered in a <code>&lt;meta&gt;</code> tag.</li>}
+      </ul>
+    </section>
+    <section>
+      <h2>For security teams</h2>
+      <p>{doc.security}</p>
+    </section>
+    <p class="muted">
+      Reference: <a href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} rel="noopener noreferrer">MDN</a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  .directive-page {
+    max-width: 52rem;
+  }
+  .directive-page section {
+    margin-top: 2rem;
+  }
+  .crumb {
+    margin-bottom: 0.25rem;
+  }
+  h1 {
+    margin-bottom: 0;
+  }
+  h1 code {
+    background: linear-gradient(transparent 55%, var(--hl-keyword) 55%);
+  }
+  .title {
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+  }
+  .warn {
+    border-left: 4px solid var(--warn);
+    padding-left: 0.75rem;
+  }
+  .facts li {
+    margin-bottom: 0.3rem;
+  }
+</style>

@@ -1,0 +1,37 @@
+name: Watch vendor docs
+
+# Weekly check of every vendor's official CSP documentation. When CSP-relevant content
+# changes (a domain or directive added or removed), opens a pull request that updates
+# catalogue/doc-snapshots.json and lists the changes, so a human can update the catalogue entry.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+      - name: Compare vendor documentation with the last snapshot
+        run: |
+          yarn tsx scripts/watch-vendor-docs.ts --update > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: catalogue/vendor-docs-changed
+          title: 'Vendor CSP documentation changed'
+          commit-message: 'Update vendor documentation snapshots'
+          add-paths: catalogue/doc-snapshots.json
+          body-path: report.md
+          labels: catalogue

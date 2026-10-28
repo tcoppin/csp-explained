@@ -1,0 +1,120 @@
+---
+import '../styles/global.css';
+import { t } from '../i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = t('site.tagline') } = Astro.props;
+const fullTitle = title ? `${title} – ${t('site.name')}` : `${t('site.name')}: ${t('site.tagline')}`;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const nav = [
+  { href: '/', label: t('site.nav.analyzer') },
+  { href: '/find-my-csp', label: t('site.nav.find') },
+  { href: '/learn', label: t('site.nav.learn') },
+  { href: '/vendors', label: t('site.nav.vendors') },
+  { href: '/about', label: t('site.nav.about') },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip visually-hidden" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="brand" href="/">{t('site.name')}</a>
+        <nav aria-label="Main">
+          <ul>
+            {
+              nav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p class="muted">{t('site.footer')}</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+  }
+  .site-header {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-block: 1rem;
+  }
+  .brand {
+    font-weight: 800;
+    font-size: var(--step-1);
+    color: var(--ink);
+    text-decoration: none;
+    /* The brand is written like a highlighted token */
+    background: linear-gradient(transparent 55%, var(--hl-keyword) 55%);
+    padding-inline: 0.1em;
+  }
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  main {
+    padding-block: 2rem 4rem;
+  }
+  .site-footer {
+    border-top: 1px solid var(--rule);
+    padding-block: 1.5rem;
+  }
+  .site-footer p {
+    margin: 0;
+  }
+</style>

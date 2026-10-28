@@ -1,0 +1,72 @@
+id: intercom
+name: Intercom Messenger
+category: chat
+website: https://www.intercom.com
+sources:
+  - https://www.intercom.com/help/en/articles/3894-using-intercom-with-content-security-policy
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Intercom supports strict nonce-based CSP Level 3 policies. If your site already uses one,
+    no change is needed apart from nonces on the scripts the Messenger loads.
+notes: >-
+  This entry covers US-hosted workspaces. EU and Australian workspaces use regional domains
+  (e.g. api-iam.eu.intercom.io, uploads.intercomcdn.eu): see the official article.
+features:
+  - id: messenger
+    label: Messenger (US workspace)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://app.intercom.io, https://widget.intercom.io, https://js.intercomcdn.com]
+        reason: Loads the Messenger.
+      - type: connect
+        sources:
+          - https://via.intercom.io
+          - https://api.intercom.io
+          - https://api-iam.intercom.io
+          - https://api-ping.intercom.io
+          - https://*.intercom-messenger.com
+          - wss://*.intercom-messenger.com
+          - https://nexus-websocket-a.intercom.io
+          - wss://nexus-websocket-a.intercom.io
+          - https://nexus-websocket-b.intercom.io
+          - wss://nexus-websocket-b.intercom.io
+          - https://uploads.intercomcdn.com
+          - https://uploads.intercomusercontent.com
+        reason: Real-time conversations and uploads.
+      - type: frame
+        sources:
+          - https://intercom-sheets.com
+          - https://www.intercom-reporting.com
+          - https://www.youtube.com
+          - https://player.vimeo.com
+          - https://fast.wistia.net
+        reason: Embedded sheets and videos (Intercom documents these under child-src).
+      - type: font
+        sources: [https://js.intercomcdn.com, https://fonts.intercomcdn.com]
+        reason: Messenger fonts.
+      - type: form
+        sources: [https://intercom.help, https://api-iam.intercom.io]
+        reason: Forms inside the Messenger.
+      - type: media
+        sources: [https://js.intercomcdn.com, https://downloads.intercomcdn.com]
+        reason: Sounds and media.
+      - type: img
+        sources:
+          - "blob:"
+          - "data:"
+          - https://js.intercomcdn.com
+          - https://static.intercomassets.com
+          - https://downloads.intercomcdn.com
+          - https://uploads.intercomusercontent.com
+          - https://gifs.intercomcdn.com
+          - https://video-messages.intercomcdn.com
+          - https://messenger-apps.intercom.io
+          - https://*.intercom-attachments-1.com
+        reason: Avatars, attachments and GIFs.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The Messenger injects its styles.

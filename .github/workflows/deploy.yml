@@ -1,0 +1,48 @@
+name: Deploy
+
+# Requires repository variables (Settings › Secrets and variables › Actions › Variables),
+# all printed as outputs by `cdk deploy` in infra/:
+#   AWS_DEPLOY_ROLE_ARN, AWS_REGION, SITE_BUCKET, DISTRIBUTION_ID
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # GitHub OIDC → short-lived AWS credentials
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+      - run: yarn build
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Upload fingerprinted assets (cached for a year)
+        run: aws s3 sync dist/_astro "s3://${{ vars.SITE_BUCKET }}/_astro" --cache-control "public, max-age=31536000, immutable"
+      - name: Upload pages and other files (short cache)
+        run: aws s3 sync dist "s3://${{ vars.SITE_BUCKET }}" --delete --exclude "_astro/*" --cache-control "public, max-age=300"
+      - name: Remove outdated assets
+        run: aws s3 sync dist/_astro "s3://${{ vars.SITE_BUCKET }}/_astro" --delete --cache-control "public, max-age=31536000, immutable"
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${{ vars.DISTRIBUTION_ID }}" --paths "/*"

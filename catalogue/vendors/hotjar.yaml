@@ -1,0 +1,31 @@
+id: hotjar
+name: Hotjar
+category: session-replay
+website: https://www.hotjar.com
+sources:
+  - https://help.hotjar.com/hc/en-us/articles/36820026388881-Content-Security-Policies
+lastVerified: 2026-10-28
+confidence: partial
+notes: >-
+  Based on Hotjar's default-src template. Hotjar also publishes a stricter per-directive template
+  that is not captured here yet.
+features:
+  - id: tracking
+    label: Tracking code
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.hotjar.com]
+        reason: Loads the tracking script.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The tracking code is an inline snippet.
+      - type: connect
+        sources: [https://*.hotjar.com, https://*.hotjar.io, wss://*.hotjar.com]
+        reason: Sends recordings and events (including over WebSocket).
+      - type: img
+        sources: [https://*.hotjar.com]
+        reason: Hotjar images.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Survey and feedback widgets inject their styles.

@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import { REPO_URL } from '../../config';
+import { content } from '../../lib/content';
+
+const CATEGORY: Record<string, string> = {
+  'tag-management': 'Tag management',
+  analytics: 'Analytics',
+  advertising: 'Advertising',
+  experimentation: 'A/B testing & personalisation',
+  'session-replay': 'Session replay & heatmaps',
+  consent: 'Consent management',
+  chat: 'Chat & support',
+  other: 'Other',
+};
+
+const groups = Object.entries(CATEGORY)
+  .map(([id, label]) => ({ label, vendors: content.vendors.filter((v) => v.category === id) }))
+  .filter((g) => g.vendors.length > 0);
+---
+
+<Base title="Tools" description="What popular marketing and analytics tools need in your Content-Security-Policy, taken from their official documentation.">
+  <div class="wrap">
+    <h1>What each tool needs</h1>
+    <p class="lead">
+      Every entry comes from the vendor's official documentation, with the date it was last checked. Pick a tool to see what it
+      needs, or check it against your own policy in the analyzer.
+    </p>
+    {
+      groups.map((g) => (
+        <section>
+          <h2>{g.label}</h2>
+          <ul class="vendor-index">
+            {g.vendors.map((v) => (
+              <li>
+                <a href={`/vendors/${v.id}`}>{v.name}</a>
+                <span class="muted">
+                  {v.confidence === 'verified' ? `checked ${v.lastVerified}` : 'partially verified'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+    <h2>Missing a tool?</h2>
+    <p>
+      The catalogue is open. <a href={`${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20`}>Suggest a tool</a>
+      with a link to its official CSP documentation.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .lead {
+    font-size: var(--step-1);
+  }
+  section {
+    margin-top: 2rem;
+  }
+  .vendor-index {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 40rem;
+  }
+  .vendor-index li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .vendor-index a {
+    font-weight: 700;
+  }
+</style>

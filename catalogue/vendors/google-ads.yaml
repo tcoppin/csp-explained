@@ -1,0 +1,54 @@
+id: google-ads
+name: Google Ads
+category: advertising
+website: https://ads.google.com
+sources:
+  - https://developers.google.com/tag-platform/security/guides/csp
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: When loaded through Google Tag Manager or the Google tag with a nonce, the nonce is passed on.
+notes: >-
+  Google also asks to list https://www.google.<TLD> for every country domain your visitors use.
+  Those country domains are not checked here.
+features:
+  - id: conversions
+    label: Conversion tracking, remarketing and conversion linker
+    default: true
+    requirements:
+      - type: script
+        sources: [https://www.googletagmanager.com, https://www.googleadservices.com, https://www.google.com]
+        reason: Loads the conversion and remarketing scripts.
+      - type: img
+        sources:
+          - https://www.googletagmanager.com
+          - https://www.googleadservices.com
+          - https://googleads.g.doubleclick.net
+          - https://pagead2.googlesyndication.com
+          - https://www.google.com
+        reason: Sends conversions as image pixels.
+      - type: connect
+        sources:
+          - https://www.googletagmanager.com
+          - https://www.googleadservices.com
+          - https://googleads.g.doubleclick.net
+          - https://pagead2.googlesyndication.com
+          - https://www.google.com
+          - https://ad.doubleclick.net
+        reason: Sends conversions to Google's servers.
+      - type: frame
+        sources: [https://www.googletagmanager.com]
+        reason: Remarketing frame.
+  - id: floodlight
+    label: Floodlight (Campaign Manager 360)
+    requirements:
+      - type: img
+        sources: [https://www.googletagmanager.com, https://ad.doubleclick.net, https://ade.googlesyndication.com, https://adservice.google.com]
+        reason: Floodlight pixels.
+      - type: connect
+        sources: [https://pagead2.googlesyndication.com, https://www.google.com, https://www.googleadservices.com, https://ad.doubleclick.net]
+        reason: Floodlight requests.
+      - type: frame
+        sources: [https://www.googletagmanager.com, https://*.fls.doubleclick.net]
+        reason: Floodlight frames (the second one only for custom scripts).

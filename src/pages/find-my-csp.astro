@@ -1,0 +1,220 @@
+---
+import Base from '../layouts/Base.astro';
+import { FIND_CSP_SNIPPET } from '../lib/snippets/find-csp-console';
+
+const methods = [
+  { id: 'console', label: 'Copy it with a snippet' },
+  { id: 'devtools', label: 'Look in the Network tab' },
+  { id: 'source', label: 'Search the page source' },
+  { id: 'terminal', label: 'From a terminal' },
+  { id: 'errors', label: 'From an error message' },
+];
+---
+
+<Base title="Find your website's CSP" description="Step-by-step ways to find the Content-Security-Policy of any website, for non-technical people and developers.">
+  <div class="wrap guide">
+    <h1>Find your website's CSP</h1>
+    <p class="lead">
+      A Content-Security-Policy is sent by your website along with each page, usually invisibly. Here are five ways to get a
+      copy of it, from the easiest to the most technical. You only need one.
+    </p>
+
+    <nav aria-label="Methods" class="methods">
+      <ol>
+        {methods.map((m) => <li><a href={`#${m.id}`}>{m.label}</a></li>)}
+      </ol>
+    </nav>
+
+    <section id="console">
+      <h2>1. Copy it with a snippet</h2>
+      <p>Best if you're not technical. It takes about a minute and works in Chrome, Edge, Firefox and Safari.</p>
+      <ol class="steps">
+        <li>Open the page of your website you're interested in (the homepage, a product page, the checkout…).</li>
+        <li>
+          Open the browser's developer tools: press <kbd>F12</kbd>, or <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd> on Windows,
+          <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>J</kbd> on Mac (in Safari, first turn on <em>Settings › Advanced › Show features for web developers</em>,
+          then use <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>C</kbd>).
+        </li>
+        <li>Click the <strong>Console</strong> tab.</li>
+        <li>Copy the snippet below, paste it into the console and press <kbd>Enter</kbd>.</li>
+        <li>The policy is now in your clipboard. <a href="/">Paste it into the analyzer</a>.</li>
+      </ol>
+
+      <div class="snippet">
+        <pre id="snippet"><code>{FIND_CSP_SNIPPET}</code></pre>
+        <button type="button" class="button" id="copy-snippet" data-copied="Copied">Copy snippet</button>
+      </div>
+
+      <h3>Is it safe to paste code into the console?</h3>
+      <p>
+        Be careful with code from people you don't know: anything pasted into the console runs as you, on that website. That's why
+        Chrome may ask you to type <code>allow pasting</code> first. This snippet only reads: it downloads the page you're on
+        again, keeps the <code>Content-Security-Policy</code> headers and <code>&lt;meta&gt;</code> tags, and copies them. It sends
+        nothing anywhere, and you can read every line above.
+      </p>
+      <p>
+        If you see an error such as "Refused to connect", your policy blocks the snippet itself. Use the Network tab method
+        instead.
+      </p>
+    </section>
+
+    <section id="devtools">
+      <h2>2. Look in the Network tab</h2>
+      <p>No code involved. You read the policy directly in the browser's developer tools.</p>
+      <div class="browsers">
+        <div>
+          <h3>Chrome and Edge</h3>
+          <ol class="steps">
+            <li>Press <kbd>F12</kbd> and click the <strong>Network</strong> tab.</li>
+            <li>Reload the page (<kbd>F5</kbd> or <kbd>⌘</kbd> + <kbd>R</kbd>).</li>
+            <li>Click the first line of the list: it has your page's address and the type <em>document</em>.</li>
+            <li>In <strong>Headers</strong>, scroll to <strong>Response Headers</strong>.</li>
+            <li>Find <code>content-security-policy</code>, right-click its value and choose <em>Copy value</em>.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>Firefox</h3>
+          <ol class="steps">
+            <li>Press <kbd>F12</kbd> and click the <strong>Network</strong> tab.</li>
+            <li>Reload the page.</li>
+            <li>Click the first line (type <em>html</em>).</li>
+            <li>In the <strong>Headers</strong> panel, open <strong>Response Headers</strong>.</li>
+            <li>Find <code>content-security-policy</code> and copy its value.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>Safari</h3>
+          <ol class="steps">
+            <li>Turn on <em>Settings › Advanced › Show features for web developers</em>.</li>
+            <li>Press <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>I</kbd> and open the <strong>Network</strong> tab.</li>
+            <li>Reload the page and click the first resource.</li>
+            <li>In <strong>Headers</strong>, find <code>Content-Security-Policy</code> under <em>Response</em> and copy its value.</li>
+          </ol>
+        </div>
+      </div>
+      <p>
+        No <code>content-security-policy</code> line? Look for <code>content-security-policy-report-only</code>, then try the next method:
+        the policy may be in the page itself.
+      </p>
+    </section>
+
+    <section id="source">
+      <h2>3. Search the page source</h2>
+      <p>Some sites write their policy inside the page instead of sending it as a header.</p>
+      <ol class="steps">
+        <li>Right-click on the page and choose <em>View Page Source</em> (or press <kbd>Ctrl</kbd> + <kbd>U</kbd>, <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>U</kbd> on Mac).</li>
+        <li>Search the page (<kbd>Ctrl</kbd> + <kbd>F</kbd> or <kbd>⌘</kbd> + <kbd>F</kbd>) for <code>Content-Security-Policy</code>.</li>
+        <li>Copy the whole <code>&lt;meta http-equiv="Content-Security-Policy" …&gt;</code> tag. The analyzer understands it as is.</li>
+      </ol>
+    </section>
+
+    <section id="terminal">
+      <h2>4. From a terminal</h2>
+      <p>For developers. This shows the headers your server returns; paste the whole output into the analyzer.</p>
+      <pre><code>curl -sI https://www.example.com | grep -i content-security-policy</code></pre>
+      <p>Where the policy is usually defined, depending on your stack:</p>
+      <ul>
+        <li><strong>Web server:</strong> nginx (<code>add_header</code>), Apache (<code>Header set</code>), IIS (<code>web.config</code>).</li>
+        <li><strong>CDN or edge:</strong> CloudFront response headers policies, Cloudflare Transform Rules, Fastly, Akamai.</li>
+        <li><strong>Framework or middleware:</strong> helmet (Express), Next.js <code>headers()</code>, Django CSP, Spring Security, Rails <code>content_security_policy</code>.</li>
+        <li><strong>Hosting:</strong> Netlify <code>_headers</code>, Vercel <code>vercel.json</code>.</li>
+        <li><strong>CMS plugins or the HTML template</strong> for <code>&lt;meta&gt;</code> policies.</li>
+      </ul>
+    </section>
+
+    <section id="errors">
+      <h2>5. From an error message</h2>
+      <p>
+        If a tool doesn't work, the browser console (<kbd>F12</kbd>, <strong>Console</strong> tab) often shows red messages like this one:
+      </p>
+      <pre class="error-sample"><code>Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following
+Content Security Policy directive: "script-src 'self' https://www.googletagmanager.com".</code></pre>
+      <p>How to read it:</p>
+      <ul>
+        <li><strong>What was blocked:</strong> the address after <em>Refused to load</em>, here a script from <code>cdn.vendor.example</code>.</li>
+        <li><strong>Which rule blocked it:</strong> the part in quotes after <em>directive</em>, here <code>script-src</code>.</li>
+        <li><strong>What the rule allows today:</strong> the values after the rule name.</li>
+      </ul>
+      <p>This message only shows one rule. To see the whole policy, use one of the methods above.</p>
+    </section>
+
+    <section id="pitfalls">
+      <h2>Before you analyse it</h2>
+      <ul>
+        <li><strong>Pages can have different policies.</strong> The checkout, the login page or a blog on another platform often have their own. Check the page where your tool must run.</li>
+        <li><strong>There can be more than one policy.</strong> A site can send several headers, or a header and a <code>&lt;meta&gt;</code> tag. The browser applies all of them: something must be allowed by every one. Paste them all together.</li>
+        <li><strong>Report-only policies don't block anything.</strong> <code>Content-Security-Policy-Report-Only</code> only reports problems, often while a team tests a new policy before switching it on.</li>
+        <li><strong>The header may come from somewhere you don't expect.</strong> A CDN, a firewall (WAF) or a security plugin can add or change it. Ask your developers where it's configured.</li>
+      </ul>
+      <p><a class="button" href="/">Analyse my policy</a></p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const button = document.getElementById('copy-snippet');
+  const code = document.getElementById('snippet');
+  button?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(code?.textContent ?? '');
+      const label = button.textContent;
+      button.textContent = button.dataset.copied ?? 'Copied';
+      setTimeout(() => (button.textContent = label), 1800);
+    } catch {
+      // Clipboard blocked: the snippet stays selectable.
+    }
+  });
+</script>
+
+<style>
+  .guide > section {
+    margin-top: 3.5rem;
+    scroll-margin-top: 1rem;
+  }
+  .lead {
+    font-size: var(--step-1);
+  }
+  .methods ol {
+    padding-left: 1.25rem;
+  }
+  .methods li {
+    margin-bottom: 0.25rem;
+  }
+  .steps {
+    padding-left: 1.4rem;
+    max-width: var(--measure);
+  }
+  .steps li {
+    margin-bottom: 0.5rem;
+  }
+  kbd {
+    border: 1px solid var(--rule);
+    border-bottom-width: 3px;
+    border-radius: 4px;
+    padding: 0 0.35em;
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  .snippet {
+    max-width: 52rem;
+  }
+  .snippet pre {
+    margin-bottom: 0.75rem;
+    font-size: var(--step--1);
+  }
+  .browsers {
+    display: grid;
+    gap: 1rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+  .error-sample {
+    border-left: 4px solid var(--bad);
+    white-space: pre-wrap;
+  }
+  ul {
+    max-width: var(--measure);
+  }
+  li {
+    margin-bottom: 0.4rem;
+  }
+</style>

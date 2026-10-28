@@ -1,0 +1,245 @@
+# One entry per directive. Three voices:
+#   simple    – for people who don't write code. No jargon; say what it allows or blocks and why it matters.
+#   developer – precise behaviour, fallbacks, gotchas.
+#   security  – what the directive protects against and the trade-offs of loosening it.
+
+- name: default-src
+  title: Default rule
+  simple: >-
+    The fallback rule. For every type of content that doesn't have its own rule below,
+    the browser uses this list of allowed places.
+  developer: >-
+    Fallback for the fetch directives that are absent (script-src, style-src, img-src, connect-src, font-src,
+    frame-src via child-src, media-src, object-src, manifest-src, worker-src). It does not apply to base-uri,
+    form-action, frame-ancestors, sandbox or the reporting directives.
+  security: >-
+    A tight default-src ('none' or 'self') makes the policy fail closed: any new resource type is blocked until
+    explicitly allowed. A permissive default-src silently widens every directive that isn't set.
+
+- name: script-src
+  title: Scripts
+  simple: >-
+    Which places JavaScript code is allowed to come from. Most marketing tools (tag managers, A/B testing,
+    analytics, chat) are JavaScript, so this is the rule that most often blocks them.
+  developer: >-
+    Governs <script> elements, inline event handlers, eval() and friends, unless script-src-elem / script-src-attr
+    override it. With a nonce or hash present, 'unsafe-inline' is ignored; with 'strict-dynamic', host and scheme
+    allowlists are ignored too and trust propagates from nonced scripts to the scripts they create.
+  security: >-
+    The most important directive against cross-site scripting (XSS). Host allowlists are frequently bypassable
+    (JSONP endpoints, open redirects, script gadgets on allowed CDNs); a nonce- or hash-based policy with
+    'strict-dynamic' is the robust option.
+
+- name: script-src-elem
+  title: Script tags
+  simple: >-
+    Like the Scripts rule, but only for script files and script blocks in the page, not for small bits of code
+    attached to buttons or links.
+  developer: >-
+    Applies to <script> elements (external and inline blocks). Falls back to script-src, then default-src.
+    Does not govern event-handler attributes (script-src-attr) or eval (script-src).
+  security: >-
+    Lets you split policies, e.g. allow a vendor's script file without enabling inline event handlers.
+
+- name: script-src-attr
+  title: Inline event handlers
+  simple: >-
+    Controls tiny pieces of code written directly on page elements, such as "run this when the button is clicked".
+  developer: >-
+    Applies to inline event handlers (onclick="…") and javascript: navigations. Falls back to script-src, then
+    default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
+  security: >-
+    Event-handler attributes are a classic XSS vector. Keeping this at 'none' is cheap if the site doesn't use them.
+
+- name: style-src
+  title: Styles
+  simple: >-
+    Which places design files (colours, fonts, layout) can come from. Tools that change how the page looks,
+    like A/B tests or chat widgets, often need an entry here.
+  developer: >-
+    Governs stylesheets, <style> blocks and style attributes unless style-src-elem / style-src-attr override it.
+    'unsafe-inline' is ignored when a nonce or hash is present.
+  security: >-
+    Style injection is less dangerous than script injection, but CSS can still leak data (attribute selectors with
+    background URLs) or redress the UI. 'unsafe-inline' here is a common, moderate trade-off.
+
+- name: style-src-elem
+  title: Stylesheets
+  simple: Like the Styles rule, but only for style files and style blocks, not for styles written on single elements.
+  developer: Applies to <link rel=stylesheet> and <style> elements. Falls back to style-src, then default-src.
+  security: Lets you allow vendor stylesheets without allowing inline style attributes.
+
+- name: style-src-attr
+  title: Inline styles
+  simple: Controls styles written directly on individual page elements.
+  developer: Applies to style="…" attributes and CSSOM changes through setAttribute('style'). Falls back to style-src, then default-src.
+  security: Low risk on its own; often relaxed because many libraries set inline styles.
+
+- name: img-src
+  title: Images
+  simple: >-
+    Which places images can come from. Many tracking tools send data by loading an invisible 1×1 image,
+    so analytics often needs an entry here too.
+  developer: Governs <img>, favicons, CSS background images and image pixels. Falls back to default-src.
+  security: >-
+    Low direct risk, but a wide img-src (https: or *) gives an attacker an easy channel to exfiltrate data.
+
+- name: font-src
+  title: Fonts
+  simple: Which places font files can come from (for example Google Fonts).
+  developer: Governs @font-face loads. Falls back to default-src.
+  security: "Low risk. data: is commonly allowed for embedded icon fonts."
+
+- name: connect-src
+  title: Data connections
+  simple: >-
+    Which servers the page is allowed to talk to in the background, for example to send analytics events
+    or fetch prices. If a tool loads but no data shows up in its dashboard, this rule is often the reason.
+  developer: Governs fetch(), XMLHttpRequest, WebSocket, EventSource and navigator.sendBeacon(). Falls back to default-src.
+  security: >-
+    The main channel for data exfiltration. Keep it to the APIs you actually use; wildcards on third-party domains
+    let any customer of that vendor receive your data.
+
+- name: frame-src
+  title: Embedded frames
+  simple: >-
+    Which other websites can be shown inside your pages, like a YouTube video, a payment form or a chat window.
+  developer: Governs <iframe> and <frame> sources. Falls back to child-src, then default-src.
+  security: Limits which third parties can be embedded and receive navigation into a frame from your page.
+
+- name: child-src
+  title: Frames and workers (legacy)
+  simple: An older rule covering embedded frames and background workers.
+  developer: Fallback for frame-src and worker-src. Prefer setting those two explicitly.
+  security: Same considerations as frame-src and worker-src.
+
+- name: worker-src
+  title: Background workers
+  simple: Which places background scripts (workers) can come from. Some recording and analytics tools use them.
+  developer: Governs Worker, SharedWorker and ServiceWorker scripts. Falls back to child-src, script-src, then default-src.
+  security: >-
+    A service worker can intercept every request on its scope; keep this restricted, especially blob: and data:.
+
+- name: media-src
+  title: Audio and video
+  simple: Which places audio and video files can come from.
+  developer: Governs <audio>, <video> and <track>. Falls back to default-src.
+  security: Low risk.
+
+- name: object-src
+  title: Plugins
+  simple: Controls old browser plugins like Flash. Almost every site should block them completely.
+  developer: Governs <object> and <embed>. Falls back to default-src. Recommended value is 'none'.
+  security: >-
+    Plugins can execute script and bypass script-src; Google's guidance is object-src 'none' in every policy.
+
+- name: manifest-src
+  title: App manifest
+  simple: Where the file describing your site as an installable app can come from.
+  developer: Governs the web app manifest. Falls back to default-src.
+  security: Low risk.
+
+- name: prefetch-src
+  title: Prefetching (deprecated)
+  simple: An old rule for loading pages in advance. Browsers no longer use it.
+  developer: Removed from the specification and unsupported in modern browsers; safe to delete.
+  security: No effect today.
+
+- name: base-uri
+  title: Base address
+  simple: >-
+    Controls a technical setting that decides where relative links in the page point to. Usually locked to your own site.
+  developer: Restricts the URLs allowed in <base href>. Does not fall back to default-src.
+  security: >-
+    Without it, an injected <base> tag can redirect relative script URLs to an attacker's server, even with a
+    nonce-based policy. Set it to 'none' or 'self'.
+
+- name: sandbox
+  title: Sandbox
+  simple: Runs the page in a restricted mode, as if it were a stranger's page. Rarely used for whole websites.
+  developer: >-
+    Applies iframe-sandbox-like restrictions to the page itself; values are allow-* flags. Ignored in <meta> policies.
+  security: Strong isolation for untrusted content (e.g. user uploads), but breaks most normal pages.
+
+- name: form-action
+  title: Form destinations
+  simple: Which addresses forms on your pages (login, newsletter, checkout) are allowed to send their data to.
+  developer: Restricts form submission targets. Does not fall back to default-src.
+  security: >-
+    Prevents injected markup from sending credentials or personal data to an attacker through a form.
+
+- name: frame-ancestors
+  title: Who can embed your site
+  simple: >-
+    Which websites are allowed to show your pages inside their own pages. This protects against tricks where
+    your site is hidden inside another one.
+  developer: >-
+    Restricts which origins can frame the page (modern replacement for X-Frame-Options). Does not fall back to
+    default-src and is ignored in <meta> policies.
+  security: Protects against clickjacking. 'none' or 'self' unless you intentionally allow embedding.
+
+- name: navigate-to
+  title: Navigation targets (abandoned)
+  simple: An experimental rule that browsers never shipped.
+  developer: Dropped from the specification; no browser enforces it.
+  security: No effect.
+
+- name: report-uri
+  title: Report address (legacy)
+  simple: >-
+    Where the browser sends a short report each time this policy blocks something. Useful for the technical team to spot problems.
+  developer: >-
+    Deprecated in favour of report-to but still the most widely supported way to receive violation reports.
+    Ignored in <meta> policies.
+  security: Reports reveal blocked attacks and broken integrations; keep the endpoint monitored.
+
+- name: report-to
+  title: Report group
+  simple: Like the report address, but using the browser's newer reporting system.
+  developer: >-
+    Names a Reporting-Endpoints group. Browsers that support report-to ignore report-uri when both are set.
+  security: Same value as report-uri; send both for broad browser support.
+
+- name: upgrade-insecure-requests
+  title: Upgrade to HTTPS
+  simple: Makes the browser load everything over a secure connection (https), even if a link says http.
+  developer: Rewrites http:// subresource and same-origin navigation URLs to https:// before fetching.
+  security: Prevents mixed content; low risk to enable on HTTPS-only sites.
+
+- name: block-all-mixed-content
+  title: Block insecure content (deprecated)
+  simple: An older rule that blocked insecure (http) content. Browsers now do this by default.
+  developer: Deprecated; modern browsers block or upgrade mixed content anyway. Use upgrade-insecure-requests.
+  security: No additional protection today.
+
+- name: require-trusted-types-for
+  title: Trusted Types
+  simple: An advanced protection that forces developers to check content before inserting it as code in the page.
+  developer: >-
+    'script' makes DOM XSS sinks (innerHTML, eval, script.src …) reject plain strings; only Trusted Type objects
+    created by allowed policies are accepted.
+  security: The strongest defence against DOM-based XSS. Third-party scripts must be compatible or given a policy.
+
+- name: trusted-types
+  title: Trusted Types policies
+  simple: The list of approved "checkers" developers are allowed to use with Trusted Types.
+  developer: Allowlists Trusted Types policy names that can be created with trustedTypes.createPolicy().
+  security: Keep the list short; 'allow-duplicates' weakens it.
+
+- name: webrtc
+  title: Real-time connections
+  simple: Allows or blocks real-time peer-to-peer connections (video calls, some chat tools).
+  developer: "'allow' or 'block' WebRTC connections. Limited browser support."
+  security: Blocking WebRTC closes a data-exfiltration channel that connect-src doesn't cover.
+
+- name: plugin-types
+  title: Plugin types (deprecated)
+  simple: An old rule for browser plugins, no longer used.
+  developer: Removed from the specification. Use object-src 'none'.
+  security: No effect today.
+
+- name: require-sri-for
+  title: Require integrity (abandoned)
+  simple: An experimental rule that browsers never shipped.
+  developer: Never standardised; no effect.
+  security: No effect. Use the integrity attribute on script and link tags instead.

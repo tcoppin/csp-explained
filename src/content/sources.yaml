@@ -1,0 +1,136 @@
+# Explanations for source expressions. `id` is either a keyword ('self') or a kind
+# (host, wildcard-host, scheme:https:, scheme, nonce, hash, all).
+
+- id: "'self'"
+  title: Your own site
+  simple: Content from your own website (the same address you are on).
+  developer: >-
+    Matches the page's origin, plus its secure upgrades (http→https, ws/wss). Does not match subdomains.
+  security: >-
+    Safe as long as your own origin doesn't host user-uploaded files or JSONP endpoints that could be abused.
+
+- id: "'none'"
+  title: Nothing
+  simple: Nothing is allowed for this type of content.
+  developer: Matches nothing. Must be the only value; combined with other sources it is ignored.
+  security: The safest value for anything you don't use (object-src, base-uri, frame-ancestors…).
+
+- id: "'unsafe-inline'"
+  title: Inline code
+  simple: >-
+    Allows code written directly inside the page, not only code loaded from files. Many marketing tools
+    need it, but it also removes much of the protection against malicious code.
+  developer: >-
+    Allows inline <script>/<style> blocks, event handlers and style attributes. Ignored when the same directive
+    has a nonce, a hash or 'strict-dynamic' (browsers keep it only for old-browser compatibility).
+  security: >-
+    In script-src it lets any HTML injection become script execution, so it essentially disables CSP's XSS protection.
+    Prefer nonces. In style-src the risk is much lower.
+
+- id: "'unsafe-eval'"
+  title: Code from text
+  simple: >-
+    Allows the page to turn text into running code. Some tools need it for custom code features.
+  developer: Allows eval(), new Function(), setTimeout/setInterval with strings, and similar.
+  security: >-
+    Turns string-injection bugs into code execution. Acceptable trade-off for some tools, but keep it out if you can.
+
+- id: "'strict-dynamic'"
+  title: Trust what trusted scripts load
+  simple: >-
+    Scripts that the site has approved with a secret code (a nonce) may load other scripts. Lists of allowed
+    websites are then ignored for scripts.
+  developer: >-
+    Scripts allowed by a nonce or hash can add more scripts via createElement('script'); host/scheme sources,
+    'self' and 'unsafe-inline' in the same directive are ignored by supporting browsers. Parser-inserted
+    scripts (document.write, HTML) still need the nonce.
+  security: >-
+    The recommended "strict CSP" model: resistant to allowlist bypasses while tag managers keep working
+    if they propagate the nonce.
+
+- id: "'unsafe-hashes'"
+  title: Approved inline handlers
+  simple: Allows specific small pieces of code on buttons and links, approved one by one.
+  developer: Lets hashes match inline event handlers and style attributes, not only <script>/<style> blocks.
+  security: Narrower than 'unsafe-inline', but approved handlers can still be reused by an attacker.
+
+- id: "'report-sample'"
+  title: Include a sample in reports
+  simple: Adds a short extract of the blocked code to violation reports, to help the technical team.
+  developer: Adds the first 40 characters of the blocked inline script/style to violation reports.
+  security: Helpful for triage; make sure your report endpoint is trusted, as samples may contain data.
+
+- id: "'wasm-unsafe-eval'"
+  title: WebAssembly
+  simple: Allows high-performance compiled code (WebAssembly) to run.
+  developer: Allows WebAssembly compilation without allowing JavaScript eval.
+  security: Much narrower than 'unsafe-eval'.
+
+- id: "'inline-speculation-rules'"
+  title: Speculation rules
+  simple: Allows the page to tell the browser which pages to load in advance.
+  developer: Allows inline <script type="speculationrules"> blocks.
+  security: Low risk.
+
+- id: nonce
+  title: One-time code
+  simple: >-
+    A secret code that changes on every page load. Only code carrying today's code may run, which is a strong protection.
+  developer: >-
+    'nonce-<base64>' allows <script>/<style> elements with a matching nonce attribute. Must be random and
+    regenerated on every response; never cached.
+  security: >-
+    The core of a strict CSP. A static or predictable nonce gives no protection.
+
+- id: hash
+  title: Fingerprint
+  simple: Allows one exact piece of code, identified by its fingerprint. If the code changes by one character, it is blocked.
+  developer: "'sha256-…' (or sha384/sha512) allows inline blocks whose content hashes to this value, and external scripts with a matching integrity attribute."
+  security: Good for static inline snippets; every change needs a policy update.
+
+- id: wildcard
+  title: Anywhere
+  simple: Content can come from any website. This rule is effectively switched off.
+  developer: "* matches any URL with a network scheme (http, https, ws, wss) and the page's own scheme, but not data:, blob: or filesystem:."
+  security: Offers almost no protection for this content type.
+
+- id: wildcard-host
+  title: All subdomains
+  simple: Any address ending with this domain, for example both www. and cdn. versions.
+  developer: "*.example.com matches any subdomain at any depth, but not example.com itself."
+  security: >-
+    Convenient for vendors with many subdomains; risky if any subdomain serves user content or old, vulnerable files.
+
+- id: host
+  title: A specific website
+  simple: Content from this specific address.
+  developer: >-
+    Host-source. Without a scheme it inherits the page's scheme (http also allows https). Without a port only the
+    default port matches. A path ending in / matches everything under it.
+  security: >-
+    Only as safe as everything the host serves: public CDNs and analytics domains often expose JSONP or
+    script gadgets that let attackers bypass the allowlist.
+
+- id: "scheme:https:"
+  title: Any secure website
+  simple: Content from any website using a secure connection (https). That is almost every website.
+  developer: "Matches any https: URL."
+  security: As permissive as a wildcard for scripts; attackers can host code on any HTTPS server.
+
+- id: "scheme:data:"
+  title: Embedded data
+  simple: Content embedded directly in the page as text (often small images or fonts).
+  developer: "Allows data: URLs."
+  security: Fine for img-src and font-src; dangerous in script-src and object-src.
+
+- id: "scheme:blob:"
+  title: Generated content
+  simple: Content generated on the fly by code already running in the page.
+  developer: "Allows blob: URLs created with URL.createObjectURL()."
+  security: In script-src or worker-src, any script that can create a blob can run arbitrary code.
+
+- id: scheme
+  title: Any address with this prefix
+  simple: Any content whose address starts with this prefix.
+  developer: "Scheme-source; matches any URL with this scheme (http: also matches https:)."
+  security: Very broad; consider listing specific hosts instead.

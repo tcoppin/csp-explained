@@ -1,0 +1,11 @@
+---
+import Analyzer from '../components/Analyzer';
+import Base from '../layouts/Base.astro';
+import { content } from '../lib/content';
+---
+
+<Base>
+  <div class="wrap">
+    <Analyzer client:load content={content} />
+  </div>
+</Base>

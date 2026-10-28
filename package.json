@@ -1,0 +1,43 @@
+{
+  "name": "csp-explainer",
+  "version": "1.0.0",
+  "description": "Understand any Content-Security-Policy, in plain language.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "catalogue:validate": "tsx scripts/validate-catalogue.ts",
+    "infra:synth": "yarn workspace csp-explained-infra synth",
+    "infra:deploy": "yarn workspace csp-explained-infra deploy"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "@astrojs/preact": "^6.1.1",
+    "@fontsource/atkinson-hyperlegible-mono": "^5.3.0",
+    "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
+    "astro": "^7.4.2",
+    "csp_evaluator": "^1.1.8",
+    "preact": "^11.1.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "private": true,
+  "packageManager": "yarn@4.18.1",
+  "workspaces": [
+    "infra"
+  ]
+}

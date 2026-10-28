@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+infra/cdk.out/
+test-results/
+playwright-report/
+
+# Yarn (https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored)
+.yarn/*
+!.yarn/releases
+!.yarn/patches
+!.yarn/plugins

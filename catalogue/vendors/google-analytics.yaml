@@ -1,0 +1,41 @@
+id: google-analytics
+name: Google Analytics 4
+category: analytics
+website: https://marketingplatform.google.com/about/analytics/
+sources:
+  - https://developers.google.com/tag-platform/security/guides/csp
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: When loaded through Google Tag Manager or the Google tag with a nonce, the nonce is passed on.
+notes: >-
+  With advertising features (Google Signals, remarketing), Google also asks to list
+  https://*.google.<TLD> for every country domain your visitors use (google.fr, google.de, …).
+  Those country domains are not checked here.
+features:
+  - id: measurement
+    label: Measurement (without advertising features)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://www.googletagmanager.com]
+        reason: Loads the Google tag (gtag.js).
+      - type: img
+        sources: [https://www.googletagmanager.com, https://*.google-analytics.com]
+        reason: Sends hits as image pixels.
+      - type: connect
+        sources: [https://www.googletagmanager.com, https://*.google-analytics.com, https://*.google.com]
+        reason: Sends hits to the collection servers.
+  - id: advertising-features
+    label: Advertising features (Google Signals, remarketing)
+    requirements:
+      - type: img
+        sources: [https://*.google.com, https://*.g.doubleclick.net]
+        reason: Ads-related pixels.
+      - type: connect
+        sources: [https://*.g.doubleclick.net, https://pagead2.googlesyndication.com]
+        reason: Ads-related requests.
+      - type: frame
+        sources: [https://www.googletagmanager.com]
+        reason: Ads-related frame.

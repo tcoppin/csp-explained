@@ -1,0 +1,179 @@
+{
+  "site": {
+    "name": "CSP Explained",
+    "tagline": "Understand any Content-Security-Policy, in plain language.",
+    "nav": {
+      "analyzer": "Analyzer",
+      "find": "Find my CSP",
+      "learn": "What is a CSP?",
+      "vendors": "Tools",
+      "about": "About"
+    },
+    "footer": "Independent and free. Your policy never leaves your browser."
+  },
+  "audience": {
+    "label": "Explain it for",
+    "simple": "Everyone",
+    "simpleHint": "No jargon",
+    "developer": "Developers",
+    "developerHint": "Exact behaviour",
+    "security": "Security",
+    "securityHint": "Risks & trade-offs"
+  },
+  "analyzer": {
+    "inputLabel": "Paste a Content-Security-Policy",
+    "inputHint": "A header value, the full header line(s), curl -I output, or a <meta> tag all work.",
+    "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
+    "example": "Try an example",
+    "clear": "Clear",
+    "share": "Copy share link",
+    "shared": "Link copied",
+    "shareHint": "The policy is stored after the # in the link, which is never sent to any server.",
+    "noPolicy": "Don't have your policy at hand?",
+    "findLink": "Here's how to find it",
+    "siteLabel": "Your site address (optional)",
+    "siteHint": "Used to understand 'self'. Never sent anywhere.",
+    "policies": "{count} policies found",
+    "policy": "Policy {index}",
+    "enforced": "Enforced",
+    "reportOnly": "Report-only (nothing is blocked)",
+    "fromHeader": "from an HTTP header",
+    "fromMeta": "from a <meta> tag",
+    "clickHint": "Click any part of the policy to see what it means.",
+    "empty": "Paste a policy above to get started."
+  },
+  "issues": {
+    "title": "Things to check",
+    "empty-input": "We couldn't find any directive in this text.",
+    "unknown-directive": "\"{directive}\" isn't a CSP directive, so browsers ignore it. Is it a typo?",
+    "duplicate-directive": "\"{directive}\" appears more than once. Browsers only use the first one and ignore the rest.",
+    "deprecated-directive": "\"{directive}\" is deprecated or has no effect in modern browsers.",
+    "ignored-in-meta": "\"{directive}\" is ignored when the policy is set with a <meta> tag. It only works as an HTTP header.",
+    "missing-quotes": "\"{value}\" in {directive} should be written with quotes ('{value}'). Without them the browser treats it as a website name.",
+    "invalid-source": "\"{value}\" in {directive} isn't a valid value, so browsers ignore it.",
+    "none-with-other-sources": "{directive} contains 'none' together with other values; 'none' is then ignored.",
+    "report-only-in-meta": "Report-only policies can't be set with a <meta> tag; browsers ignore this one.",
+    "empty-directive": "{directive} has no value, which blocks everything of this type."
+  },
+  "map": {
+    "title": "What this policy allows",
+    "intro": "For each type of content, where the browser accepts it from.",
+    "notRestricted": "No restriction: allowed from anywhere",
+    "via": "uses the {directive} rule",
+    "nothing": "Blocked entirely",
+    "verdict": {
+      "allowed": "Allowed",
+      "blocked": "Blocked",
+      "needs-nonce": "Only with the page's nonce"
+    }
+  },
+  "resources": {
+    "script": "Scripts",
+    "style": "Styles",
+    "img": "Images",
+    "font": "Fonts",
+    "connect": "Data connections",
+    "frame": "Embedded frames",
+    "media": "Audio & video",
+    "object": "Plugins",
+    "manifest": "App manifest",
+    "worker": "Background workers",
+    "form": "Form submissions",
+    "base": "Base address",
+    "inline-script": "Inline code",
+    "inline-handler": "Inline event handlers",
+    "eval": "Code from text (eval)",
+    "inline-style": "Inline styles",
+    "style-attr": "Style attributes"
+  },
+  "vendors": {
+    "title": "Check my tools",
+    "intro": "Pick the tools you use (or want to use) and see whether this policy lets them work.",
+    "search": "Search tools",
+    "features": "Features used",
+    "verified": "Checked against the official docs on {date}",
+    "partial": "Partially verified: the official docs list more than what we check today",
+    "sources": "Official documentation",
+    "reportOutdated": "Report an outdated entry",
+    "none": "Select a tool to check it against this policy.",
+    "verdict": {
+      "allowed": "Works with this policy",
+      "blocked": "Blocked by this policy",
+      "needs-nonce": "Needs your developers' help (nonce)",
+      "reported": "Would be reported, not blocked"
+    },
+    "requirement": {
+      "allowed": "Allowed by {directive} ({source})",
+      "allowedUnrestricted": "Allowed: nothing restricts it",
+      "blocked": "Blocked by {directive}",
+      "needs-nonce": "{directive} only trusts scripts carrying the page's one-time code (nonce)",
+      "reported": "Would be reported by the report-only policy"
+    },
+    "nonceHow": "How this tool works with nonces"
+  },
+  "report": {
+    "title": "Your report",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download .md",
+    "nothing": "Select a tool above to generate a report, or switch to Security for a review of this policy.",
+    "formats": {
+      "email": "Email",
+      "chat": "Slack / Teams",
+      "ticket": "Ticket (Jira, Linear…)"
+    },
+    "simple": {
+      "subject": "Website security policy: request to allow {vendors}",
+      "greeting": "Hi,",
+      "intro": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it currently gets in the way:",
+      "introOk": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it already allows them, so no change seems needed.",
+      "blockedLine": "{vendor} is blocked for {items}.",
+      "needsNonceLine": "{vendor}: our policy only trusts scripts carrying a one-time code (nonce). The tool supports it, but the way it is added to the page needs to pass the code on. {how}",
+      "needsNonceNoHow": "The vendor's documentation should explain how.",
+      "reportedLine": "{vendor}: our policy is in report-only mode, so nothing is blocked, but these would show up in the violation reports.",
+      "okLine": "{vendor}: already allowed.",
+      "changeTitle": "Proposed change (only additions, nothing is removed):",
+      "changeAdd": "{directive}: add {values}",
+      "changeCreate": "add a {directive} rule (copied from default-src) with {values}",
+      "fullPolicy": "The complete updated policy would be:",
+      "risksTitle": "Good to know before deciding:",
+      "risk": {
+        "unsafe-inline-script": "{vendor} asks for 'unsafe-inline' on scripts. It's common for marketing tools but weakens protection against malicious code. If we use (or can use) nonces, that is a safer option: {how}",
+        "unsafe-inline-style": "'unsafe-inline' on styles is requested for {vendor}. The risk is limited (it affects how the page looks, not what code runs).",
+        "unsafe-eval": "{vendor} asks for 'unsafe-eval', which lets the page turn text into code. It is only needed for the feature \"{feature}\" and could be left out if we don't use it.",
+        "wildcard": "{source} allows every subdomain of that vendor. This is what {vendor} documents."
+      },
+      "sources": "Vendor documentation:",
+      "closing": "Could you let me know if this is possible, or whether you'd prefer another approach?",
+      "thanks": "Thanks!",
+      "generatedBy": "Analysis made with {site} (the policy was analysed in my browser only)."
+    },
+    "developer": {
+      "title": "Proposed CSP change",
+      "noChange": "No change needed for the selected tools.",
+      "diff": "Diff",
+      "full": "Updated policy",
+      "deploy": "Where to set it",
+      "needsNonce": "Needs nonce propagation",
+      "verify": "Test it first with Content-Security-Policy-Report-Only, then watch the browser console for \"Refused to load\" messages."
+    },
+    "security": {
+      "title": "Security review",
+      "summary": "{high} high, {medium} medium, {low} low findings",
+      "noFindings": "No findings from Google's CSP Evaluator.",
+      "introduced": "New findings the proposed change would add",
+      "noneIntroduced": "The proposed change doesn't add findings.",
+      "current": "Findings in the current policy",
+      "level": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "info": "Info"
+      },
+      "maybe": "possible",
+      "attribution": "Findings computed with Google's CSP Evaluator library (Apache-2.0).",
+      "strictHint": "Consider a nonce-based policy with 'strict-dynamic': it resists allowlist bypasses and most tag managers support nonce propagation.",
+      "multiplePolicies": "Each policy is rated on its own. The browser enforces all of them together, so a weakness reported in one policy may be covered by another."
+    }
+  }
+}

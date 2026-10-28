@@ -1,0 +1,7 @@
+{
+  "app": "yarn tsx bin/app.ts",
+  "context": {
+    "githubRepo": "OWNER/csp-explained",
+    "region": "eu-west-3"
+  }
+}

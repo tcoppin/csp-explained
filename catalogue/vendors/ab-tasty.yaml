@@ -1,0 +1,63 @@
+id: ab-tasty
+name: AB Tasty
+category: experimentation
+website: https://www.abtasty.com
+sources:
+  - https://docs.abtasty.com/client-side/tag/troubleshootings/tag-troubleshooting-csp
+lastVerified: 2026-10-28
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Add 'nonce-…' and 'strict-dynamic' to script-src and put the same nonce attribute on the tag's
+    script element. With a nonce, 'unsafe-inline' is no longer required.
+notes: >-
+  The editor uses the tag, so allowing the editor's requirements also covers the tag.
+  A developer-portal version of the same page lists narrower hosts; this entry follows docs.abtasty.com.
+features:
+  - id: tag
+    label: Tag (run campaigns)
+    default: true
+    requirements:
+      - type: script
+        sources: ["*.abtasty.com"]
+        reason: Loads the tag and campaign code.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Campaign code runs inline (not needed with a nonce).
+      - type: frame
+        sources: ["'self'"]
+        reason: Uses frames on your own domain.
+      - type: connect
+        sources: ["*.abtasty.com"]
+        reason: Sends visitor data and campaign events.
+      - type: style
+        sources: ["*.abtasty.com"]
+        reason: Loads campaign styles.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Campaigns inject styles to change the page.
+      - type: img
+        sources: ["*.abtasty.com"]
+        reason: Loads campaign images.
+  - id: editor
+    label: Visual editor
+    requirements:
+      - type: script
+        sources: ["blob:", "*.abtasty.com"]
+        reason: The editor runs scripts created on the fly.
+      - type: frame
+        sources: ["'self'"]
+        reason: Uses frames on your own domain.
+      - type: connect
+        sources: ["*.abtasty.com"]
+        reason: Talks to the AB Tasty app.
+      - type: img
+        sources: ["*.abtasty.com"]
+        reason: Loads editor images.
+      - type: style
+        sources: ["*.abtasty.com"]
+        reason: Loads editor styles.
+      - type: font
+        sources: ["*.abtasty.com"]
+        reason: Loads editor fonts.

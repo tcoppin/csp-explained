@@ -1,0 +1,34 @@
+id: contentsquare
+name: Contentsquare
+category: session-replay
+website: https://contentsquare.com
+sources:
+  - https://docs.contentsquare.com/en/web/content-security-policy/
+lastVerified: 2026-10-28
+confidence: partial
+notes: >-
+  The official page also documents img-src tracking subdomains, blob: workers (child-src / worker-src)
+  and csxd. frames for cross-domain tracking. Those are not captured here yet.
+features:
+  - id: experience-analytics
+    label: Experience Analytics
+    default: true
+    requirements:
+      - type: script
+        sources: ["*.contentsquare.net", app.contentsquare.com]
+        reason: Loads the tag (from t.contentsquare.net) and zoning from the app.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The tag is usually started by a small inline script.
+      - type: connect
+        sources: ["*.contentsquare.net", "*.contentsquare.com"]
+        reason: Sends data.
+      - type: style
+        sources: [app.contentsquare.com]
+        reason: Styles for in-page zoning.
+  - id: voice-of-customer
+    label: Voice of Customer
+    requirements:
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Survey widgets inject their styles.
