@@ -1,0 +1,26 @@
+# Weekly version updates, one grouped pull request per ecosystem. Security updates are separate
+# (repository settings) and are not delayed by the cooldown.
+version: 2
+updates:
+  # Site and infra/ (Yarn workspaces share the root lockfile).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Yarn refuses versions younger than a day (npmMinimalAgeGate); waiting a week also lets
+    # compromised releases be caught and pulled before they reach us.
+    cooldown:
+      default-days: 7
+    groups:
+      npm:
+        patterns: ['*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']
