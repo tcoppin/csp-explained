@@ -133,6 +133,32 @@ test('views can be switched with the keyboard', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toContainText('Scripts');
 });
 
+test('no word is glued to a link or inline code on any page', async ({ page }) => {
+  // Astro drops a line break between an inline element and the next word ("<a>…</a>\nlibrary" → "…library").
+  await page.goto('/vendors');
+  const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
+  await page.goto('/directives');
+  const directivePages = await page.locator('main a[href^="/directives/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
+  const paths = ['/', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', '/404', ...vendorPages, ...directivePages];
+
+  const glued: string[] = [];
+  for (const path of paths) {
+    await page.goto(path);
+    const found = await page.evaluate(() =>
+      [...document.querySelectorAll('main :is(p, li, dd, dt, td, figcaption, summary, h1, h2, h3) > :is(a, code, strong, em, kbd)')].flatMap((el) => {
+        const next = el.nextSibling;
+        const prev = el.previousSibling;
+        const out: string[] = [];
+        if (next?.nodeType === Node.TEXT_NODE && /^[\p{L}\p{N}(]/u.test(next.textContent ?? '')) out.push(`${el.textContent}|${next.textContent?.slice(0, 15)}`);
+        if (prev?.nodeType === Node.TEXT_NODE && /[\p{L}\p{N},.:;)]$/u.test(prev.textContent ?? '')) out.push(`${prev.textContent?.slice(-15)}|${el.textContent}`);
+        return out;
+      }),
+    );
+    glued.push(...found.map((f) => `${path}: ${f}`));
+  }
+  expect(glued).toEqual([]);
+});
+
 test('the colour theme can be chosen and is remembered', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/learn');
