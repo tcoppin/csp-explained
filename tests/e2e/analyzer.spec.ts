@@ -185,7 +185,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('the find-my-csp snippet collects headers and meta tags', async ({ page }) => {
+test('the find-my-csp snippet works in the DevTools console, copy() included', async ({ page }) => {
   // Serve a page with a known header and meta policy, then run the snippet shown on /find-my-csp.
   await page.route('http://fixture.test/', (route) =>
     route.fulfill({
@@ -196,11 +196,18 @@ test('the find-my-csp snippet collects headers and meta tags', async ({ page }) 
   await page.goto('/find-my-csp');
   const snippet = await page.locator('#snippet').textContent();
   await page.goto('http://fixture.test/');
-  const result = await page.evaluate((code) => new Function(`return ${code}`)(), snippet!);
-  expect(result).toBe(
-    `content-security-policy: default-src 'self'\n<meta http-equiv="Content-Security-Policy" content="img-src *">`.replace(
-      'content-security-policy:',
-      'Content-Security-Policy:',
-    ),
-  );
+
+  // Evaluate it the way the DevTools console does: with the console helpers (copy, $0…) in scope.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Runtime.enable');
+  const copied: unknown[] = [];
+  const logs: string[] = [];
+  cdp.on('Runtime.inspectRequested', (e) => e.hints?.copyToClipboard && copied.push(e.object.value));
+  cdp.on('Runtime.consoleAPICalled', (e) => logs.push(e.args.map((a) => a.value).join(' ')));
+  await cdp.send('Runtime.evaluate', { expression: snippet!, includeCommandLineAPI: true, replMode: true, awaitPromise: true });
+
+  // What the user sees: the policy printed, then copied to the clipboard by DevTools.
+  const expected = `Content-Security-Policy: default-src 'self'\n<meta http-equiv="Content-Security-Policy" content="img-src *">`;
+  await expect.poll(() => copied).toEqual([expected]);
+  expect(logs).toEqual([expected, 'Copied to your clipboard.']);
 });
