@@ -56,14 +56,24 @@ interface Props {
   analysis: Analysis;
   audience: Audience;
   site: string;
+  onPickTools: () => void;
 }
 
-export function ReportPanel({ analysis, audience, site }: Props) {
+export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
   const [format, setFormat] = useState<MessageFormat>('email');
   const [target, setTarget] = useState<Target>('nginx');
 
+  const noTools = (
+    <div class="empty">
+      <p>{t('report.nothing')}</p>
+      <button type="button" class="button" onClick={onPickTools}>
+        {t('report.pickTools')}
+      </button>
+    </div>
+  );
+
   if (audience === 'simple') {
-    if (analysis.vendors.length === 0) return <p class="muted">{t('report.nothing')}</p>;
+    if (analysis.vendors.length === 0) return noTools;
     const text = itRequest(analysis, t, { format, site, toolUrl: SITE_URL });
     return (
       <div class="report">
@@ -77,7 +87,7 @@ export function ReportPanel({ analysis, audience, site }: Props) {
   }
 
   if (audience === 'developer') {
-    if (analysis.vendors.length === 0) return <p class="muted">{t('report.nothing')}</p>;
+    if (analysis.vendors.length === 0) return noTools;
     const markdown = developerReport(analysis, t);
     const snippet = deploySnippet(analysis, target);
     return (

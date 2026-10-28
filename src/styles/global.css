@@ -78,6 +78,11 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Component display rules must never override the hidden attribute */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--paper);

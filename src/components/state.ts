@@ -4,12 +4,20 @@ import type { Audience } from '../lib/csp/model';
  * Shareable state lives in the URL fragment (#…), which browsers never send to servers,
  * so a shared link keeps the "nothing leaves your browser" promise.
  */
+export const VIEWS = ['read', 'allows', 'tools', 'report'] as const;
+export type View = (typeof VIEWS)[number];
+
 export interface ShareState {
   policy: string;
   site: string;
   /** vendor id → selected feature ids */
   vendors: Record<string, string[]>;
+  view?: View;
+  audience?: Audience;
 }
+
+const isAudience = (v: string | null): v is Audience => v === 'simple' || v === 'developer' || v === 'security';
+const isView = (v: string | null): v is View => (VIEWS as readonly (string | null)[]).includes(v);
 
 function toBase64Url(text: string): string {
   const bytes = new TextEncoder().encode(text);
@@ -31,6 +39,8 @@ export function encodeState(s: ShareState): string {
     .map(([id, features]) => `${id}:${features.join('+')}`)
     .join(',');
   if (vendors) params.set('v', vendors);
+  if (s.policy && s.view && s.view !== 'read') params.set('t', s.view);
+  if (s.policy && s.audience && s.audience !== 'simple') params.set('a', s.audience);
   return params.toString();
 }
 
@@ -54,6 +64,10 @@ export function decodeState(hash: string): Partial<ShareState> {
       }),
     );
   }
+  const view = params.get('t');
+  if (isView(view)) out.view = view;
+  const audience = params.get('a');
+  if (isAudience(audience)) out.audience = audience;
   return out;
 }
 
@@ -62,7 +76,7 @@ const AUDIENCE_KEY = 'csp-explained:audience';
 export function loadAudience(): Audience {
   try {
     const v = localStorage.getItem(AUDIENCE_KEY);
-    if (v === 'simple' || v === 'developer' || v === 'security') return v;
+    if (isAudience(v)) return v;
   } catch {
     // Storage can be unavailable (private mode, blocked site data).
   }

@@ -1,41 +1,183 @@
-.analyzer > section {
-  margin-top: 3rem;
-}
-.analyzer > section.input-block {
-  margin-top: 1.5rem;
+.analyzer {
+  margin-top: 0.5rem;
 }
 
-/* Audience switch */
+/* Summary of the analysed policy, replacing the editor once a policy is in */
+.summary-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  max-width: none;
+}
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.what-you-get {
+  margin-top: 2rem;
+  color: var(--ink-soft);
+}
+
+/* Workspace: view tabs + audience switch */
+.workspace {
+  margin-top: 2.5rem;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  border-bottom: 2px solid var(--rule);
+}
+.tablist {
+  display: flex;
+  gap: 0 1.5rem;
+  margin-bottom: -2px;
+  /* One row; scrolls sideways on narrow screens instead of wrapping */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tablist [role='tab'] {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0.6rem 0 0.55rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.tablist [role='tab']:hover {
+  color: var(--ink);
+}
+.tablist [role='tab'][aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+/* The active view is marked like a highlighted token */
+.tablist [aria-selected='true'] .tab-label {
+  background: linear-gradient(transparent 58%, var(--hl-keyword) 58%, var(--hl-keyword) 92%, transparent 92%);
+}
+@media (max-width: 40rem) {
+  /* Every view stays visible: a 2×2 grid instead of a row that scrolls out of sight */
+  .tablist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1rem;
+    width: 100%;
+  }
+  .tablist [role='tab'] {
+    font-size: var(--step-0);
+    flex-wrap: wrap;
+    gap: 0.15rem 0.4rem;
+    align-items: center;
+  }
+  .audience {
+    margin-left: 0;
+  }
+  .audience-label {
+    flex-basis: 100%;
+  }
+}
+.count {
+  font-size: var(--step--1);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  border: 2px solid currentColor;
+}
+.count-bad {
+  color: var(--bad);
+}
+.count-warn {
+  color: var(--warn);
+}
+.count-ok {
+  color: var(--ok);
+}
 .audience {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  padding-bottom: 0.6rem;
+  margin-left: auto;
 }
 .audience-label {
   color: var(--ink-soft);
-  margin-right: 0.25rem;
+  margin-right: 0.35rem;
 }
-.audience button {
-  display: grid;
-  text-align: left;
+.audience button,
+.segmented button {
   border: 2px solid var(--rule);
   background: var(--surface);
   border-radius: var(--radius);
-  padding: 0.35rem 0.8rem;
-  line-height: 1.25;
+  padding: 0.2rem 0.7rem;
+  font-weight: 700;
 }
-.audience button[aria-checked='true'] {
+.audience button[aria-checked='true'],
+.segmented button[aria-checked='true'] {
   border-color: var(--ink);
   background: var(--ink);
   color: var(--paper);
 }
-.audience-name {
-  font-weight: 700;
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
-.audience-hint {
-  font-size: var(--step--1);
-  opacity: 0.8;
+.panel {
+  padding-top: 1.75rem;
+}
+.panel:focus-visible {
+  outline-offset: 6px;
+}
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.panel-head p,
+.panel-intro {
+  margin: 0;
+}
+.panel-intro {
+  margin-bottom: 1.25rem;
+}
+.issues {
+  margin-top: 2.5rem;
+}
+.issues h2 {
+  font-size: var(--step-1);
+}
+.next-step {
+  margin-top: 1.5rem;
+}
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
 }
 
 /* Input */
@@ -90,13 +232,6 @@ textarea.code:focus,
 }
 
 /* Decoded policy: the annotated document */
-.policy-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-  max-width: none;
-}
 .badge {
   font-weight: 700;
   border: 2px solid var(--ok);
@@ -183,6 +318,7 @@ textarea.code:focus,
 }
 
 .tok {
+  text-align: left;
   font-family: var(--mono);
   font-size: inherit;
   border: 0;
@@ -455,9 +591,6 @@ button.tok:hover {
 }
 
 /* Report */
-.report-section h2 {
-  margin-bottom: 1rem;
-}
 .tabs {
   display: flex;
   flex-wrap: wrap;

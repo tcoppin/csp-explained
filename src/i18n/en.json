@@ -40,7 +40,13 @@
     "fromHeader": "from an HTTP header",
     "fromMeta": "from a <meta> tag",
     "clickHint": "Click any part of the policy to see what it means.",
-    "empty": "Paste a policy above to get started."
+    "empty": "Paste a policy above to get started.",
+    "whatYouGet": "You'll get a plain-language explanation, what the policy allows, whether your tools will work with it, and a message for your IT team.",
+    "rules": "{count} rules",
+    "edit": "Edit",
+    "hideEditor": "Done",
+    "policiesShort": "{count} policies",
+    "yourPolicy": "Your policy"
   },
   "issues": {
     "title": "Things to check",
@@ -116,7 +122,7 @@
     "copy": "Copy",
     "copied": "Copied",
     "download": "Download .md",
-    "nothing": "Select a tool above to generate a report, or switch to Security for a review of this policy.",
+    "nothing": "This report is built from the tools you want to use. Pick them first, or switch to Security for a review of the policy itself.",
     "formats": {
       "email": "Email",
       "chat": "Slack / Teams",
@@ -174,6 +180,23 @@
       "attribution": "Findings computed with Google's CSP Evaluator library (Apache-2.0).",
       "strictHint": "Consider a nonce-based policy with 'strict-dynamic': it resists allowlist bypasses and most tag managers support nonce propagation.",
       "multiplePolicies": "Each policy is rated on its own. The browser enforces all of them together, so a weakness reported in one policy may be covered by another."
-    }
+    },
+    "cta": {
+      "simple": "Write the request to IT",
+      "developer": "See the change to make",
+      "security": "See the security review"
+    },
+    "pickTools": "Pick my tools"
+  },
+  "views": {
+    "label": "Analysis",
+    "read": "Read it",
+    "allows": "What it allows",
+    "tools": "Will my tools work?",
+    "report": "Report",
+    "issues": "{count} to check",
+    "blocked": "{count} blocked",
+    "nonce": "{count} need a nonce",
+    "allOk": "all OK"
   }
 }

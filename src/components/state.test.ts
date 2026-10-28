@@ -7,6 +7,12 @@ describe('share state', () => {
     expect(decodeState(`#${encodeState(state)}`)).toEqual(state);
   });
 
+  it('keeps the open view and audience', () => {
+    const state = { policy: "img-src 'self'", site: '', vendors: {}, view: 'tools' as const, audience: 'security' as const };
+    expect(decodeState(`#${encodeState(state)}`)).toMatchObject({ view: 'tools', audience: 'security' });
+    expect(decodeState('#t=nope&a=nope')).toEqual({});
+  });
+
   it('ignores malformed policies', () => {
     expect(decodeState('#p=%%%')).toEqual({});
   });

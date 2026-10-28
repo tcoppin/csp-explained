@@ -29,11 +29,20 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
   await page.locator('.policy').getByRole('button', { name: "'self'" }).first().click();
   await expect(page.locator('.explanation')).toContainText('Your own site');
 
-  // Check a tool.
+  // The editor folds into a summary once done.
+  await page.getByRole('button', { name: 'Done' }).click();
+  await expect(page.getByRole('heading', { name: 'Your policy' })).toBeVisible();
+  await expect(page.locator('.summary')).toContainText('4 rules');
+
+  // Check a tool: the tab shows how many are blocked.
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
   await page.getByRole('button', { name: 'Google Tag Manager', exact: true }).click();
   await expect(page.locator('.vendor-result')).toContainText('Blocked by this policy');
+  await expect(page.getByRole('tab', { name: /Will my tools work/ })).toContainText('1 blocked');
 
   // The message for IT contains the missing domain and can be copied.
+  await page.getByRole('button', { name: 'Write the request to IT' }).click();
+  await expect(page.getByRole('tab', { name: 'Report' })).toHaveAttribute('aria-selected', 'true');
   const message = page.locator('textarea.message');
   await expect(message).toHaveValue(/connect-src rule \(copied from default-src\) with https:\/\/www\.googletagmanager\.com/);
   await page.getByRole('button', { name: 'Copy', exact: true }).click();
@@ -51,14 +60,46 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
 test('restores the analysis from a share link', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
   await page.getByRole('button', { name: 'Intercom Messenger' }).click();
+  await page.getByRole('radio', { name: 'Developers' }).click();
   const url = page.url();
   expect(url).toContain('#p=');
 
+  // Opens on the same tab, audience and tools, with the editor folded.
   const other = await page.context().newPage();
   await openAnalyzer(other, url);
-  await expect(other.getByRole('textbox', { name: 'Paste a Content-Security-Policy' })).toHaveValue(POLICY);
+  await expect(other.getByRole('tab', { name: /Will my tools work/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(other.getByRole('radio', { name: 'Developers' })).toHaveAttribute('aria-checked', 'true');
   await expect(other.locator('.vendor-result h3')).toHaveText('Intercom Messenger');
+  await other.getByRole('button', { name: 'Edit' }).click();
+  await expect(other.getByRole('textbox', { name: 'Paste a Content-Security-Policy' })).toHaveValue(POLICY);
+});
+
+test('views can be switched with the keyboard', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Read it/ }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'What it allows' })).toBeFocused();
+  await expect(page.getByRole('tabpanel')).toContainText('Scripts');
+});
+
+test('find my CSP shows one method at a time', async ({ page }) => {
+  await page.goto('/find-my-csp');
+  await expect(page.locator('#console')).toBeVisible();
+  await expect(page.locator('#terminal')).toBeHidden();
+
+  await page.getByRole('tab', { name: /Network tab/ }).click();
+  await expect(page).toHaveURL(/#devtools$/);
+  await expect(page.locator('#console')).toBeHidden();
+  // Chromium: the Chrome & Edge steps are selected for the reader.
+  await expect(page.getByRole('tab', { name: 'Chrome & Edge' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#browser-firefox')).toBeHidden();
+
+  // Deep links open the right method.
+  await page.goto('/find-my-csp#terminal');
+  await expect(page.locator('#terminal')).toBeVisible();
 });
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
