@@ -10,14 +10,17 @@ interface Props {
   /** What is shown; defaults to `copyText`. */
   children?: ComponentChildren;
   class?: string;
+  /** Called after a successful copy. */
+  onCopy?: () => void;
 }
 
 /** Island version of CodeBlock.astro: same markup and styles (global .code-block). */
-export function CodeBox({ caption, copyText, children, class: className }: Props) {
+export function CodeBox({ caption, copyText, children, class: className, onCopy }: Props) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(copyText);
+      onCopy?.();
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
