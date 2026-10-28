@@ -1,8 +1,8 @@
 /** Public URL of the site, used in generated reports. Update once the domain is chosen. */
 export const SITE_URL = 'https://csp-explained.example';
 
-/** GitHub repository hosting the vendor catalogue. Update when the repository is created. */
-export const REPO_URL = 'https://github.com/OWNER/csp-explained';
+/** GitHub repository hosting the code and the vendor catalogue. */
+export const REPO_URL = 'https://github.com/tcoppin/csp-explained';
 
 export const EXAMPLE_POLICY =
   "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; " +

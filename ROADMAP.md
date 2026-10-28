@@ -5,11 +5,9 @@ add the date when an idea comes in so old ones can be reviewed.
 
 ## Before launch
 
-- [ ] Create the GitHub repository (private) and push.
+- [ ] Push to the GitHub repository (`tcoppin/csp-explained`, private).
 - [ ] Check that `cspexplained.*` is available.
-- [ ] Rename the repository from `csp-parser` to `csp-explained`.
-- [ ] Choose the domain; replace the placeholders `SITE_URL` and `REPO_URL` in `src/config.ts` and
-      `githubRepo` in `infra/cdk.json`.
+- [ ] Choose the domain; replace the placeholder `SITE_URL` in `src/config.ts`.
 - [ ] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
 - [ ] Check the console snippet's `copy()` by hand in Firefox and Safari (verified in Chrome only).
 - [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
