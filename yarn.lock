@@ -2373,6 +2373,7 @@ __metadata:
     aws-cdk: "npm:^2.1146.1"
     aws-cdk-lib: "npm:^2.275.0"
     constructs: "npm:^10.8.1"
+    esbuild: "npm:0.28.2"
     tsx: "npm:^4.23.15"
     typescript: "npm:^7.0.2"
   languageName: unknown
@@ -2636,7 +2637,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:~0.28.0":
+"esbuild@npm:0.28.2, esbuild@npm:~0.28.0":
   version: 0.28.2
   resolution: "esbuild@npm:0.28.2"
   dependencies:

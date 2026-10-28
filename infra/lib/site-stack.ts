@@ -1,13 +1,33 @@
+import { fileURLToPath } from 'node:url';
 import { CfnOutput, Duration, RemovalPolicy, Stack, type StackProps } from 'aws-cdk-lib';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import type { Construct } from 'constructs';
+import { buildSync } from 'esbuild';
 import { HEADER_POLICY } from '../../src/site-policy.ts';
+import { USAGE_EVENTS, USAGE_NAMESPACE } from '../../src/usage.ts';
+
+/** Bundles a small handler into one CommonJS file, inlined in the template (no asset to upload). */
+function bundle(entry: string): string {
+  const { outputFiles } = buildSync({
+    entryPoints: [fileURLToPath(new URL(entry, import.meta.url))],
+    bundle: true,
+    write: false,
+    format: 'cjs',
+    platform: 'node',
+    target: 'node22',
+    minify: true,
+  });
+  return outputFiles[0]!.text;
+}
 
 export interface SiteStackProps extends StackProps {
   /**
@@ -29,6 +49,7 @@ export interface SiteStackProps extends StackProps {
 /**
  * Static hosting: private S3 bucket behind CloudFront (Origin Access Control),
  * security headers including our own CSP header, and a GitHub Actions deploy role.
+ * Usage counts: `/e` goes to a small Lambda that logs one line per event, read by a CloudWatch dashboard.
  */
 export class SiteStack extends Stack {
   constructor(scope: Construct, id: string, props: SiteStackProps) {
@@ -98,6 +119,30 @@ function handler(event) {
       },
     });
 
+    // Usage counts (see src/usage.ts). The function URL only accepts CloudFront, through Origin Access Control.
+    const usageLogs = new logs.LogGroup(this, 'UsageLogs', {
+      retention: logs.RetentionDays.THIRTEEN_MONTHS,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+    const usageFunction = new lambda.Function(this, 'Usage', {
+      description: 'CSP Explained usage counts',
+      code: lambda.Code.fromInline(bundle('../lambda/usage.ts')),
+      handler: 'index.handler',
+      runtime: lambda.Runtime.NODEJS_22_X,
+      architecture: lambda.Architecture.ARM_64,
+      memorySize: 128,
+      timeout: Duration.seconds(3),
+      logGroup: usageLogs,
+    });
+    const usageUrl = usageFunction.addFunctionUrl({ authType: lambda.FunctionUrlAuthType.AWS_IAM });
+    // Only the query string reaches the function: no cookies, no headers (so no visitor IP).
+    const usageRequests = new cloudfront.OriginRequestPolicy(this, 'UsageRequests', {
+      comment: 'CSP Explained usage counts: query string only',
+      queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.all(),
+      headerBehavior: cloudfront.OriginRequestHeaderBehavior.none(),
+      cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
+    });
+
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
       comment: 'CSP Explained',
       defaultRootObject: 'index.html',
@@ -117,6 +162,15 @@ function handler(event) {
         responseHeadersPolicy: headers,
         functionAssociations: [{ function: cleanUrls, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
+      additionalBehaviors: {
+        '/e': {
+          origin: origins.FunctionUrlOrigin.withOriginAccessControl(usageUrl),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: usageRequests,
+        },
+      },
       errorResponses: [
         // A private bucket answers 403 for missing keys.
         { httpStatus: 403, responseHttpStatus: 404, responsePagePath: '/404.html', ttl: Duration.minutes(5) },
@@ -132,6 +186,8 @@ function handler(event) {
         new route53.AaaaRecord(this, `${id}Aaaa`, { zone, recordName, target });
       }
     }
+
+    this.usageDashboard(usageLogs);
 
     // GitHub Actions deploys with short-lived credentials: no AWS keys stored in GitHub.
     const providerArn =
@@ -168,5 +224,54 @@ function handler(event) {
     new CfnOutput(this, 'DistributionId', { value: distribution.distributionId });
     new CfnOutput(this, 'SiteUrl', { value: `https://${domain ?? distribution.distributionDomainName}` });
     new CfnOutput(this, 'DeployRoleArn', { value: deployRole.roleArn });
+  }
+
+  /** Daily counts per event, and the breakdowns (tools, report copies, landing pages) from the log lines. */
+  private usageDashboard(logGroup: logs.ILogGroup) {
+    const count = (event: string) =>
+      new cloudwatch.Metric({
+        namespace: USAGE_NAMESPACE,
+        metricName: 'Count',
+        dimensionsMap: { Event: event },
+        statistic: cloudwatch.Stats.SUM,
+        period: Duration.days(1),
+        label: event,
+      });
+    const events = Object.keys(USAGE_EVENTS);
+    const usage = events.filter((e) => e !== 'visit');
+    const table = (title: string, query: string) =>
+      new cloudwatch.LogQueryWidget({
+        title,
+        logGroupNames: [logGroup.logGroupName],
+        view: cloudwatch.LogQueryVisualizationType.TABLE,
+        queryLines: [query],
+        width: 8,
+        height: 8,
+      });
+
+    new cloudwatch.Dashboard(this, 'UsageDashboard', {
+      dashboardName: 'CspExplained-Usage',
+      defaultInterval: Duration.days(30),
+      widgets: [
+        [
+          new cloudwatch.SingleValueWidget({
+            title: 'Totals over the selected period',
+            metrics: events.map((e) => count(e)),
+            setPeriodToTimeRange: true,
+            width: 24,
+            height: 4,
+          }),
+        ],
+        [
+          new cloudwatch.GraphWidget({ title: 'Visits per day', left: [count('visit')], width: 12, height: 8 }),
+          new cloudwatch.GraphWidget({ title: 'Usage per day', left: usage.map((e) => count(e)), width: 12, height: 8 }),
+        ],
+        [
+          table('Tools added', 'filter Event = "tool" | stats count(*) as times by tool | sort times desc'),
+          table('Reports copied', 'filter Event = "copy-report" | stats count(*) as times by audience, kind | sort times desc'),
+          table('Visits by landing page', 'filter Event = "visit" | stats count(*) as visits by page | sort visits desc'),
+        ],
+      ],
+    });
   }
 }
