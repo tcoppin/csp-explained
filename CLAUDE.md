@@ -74,6 +74,8 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - Code is shown in a box with a caption saying where it goes and an in-box "Copy this" control: `CodeBlock.astro`
   (static pages) and `CodeBox.tsx` (island). They share the `.code-block` styles in `global.css`.
 - Reading width (`.prose`, 68ch) applies to long-form pages only; interface text uses its column's width.
+- Every link to another website opens in a new tab through `NewTabLink.tsx` (icon + screen-reader text), on Astro
+  pages and in the island. Links within the site open in the same tab (an e2e test checks the main pages).
 - Copy is plain, sentence case, active voice, no jargon in the "Everyone" voice. Explain trade-offs honestly
   without alarmism.
 

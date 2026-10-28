@@ -202,6 +202,23 @@ button {
   color: var(--ink-soft);
 }
 
+/* Links that open in a new tab (NewTabLink): a small icon after the text, kept on the same line. */
+.new-tab-end {
+  white-space: nowrap;
+}
+.new-tab-icon {
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-inline-start: 0.2em;
+  vertical-align: -0.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

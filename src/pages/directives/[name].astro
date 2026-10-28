@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { NewTabLink } from '../../components/NewTabLink';
 import { content, type DirectiveDoc } from '../../lib/content';
 import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
 
@@ -47,7 +48,7 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
       <p>{doc.security}</p>
     </section>
     <p class="muted">
-      Reference: <a href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} rel="noopener noreferrer">MDN</a>
+      Reference: <NewTabLink href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} label="MDN" />
     </p>
   </article>
 </Base>

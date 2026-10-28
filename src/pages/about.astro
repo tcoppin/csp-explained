@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { NewTabLink } from '../components/NewTabLink';
 import { encodeState } from '../components/state';
 import { REPO_URL } from '../config';
 import { HEADER_POLICY, META_DIRECTIVES } from '../site-policy';
@@ -26,10 +27,10 @@ const analyzeOwn = `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} }
 
     <h2>Where the information comes from</h2>
     <ul>
-      <li>Directive behaviour follows the <a href="https://www.w3.org/TR/CSP3/" rel="noopener noreferrer">W3C Content Security Policy Level 3</a> specification.</li>
+      <li>Directive behaviour follows the <NewTabLink href="https://www.w3.org/TR/CSP3/" label="W3C Content Security Policy Level 3" /> specification.</li>
       <li>
         Security findings come from
-        Google's <a href="https://github.com/google/csp-evaluator" rel="noopener noreferrer">CSP Evaluator</a> library
+        Google's <NewTabLink href="https://github.com/google/csp-evaluator" label="CSP Evaluator" /> library
         (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.
       </li>
       <li>
@@ -41,7 +42,7 @@ const analyzeOwn = `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} }
     <h2>Help keep the catalogue right</h2>
     <p>
       Vendors change their requirements. If an entry is outdated or a tool is
-      missing, <a href={`${REPO_URL}/issues`}>open an issue</a> with a link to the official documentation.
+      missing, <NewTabLink href={`${REPO_URL}/issues`} label="open an issue" /> with a link to the official documentation.
     </p>
 
     <h2>This site's own policy</h2>

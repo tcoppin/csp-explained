@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import { groupByCategory } from '../lib/catalogue/categories';
 import type { Vendor } from '../lib/catalogue/schema';
 import { matchesTool } from '../lib/catalogue/search';
+import { NewTabLink } from './NewTabLink';
 
 
 interface Props {
@@ -180,9 +181,7 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
             </ul>
             {visible.length === 0 && <p class="no-match">{t('vendors.noMatch', { query })}</p>}
             <p class="suggest">
-              <a href={suggestUrl} rel="noopener noreferrer" target="_blank">
-                {t('vendors.suggest')}
-              </a>
+              <NewTabLink href={suggestUrl} label={t('vendors.suggest')} />
             </p>
           </div>
         )}

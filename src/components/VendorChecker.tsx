@@ -4,6 +4,7 @@ import type { VendorCheck } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { RequirementResult } from '../lib/csp/compat';
 import type { Audience } from '../lib/csp/model';
+import { NewTabLink } from './NewTabLink';
 import { ToolPicker } from './ToolPicker';
 
 interface Props {
@@ -89,15 +90,10 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
           <p class="provenance muted">
             {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.{' '}
             {vendor.sources.map((s, i) => (
-              <a key={s} href={s} rel="noopener noreferrer" target="_blank">
-                {t('vendors.sources')}
-                {vendor.sources.length > 1 ? ` ${i + 1}` : ''}
-              </a>
+              <NewTabLink key={s} href={s} label={t('vendors.sources') + (vendor.sources.length > 1 ? ` ${i + 1}` : '')} />
             ))}{' '}
             ·{' '}
-            <a href={outdatedIssueUrl(vendor.id, vendor.name)} rel="noopener noreferrer" target="_blank">
-              {t('vendors.reportOutdated')}
-            </a>
+            <NewTabLink href={outdatedIssueUrl(vendor.id, vendor.name)} label={t('vendors.reportOutdated')} />
           </p>
         </section>
       ))}

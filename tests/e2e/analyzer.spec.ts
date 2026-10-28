@@ -211,6 +211,31 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('links to other websites open in a new tab and say so', async ({ page }) => {
+  let checked = 0;
+  for (const path of ['/', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src']) {
+    await page.goto(path);
+    const links = page.locator('a[href^="http"]:not([href^="http://localhost"])');
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      await expect(link.locator('svg.new-tab-icon')).toBeVisible();
+      await expect(link).toHaveAccessibleName(/\(opens in a new tab\)$/);
+      checked++;
+    }
+  }
+  expect(checked).toBeGreaterThan(5);
+
+  // Inside the analyzer island too: the "suggest a tool" link of the tool picker.
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await page.getByRole('combobox', { name: 'Add a tool' }).fill('no such tool');
+  const suggest = page.getByRole('link', { name: 'Missing a tool? Suggest it (opens in a new tab)' });
+  await expect(suggest).toHaveAttribute('target', '_blank');
+  await expect(suggest.locator('svg.new-tab-icon')).toBeVisible();
+});
+
 test('the find-my-csp snippet works in the DevTools console, copy() included', async ({ page }) => {
   // Serve a page with a known header and meta policy, then run the snippet shown on /find-my-csp.
   await page.route('http://fixture.test/', (route) =>

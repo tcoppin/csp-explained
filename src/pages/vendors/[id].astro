@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { NewTabLink } from '../../components/NewTabLink';
 import { outdatedIssueUrl } from '../../config';
 import { t } from '../../i18n';
 import { requirementsOf, type Feature } from '../../lib/catalogue/schema';
@@ -34,7 +35,12 @@ const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).m
     <p class="provenance">
       {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.
       {' '}
-      {vendor.sources.map((s) => <a href={s} rel="noopener noreferrer">{t('vendors.sources')}</a>)}
+      {vendor.sources.map((s, i) => (
+        <>
+          {i > 0 && ' '}
+          <NewTabLink href={s} label={t('vendors.sources') + (vendor.sources.length > 1 ? ` ${i + 1}` : '')} />
+        </>
+      ))}
     </p>
     <p><a class="button" href={checkLink}>Check {vendor.name} against my policy</a></p>
 
@@ -82,7 +88,7 @@ const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).m
     }
 
     <p class="muted">
-      Something changed? <a href={outdatedIssueUrl(vendor.id, vendor.name)} rel="noopener noreferrer">{t('vendors.reportOutdated')}</a>.
+      Something changed? <NewTabLink href={outdatedIssueUrl(vendor.id, vendor.name)} label={t('vendors.reportOutdated')} />.
     </p>
   </article>
 </Base>
