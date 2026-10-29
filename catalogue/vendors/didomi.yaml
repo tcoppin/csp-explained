@@ -1,0 +1,31 @@
+id: didomi
+name: Didomi
+category: consent
+website: https://www.didomi.io
+sources:
+  - https://developers.didomi.io/cmp/web-sdk/getting-started
+lastVerified: 2026-10-29
+confidence: partial
+nonce:
+  supported: true
+  how: >-
+    Set window.didomiConfig = { app: { nonce: '…' } } before the SDK script: the SDK then adds the nonce to
+    the styles it injects. The page documents the nonce for styles only, not for scripts.
+notes: >-
+  The official page asks to allow sdk.privacy-center.org and api.privacy-center.org without naming
+  directives: the SDK host is checked in script-src (it serves loader.js) and the API host in connect-src.
+  The standard embed snippet is shown in the Didomi Console, not on the page.
+features:
+  - id: cmp
+    label: Consent notice (Web SDK)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://sdk.privacy-center.org]
+        reason: Loads the Didomi SDK.
+      - type: connect
+        sources: [https://api.privacy-center.org]
+        reason: Talks to the Didomi API.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The SDK injects its styles (not needed with a nonce).

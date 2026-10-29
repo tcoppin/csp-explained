@@ -1,0 +1,25 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Set window.didomiConfig = { app: { nonce: '…' } } before the SDK script: the SDK then adds the nonce to the styles it injects. The page documents the nonce for styles only, not for scripts.
+    { en: add46bf4, text: "Définissez window.didomiConfig = { app: { nonce: '…' } } avant le script du SDK : le SDK ajoute alors le nonce aux styles qu'il injecte. La page documente le nonce pour les styles seulement, pas pour les scripts." }
+notes:
+  # The official page asks to allow sdk.privacy-center.org and api.privacy-center.org without naming directives: the SDK host is checked in script-src (it serves loader.js) and the API host in connect-src. The standard embed snippet is shown in the Didomi Console, not on the page.
+  { en: 85b5b598, text: "La page officielle demande d'autoriser sdk.privacy-center.org et api.privacy-center.org sans nommer de directives : l'hôte du SDK est vérifié dans script-src (il sert loader.js) et l'hôte de l'API dans connect-src. Le snippet d'intégration standard est affiché dans la Console Didomi, pas sur la page." }
+features:
+  cmp:
+    label:
+      # Consent notice (Web SDK)
+      { en: d86fd324, text: "Notice de consentement (Web SDK)" }
+    reasons:
+      script:
+        # Loads the Didomi SDK.
+        { en: c9421bcf, text: "Charge le SDK Didomi." }
+      connect:
+        # Talks to the Didomi API.
+        { en: 18a586bd, text: "Échange avec l'API Didomi." }
+      inline-style:
+        # The SDK injects its styles (not needed with a nonce).
+        { en: ad84d5cf, text: "Le SDK injecte ses styles (inutile avec un nonce)." }
