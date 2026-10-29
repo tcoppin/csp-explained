@@ -1,12 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { t } from '../../i18n';
+import { translator } from '../../i18n';
 import { analyze } from '../analysis';
 import { parseVendor } from '../catalogue/schema';
 import { deploySnippet, developerReport, policyDiff } from './developer';
 import { securityReport } from './security';
 import { itRequest } from './simple';
+
+const t = translator('en');
 
 const vendor = (id: string) => parseVendor(readFileSync(join(import.meta.dirname, '../../../catalogue/vendors', `${id}.yaml`), 'utf8'));
 const abTasty = vendor('ab-tasty');

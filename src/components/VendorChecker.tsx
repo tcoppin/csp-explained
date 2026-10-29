@@ -1,5 +1,5 @@
 import { outdatedIssueUrl } from '../config';
-import { t } from '../i18n';
+import type { Translate } from '../i18n';
 import type { VendorCheck } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { RequirementResult } from '../lib/csp/compat';
@@ -7,6 +7,7 @@ import type { Audience } from '../lib/csp/model';
 import { track } from '../scripts/track';
 import { NewTabLink } from './NewTabLink';
 import { ToolPicker } from './ToolPicker';
+import { useT } from './i18n';
 
 interface Props {
   vendors: Vendor[];
@@ -17,7 +18,7 @@ interface Props {
   onChange: (selected: Record<string, string[]>) => void;
 }
 
-function requirementText(r: RequirementResult): string {
+function requirementText(t: Translate, r: RequirementResult): string {
   const check = r.checks.find((c) => c.match.verdict === r.verdict) ?? r.checks[0];
   const directive = check?.match.directive?.name ?? check?.match.requested ?? '';
   if (r.verdict === 'allowed') {
@@ -29,6 +30,7 @@ function requirementText(r: RequirementResult): string {
 }
 
 export function VendorChecker({ vendors, selected, checks, audience, onChange }: Props) {
+  const t = useT();
   const toggleVendor = (id: string) => {
     const next = { ...selected };
     const vendor = vendors.find((v) => v.id === id);
@@ -78,7 +80,7 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
                   {t(`resources.${r.requirement.type}`)} <code>{r.requirement.source}</code>
                 </span>
                 <span class="req-why">
-                  {audience === 'simple' ? r.requirement.reason : requirementText(r)}
+                  {audience === 'simple' ? r.requirement.reason : requirementText(t, r)}
                 </span>
               </li>
             ))}

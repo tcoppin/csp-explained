@@ -1,11 +1,12 @@
 ---
 import Analyzer from '../components/Analyzer';
 import Base from '../layouts/Base.astro';
+import { localeOf } from '../i18n';
 import { content } from '../lib/content';
 ---
 
 <Base>
   <div class="wrap">
-    <Analyzer client:load content={content} />
+    <Analyzer client:load content={content} locale={localeOf(Astro.currentLocale)} />
   </div>
 </Base>

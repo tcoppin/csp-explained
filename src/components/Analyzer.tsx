@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
-import { t } from '../i18n';
+import { translator, type Locale, type Translate } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
 import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
+import { I18n, useT } from './i18n';
 import { PolicyView, type Selection } from './PolicyView';
 import { ReportPanel } from './ReportPanel';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
@@ -17,7 +18,7 @@ import './analyzer.css';
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
 
 /** Why nothing could be analysed: a pasted console error gets its own explanation. */
-function emptyMessage(issues: ParseResult['issues']): string {
+function emptyMessage(t: Translate, issues: ParseResult['issues']): string {
   const violation = issues.find((i) => i.code === 'violation-message');
   if (!violation) return t('issues.empty-input');
   return violation.directive ? t('issues.violation-message', { directive: violation.directive }) : t('issues.violation-message-unnamed');
@@ -25,20 +26,22 @@ function emptyMessage(issues: ParseResult['issues']): string {
 
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
+  const t = useT();
   if (parsed.policies.length < 2) return null;
   return (
     <div class="segmented" role="radiogroup" aria-label={t('analyzer.policies', { count: parsed.policies.length })}>
       {parsed.policies.map((p, i) => (
         <button key={i} type="button" role="radio" aria-checked={i === value} onClick={() => onChange(i)}>
           {t('analyzer.policy', { index: i + 1 })}
-          {p.reportOnly && ' (report-only)'}
+          {p.reportOnly && ` (${t('analyzer.reportOnlyShort')})`}
         </button>
       ))}
     </div>
   );
 }
 
-export default function Analyzer({ content }: { content: ContentBundle }) {
+export default function Analyzer({ content, locale }: { content: ContentBundle; locale: Locale }) {
+  const t = useMemo(() => translator(locale), [locale]);
   const [input, setInput] = useState('');
   const [editing, setEditing] = useState(true);
   const [site, setSite] = useState('');
@@ -159,213 +162,215 @@ export default function Analyzer({ content }: { content: ContentBundle }) {
   };
 
   return (
-    <div class="analyzer">
-      <section class="input-block" aria-labelledby="input-title">
-        {showEditor ? (
-          <>
-            <h1 id="input-title">
-              <label for="policy-input">{t('analyzer.inputLabel')}</label>
-            </h1>
-            <p class="muted">{t('analyzer.inputHint')}</p>
-            <textarea
-              id="policy-input"
-              class="code"
-              rows={hasPolicy ? 4 : 5}
-              spellcheck={false}
-              autocomplete="off"
-              placeholder={t('analyzer.placeholder')}
-              value={input}
-              onInput={(e) => {
-                typed.current = true;
-                setPolicy(e.currentTarget.value, false);
-              }}
-              onPaste={(e) => {
-                // A paste is a complete policy: show the analysis right away.
-                const text = e.clipboardData?.getData('text') ?? '';
-                if (text.trim() && !input.trim()) {
-                  e.preventDefault();
+    <I18n.Provider value={t}>
+      <div class="analyzer">
+        <section class="input-block" aria-labelledby="input-title">
+          {showEditor ? (
+            <>
+              <h1 id="input-title">
+                <label for="policy-input">{t('analyzer.inputLabel')}</label>
+              </h1>
+              <p class="muted">{t('analyzer.inputHint')}</p>
+              <textarea
+                id="policy-input"
+                class="code"
+                rows={hasPolicy ? 4 : 5}
+                spellcheck={false}
+                autocomplete="off"
+                placeholder={t('analyzer.placeholder')}
+                value={input}
+                onInput={(e) => {
                   typed.current = true;
-                  setPolicy(text, true);
-                }
-              }}
-            />
-            <div class="input-actions">
-              {hasPolicy ? (
-                <button type="button" class="button" onClick={() => setEditing(false)}>
-                  {t('analyzer.hideEditor')}
-                </button>
-              ) : (
-                <button type="button" class="button quiet" onClick={() => {
-                    track('example');
-                    setPolicy(EXAMPLE_POLICY, true);
-                  }}>
-                  {t('analyzer.example')}
-                </button>
-              )}
-              <p class="find-hint">
-                {t('analyzer.noPolicy')} <a href="/find-my-csp">{t('analyzer.findLink')}</a>
-              </p>
-            </div>
-            <details class="site-field">
-              <summary>{t('analyzer.siteLabel')}</summary>
-              <input type="text" inputMode="url" value={site} placeholder="www.example.com" onInput={(e) => setSite(e.currentTarget.value)} />
-              <p class="muted">{t('analyzer.siteHint')}</p>
-            </details>
-            {!hasPolicy &&
-              (input.trim() !== '' ? (
-                <p class="issue">{emptyMessage(parsed.issues)}</p>
-              ) : (
-                <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
-              ))}
-          </>
-        ) : (
-          <>
-            <h1 id="input-title">{t('analyzer.yourPolicy')}</h1>
-            <div class="summary-bar">
-              <p class="summary">
-                {parsed.policies.length > 1 ? (
-                  <span class="badge">{t('analyzer.policiesShort', { count: parsed.policies.length })}</span>
+                  setPolicy(e.currentTarget.value, false);
+                }}
+                onPaste={(e) => {
+                  // A paste is a complete policy: show the analysis right away.
+                  const text = e.clipboardData?.getData('text') ?? '';
+                  if (text.trim() && !input.trim()) {
+                    e.preventDefault();
+                    typed.current = true;
+                    setPolicy(text, true);
+                  }
+                }}
+              />
+              <div class="input-actions">
+                {hasPolicy ? (
+                  <button type="button" class="button" onClick={() => setEditing(false)}>
+                    {t('analyzer.hideEditor')}
+                  </button>
                 ) : (
-                  <span class={policy?.reportOnly ? 'badge badge-report' : 'badge'}>
-                    {policy?.reportOnly ? t('analyzer.reportOnly') : t('analyzer.enforced')}
-                  </span>
+                  <button type="button" class="button quiet" onClick={() => {
+                      track('example');
+                      setPolicy(EXAMPLE_POLICY, true);
+                    }}>
+                    {t('analyzer.example')}
+                  </button>
                 )}
-                <span>{t('analyzer.rules', { count: ruleCount })}</span>
-                {policy?.origin === 'header' && <span class="muted">{t('analyzer.fromHeader')}</span>}
-                {policy?.origin === 'meta' && <span class="muted">{t('analyzer.fromMeta')}</span>}
-              </p>
-              <div class="summary-actions">
-                <button type="button" class="button quiet" onClick={() => setEditing(true)}>
-                  {t('analyzer.edit')}
-                </button>
-                <button type="button" class="button quiet" onClick={share} title={t('analyzer.shareHint')}>
-                  {shared ? t('analyzer.shared') : t('analyzer.share')}
-                </button>
-                <button
-                  type="button"
-                  class="button quiet"
-                  onClick={() => {
-                    setPolicy('', false);
-                    setEditing(true);
-                    setView('read');
-                  }}
-                >
-                  {t('analyzer.clear')}
-                </button>
+                <p class="find-hint">
+                  {t('analyzer.noPolicy')} <a href="/find-my-csp">{t('analyzer.findLink')}</a>
+                </p>
+              </div>
+              <details class="site-field">
+                <summary>{t('analyzer.siteLabel')}</summary>
+                <input type="text" inputMode="url" value={site} placeholder="www.example.com" onInput={(e) => setSite(e.currentTarget.value)} />
+                <p class="muted">{t('analyzer.siteHint')}</p>
+              </details>
+              {!hasPolicy &&
+                (input.trim() !== '' ? (
+                  <p class="issue">{emptyMessage(t, parsed.issues)}</p>
+                ) : (
+                  <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
+                ))}
+            </>
+          ) : (
+            <>
+              <h1 id="input-title">{t('analyzer.yourPolicy')}</h1>
+              <div class="summary-bar">
+                <p class="summary">
+                  {parsed.policies.length > 1 ? (
+                    <span class="badge">{t('analyzer.policiesShort', { count: parsed.policies.length })}</span>
+                  ) : (
+                    <span class={policy?.reportOnly ? 'badge badge-report' : 'badge'}>
+                      {policy?.reportOnly ? t('analyzer.reportOnly') : t('analyzer.enforced')}
+                    </span>
+                  )}
+                  <span>{t('analyzer.rules', { count: ruleCount })}</span>
+                  {policy?.origin === 'header' && <span class="muted">{t('analyzer.fromHeader')}</span>}
+                  {policy?.origin === 'meta' && <span class="muted">{t('analyzer.fromMeta')}</span>}
+                </p>
+                <div class="summary-actions">
+                  <button type="button" class="button quiet" onClick={() => setEditing(true)}>
+                    {t('analyzer.edit')}
+                  </button>
+                  <button type="button" class="button quiet" onClick={share} title={t('analyzer.shareHint')}>
+                    {shared ? t('analyzer.shared') : t('analyzer.share')}
+                  </button>
+                  <button
+                    type="button"
+                    class="button quiet"
+                    onClick={() => {
+                      setPolicy('', false);
+                      setEditing(true);
+                      setView('read');
+                    }}
+                  >
+                    {t('analyzer.clear')}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+
+        {hasPolicy && policy && (
+          <section class="workspace" aria-label={t('views.label')}>
+            <div class="toolbar">
+              <TabList
+                id="view"
+                label={t('views.label')}
+                value={view}
+                onChange={setView}
+                items={VIEWS.map((v) => ({
+                  id: v,
+                  label: (
+                    <>
+                      <span class="tab-label">{t(`views.${v}`)}</span>
+                      {badge(v)}
+                    </>
+                  ),
+                }))}
+              />
+              <div class="audience" role="radiogroup" aria-label={t('audience.label')}>
+                <span class="audience-label" aria-hidden="true">
+                  {t('audience.label')}
+                </span>
+                {AUDIENCES.map((a) => (
+                  <button key={a} type="button" role="radio" aria-checked={audience === a} title={t(`audience.${a}Hint`)} onClick={() => chooseAudience(a)}>
+                    {t(`audience.${a}`)}
+                  </button>
+                ))}
               </div>
             </div>
-          </>
-        )}
-      </section>
 
-      {hasPolicy && policy && (
-        <section class="workspace" aria-label={t('views.label')}>
-          <div class="toolbar">
-            <TabList
-              id="view"
-              label={t('views.label')}
-              value={view}
-              onChange={setView}
-              items={VIEWS.map((v) => ({
-                id: v,
-                label: (
-                  <>
-                    <span class="tab-label">{t(`views.${v}`)}</span>
-                    {badge(v)}
-                  </>
-                ),
-              }))}
-            />
-            <div class="audience" role="radiogroup" aria-label={t('audience.label')}>
-              <span class="audience-label" aria-hidden="true">
-                {t('audience.label')}
-              </span>
-              {AUDIENCES.map((a) => (
-                <button key={a} type="button" role="radio" aria-checked={audience === a} title={t(`audience.${a}Hint`)} onClick={() => chooseAudience(a)}>
-                  {t(`audience.${a}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {view === 'read' && (
-            <div {...tabPanelProps('view', 'read')} class="panel">
-              <div class="panel-head">
-                <PolicySwitch
-                  parsed={parsed}
-                  value={currentIndex}
-                  onChange={(i) => {
-                    setPolicyIndex(i);
-                    setSelection(undefined);
-                  }}
-                />
-                <p class="muted">{t('analyzer.clickHint')}</p>
-              </div>
-              <div class="decoded-grid">
-                <PolicyView
-                  policy={policy}
-                  policyIndex={currentIndex}
-                  issues={parsed.issues}
-                  docs={content.directives}
-                  selection={activeSelection}
-                  onSelect={setSelection}
-                />
-                {activeSelection && activeSelection.policyIndex === currentIndex && (
-                  <div class="explanation-slot">
-                    <Explanation policy={policy} selection={activeSelection} issues={parsed.issues} audience={audience} content={content} />
+            {view === 'read' && (
+              <div {...tabPanelProps('view', 'read')} class="panel">
+                <div class="panel-head">
+                  <PolicySwitch
+                    parsed={parsed}
+                    value={currentIndex}
+                    onChange={(i) => {
+                      setPolicyIndex(i);
+                      setSelection(undefined);
+                    }}
+                  />
+                  <p class="muted">{t('analyzer.clickHint')}</p>
+                </div>
+                <div class="decoded-grid">
+                  <PolicyView
+                    policy={policy}
+                    policyIndex={currentIndex}
+                    issues={parsed.issues}
+                    docs={content.directives}
+                    selection={activeSelection}
+                    onSelect={setSelection}
+                  />
+                  {activeSelection && activeSelection.policyIndex === currentIndex && (
+                    <div class="explanation-slot">
+                      <Explanation policy={policy} selection={activeSelection} issues={parsed.issues} audience={audience} content={content} />
+                    </div>
+                  )}
+                </div>
+                {issues.length > 0 && (
+                  <div class="issues">
+                    <h2>{t('issues.title')}</h2>
+                    <ul class="issue-list">
+                      {issues.map((i, n) => (
+                        <li key={n}>{issueText(t, i)}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
-              {issues.length > 0 && (
-                <div class="issues">
-                  <h2>{t('issues.title')}</h2>
-                  <ul class="issue-list">
-                    {issues.map((i, n) => (
-                      <li key={n}>{issueText(i)}</li>
-                    ))}
-                  </ul>
+            )}
+
+            {view === 'allows' && (
+              <div {...tabPanelProps('view', 'allows')} class="panel">
+                <div class="panel-head">
+                  <PolicySwitch parsed={parsed} value={currentIndex} onChange={setPolicyIndex} />
+                  <p class="muted">{t('map.intro')}</p>
                 </div>
-              )}
-            </div>
-          )}
-
-          {view === 'allows' && (
-            <div {...tabPanelProps('view', 'allows')} class="panel">
-              <div class="panel-head">
-                <PolicySwitch parsed={parsed} value={currentIndex} onChange={setPolicyIndex} />
-                <p class="muted">{t('map.intro')}</p>
+                <AllowMap policy={policy} origin={origin} audience={audience} content={content} />
               </div>
-              <AllowMap policy={policy} origin={origin} audience={audience} content={content} />
-            </div>
-          )}
+            )}
 
-          {view === 'tools' && (
-            <div {...tabPanelProps('view', 'tools')} class="panel">
-              <p class="panel-intro">{t('vendors.intro')}</p>
-              <VendorChecker
-                vendors={content.vendors}
-                selected={selectedVendors}
-                checks={analysis.vendors}
-                audience={audience}
-                onChange={setSelectedVendors}
-              />
-              {analysis.vendors.length > 0 && (
-                <p class="next-step">
-                  <button type="button" class="button" onClick={() => goTo('report')}>
-                    {t(`report.cta.${audience}`)}
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
+            {view === 'tools' && (
+              <div {...tabPanelProps('view', 'tools')} class="panel">
+                <p class="panel-intro">{t('vendors.intro')}</p>
+                <VendorChecker
+                  vendors={content.vendors}
+                  selected={selectedVendors}
+                  checks={analysis.vendors}
+                  audience={audience}
+                  onChange={setSelectedVendors}
+                />
+                {analysis.vendors.length > 0 && (
+                  <p class="next-step">
+                    <button type="button" class="button" onClick={() => goTo('report')}>
+                      {t(`report.cta.${audience}`)}
+                    </button>
+                  </p>
+                )}
+              </div>
+            )}
 
-          {view === 'report' && (
-            <div {...tabPanelProps('view', 'report')} class="panel">
-              <ReportPanel analysis={analysis} audience={audience} site={site} onPickTools={() => goTo('tools')} />
-            </div>
-          )}
-        </section>
-      )}
-    </div>
+            {view === 'report' && (
+              <div {...tabPanelProps('view', 'report')} class="panel">
+                <ReportPanel analysis={analysis} audience={audience} site={site} onPickTools={() => goTo('tools')} />
+              </div>
+            )}
+          </section>
+        )}
+      </div>
+    </I18n.Provider>
   );
 }

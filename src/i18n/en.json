@@ -16,7 +16,9 @@
       "system": "Match my system",
       "light": "Light",
       "dark": "Dark"
-    }
+    },
+    "skip": "Skip to content",
+    "navLabel": "Main"
   },
   "audience": {
     "label": "Explain it for",
@@ -53,7 +55,8 @@
     "edit": "Edit",
     "hideEditor": "Done",
     "policiesShort": "{count} policies",
-    "yourPolicy": "Your policy"
+    "yourPolicy": "Your policy",
+    "reportOnlyShort": "report-only"
   },
   "issues": {
     "title": "Things to check",
@@ -177,7 +180,25 @@
       "deploy": "Where to set it",
       "needsNonce": "Needs nonce propagation",
       "verify": "Test it first with Content-Security-Policy-Report-Only, then watch the browser console for \"Refused to load\" messages.",
-      "diffCaption": "Changes, rule by rule. Copying gives the full updated policy."
+      "diffCaption": "Changes, rule by rule. Copying gives the full updated policy.",
+      "targets": {
+        "nginx": "nginx",
+        "apache": "Apache",
+        "cloudfront": "AWS CloudFront",
+        "netlify": "Netlify",
+        "vercel": "Vercel",
+        "express": "Express (helmet)",
+        "meta": "<meta> tag"
+      },
+      "targetCaptions": {
+        "nginx": "Add to your nginx server block",
+        "apache": "Add to your Apache config or .htaccess",
+        "cloudfront": "Response headers policy (CloudFormation)",
+        "netlify": "Add to your _headers file",
+        "vercel": "Add to vercel.json",
+        "express": "Add to your Express app",
+        "meta": "Add to the <head> of every page"
+      }
     },
     "security": {
       "title": "Security review",
@@ -203,7 +224,8 @@
       "security": "See the security review"
     },
     "pickTools": "Pick my tools",
-    "copyThis": "Copy this"
+    "copyThis": "Copy this",
+    "copyMarkdown": "Copy Markdown"
   },
   "views": {
     "label": "Analysis",
@@ -215,5 +237,21 @@
     "blocked": "{count} blocked",
     "nonce": "{count} need a nonce",
     "allOk": "all OK"
+  },
+  "explanation": {
+    "fallsBackTo": "Falls back to:",
+    "alsoAppliesTo": "Also applies to:",
+    "alsoGoverns": "Currently also governs:",
+    "moreAbout": "More about {directive}"
+  },
+  "categories": {
+    "tag-management": "Tag management",
+    "analytics": "Analytics",
+    "advertising": "Advertising",
+    "experimentation": "A/B testing & personalisation",
+    "session-replay": "Session replay & heatmaps",
+    "consent": "Consent management",
+    "chat": "Chat & support",
+    "other": "Other"
   }
 }

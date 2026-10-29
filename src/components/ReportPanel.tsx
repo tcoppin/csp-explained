@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { SITE_URL } from '../config';
-import { t } from '../i18n';
+import type { Translate } from '../i18n';
 import { patchedPolicies, type Analysis } from '../lib/analysis';
 import type { Audience } from '../lib/csp/model';
 import { deploySnippet, developerReport, policyDiff, TARGETS, type Target } from '../lib/reports/developer';
@@ -8,10 +8,12 @@ import { countByLevel, securityReport } from '../lib/reports/security';
 import { itRequest, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
+import { useT } from './i18n';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 
-function CopyButton({ text, label = t('report.copy'), onCopy }: { text: string; label?: string; onCopy?: () => void }) {
+function CopyButton({ text, label, onCopy }: { text: string; label?: string; onCopy?: () => void }) {
+  const t = useT();
   const [done, setDone] = useState(false);
   const copy = async () => {
     try {
@@ -25,7 +27,7 @@ function CopyButton({ text, label = t('report.copy'), onCopy }: { text: string; 
   };
   return (
     <button type="button" class="button" onClick={copy}>
-      {done ? t('report.copied') : label}
+      {done ? t('report.copied') : (label ?? t('report.copy'))}
     </button>
   );
 }
@@ -51,11 +53,9 @@ function Tabs<T extends string>({ items, value, onChange, label }: { items: { id
   );
 }
 
-const FORMATS: { id: MessageFormat; label: string }[] = [
-  { id: 'email', label: t('report.formats.email') },
-  { id: 'chat', label: t('report.formats.chat') },
-  { id: 'ticket', label: t('report.formats.ticket') },
-];
+const FORMATS: MessageFormat[] = ['email', 'chat', 'ticket'];
+
+const labelled = <T extends string>(t: Translate, ids: readonly T[], prefix: string) => ids.map((id) => ({ id, label: t(`${prefix}.${id}`) }));
 
 interface Props {
   analysis: Analysis;
@@ -65,6 +65,7 @@ interface Props {
 }
 
 export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
+  const t = useT();
   const [format, setFormat] = useState<MessageFormat>('email');
   const [target, setTarget] = useState<Target>('nginx');
   const copied = (kind: ReportPart) => () => track('copy-report', { audience, kind });
@@ -83,7 +84,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
     const text = itRequest(analysis, t, { format, site, toolUrl: SITE_URL });
     return (
       <div class="report">
-        <Tabs items={FORMATS} value={format} onChange={setFormat} label={t('report.title')} />
+        <Tabs items={labelled(t, FORMATS, 'report.formats')} value={format} onChange={setFormat} label={t('report.title')} />
         <textarea class="code message" readOnly rows={Math.min(28, text.split('\n').length + 1)} value={text} aria-label={t('report.title')} />
         <div class="actions">
           <CopyButton text={text} onCopy={copied('message')} />
@@ -114,8 +115,8 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
                 ))}
             </CodeBox>
             <h3>{t('report.developer.deploy')}</h3>
-            <Tabs items={TARGETS} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
-            <CodeBox caption={TARGETS.find((x) => x.id === target)?.caption ?? ''} copyText={snippet} onCopy={copied('deploy')} />
+            <Tabs items={labelled(t, TARGETS, 'report.developer.targets')} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
+            <CodeBox caption={t(`report.developer.targetCaptions.${target}`)} copyText={snippet} onCopy={copied('deploy')} />
           </>
         )}
         {analysis.vendors.some((v) => v.verdict === 'needs-nonce') && (
@@ -134,7 +135,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
         )}
         <p class="muted">{t('report.developer.verify')}</p>
         <div class="actions">
-          <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} onCopy={copied('markdown')} />
+          <CopyButton text={markdown} label={t('report.copyMarkdown')} onCopy={copied('markdown')} />
           <button type="button" class="button quiet" onClick={() => download('csp-change.md', markdown)}>
             {t('report.download')}
           </button>
@@ -175,7 +176,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
       {analysis.findings.length === 0 ? <p>{t('report.security.noFindings')}</p> : findingList(analysis.findings)}
       <p class="muted">{t('report.security.attribution')}</p>
       <div class="actions">
-        <CopyButton text={markdown} label={`${t('report.copy')} Markdown`} onCopy={copied('markdown')} />
+        <CopyButton text={markdown} label={t('report.copyMarkdown')} onCopy={copied('markdown')} />
         <button type="button" class="button quiet" onClick={() => download('csp-security-review.md', markdown)}>
           {t('report.download')}
         </button>

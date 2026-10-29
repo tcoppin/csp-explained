@@ -1,17 +1,9 @@
 import type { Translate } from '../../i18n';
 import { patchedPolicies, type Analysis } from '../analysis';
 
-export type Target = 'nginx' | 'apache' | 'cloudfront' | 'netlify' | 'vercel' | 'express' | 'meta';
-
-export const TARGETS: { id: Target; label: string; caption: string }[] = [
-  { id: 'nginx', label: 'nginx', caption: 'Add to your nginx server block' },
-  { id: 'apache', label: 'Apache', caption: 'Add to your Apache config or .htaccess' },
-  { id: 'cloudfront', label: 'AWS CloudFront', caption: 'Response headers policy (CloudFormation)' },
-  { id: 'netlify', label: 'Netlify', caption: 'Add to your _headers file' },
-  { id: 'vercel', label: 'Vercel', caption: 'Add to vercel.json' },
-  { id: 'express', label: 'Express (helmet)', caption: 'Add to your Express app' },
-  { id: 'meta', label: '<meta> tag', caption: 'Add to the <head> of every page' },
-];
+/** Where a developer can deploy the policy, in display order. Labels and captions: `report.developer.targets.*`. */
+export const TARGETS = ['nginx', 'apache', 'cloudfront', 'netlify', 'vercel', 'express', 'meta'] as const;
+export type Target = (typeof TARGETS)[number];
 
 const headerName = (reportOnly: boolean) => (reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy');
 

@@ -1,9 +1,10 @@
-import { t } from '../i18n';
+import type { Translate } from '../i18n';
 import { explainSource, type ContentBundle } from '../lib/content';
 import { Fragment } from 'preact';
 import { directiveInfo, DIRECTIVES } from '../lib/csp/directives';
 import { resolve } from '../lib/csp/fallback';
 import type { Audience, ParseIssue, Policy } from '../lib/csp/model';
+import { useT } from './i18n';
 import { highlightClass, type Selection } from './PolicyView';
 
 interface Props {
@@ -14,12 +15,13 @@ interface Props {
   content: ContentBundle;
 }
 
-function issueText(i: ParseIssue): string {
+function issueText(t: Translate, i: ParseIssue): string {
   return t(`issues.${i.code}`, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
 }
 
 /** Explains the selected directive or value, in the voice of the selected audience. */
 export function Explanation({ policy, selection, issues, audience, content }: Props) {
+  const t = useT();
   const directive = policy.directives[selection.directiveIndex];
   if (!directive) return null;
   const info = directiveInfo(directive.name);
@@ -94,12 +96,12 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
           <p>{doc ? doc[audience] : t('issues.unknown-directive', { directive: directive.name })}</p>
           {audience !== 'simple' && info && info.fallback.length > 0 && (
             <p class="muted">
-              Falls back to: <code>{info.fallback.join(' → ')}</code>
+              {t('explanation.fallsBackTo')} <code>{info.fallback.join(' → ')}</code>
             </p>
           )}
           {covers.length > 0 && (
             <p class="muted">
-              {audience === 'simple' ? 'Also applies to: ' : 'Currently also governs: '}
+              {audience === 'simple' ? t('explanation.alsoAppliesTo') : t('explanation.alsoGoverns')}{' '}
               {covers.map((c, i) => (
                 <Fragment key={c}>
                   {i > 0 && ', '}
@@ -110,14 +112,14 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
           )}
           {info && (
             <p>
-              <a href={`/directives/${directive.name}`}>More about {directive.name}</a>
+              <a href={`/directives/${directive.name}`}>{t('explanation.moreAbout', { directive: directive.name })}</a>
             </p>
           )}
         </>
       )}
       {relevant.map((i) => (
         <p key={i.code} class="issue" role="note">
-          {issueText(i)}
+          {issueText(t, i)}
         </p>
       ))}
     </article>

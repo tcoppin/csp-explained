@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { REPO_URL } from '../config';
-import { t } from '../i18n';
 import { groupByCategory } from '../lib/catalogue/categories';
 import type { Vendor } from '../lib/catalogue/schema';
 import { matchesTool } from '../lib/catalogue/search';
 import { NewTabLink } from './NewTabLink';
+import { useT } from './i18n';
 
 
 interface Props {
@@ -22,6 +22,7 @@ const optionId = (id: string) => `tool-option-${id}`;
  * removable chips; the list stays open after picking so several tools can be added in a row.
  */
 export function ToolPicker({ vendors, selected, onToggle }: Props) {
+  const t = useT();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | undefined>();
@@ -29,10 +30,10 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
 
   const groups = useMemo(
     () =>
-      groupByCategory(vendors)
+      groupByCategory(vendors, t)
         .map((g) => ({ ...g, vendors: g.vendors.filter((v) => matchesTool(v, query, g.label)) }))
         .filter((g) => g.vendors.length > 0),
-    [vendors, query],
+    [vendors, query, t],
   );
   const visible = groups.flatMap((g) => g.vendors);
   const byId = new Map(vendors.map((v) => [v.id, v]));

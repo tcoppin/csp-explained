@@ -1,7 +1,7 @@
 import { Fragment } from 'preact';
 import type { ContentBundle } from '../lib/content';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../lib/csp/model';
-import { t } from '../i18n';
+import { useT } from './i18n';
 
 export interface Selection {
   policyIndex: number;
@@ -39,6 +39,7 @@ interface Props {
 
 /** The policy, one directive per line, every token clickable, annotated with a plain title in the margin. */
 export function PolicyView({ policy, policyIndex, issues, docs, selection, onSelect }: Props) {
+  const t = useT();
   const isSelected = (d: number, v?: number) =>
     selection?.policyIndex === policyIndex && selection.directiveIndex === d && selection.valueIndex === v;
 

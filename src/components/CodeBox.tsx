@@ -1,6 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
-import { t } from '../i18n';
+import { useT } from './i18n';
 
 interface Props {
   /** Where the code is meant to be used, e.g. "Add to your nginx server block". */
@@ -16,6 +16,7 @@ interface Props {
 
 /** Island version of CodeBlock.astro: same markup and styles (global .code-block). */
 export function CodeBox({ caption, copyText, children, class: className, onCopy }: Props) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     try {

@@ -3,9 +3,11 @@ import Base from '../../layouts/Base.astro';
 import { NewTabLink } from '../../components/NewTabLink';
 import { REPO_URL } from '../../config';
 import { groupByCategory } from '../../lib/catalogue/categories';
+import { translatorFor } from '../../i18n';
 import { content } from '../../lib/content';
 
-const groups = groupByCategory(content.vendors);
+const t = translatorFor(Astro);
+const groups = groupByCategory(content.vendors, t);
 ---
 
 <Base title="Tools" description="What popular marketing and analytics tools need in your Content-Security-Policy, taken from their official documentation.">
@@ -35,7 +37,7 @@ const groups = groupByCategory(content.vendors);
     <h2>Missing a tool?</h2>
     <p>
       The catalogue is
-      open. <NewTabLink href={`${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20`} label="Suggest a tool" /> with a link
+      open. <NewTabLink t={t} href={`${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20`} label="Suggest a tool" /> with a link
       to its official CSP documentation.
     </p>
   </div>

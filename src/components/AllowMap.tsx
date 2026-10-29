@@ -1,10 +1,10 @@
-import { t } from '../i18n';
 import { explainSource, type ContentBundle } from '../lib/content';
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
 import { resolve } from '../lib/csp/fallback';
 import { checkResource } from '../lib/csp/matcher';
 import type { Audience, Policy } from '../lib/csp/model';
 import { highlightClass } from './PolicyView';
+import { useT } from './i18n';
 
 const LOADED: ResourceType[] = ['script', 'style', 'img', 'font', 'connect', 'frame', 'media', 'worker', 'object', 'form', 'base'];
 const BEHAVIOURS: ResourceType[] = ['inline-script', 'inline-handler', 'eval', 'inline-style'];
@@ -18,6 +18,7 @@ interface Props {
 
 /** For each kind of content, where the browser accepts it from, in plain words. */
 export function AllowMap({ policy, origin, audience, content }: Props) {
+  const t = useT();
   return (
     <table class="allow-map">
       <caption class="visually-hidden">{t('map.title')}</caption>

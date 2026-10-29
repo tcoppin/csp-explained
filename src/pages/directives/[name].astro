@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { NewTabLink } from '../../components/NewTabLink';
+import { translatorFor } from '../../i18n';
 import { content, type DirectiveDoc } from '../../lib/content';
 import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
 
@@ -12,6 +13,7 @@ export function getStaticPaths() {
 }
 
 const { info, doc } = Astro.props as { info: DirectiveInfo; doc: DirectiveDoc };
+const t = translatorFor(Astro);
 const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === info.name).map((d) => d.name);
 ---
 
@@ -48,7 +50,7 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
       <p>{doc.security}</p>
     </section>
     <p class="muted">
-      Reference: <NewTabLink href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} label="MDN" />
+      Reference: <NewTabLink t={t} href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} label="MDN" />
     </p>
   </article>
 </Base>

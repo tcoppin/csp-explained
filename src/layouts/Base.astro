@@ -1,13 +1,15 @@
 ---
 import '../styles/global.css';
 import { SITE_URL } from '../config';
-import { t } from '../i18n';
+import { localeOf, translator } from '../i18n';
 
 interface Props {
   title?: string;
   description?: string;
 }
 
+const locale = localeOf(Astro.currentLocale);
+const t = translator(locale);
 const { title, description = t('site.tagline') } = Astro.props;
 const fullTitle = title ? `${title} – ${t('site.name')}` : `${t('site.name')}: ${t('site.tagline')}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -31,7 +33,7 @@ const themes = [
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -58,11 +60,11 @@ const themes = [
     </script>
   </head>
   <body data-page={Astro.url.pathname}>
-    <a class="skip visually-hidden" href="#main">Skip to content</a>
+    <a class="skip visually-hidden" href="#main">{t('site.skip')}</a>
     <header class="site-header">
       <div class="wrap bar">
         <a class="brand" href="/">{t('site.name')}</a>
-        <nav aria-label="Main">
+        <nav aria-label={t('site.navLabel')}>
           <ul>
             {
               nav.map((item) => (
