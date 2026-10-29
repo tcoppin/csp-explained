@@ -1,4 +1,4 @@
-import type { Translate } from '../i18n';
+import { localePath, type Translate } from '../i18n';
 import { explainSource, type ContentBundle } from '../lib/content';
 import { Fragment } from 'preact';
 import { directiveInfo, DIRECTIVES } from '../lib/csp/directives';
@@ -112,7 +112,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
           )}
           {info && (
             <p>
-              <a href={`/directives/${directive.name}`}>{t('explanation.moreAbout', { directive: directive.name })}</a>
+              <a href={localePath(t.locale, `/directives/${directive.name}`)}>{t('explanation.moreAbout', { directive: directive.name })}</a>
             </p>
           )}
         </>

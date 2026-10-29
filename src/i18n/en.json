@@ -2,6 +2,7 @@
   "site": {
     "name": "CSP Explained",
     "tagline": "Understand any Content-Security-Policy, in plain language.",
+    "ogNote": "Every rule explained, for everyone, developers and security teams.",
     "nav": {
       "analyzer": "Analyzer",
       "find": "Find my CSP",
@@ -18,7 +19,9 @@
       "dark": "Dark"
     },
     "skip": "Skip to content",
-    "navLabel": "Main"
+    "navLabel": "Main",
+    "languageLabel": "Language",
+    "ogLocale": "en_US"
   },
   "audience": {
     "label": "Explain it for",

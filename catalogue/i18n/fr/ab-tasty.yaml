@@ -1,0 +1,60 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Add 'nonce-…' and 'strict-dynamic' to script-src and put the same nonce attribute on the tag's script element. With a nonce, 'unsafe-inline' is no longer required.
+    { en: 11272eaf, text: "Ajoutez 'nonce-…' et 'strict-dynamic' à script-src et mettez le même attribut nonce sur l'élément script du tag. Avec un nonce, 'unsafe-inline' n'est plus nécessaire." }
+notes:
+  # The editor uses the tag, so allowing the editor's requirements also covers the tag. A developer-portal version of the same page lists narrower hosts; this entry follows docs.abtasty.com.
+  { en: c03387cb, text: "L'éditeur utilise le tag : autoriser ce dont l'éditeur a besoin couvre donc aussi le tag. Une version de la même page sur le portail développeurs liste des hôtes plus restreints ; cette fiche suit docs.abtasty.com." }
+features:
+  tag:
+    label:
+      # Tag (run campaigns)
+      { en: 18702ea5, text: "Tag (diffuser les campagnes)" }
+    reasons:
+      script:
+        # Loads the tag and campaign code.
+        { en: 9aaaa42a, text: "Charge le tag et le code des campagnes." }
+      inline-script:
+        # Campaign code runs inline (not needed with a nonce).
+        { en: 80270ba2, text: "Le code des campagnes s'exécute dans la page (inutile avec un nonce)." }
+      frame:
+        # Uses frames on your own domain.
+        { en: 2144010f, text: "Utilise des cadres sur votre propre domaine." }
+      connect:
+        # Sends visitor data and campaign events.
+        { en: 46ad7fdd, text: "Envoie les données de visite et les événements des campagnes." }
+      style:
+        # Loads campaign styles.
+        { en: cfb616aa, text: "Charge les styles des campagnes." }
+      inline-style:
+        # Campaigns inject styles to change the page.
+        { en: 105d9169, text: "Les campagnes injectent des styles pour modifier la page." }
+      img:
+        # Loads campaign images.
+        { en: f3add046, text: "Charge les images des campagnes." }
+  editor:
+    label:
+      # Visual editor
+      { en: 5665dd29, text: "Éditeur visuel" }
+    reasons:
+      script:
+        # The editor runs scripts created on the fly.
+        { en: 6eb47c1e, text: "L'éditeur exécute des scripts créés à la volée." }
+      frame:
+        # Uses frames on your own domain.
+        { en: 2144010f, text: "Utilise des cadres sur votre propre domaine." }
+      connect:
+        # Talks to the AB Tasty app.
+        { en: 28b2e05c, text: "Échange avec l'application AB Tasty." }
+      img:
+        # Loads editor images.
+        { en: 509253f3, text: "Charge les images de l'éditeur." }
+      style:
+        # Loads editor styles.
+        { en: 54f0d998, text: "Charge les styles de l'éditeur." }
+      font:
+        # Loads editor fonts.
+        { en: e5b92af4, text: "Charge les polices de l'éditeur." }

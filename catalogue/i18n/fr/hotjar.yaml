@@ -1,0 +1,27 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Based on Hotjar's default-src template. Hotjar also publishes a stricter per-directive template that is not captured here yet.
+  { en: 47e70cb2, text: "D'après le modèle default-src de Hotjar. Hotjar publie aussi un modèle plus strict, directive par directive, qui n'est pas encore repris ici." }
+features:
+  tracking:
+    label:
+      # Tracking code
+      { en: 1f0877cd, text: "Code de suivi" }
+    reasons:
+      script:
+        # Loads the tracking script.
+        { en: c3c65a83, text: "Charge le script de suivi." }
+      inline-script:
+        # The tracking code is an inline snippet.
+        { en: 1a6332dc, text: "Le code de suivi est un snippet dans la page." }
+      connect:
+        # Sends recordings and events (including over WebSocket).
+        { en: 81dc40f9, text: "Envoie les enregistrements et les événements (y compris par WebSocket)." }
+      img:
+        # Hotjar images.
+        { en: d45dc322, text: "Images Hotjar." }
+      inline-style:
+        # Survey and feedback widgets inject their styles.
+        { en: 5e98c731, text: "Les questionnaires et widgets de feedback injectent leurs styles." }

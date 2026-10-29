@@ -1,0 +1,319 @@
+{
+  "site": {
+    "name": "CSP Explained",
+    "tagline": "Comprendre n'importe quelle Content-Security-Policy, en termes simples.",
+    "ogNote": "Chaque règle expliquée, pour tout le monde, les développeurs et les équipes sécurité.",
+    "nav": {
+      "analyzer": "Analyseur",
+      "find": "Trouver ma CSP",
+      "learn": "C'est quoi une CSP ?",
+      "vendors": "Outils",
+      "about": "À propos"
+    },
+    "footer": "Indépendant et gratuit. Votre politique ne quitte jamais votre navigateur.",
+    "newTab": "(s'ouvre dans un nouvel onglet)",
+    "theme": {
+      "label": "Thème de couleurs",
+      "system": "Comme mon système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "skip": "Aller au contenu",
+    "navLabel": "Principale",
+    "languageLabel": "Langue",
+    "ogLocale": "fr_FR"
+  },
+  "audience": {
+    "label": "Expliquer pour",
+    "simple": "Tout le monde",
+    "simpleHint": "Sans jargon",
+    "developer": "Développeurs",
+    "developerHint": "Comportement exact",
+    "security": "Sécurité",
+    "securityHint": "Risques et compromis"
+  },
+  "analyzer": {
+    "inputLabel": "Collez une Content-Security-Policy",
+    "inputHint": "Une valeur d'en-tête, la ou les lignes d'en-tête complètes, la sortie de curl -I ou une balise <meta> : tout fonctionne.",
+    "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
+    "example": "Essayer un exemple",
+    "clear": "Effacer",
+    "share": "Copier le lien de partage",
+    "shared": "Lien copié",
+    "shareHint": "La politique est stockée après le # du lien, une partie qui n'est jamais envoyée à un serveur.",
+    "noPolicy": "Vous n'avez pas votre politique sous la main ?",
+    "findLink": "Voici comment la trouver",
+    "siteLabel": "Adresse de votre site (facultatif)",
+    "siteHint": "Sert à comprendre 'self'. N'est envoyée nulle part.",
+    "policies": "{count} politiques trouvées",
+    "policy": "Politique {index}",
+    "enforced": "Appliquée",
+    "reportOnly": "Mode rapport seul (rien n'est bloqué)",
+    "fromHeader": "depuis un en-tête HTTP",
+    "fromMeta": "depuis une balise <meta>",
+    "clickHint": "Cliquez sur n'importe quelle partie de la politique pour voir ce qu'elle signifie.",
+    "empty": "Collez une politique ci-dessus pour commencer.",
+    "whatYouGet": "Vous obtiendrez une explication en termes simples, ce que la politique autorise, si vos outils fonctionneront avec elle et un message pour votre équipe informatique.",
+    "rules": "{count} règles",
+    "edit": "Modifier",
+    "hideEditor": "Terminé",
+    "policiesShort": "{count} politiques",
+    "yourPolicy": "Votre politique",
+    "reportOnlyShort": "rapport seul"
+  },
+  "issues": {
+    "title": "Points à vérifier",
+    "empty-input": "Nous n'avons trouvé aucune directive dans ce texte.",
+    "violation-message": "C'est un message d'erreur, pas votre politique. Il ne montre que la règle qui a bloqué quelque chose ({directive}). Trouvez la politique complète, puis collez-la ici.",
+    "violation-message-unnamed": "C'est un message d'erreur, pas votre politique. Il ne montre que la règle qui a bloqué quelque chose. Trouvez la politique complète, puis collez-la ici.",
+    "unknown-directive": "« {directive} » n'est pas une directive CSP : les navigateurs l'ignorent. Une faute de frappe ?",
+    "duplicate-directive": "« {directive} » apparaît plusieurs fois. Les navigateurs n'utilisent que la première et ignorent les autres.",
+    "deprecated-directive": "« {directive} » est obsolète ou sans effet dans les navigateurs actuels.",
+    "ignored-in-meta": "« {directive} » est ignorée quand la politique est définie par une balise <meta>. Elle ne fonctionne que dans un en-tête HTTP.",
+    "missing-quotes": "« {value} » dans {directive} doit s'écrire entre apostrophes ('{value}'). Sans elles, le navigateur le prend pour un nom de site.",
+    "invalid-source": "« {value} » dans {directive} n'est pas une valeur valide : les navigateurs l'ignorent.",
+    "none-with-other-sources": "{directive} contient 'none' avec d'autres valeurs ; 'none' est alors ignoré.",
+    "report-only-in-meta": "Une politique en mode rapport seul ne peut pas être définie par une balise <meta> ; les navigateurs ignorent celle-ci.",
+    "empty-directive": "{directive} n'a aucune valeur, ce qui bloque tout ce qui est de ce type."
+  },
+  "map": {
+    "title": "Ce que cette politique autorise",
+    "intro": "Pour chaque type de contenu, d'où le navigateur l'accepte.",
+    "notRestricted": "Aucune restriction : autorisé depuis n'importe où",
+    "via": "utilise la règle {directive}",
+    "nothing": "Entièrement bloqué",
+    "verdict": {
+      "allowed": "Autorisé",
+      "blocked": "Bloqué",
+      "needs-nonce": "Seulement avec le nonce de la page"
+    }
+  },
+  "resources": {
+    "script": "Scripts",
+    "style": "Styles",
+    "img": "Images",
+    "font": "Polices",
+    "connect": "Connexions de données",
+    "frame": "Cadres intégrés",
+    "media": "Audio et vidéo",
+    "object": "Plugins",
+    "manifest": "Manifeste d'application",
+    "worker": "Tâches en arrière-plan",
+    "form": "Envois de formulaires",
+    "base": "Adresse de base",
+    "inline-script": "Code dans la page",
+    "inline-handler": "Gestionnaires d'événements dans la page",
+    "eval": "Code depuis du texte (eval)",
+    "inline-style": "Styles dans la page",
+    "style-attr": "Attributs style"
+  },
+  "vendors": {
+    "title": "Vérifier mes outils",
+    "intro": "Choisissez les outils que vous utilisez (ou voulez utiliser) et voyez si cette politique les laisse fonctionner.",
+    "search": "Ajouter un outil",
+    "features": "Fonctionnalités utilisées",
+    "verified": "Vérifié avec la documentation officielle le {date}",
+    "partial": "Partiellement vérifié : la documentation officielle liste plus que ce que nous vérifions aujourd'hui",
+    "sources": "Documentation officielle",
+    "reportOutdated": "Signaler une fiche obsolète",
+    "none": "Ajoutez les outils que vous utilisez pour les comparer à cette politique.",
+    "verdict": {
+      "allowed": "Fonctionne avec cette politique",
+      "blocked": "Bloqué par cette politique",
+      "needs-nonce": "Demande l'aide de vos développeurs (nonce)",
+      "reported": "Serait signalé, pas bloqué"
+    },
+    "requirement": {
+      "allowed": "Autorisé par {directive} ({source})",
+      "allowedUnrestricted": "Autorisé : rien ne le restreint",
+      "blocked": "Bloqué par {directive}",
+      "needs-nonce": "{directive} ne fait confiance qu'aux scripts portant le code à usage unique de la page (nonce)",
+      "reported": "Serait signalé par la politique en mode rapport seul"
+    },
+    "nonceHow": "Comment cet outil fonctionne avec les nonces",
+    "searchPlaceholder": "Ajouter un outil, par ex. GTM ou Hotjar",
+    "selected": "Outils choisis",
+    "remove": "Retirer {name}",
+    "noMatch": "Aucun outil ne correspond à « {query} » pour l'instant.",
+    "suggest": "Un outil manque ? Proposez-le",
+    "partialShort": "partiellement vérifié"
+  },
+  "report": {
+    "title": "Votre rapport",
+    "copy": "Copier",
+    "copied": "Copié",
+    "download": "Télécharger le .md",
+    "nothing": "Ce rapport est construit à partir des outils que vous voulez utiliser. Choisissez-les d'abord, ou passez à Sécurité pour un examen de la politique elle-même.",
+    "formats": {
+      "email": "E-mail",
+      "chat": "Slack / Teams",
+      "ticket": "Ticket (Jira, Linear…)"
+    },
+    "simple": {
+      "subject": "Politique de sécurité du site : demande pour autoriser {vendors}",
+      "greeting": "Bonjour,",
+      "intro": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle bloque pour l'instant :",
+      "introOk": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle les autorise déjà : aucun changement ne semble nécessaire.",
+      "blockedLine": "{vendor} est bloqué pour : {items}.",
+      "needsNonceLine": "{vendor} : notre politique ne fait confiance qu'aux scripts portant un code à usage unique (nonce). L'outil le gère, mais la façon dont il est ajouté à la page doit transmettre ce code. {how}",
+      "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",
+      "reportedLine": "{vendor} : notre politique est en mode rapport seul, donc rien n'est bloqué, mais ces éléments apparaîtraient dans les rapports de violation.",
+      "okLine": "{vendor} : déjà autorisé.",
+      "changeTitle": "Changement proposé (uniquement des ajouts, rien n'est retiré) :",
+      "changeAdd": "{directive} : ajouter {values}",
+      "changeCreate": "ajouter une règle {directive} (copiée de default-src) avec {values}",
+      "fullPolicy": "La politique complète mise à jour serait :",
+      "risksTitle": "Bon à savoir avant de décider :",
+      "risk": {
+        "unsafe-inline-script": "{vendor} demande 'unsafe-inline' pour les scripts. C'est courant pour les outils marketing, mais cela affaiblit la protection contre le code malveillant. Si nous utilisons (ou pouvons utiliser) des nonces, c'est une option plus sûre : {how}",
+        "unsafe-inline-style": "'unsafe-inline' est demandé pour les styles de {vendor}. Le risque est limité (cela touche l'apparence de la page, pas le code qui s'exécute).",
+        "unsafe-eval": "{vendor} demande 'unsafe-eval', qui permet à la page de transformer du texte en code. Ce n'est nécessaire que pour la fonctionnalité « {feature} » et peut être omis si nous ne l'utilisons pas.",
+        "wildcard": "{source} autorise tous les sous-domaines de cet éditeur. C'est ce que documente {vendor}."
+      },
+      "sources": "Documentation de l'éditeur :",
+      "closing": "Pouvez-vous me dire si c'est possible, ou si vous préférez une autre approche ?",
+      "thanks": "Merci !",
+      "generatedBy": "Analyse réalisée avec {site} (la politique a été analysée uniquement dans mon navigateur)."
+    },
+    "developer": {
+      "title": "Changement de CSP proposé",
+      "noChange": "Aucun changement nécessaire pour les outils choisis.",
+      "diff": "Diff",
+      "full": "Politique mise à jour",
+      "deploy": "Où la définir",
+      "needsNonce": "Propagation du nonce nécessaire",
+      "verify": "Testez-la d'abord avec Content-Security-Policy-Report-Only, puis surveillez la console du navigateur pour les messages « Refused to load ».",
+      "diffCaption": "Les changements, règle par règle. La copie donne la politique complète mise à jour.",
+      "targets": {
+        "nginx": "nginx",
+        "apache": "Apache",
+        "cloudfront": "AWS CloudFront",
+        "netlify": "Netlify",
+        "vercel": "Vercel",
+        "express": "Express (helmet)",
+        "meta": "Balise <meta>"
+      },
+      "targetCaptions": {
+        "nginx": "À ajouter dans le bloc server nginx",
+        "apache": "À ajouter dans la configuration Apache ou le .htaccess",
+        "cloudfront": "Response headers policy (CloudFormation)",
+        "netlify": "À ajouter dans le fichier _headers",
+        "vercel": "À ajouter dans vercel.json",
+        "express": "À ajouter dans votre application Express",
+        "meta": "À ajouter dans le <head> de chaque page"
+      }
+    },
+    "security": {
+      "title": "Examen de sécurité",
+      "summary": "Constats : {high} élevés, {medium} moyens, {low} faibles",
+      "noFindings": "Aucun constat de CSP Evaluator de Google.",
+      "introduced": "Nouveaux constats qu'ajouterait le changement proposé",
+      "noneIntroduced": "Le changement proposé n'ajoute aucun constat.",
+      "current": "Constats sur la politique actuelle",
+      "level": {
+        "high": "Élevé",
+        "medium": "Moyen",
+        "low": "Faible",
+        "info": "Info"
+      },
+      "maybe": "possible",
+      "attribution": "Vérifications de la bibliothèque CSP Evaluator de Google (Apache-2.0), expliquées avec nos mots.",
+      "strictHint": "Envisagez une politique à base de nonces avec 'strict-dynamic' : elle résiste aux contournements des listes d'hôtes et la plupart des gestionnaires de balises savent propager les nonces.",
+      "multiplePolicies": "Chaque politique est évaluée seule. Le navigateur les applique toutes ensemble : une faiblesse signalée dans l'une peut être couverte par une autre."
+    },
+    "cta": {
+      "simple": "Rédiger la demande à l'informatique",
+      "developer": "Voir le changement à faire",
+      "security": "Voir l'examen de sécurité"
+    },
+    "pickTools": "Choisir mes outils",
+    "copyThis": "Copier",
+    "copyMarkdown": "Copier le Markdown"
+  },
+  "views": {
+    "label": "Analyse",
+    "read": "La lire",
+    "allows": "Ce qu'elle autorise",
+    "tools": "Mes outils fonctionneront-ils ?",
+    "report": "Rapport",
+    "issues": "{count} à vérifier",
+    "blocked": "{count} bloqués",
+    "nonce": "{count} demandent un nonce",
+    "allOk": "tout est OK"
+  },
+  "explanation": {
+    "fallsBackTo": "Se replie sur :",
+    "alsoAppliesTo": "S'applique aussi à :",
+    "alsoGoverns": "Régit aussi actuellement :",
+    "moreAbout": "En savoir plus sur {directive}"
+  },
+  "categories": {
+    "tag-management": "Gestion de balises",
+    "analytics": "Mesure d'audience",
+    "advertising": "Publicité",
+    "experimentation": "A/B testing et personnalisation",
+    "session-replay": "Replay de sessions et heatmaps",
+    "consent": "Gestion du consentement",
+    "chat": "Chat et support",
+    "other": "Autres"
+  },
+  "sketch": {
+    "tabs": {
+      "elements": "Éléments",
+      "console": "Console",
+      "network": "Réseau",
+      "sources": "Sources"
+    },
+    "types": {
+      "stylesheet": "stylesheet",
+      "script": "script",
+      "image": "image"
+    },
+    "caption": "Dessin simplifié de l'onglet Réseau de {browser}. Les numéros correspondent aux étapes."
+  },
+  "findings": {
+    "script-unsafe-inline": "'unsafe-inline' dans {directive} laisse s'exécuter tout script ou gestionnaire d'événement injecté dans la page, ce qui retire l'essentiel de la protection contre le XSS. Les nonces ou les hashes autorisent votre propre code dans la page sans lui.",
+    "script-unsafe-hashes": "'unsafe-hashes' dans {directive} autorise les gestionnaires d'événements dont le hash est listé. Plus sûr que 'unsafe-inline', mais ces gestionnaires restent ; les déplacer dans des fichiers de script supprime le besoin.",
+    "script-unsafe-eval": "'unsafe-eval' dans {directive} permet à la page de transformer du texte en code (eval(), new Function()) : des données injectées peuvent finir par s'exécuter. Gardez-le seulement si un outil indispensable l'exige.",
+    "plain-url-schemes": "{value} dans {directive} autorise des scripts depuis n'importe quelle adresse utilisant ce schéma, y compris un site contrôlé par un attaquant.",
+    "plain-wildcard": "{directive} autorise '*', n'importe quel site : cette règle protège donc peu contre le contenu injecté.",
+    "missing-directives": {
+      "object-src": "Les plugins (<object>, <embed>) ne sont pas restreints, et ils peuvent exécuter du JavaScript. Définissez object-src 'none'.",
+      "script-src": "Les scripts ne sont pas restreints : il n'y a ni script-src ni default-src sur lequel se replier. C'est la règle qui protège contre le XSS.",
+      "base-uri": "Pas de base-uri : une balise <base> injectée pourrait envoyer toutes les adresses de script relatives vers le serveur d'un attaquant, même avec des nonces. Définissez base-uri 'none' ou 'self'."
+    },
+    "script-allowlist-bypass": {
+      "known": "{value} est connu pour héberger des points d'accès JSONP ou des bibliothèques Angular qui permettent à un attaquant d'exécuter du code malgré cette politique. Retirez-le, ou passez aux nonces avec 'strict-dynamic'.",
+      "unverified": "Aucun contournement connu sur {value}, mais s'il sert des réponses JSONP ou des bibliothèques Angular, un attaquant peut s'en servir pour exécuter du code. Les listes d'hôtes sont difficiles à garder sûres ; les nonces avec 'strict-dynamic' sont plus robustes.",
+      "self": "'self' fait confiance à tous les fichiers de votre propre site. S'il héberge des points d'accès JSONP, Angular ou des fichiers envoyés par les utilisateurs, ils peuvent servir à contourner la politique."
+    },
+    "object-allowlist-bypass": {
+      "known": "{value} est connu pour héberger des fichiers Flash qui permettent à un attaquant de contourner cette politique. Définissez object-src 'none'.",
+      "restrict": "object-src autorise {value}. Les plugins sont rarement utiles aujourd'hui : peut-il être 'none' ?"
+    },
+    "ip-source": {
+      "localhost": "{directive} autorise localhost ({value}). Normal pendant le développement ; retirez-le en production.",
+      "ip": "{value} dans {directive} est une adresse IP plutôt qu'un nom d'hôte. Les navigateurs peuvent ne pas la reconnaître, elle n'autoriserait alors rien ; utilisez le nom d'hôte."
+    },
+    "nonce-length": "Le nonce {value} fait moins de 8 caractères et pourrait être deviné. Générez une nouvelle valeur aléatoire d'au moins 128 bits pour chaque réponse.",
+    "nonce-charset": "Le nonce {value} utilise des caractères hors base64. Utilisez une valeur en base64.",
+    "src-http": {
+      "resource": "{value} dans {directive} est chargé en HTTP simple, que n'importe qui sur le réseau peut modifier. Utilisez https://.",
+      "report": "Les rapports de violation sont envoyés à {value} en HTTP simple. Utilisez https:// pour qu'ils ne puissent pas être lus ou modifiés en route."
+    },
+    "deprecated-directive": "{directive} est obsolète et les navigateurs actuels l'ignorent.",
+    "unknown-directive": {
+      "colon": "Les noms de directive ne finissent pas par deux-points : {directive} est donc ignorée.",
+      "unknown": "{directive} n'est pas une directive CSP : les navigateurs l'ignorent."
+    },
+    "missing-semicolon": "{value} dans {directive} ressemble à un nom de directive, pas à une valeur. Manque-t-il un point-virgule avant ?",
+    "invalid-keyword": {
+      "quotes": "{value} dans {directive} doit s'écrire entre apostrophes ('{value}'). Sans elles, il est lu comme un nom d'hôte.",
+      "invalid": "{value} dans {directive} n'est pas un mot-clé CSP : il est ignoré."
+    },
+    "ignored": {
+      "unsafe-inline": "'unsafe-inline' dans {directive} est ignoré parce que la règle a aussi un nonce ou un hash. Il ne compte que pour les très vieux navigateurs.",
+      "strict-dynamic": "{value} dans {directive} est ignoré à cause de 'strict-dynamic' : seuls les scripts portant le nonce ou le hash, et les scripts qu'ils chargent, s'exécutent."
+    }
+  }
+}

@@ -231,7 +231,8 @@
     "noFallback": "No fallback: when absent, nothing is restricted.",
     "usedInPlaceOf": "Used in place of {directives} when those are absent.",
     "ignoredInMeta": "Ignored when the policy is delivered in a `<meta>` tag.",
-    "reference": "Reference: [MDN]({url})"
+    "reference": "Reference: [MDN]({url})",
+    "mdnLocale": "en-US"
   },
   "vendors": {
     "title": "Tools",

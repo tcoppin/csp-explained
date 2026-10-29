@@ -33,6 +33,9 @@ async function pickTool(page: Page, name: string) {
   await page.getByRole('option', { name }).click();
 }
 
+/** Each path in English and in French (`/learn` → `/learn`, `/fr/learn`). */
+const inEveryLanguage = (paths: string[]) => paths.flatMap((p) => [p, p === '/' ? '/fr' : `/fr${p}`]);
+
 const POLICY = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' data:; object-src 'none'";
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
@@ -192,7 +195,7 @@ test('no word is glued to a link or inline code on any page', async ({ page }) =
   const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   await page.goto('/directives');
   const directivePages = await page.locator('main a[href^="/directives/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
-  const paths = ['/', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', '/404', ...vendorPages, ...directivePages];
+  const paths = ['/404', ...inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
 
   const glued: string[] = [];
   for (const path of paths) {
@@ -270,11 +273,42 @@ test('search engines get a sitemap of the pages, and robots.txt points to it', a
   expect(sitemap).toContain('<loc>https://csp-explained.com/find-my-csp</loc>');
   expect(sitemap).toContain('<loc>https://csp-explained.com/directives/script-src</loc>');
   expect(sitemap).not.toContain('404');
+  // Each page lists its other language.
+  expect(sitemap).toContain('<xhtml:link rel="alternate" hreflang="fr" href="https://csp-explained.com/fr/find-my-csp"/>');
+});
+
+test('the French site stays in French and links to the same page in English', async ({ page, request }) => {
+  const errors = watchErrors(page);
+  await page.goto('/fr/learn');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+  await expect(page.locator('h1')).toHaveText("Qu'est-ce qu'une Content-Security-Policy\u202f?");
+  await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute('href', 'https://csp-explained.com/learn');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://csp-explained.com/og-image-fr.png');
+  expect((await request.get('/og-image-fr.png')).headers()['content-type']).toBe('image/png');
+
+  // Every link within the site, in the header, the page and the footer, stays on French pages.
+  for (const path of ['/fr', '/fr/learn', '/fr/find-my-csp', '/fr/vendors', '/fr/vendors/hotjar', '/fr/directives', '/fr/directives/script-src', '/fr/about']) {
+    await page.goto(path);
+    const english = await page
+      .locator('a[href^="/"]:not([data-lang-switch])')
+      .evaluateAll((as) => as.map((a) => a.getAttribute('href')!).filter((h) => h !== '/fr' && !h.startsWith('/fr/') && !h.startsWith('/fr#')));
+    expect(english, path).toEqual([]);
+  }
+
+  // The language switch, in the footer, opens the same page, keeping what follows the #.
+  await page.goto('/fr/find-my-csp#terminal');
+  await expect(page.getByRole('banner').getByRole('link', { name: 'English' })).toHaveCount(0);
+  await page.getByRole('contentinfo').getByRole('navigation', { name: 'Langue' }).getByRole('link', { name: 'English' }).click();
+  await expect(page).toHaveURL(/\/find-my-csp#terminal$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.getByRole('contentinfo').getByRole('link', { name: 'Français' }).click();
+  await expect(page).toHaveURL(/\/fr\/find-my-csp#terminal$/);
+  expect(errors).toEqual([]);
 });
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
-  for (const path of ['/', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about']) {
+  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
     expect(res?.ok(), path).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
@@ -285,7 +319,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
 test('text fits a 360px phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
-  for (const path of ['/', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about']) {
+  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
     // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
     const overflowing = await page.evaluate(() => {
@@ -306,14 +340,14 @@ test('text fits a 360px phone screen', async ({ page }) => {
 
 test('links to other websites open in a new tab and say so', async ({ page }) => {
   let checked = 0;
-  for (const path of ['/', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src']) {
+  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
     await page.goto(path);
     const links = page.locator('a[href^="http"]:not([href^="http://localhost"])');
     for (const link of await links.all()) {
       await expect(link).toHaveAttribute('target', '_blank');
       await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
       await expect(link.locator('svg.new-tab-icon')).toBeVisible();
-      await expect(link).toHaveAccessibleName(/\(opens in a new tab\)$/);
+      await expect(link).toHaveAccessibleName(/\((opens in a new tab|s'ouvre dans un nouvel onglet)\)$/);
       checked++;
     }
   }

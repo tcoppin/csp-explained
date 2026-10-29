@@ -61,9 +61,9 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 | `src/lib/reports/` | Report generators for each audience. |
 | `src/content/` | Plain-language explanations of directives and sources (YAML, validated at build); translations in `src/content/<locale>/`. |
 | `catalogue/vendors/` | One YAML file per tool, built from its official documentation. |
-| `src/i18n/en.json` | All interface, page and report text. |
+| `src/i18n/` | All interface and report text (`<locale>.json`) and page copy (`<locale>.pages.json`), in English and French. |
 | `src/components/` | The analyzer (Preact island). |
-| `src/pages/` | Analyzer, Find my CSP, What is a CSP, tool pages, directive pages, about. |
+| `src/pages/[...lang]/` | Analyzer, Find my CSP, What is a CSP, tool pages, directive pages, about; built in English (`/`) and French (`/fr`). |
 | `src/site-policy.ts` | This site's own CSP (meta policy + header policy). |
 | `src/usage.ts` | The usage events counted (anonymous, no cookies), shared with the Lambda in `infra/lambda/`. |
 | `infra/` | AWS CDK app: S3 + CloudFront, security headers, GitHub OIDC deploy role. |
@@ -83,7 +83,9 @@ Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalo
 
 ## Translations
 
-English is the reference. Interface and page text lives in `src/i18n/<locale>.json`. YAML content is translated in
+The site is in English (`/`) and French (`/fr`), with the same page addresses. English is the reference.
+Interface and report text lives in `src/i18n/<locale>.json`, page copy in `src/i18n/<locale>.pages.json`. YAML
+content is translated in
 separate files that hold text only: `src/content/<locale>/{directives,sources}.yaml` and
 `catalogue/i18n/<locale>/<vendor id>.yaml`. Hosts, resource types and verification dates always come from the
 English files, so a translation can't change what a tool needs.

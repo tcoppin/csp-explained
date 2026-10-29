@@ -1,0 +1,406 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+default-src:
+  title:
+    # Default rule
+    { en: fde69988, text: "Règle par défaut" }
+  simple:
+    # The fallback rule. For every type of content that doesn't have its own rule below, the browser uses this list of allowed places.
+    { en: 9fd4b4e6, text: "La règle de repli. Pour chaque type de contenu qui n'a pas sa propre règle ci-dessous, le navigateur utilise cette liste d'endroits autorisés." }
+  developer:
+    # Fallback for the fetch directives that are absent (script-src, style-src, img-src, connect-src, font-src, frame-src via child-src, media-src, object-src, manifest-src, worker-src). It does not apply to base-uri, form-action, frame-ancestors, sandbox or the reporting directives.
+    { en: 29ac23c1, text: "Repli pour les directives de chargement absentes (script-src, style-src, img-src, connect-src, font-src, frame-src via child-src, media-src, object-src, manifest-src, worker-src). Elle ne s'applique pas à base-uri, form-action, frame-ancestors, sandbox ni aux directives de signalement." }
+  security:
+    # A tight default-src ('none' or 'self') makes the policy fail closed: any new resource type is blocked until explicitly allowed. A permissive default-src silently widens every directive that isn't set.
+    { en: 02afa584, text: "Une default-src stricte ('none' ou 'self') rend la politique fermée par défaut : tout nouveau type de ressource est bloqué jusqu'à ce qu'il soit explicitement autorisé. Une default-src permissive élargit sans bruit chaque directive non définie." }
+script-src:
+  title:
+    # Scripts
+    { en: 8d0e6b4a, text: "Scripts" }
+  simple:
+    # Which places JavaScript code is allowed to come from. Most marketing tools (tag managers, A/B testing, analytics, chat) are JavaScript, so this is the rule that most often blocks them.
+    { en: 4c4f259f, text: "Les endroits d'où le code JavaScript a le droit de venir. La plupart des outils marketing (gestionnaires de balises, A/B testing, mesure d'audience, chat) sont du JavaScript : c'est donc la règle qui les bloque le plus souvent." }
+  developer:
+    # Governs <script> elements, inline event handlers, eval() and friends, unless script-src-elem / script-src-attr override it. With a nonce or hash present, 'unsafe-inline' is ignored; with 'strict-dynamic', host and scheme allowlists are ignored too and trust propagates from nonced scripts to the scripts they create.
+    { en: 84e9ac94, text: "Régit les éléments <script>, les gestionnaires d'événements dans la page, eval() et apparentés, sauf si script-src-elem / script-src-attr prennent le relais. En présence d'un nonce ou d'un hash, 'unsafe-inline' est ignoré ; avec 'strict-dynamic', les listes d'hôtes et de schémas sont ignorées aussi et la confiance se propage des scripts portant le nonce aux scripts qu'ils créent." }
+  security:
+    # The most important directive against cross-site scripting (XSS). Host allowlists are frequently bypassable (JSONP endpoints, open redirects, script gadgets on allowed CDNs); a nonce- or hash-based policy with 'strict-dynamic' is the robust option.
+    { en: 9e6afeee, text: "La directive la plus importante contre le cross-site scripting (XSS). Les listes d'hôtes sont souvent contournables (points d'accès JSONP, redirections ouvertes, gadgets de script sur des CDN autorisés) ; une politique à base de nonces ou de hashes avec 'strict-dynamic' est l'option robuste." }
+script-src-elem:
+  title:
+    # Script tags
+    { en: fcc739e5, text: "Balises script" }
+  simple:
+    # Like the Scripts rule, but only for script files and script blocks in the page, not for small bits of code attached to buttons or links.
+    { en: f05e93f3, text: "Comme la règle Scripts, mais seulement pour les fichiers de script et les blocs de script de la page, pas pour les petits bouts de code attachés aux boutons ou aux liens." }
+  developer:
+    # Applies to <script> elements (external and inline blocks). Falls back to script-src, then default-src. Does not govern event-handler attributes (script-src-attr) or eval (script-src).
+    { en: 88fa4d48, text: "S'applique aux éléments <script> (externes et blocs dans la page). Se replie sur script-src, puis default-src. Ne régit ni les attributs de gestionnaires d'événements (script-src-attr) ni eval (script-src)." }
+  security:
+    # Lets you split policies, e.g. allow a vendor's script file without enabling inline event handlers.
+    { en: 1b46ac33, text: "Permet de découper la politique, par exemple autoriser le fichier de script d'un éditeur sans activer les gestionnaires d'événements dans la page." }
+script-src-attr:
+  title:
+    # Inline event handlers
+    { en: 41958bd2, text: "Gestionnaires d'événements dans la page" }
+  simple:
+    # Controls tiny pieces of code written directly on page elements, such as "run this when the button is clicked".
+    { en: 220fdbc7, text: "Contrôle les tout petits bouts de code écrits directement sur les éléments de la page, du type « exécuter ceci quand on clique sur le bouton »." }
+  developer:
+    # Applies to inline event handlers (onclick="…") and javascript: navigations. Falls back to script-src, then default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
+    { en: 01ee2666, text: "S'applique aux gestionnaires d'événements dans la page (onclick=\"…\") et aux navigations javascript:. Se replie sur script-src, puis default-src. Les nonces ne s'appliquent pas aux attributs ; seuls 'unsafe-inline' ou 'unsafe-hashes' + hash fonctionnent." }
+  security:
+    # Event-handler attributes are a classic XSS vector. Keeping this at 'none' is cheap if the site doesn't use them.
+    { en: fbb047de, text: "Les attributs de gestionnaires d'événements sont un vecteur XSS classique. Les garder à 'none' ne coûte rien si le site ne s'en sert pas." }
+style-src:
+  title:
+    # Styles
+    { en: 3626e7fd, text: "Styles" }
+  simple:
+    # Which places design files (colours, fonts, layout) can come from. Tools that change how the page looks, like A/B tests or chat widgets, often need an entry here.
+    { en: 58a2747f, text: "Les endroits d'où peuvent venir les fichiers de mise en forme (couleurs, polices, mise en page). Les outils qui changent l'apparence de la page, comme les A/B tests ou les fenêtres de chat, ont souvent besoin d'une entrée ici." }
+  developer:
+    # Governs stylesheets, <style> blocks and style attributes unless style-src-elem / style-src-attr override it. 'unsafe-inline' is ignored when a nonce or hash is present.
+    { en: a746e107, text: "Régit les feuilles de style, les blocs <style> et les attributs style, sauf si style-src-elem / style-src-attr prennent le relais. 'unsafe-inline' est ignoré en présence d'un nonce ou d'un hash." }
+  security:
+    # Style injection is less dangerous than script injection, but CSS can still leak data (attribute selectors with background URLs) or redress the UI. 'unsafe-inline' here is a common, moderate trade-off.
+    { en: ca4376e6, text: "Injecter du style est moins dangereux qu'injecter du script, mais le CSS peut quand même faire fuiter des données (sélecteurs d'attributs avec des URL d'arrière-plan) ou maquiller l'interface. 'unsafe-inline' ici est un compromis courant et modéré." }
+style-src-elem:
+  title:
+    # Stylesheets
+    { en: 40619c40, text: "Feuilles de style" }
+  simple:
+    # Like the Styles rule, but only for style files and style blocks, not for styles written on single elements.
+    { en: 041cf5d9, text: "Comme la règle Styles, mais seulement pour les fichiers et les blocs de style, pas pour les styles écrits sur un seul élément." }
+  developer:
+    # Applies to <link rel=stylesheet> and <style> elements. Falls back to style-src, then default-src.
+    { en: 1ac2df65, text: "S'applique aux éléments <link rel=stylesheet> et <style>. Se replie sur style-src, puis default-src." }
+  security:
+    # Lets you allow vendor stylesheets without allowing inline style attributes.
+    { en: "37737595", text: "Permet d'autoriser les feuilles de style d'un éditeur sans autoriser les attributs style dans la page." }
+style-src-attr:
+  title:
+    # Inline styles
+    { en: c24a4475, text: "Styles dans la page" }
+  simple:
+    # Controls styles written directly on individual page elements.
+    { en: d5e3091f, text: "Contrôle les styles écrits directement sur chaque élément de la page." }
+  developer:
+    # Applies to style="…" attributes and CSSOM changes through setAttribute('style'). Falls back to style-src, then default-src.
+    { en: a3d5c014, text: "S'applique aux attributs style=\"…\" et aux changements CSSOM via setAttribute('style'). Se replie sur style-src, puis default-src." }
+  security:
+    # Low risk on its own; often relaxed because many libraries set inline styles.
+    { en: f64cc57e, text: "Faible risque à elle seule ; souvent assouplie parce que beaucoup de bibliothèques posent des styles dans la page." }
+img-src:
+  title:
+    # Images
+    { en: be7e2f20, text: "Images" }
+  simple:
+    # Which places images can come from. Many tracking tools send data by loading an invisible 1×1 image, so analytics often needs an entry here too.
+    { en: 7829d8f3, text: "Les endroits d'où peuvent venir les images. Beaucoup d'outils de suivi envoient leurs données en chargeant une image invisible de 1×1 pixel : la mesure d'audience a donc souvent besoin d'une entrée ici aussi." }
+  developer:
+    # Governs <img>, favicons, CSS background images and image pixels. Falls back to default-src.
+    { en: 8f3159b0, text: "Régit <img>, les favicons, les images d'arrière-plan CSS et les pixels de suivi. Se replie sur default-src." }
+  security:
+    # Low direct risk, but a wide img-src (https: or *) gives an attacker an easy channel to exfiltrate data.
+    { en: 3e6208bd, text: "Peu de risque direct, mais une img-src large (https: ou *) donne à un attaquant un moyen facile d'exfiltrer des données." }
+font-src:
+  title:
+    # Fonts
+    { en: 3680fcad, text: "Polices" }
+  simple:
+    # Which places font files can come from (for example Google Fonts).
+    { en: b7658714, text: "Les endroits d'où peuvent venir les fichiers de police (par exemple Google Fonts)." }
+  developer:
+    # Governs @font-face loads. Falls back to default-src.
+    { en: 5f8856c7, text: "Régit les chargements @font-face. Se replie sur default-src." }
+  security:
+    # Low risk. data: is commonly allowed for embedded icon fonts.
+    { en: 3ff56d5f, text: "Faible risque. data: est souvent autorisé pour les polices d'icônes intégrées." }
+connect-src:
+  title:
+    # Data connections
+    { en: 6d97c0f2, text: "Connexions de données" }
+  simple:
+    # Which servers the page is allowed to talk to in the background, for example to send analytics events or fetch prices. If a tool loads but no data shows up in its dashboard, this rule is often the reason.
+    { en: a48da60c, text: "Les serveurs avec lesquels la page a le droit d'échanger en arrière-plan, par exemple pour envoyer des événements de mesure d'audience ou récupérer des prix. Si un outil se charge mais qu'aucune donnée n'arrive dans son tableau de bord, c'est souvent à cause de cette règle." }
+  developer:
+    # Governs fetch(), XMLHttpRequest, WebSocket, EventSource and navigator.sendBeacon(). Falls back to default-src.
+    { en: 685362db, text: "Régit fetch(), XMLHttpRequest, WebSocket, EventSource et navigator.sendBeacon(). Se replie sur default-src." }
+  security:
+    # The main channel for data exfiltration. Keep it to the APIs you actually use; wildcards on third-party domains let any customer of that vendor receive your data.
+    { en: dbd0c6e9, text: "Le principal canal d'exfiltration de données. Limitez-la aux API que vous utilisez vraiment ; un joker sur le domaine d'un tiers permet à n'importe quel client de cet éditeur de recevoir vos données." }
+frame-src:
+  title:
+    # Embedded frames
+    { en: 985a40ae, text: "Cadres intégrés" }
+  simple:
+    # Which other websites can be shown inside your pages, like a YouTube video, a payment form or a chat window.
+    { en: e254d9a8, text: "Les autres sites qui peuvent être affichés dans vos pages, comme une vidéo YouTube, un formulaire de paiement ou une fenêtre de chat." }
+  developer:
+    # Governs <iframe> and <frame> sources. Falls back to child-src, then default-src.
+    { en: b371bb35, text: "Régit les sources des <iframe> et <frame>. Se replie sur child-src, puis default-src." }
+  security:
+    # Limits which third parties can be embedded and receive navigation into a frame from your page.
+    { en: 4464d167, text: "Limite les tiers qui peuvent être intégrés et recevoir une navigation dans un cadre depuis votre page." }
+child-src:
+  title:
+    # Frames and workers (legacy)
+    { en: f22d4226, text: "Cadres et tâches (ancienne règle)" }
+  simple:
+    # An older rule covering embedded frames and background workers.
+    { en: caf600df, text: "Une règle plus ancienne qui couvre les cadres intégrés et les tâches en arrière-plan." }
+  developer:
+    # Fallback for frame-src and worker-src. Prefer setting those two explicitly.
+    { en: 9a68550e, text: "Repli pour frame-src et worker-src. Préférez définir ces deux-là explicitement." }
+  security:
+    # Same considerations as frame-src and worker-src.
+    { en: ad0b69e4, text: "Mêmes considérations que pour frame-src et worker-src." }
+worker-src:
+  title:
+    # Background workers
+    { en: 7656773c, text: "Tâches en arrière-plan" }
+  simple:
+    # Which places background scripts (workers) can come from. Some recording and analytics tools use them.
+    { en: 9a28df2f, text: "Les endroits d'où peuvent venir les scripts d'arrière-plan (workers). Certains outils d'enregistrement de sessions et de mesure d'audience s'en servent." }
+  developer:
+    # Governs Worker, SharedWorker and ServiceWorker scripts. Falls back to child-src, script-src, then default-src.
+    { en: 7964aa07, text: "Régit les scripts Worker, SharedWorker et ServiceWorker. Se replie sur child-src, script-src, puis default-src." }
+  security:
+    # A service worker can intercept every request on its scope; keep this restricted, especially blob: and data:.
+    { en: 32b90db2, text: "Un service worker peut intercepter toutes les requêtes de son périmètre ; gardez cette règle restreinte, surtout pour blob: et data:." }
+media-src:
+  title:
+    # Audio and video
+    { en: 9b7a90d5, text: "Audio et vidéo" }
+  simple:
+    # Which places audio and video files can come from.
+    { en: a89de147, text: "Les endroits d'où peuvent venir les fichiers audio et vidéo." }
+  developer:
+    # Governs <audio>, <video> and <track>. Falls back to default-src.
+    { en: e786ac43, text: "Régit <audio>, <video> et <track>. Se replie sur default-src." }
+  security:
+    # Low risk.
+    { en: c9127a8b, text: "Faible risque." }
+object-src:
+  title:
+    # Plugins
+    { en: 9514b7ff, text: "Plugins" }
+  simple:
+    # Controls old browser plugins like Flash. Almost every site should block them completely.
+    { en: 0722467d, text: "Contrôle les anciens plugins de navigateur comme Flash. Presque tous les sites devraient les bloquer complètement." }
+  developer:
+    # Governs <object> and <embed>. Falls back to default-src. Recommended value is 'none'.
+    { en: "474e3703", text: "Régit <object> et <embed>. Se replie sur default-src. Valeur recommandée : 'none'." }
+  security:
+    # Plugins can execute script and bypass script-src; Google's guidance is object-src 'none' in every policy.
+    { en: 362aa194, text: "Les plugins peuvent exécuter du script et contourner script-src ; Google recommande object-src 'none' dans toute politique." }
+manifest-src:
+  title:
+    # App manifest
+    { en: cc6e9213, text: "Manifeste d'application" }
+  simple:
+    # Where the file describing your site as an installable app can come from.
+    { en: 7b7561f8, text: "D'où peut venir le fichier qui décrit votre site comme une application installable." }
+  developer:
+    # Governs the web app manifest. Falls back to default-src.
+    { en: 3f7f2271, text: "Régit le manifeste d'application web. Se replie sur default-src." }
+  security:
+    # Low risk.
+    { en: c9127a8b, text: "Faible risque." }
+prefetch-src:
+  title:
+    # Prefetching (deprecated)
+    { en: 1ae17687, text: "Préchargement (obsolète)" }
+  simple:
+    # An old rule for loading pages in advance. Browsers no longer use it.
+    { en: 4fe9eb0d, text: "Une ancienne règle pour charger des pages à l'avance. Les navigateurs ne l'utilisent plus." }
+  developer:
+    # Removed from the specification and unsupported in modern browsers; safe to delete.
+    { en: e58c8cc6, text: "Retirée de la spécification et non prise en charge par les navigateurs actuels ; vous pouvez la supprimer." }
+  security:
+    # No effect today.
+    { en: b326b3ad, text: "Aucun effet aujourd'hui." }
+base-uri:
+  title:
+    # Base address
+    { en: f717e299, text: "Adresse de base" }
+  simple:
+    # Controls a technical setting that decides where relative links in the page point to. Usually locked to your own site.
+    { en: a113151d, text: "Contrôle un réglage technique qui décide vers où pointent les liens relatifs de la page. En général verrouillé sur votre propre site." }
+  developer:
+    # Restricts the URLs allowed in <base href>. Does not fall back to default-src.
+    { en: 439978f8, text: "Restreint les URL autorisées dans <base href>. Ne se replie pas sur default-src." }
+  security:
+    # Without it, an injected <base> tag can redirect relative script URLs to an attacker's server, even with a nonce-based policy. Set it to 'none' or 'self'.
+    { en: "89977323", text: "Sans elle, une balise <base> injectée peut rediriger les URL de script relatives vers le serveur d'un attaquant, même avec une politique à base de nonces. Définissez-la à 'none' ou 'self'." }
+sandbox:
+  title:
+    # Sandbox
+    { en: 67fc6249, text: "Bac à sable" }
+  simple:
+    # Runs the page in a restricted mode, as if it were a stranger's page. Rarely used for whole websites.
+    { en: 9e887c38, text: "Exécute la page dans un mode restreint, comme si c'était la page d'un inconnu. Rarement utilisé pour un site entier." }
+  developer:
+    # Applies iframe-sandbox-like restrictions to the page itself; values are allow-* flags. Ignored in <meta> policies.
+    { en: d556b58d, text: "Applique à la page elle-même des restrictions semblables à celles d'une iframe sandbox ; les valeurs sont des drapeaux allow-*. Ignorée dans les politiques en <meta>." }
+  security:
+    # Strong isolation for untrusted content (e.g. user uploads), but breaks most normal pages.
+    { en: 560ab0cf, text: "Forte isolation pour du contenu non fiable (par exemple des fichiers envoyés par les utilisateurs), mais casse la plupart des pages normales." }
+form-action:
+  title:
+    # Form destinations
+    { en: d2e3aaed, text: "Destinations des formulaires" }
+  simple:
+    # Which addresses forms on your pages (login, newsletter, checkout) are allowed to send their data to.
+    { en: 2d1adc62, text: "Les adresses vers lesquelles les formulaires de vos pages (connexion, newsletter, paiement) ont le droit d'envoyer leurs données." }
+  developer:
+    # Restricts form submission targets. Does not fall back to default-src.
+    { en: fca11d99, text: "Restreint les cibles d'envoi des formulaires. Ne se replie pas sur default-src." }
+  security:
+    # Prevents injected markup from sending credentials or personal data to an attacker through a form.
+    { en: f0005aac, text: "Empêche du balisage injecté d'envoyer des identifiants ou des données personnelles à un attaquant via un formulaire." }
+frame-ancestors:
+  title:
+    # Who can embed your site
+    { en: 2a07577e, text: "Qui peut intégrer votre site" }
+  simple:
+    # Which websites are allowed to show your pages inside their own pages. This protects against tricks where your site is hidden inside another one.
+    { en: ec5371da, text: "Les sites qui ont le droit d'afficher vos pages à l'intérieur des leurs. Cela protège contre les pièges où votre site est caché dans un autre." }
+  developer:
+    # Restricts which origins can frame the page (modern replacement for X-Frame-Options). Does not fall back to default-src and is ignored in <meta> policies.
+    { en: 517ba6ed, text: "Restreint les origines qui peuvent afficher la page dans un cadre (le remplaçant moderne de X-Frame-Options). Ne se replie pas sur default-src et est ignorée dans les politiques en <meta>." }
+  security:
+    # Protects against clickjacking. 'none' or 'self' unless you intentionally allow embedding.
+    { en: 0e1c140b, text: "Protège contre le clickjacking. 'none' ou 'self', sauf si vous autorisez volontairement l'intégration." }
+navigate-to:
+  title:
+    # Navigation targets (abandoned)
+    { en: ff253e20, text: "Cibles de navigation (abandonnée)" }
+  simple:
+    # An experimental rule that browsers never shipped.
+    { en: 3c9da99e, text: "Une règle expérimentale que les navigateurs n'ont jamais livrée." }
+  developer:
+    # Dropped from the specification; no browser enforces it.
+    { en: cf5b803c, text: "Retirée de la spécification ; aucun navigateur ne l'applique." }
+  security:
+    # No effect.
+    { en: 7324f89d, text: "Aucun effet." }
+report-uri:
+  title:
+    # Report address (legacy)
+    { en: 957c33a9, text: "Adresse de signalement (ancienne règle)" }
+  simple:
+    # Where the browser sends a short report each time this policy blocks something. Useful for the technical team to spot problems.
+    { en: 85153b1b, text: "Où le navigateur envoie un court rapport chaque fois que cette politique bloque quelque chose. Utile à l'équipe technique pour repérer les problèmes." }
+  developer:
+    # Deprecated in favour of report-to but still the most widely supported way to receive violation reports. Ignored in <meta> policies.
+    { en: e9c7dc2e, text: "Dépréciée au profit de report-to, mais reste le moyen le mieux pris en charge de recevoir les rapports de violation. Ignorée dans les politiques en <meta>." }
+  security:
+    # Reports reveal blocked attacks and broken integrations; keep the endpoint monitored.
+    { en: 72a7dbfc, text: "Les rapports révèlent les attaques bloquées et les intégrations cassées ; surveillez le point de réception." }
+report-to:
+  title:
+    # Report group
+    { en: daa5c248, text: "Groupe de signalement" }
+  simple:
+    # Like the report address, but using the browser's newer reporting system.
+    { en: 417fd13a, text: "Comme l'adresse de signalement, mais avec le système de signalement plus récent du navigateur." }
+  developer:
+    # Names a Reporting-Endpoints group. Browsers that support report-to ignore report-uri when both are set.
+    { en: 41bd475b, text: "Nomme un groupe Reporting-Endpoints. Les navigateurs qui gèrent report-to ignorent report-uri quand les deux sont présentes." }
+  security:
+    # Same value as report-uri; send both for broad browser support.
+    { en: 49d3f117, text: "Même intérêt que report-uri ; envoyez les deux pour couvrir un large éventail de navigateurs." }
+upgrade-insecure-requests:
+  title:
+    # Upgrade to HTTPS
+    { en: d79f5b71, text: "Passage en HTTPS" }
+  simple:
+    # Makes the browser load everything over a secure connection (https), even if a link says http.
+    { en: cf2a9196, text: "Fait tout charger au navigateur par une connexion sécurisée (https), même si un lien indique http." }
+  developer:
+    # Rewrites http:// subresource and same-origin navigation URLs to https:// before fetching.
+    { en: 3f7a1625, text: "Réécrit en https:// les URL http:// des sous-ressources et des navigations sur la même origine avant de les charger." }
+  security:
+    # Prevents mixed content; low risk to enable on HTTPS-only sites.
+    { en: 49ac2257, text: "Évite le contenu mixte ; peu de risque à l'activer sur un site entièrement en HTTPS." }
+block-all-mixed-content:
+  title:
+    # Block insecure content (deprecated)
+    { en: e906fb02, text: "Bloquer le contenu non sécurisé (obsolète)" }
+  simple:
+    # An older rule that blocked insecure (http) content. Browsers now do this by default.
+    { en: a857f9be, text: "Une ancienne règle qui bloquait le contenu non sécurisé (http). Les navigateurs le font désormais par défaut." }
+  developer:
+    # Deprecated; modern browsers block or upgrade mixed content anyway. Use upgrade-insecure-requests.
+    { en: 0a0858de, text: "Obsolète ; les navigateurs actuels bloquent ou mettent à niveau le contenu mixte de toute façon. Utilisez upgrade-insecure-requests." }
+  security:
+    # No additional protection today.
+    { en: 6facd09b, text: "Aucune protection supplémentaire aujourd'hui." }
+require-trusted-types-for:
+  title:
+    # Trusted Types
+    { en: 8af1ee6d, text: "Trusted Types" }
+  simple:
+    # An advanced protection that forces developers to check content before inserting it as code in the page.
+    { en: 899d49e4, text: "Une protection avancée qui oblige les développeurs à vérifier le contenu avant de l'insérer comme code dans la page." }
+  developer:
+    # 'script' makes DOM XSS sinks (innerHTML, eval, script.src …) reject plain strings; only Trusted Type objects created by allowed policies are accepted.
+    { en: 40b9a473, text: "'script' fait refuser les chaînes simples aux points d'injection DOM XSS (innerHTML, eval, script.src…) ; seuls les objets Trusted Types créés par des politiques autorisées sont acceptés." }
+  security:
+    # The strongest defence against DOM-based XSS. Third-party scripts must be compatible or given a policy.
+    { en: d1d917ba, text: "La meilleure défense contre le XSS basé sur le DOM. Les scripts tiers doivent être compatibles ou recevoir une politique." }
+trusted-types:
+  title:
+    # Trusted Types policies
+    { en: 75717fbe, text: "Politiques Trusted Types" }
+  simple:
+    # The list of approved "checkers" developers are allowed to use with Trusted Types.
+    { en: 3f9edb44, text: "La liste des « vérificateurs » approuvés que les développeurs ont le droit d'utiliser avec Trusted Types." }
+  developer:
+    # Allowlists Trusted Types policy names that can be created with trustedTypes.createPolicy().
+    { en: 9523495a, text: "Liste les noms de politiques Trusted Types pouvant être créées avec trustedTypes.createPolicy()." }
+  security:
+    # Keep the list short; 'allow-duplicates' weakens it.
+    { en: 565e529c, text: "Gardez la liste courte ; 'allow-duplicates' l'affaiblit." }
+webrtc:
+  title:
+    # Real-time connections
+    { en: 2ea08556, text: "Connexions en temps réel" }
+  simple:
+    # Allows or blocks real-time peer-to-peer connections (video calls, some chat tools).
+    { en: 2c25b664, text: "Autorise ou bloque les connexions en temps réel de pair à pair (appels vidéo, certains outils de chat)." }
+  developer:
+    # 'allow' or 'block' WebRTC connections. Limited browser support.
+    { en: 58dcdac3, text: "'allow' ou 'block' pour les connexions WebRTC. Prise en charge limitée par les navigateurs." }
+  security:
+    # Blocking WebRTC closes a data-exfiltration channel that connect-src doesn't cover.
+    { en: 22dcfba4, text: "Bloquer WebRTC ferme un canal d'exfiltration de données que connect-src ne couvre pas." }
+plugin-types:
+  title:
+    # Plugin types (deprecated)
+    { en: 12b4ffeb, text: "Types de plugins (obsolète)" }
+  simple:
+    # An old rule for browser plugins, no longer used.
+    { en: 0edb31f9, text: "Une ancienne règle pour les plugins de navigateur, plus utilisée." }
+  developer:
+    # Removed from the specification. Use object-src 'none'.
+    { en: e832a641, text: "Retirée de la spécification. Utilisez object-src 'none'." }
+  security:
+    # No effect today.
+    { en: b326b3ad, text: "Aucun effet aujourd'hui." }
+require-sri-for:
+  title:
+    # Require integrity (abandoned)
+    { en: 00f37194, text: "Exiger l'intégrité (abandonnée)" }
+  simple:
+    # An experimental rule that browsers never shipped.
+    { en: 3c9da99e, text: "Une règle expérimentale que les navigateurs n'ont jamais livrée." }
+  developer:
+    # Never standardised; no effect.
+    { en: 4f1cf1a3, text: "Jamais standardisée ; aucun effet." }
+  security:
+    # No effect. Use the integrity attribute on script and link tags instead.
+    { en: 4cf0e20e, text: "Aucun effet. Utilisez plutôt l'attribut integrity sur les balises script et link." }

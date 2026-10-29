@@ -1,0 +1,39 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Put a nonce on the snippet script tag and use 'nonce-…' 'strict-dynamic' in script-src. Browsers that support 'strict-dynamic' then only need the nonce.
+    { en: 7921b4b6, text: "Mettez un nonce sur la balise script du snippet et utilisez 'nonce-…' 'strict-dynamic' dans script-src. Les navigateurs qui gèrent 'strict-dynamic' n'ont alors besoin que du nonce." }
+notes:
+  # Cross-domain targeting needs frame-src https://a<account-id>.cdn.optimizely.com (and https://a<account-id>.cdn-pci.optimizely.com with PCI). These depend on your account ID and are not checked here.
+  { en: bf3e89d8, text: "Le ciblage entre domaines demande frame-src https://a<account-id>.cdn.optimizely.com (et https://a<account-id>.cdn-pci.optimizely.com avec PCI). Ils dépendent de votre identifiant de compte et ne sont pas vérifiés ici." }
+features:
+  client:
+    label:
+      # Client script, preview and geotargeting
+      { en: 4eb91ee7, text: "Script client, aperçu et géociblage" }
+    reasons:
+      script:
+        # Loads the client script, the preview client and geotargeting.
+        { en: 9afe5eb2, text: "Charge le script client, le client d'aperçu et le géociblage." }
+      connect:
+        # Logs events.
+        { en: 5ddf930b, text: "Enregistre les événements." }
+      img:
+        # Loads images uploaded through the Visual Editor.
+        { en: f8340a8e, text: "Charge les images envoyées via le Visual Editor." }
+      style:
+        # Experiment CSS changes.
+        { en: 2b8fe2a9, text: "Changements CSS des expériences." }
+      inline-style:
+        # Experiment CSS changes are injected inline.
+        { en: e56175ce, text: "Les changements CSS des expériences sont injectés dans la page." }
+  custom-js-audiences:
+    label:
+      # Audiences with custom JavaScript conditions
+      { en: b227d02f, text: "Audiences avec conditions JavaScript personnalisées" }
+    reasons:
+      eval:
+        # Custom JavaScript conditions are evaluated with eval().
+        { en: 067f06bf, text: "Les conditions JavaScript personnalisées sont évaluées avec eval()." }

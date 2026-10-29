@@ -1,21 +1,27 @@
 ---
 import '../styles/global.css';
 import { SITE_URL } from '../config';
-import { localeOf, translator } from '../i18n';
+import { DEFAULT_LOCALE, LOCALE_NAMES, LOCALES, localeOf, localePath, stripLocale, translator } from '../i18n';
 
 interface Props {
   title?: string;
   description?: string;
+  /** False for pages that exist in one language only (the 404): no alternates, no language switch. */
+  translated?: boolean;
 }
 
 const locale = localeOf(Astro.currentLocale);
 const t = translator(locale);
-const { title, description = t('site.tagline') } = Astro.props;
+const { title, description = t('site.tagline'), translated = true } = Astro.props;
 const fullTitle = title ? `${title} – ${t('site.name')}` : `${t('site.name')}: ${t('site.tagline')}`;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
-// Link previews (Open Graph, X): one image for every page, made by scripts/og-image.ts.
+/** The page's path in English (`/fr/learn` → `/learn`): the same page in every language. */
+const page = stripLocale(path);
 const pageUrl = new URL(path, SITE_URL).href;
-const image = new URL('/og-image.png', SITE_URL).href;
+const others = translated ? LOCALES.filter((l) => l !== locale) : [];
+const alternates = translated ? LOCALES.map((l) => ({ hreflang: l, href: new URL(localePath(l, page), SITE_URL).href })) : [];
+// Link previews (Open Graph, X): one image per language, made by scripts/og-image.ts.
+const image = new URL(locale === DEFAULT_LOCALE ? '/og-image.png' : `/og-image-${locale}.png`, SITE_URL).href;
 
 const nav = [
   { href: '/', label: t('site.nav.analyzer') },
@@ -23,7 +29,7 @@ const nav = [
   { href: '/learn', label: t('site.nav.learn') },
   { href: '/vendors', label: t('site.nav.vendors') },
   { href: '/about', label: t('site.nav.about') },
-];
+].map((item) => ({ ...item, current: page === item.href, href: localePath(locale, item.href) }));
 
 const themes = [
   { id: 'system', label: t('site.theme.system'), icon: '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11a5.5 5.5 0 0 0 0-11z" class="filled"/>' },
@@ -40,11 +46,15 @@ const themes = [
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+    {translated && <link rel="alternate" hreflang="x-default" href={new URL(localePath(DEFAULT_LOCALE, page), SITE_URL).href} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={t('site.name')} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={pageUrl} />
+    <meta property="og:locale" content={t('site.ogLocale')} />
+    {others.map((l) => <meta property="og:locale:alternate" content={translator(l)('site.ogLocale')} />)}
     <meta property="og:image" content={image} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -63,13 +73,13 @@ const themes = [
     <a class="skip visually-hidden" href="#main">{t('site.skip')}</a>
     <header class="site-header">
       <div class="wrap bar">
-        <a class="brand" href="/">{t('site.name')}</a>
+        <a class="brand" href={localePath(locale, '/')}>{t('site.name')}</a>
         <nav aria-label={t('site.navLabel')}>
           <ul>
             {
               nav.map((item) => (
                 <li>
-                  <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                  <a href={item.href} aria-current={item.current ? 'page' : undefined}>
                     {item.label}
                   </a>
                 </li>
@@ -95,8 +105,19 @@ const themes = [
       <slot />
     </main>
     <footer class="site-footer">
-      <div class="wrap">
+      <div class="wrap footer-bar">
         <p class="muted">{t('site.footer')}</p>
+        {
+          others.length > 0 && (
+            <nav class="lang-switch" aria-label={t('site.languageLabel')}>
+              {others.map((l) => (
+                <a href={localePath(l, page)} hreflang={l} lang={l} data-lang-switch>
+                  {LOCALE_NAMES[l]}
+                </a>
+              ))}
+            </nav>
+          )
+        }
       </div>
     </footer>
   </body>
@@ -108,6 +129,13 @@ const themes = [
   // A visit: this page was opened from outside the site (no cookie needed to tell).
   const from = document.referrer ? new URL(document.referrer).origin : '';
   if (from !== location.origin) track('visit', { page: document.body.dataset.page });
+
+  // Language switch: the same page in the other language, keeping what follows the # (a shared policy, a tab).
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]')) {
+    link.addEventListener('click', () => {
+      link.hash = location.hash;
+    });
+  }
 
   // Theme switch: Auto follows the system; Light and Dark are remembered on this device.
   const KEY = 'csp-explained:theme';
@@ -154,6 +182,16 @@ const themes = [
   }
   .bar nav {
     margin-left: auto;
+  }
+  .lang-switch a {
+    color: var(--ink-soft);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .lang-switch a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
   }
   .theme-switch {
     display: flex;
@@ -229,5 +267,12 @@ const themes = [
   }
   .site-footer p {
     margin: 0;
+  }
+  /* The footer line on the left, the other language on the right; stacked on narrow screens */
+  .footer-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
   }
 </style>

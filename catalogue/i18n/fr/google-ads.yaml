@@ -1,0 +1,42 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # When loaded through Google Tag Manager or the Google tag with a nonce, the nonce is passed on.
+    { en: 6a404a9b, text: "Chargé par Google Tag Manager ou la balise Google avec un nonce, le nonce est transmis." }
+notes:
+  # Google also asks to list https://www.google.<TLD> for every country domain your visitors use. Those country domains are not checked here.
+  { en: a1aec98a, text: "Google demande aussi de lister https://www.google.<TLD> pour chaque domaine national utilisé par vos visiteurs. Ces domaines nationaux ne sont pas vérifiés ici." }
+features:
+  conversions:
+    label:
+      # Conversion tracking, remarketing and conversion linker
+      { en: e11a2497, text: "Suivi des conversions, remarketing et linker de conversion" }
+    reasons:
+      script:
+        # Loads the conversion and remarketing scripts.
+        { en: ed53953d, text: "Charge les scripts de conversion et de remarketing." }
+      img:
+        # Sends conversions as image pixels.
+        { en: 87d5ab9f, text: "Envoie les conversions sous forme de pixels." }
+      connect:
+        # Sends conversions to Google's servers.
+        { en: 6f0eb2cc, text: "Envoie les conversions aux serveurs de Google." }
+      frame:
+        # Remarketing frame.
+        { en: 4c90f812, text: "Cadre de remarketing." }
+  floodlight:
+    label:
+      # Floodlight (Campaign Manager 360)
+      { en: e7b5ea5d, text: "Floodlight (Campaign Manager 360)" }
+    reasons:
+      img:
+        # Floodlight pixels.
+        { en: 5face232, text: "Pixels Floodlight." }
+      connect:
+        # Floodlight requests.
+        { en: eb475ba4, text: "Requêtes Floodlight." }
+      frame:
+        # Floodlight frames (the second one only for custom scripts).
+        { en: "95018328", text: "Cadres Floodlight (le second seulement pour les scripts personnalisés)." }

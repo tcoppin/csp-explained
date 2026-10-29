@@ -5,7 +5,7 @@ import { translatorFor } from '../i18n';
 const t = translatorFor(Astro);
 ---
 
-<Base title={t('pages.notFound.title')}>
+<Base title={t('pages.notFound.title')} translated={false}>
   <div class="wrap">
     <h1>{t('pages.notFound.heading')}</h1>
     <p>{t('pages.notFound.body')}</p>

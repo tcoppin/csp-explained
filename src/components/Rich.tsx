@@ -1,5 +1,5 @@
 import { Fragment } from 'preact';
-import type { Translate, Vars } from '../i18n';
+import { localePath, type Translate, type Vars } from '../i18n';
 import { isExternal, parseRich } from '../i18n/rich';
 import { useT } from './i18n';
 import { NewTabLink } from './NewTabLink';
@@ -7,6 +7,7 @@ import { NewTabLink } from './NewTabLink';
 /**
  * A long-form message with its inline markup (see `src/i18n/rich.ts`), rendered as elements, never as raw HTML.
  * Wrap it in the block element it belongs to: `<p><Rich t={t} msg="pages.learn.lead" /></p>`.
+ * Links within the site (`/find-my-csp`) are written without a language and point to the page's.
  */
 export function Rich({ msg, vars, t }: { msg: string; vars?: Vars; t?: Translate }) {
   const tr = useT(t);
@@ -28,7 +29,7 @@ export function Rich({ msg, vars, t }: { msg: string; vars?: Vars; t?: Translate
             return isExternal(node.href) ? (
               <NewTabLink key={i} href={node.href} label={node.text} t={tr} />
             ) : (
-              <a key={i} href={node.href}>
+              <a key={i} href={node.href.startsWith('/') ? localePath(tr.locale, node.href) : node.href}>
                 {node.text}
               </a>
             );

@@ -46,10 +46,13 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - Security findings are explained by `findings.*` in the messages (`findingKey` in `src/lib/csp/security.ts`);
   the evaluator's English description is only a fallback for kinds we don't know.
 - `src/i18n/en.json`: every interface and report string; `src/i18n/en.pages.json`: the pages' copy (`pages.*`),
-  kept apart so the island bundle doesn't carry it. No hard-coded
-  copy in pages or components. Astro pages take `t` from `translatorFor(Astro)`; island components call `useT()`
+  kept apart so the island bundle doesn't carry it. `fr.json` and `fr.pages.json` mirror them key for key (tests
+  check keys, placeholders and links). No hard-coded copy in pages or components. Astro pages take `t` from
+  `translatorFor(Astro)`; island components call `useT()`
   (`src/components/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through
   `<Rich t={t} msg="…" />` with its inline syntax (`code`, **strong**, *em*, [[kbd]], [label](/path)), never HTML.
+- Pages live in `src/pages/[...lang]/` and are built once per language (`localeParams()`): English at the root,
+  French under `/fr`, same slugs. The 404 is English only (CloudFront serves one error page).
 - `src/site-policy.ts`: this site's own CSP (meta part via Astro, header part via CloudFront in `infra/`).
 - `src/usage.ts`: the usage events we count, shared by `track()` (`src/scripts/track.ts`) and the Lambda in
   `infra/lambda/`. Never send what the visitor typed. The About page and the README list what we count: keep
@@ -94,7 +97,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   (static pages) and `CodeBox.tsx` (island). They share the `.code-block` styles in `global.css`.
 - Reading width (`.prose`, 68ch) applies to long-form pages only; interface text uses its column's width.
 - Every link to another website opens in a new tab through `NewTabLink.tsx` (icon + screen-reader text), on Astro
-  pages and in the island. Links within the site open in the same tab (an e2e test checks the main pages).
+  pages and in the island. Links within the site open in the same tab (an e2e test checks the main pages) and stay
+  in the page's language: write them without a language and pass them through `localePath(t.locale, …)` (`Rich`
+  does it for message links). An e2e test fails on a French page linking to an English one.
 - Copy is plain, sentence case, active voice, no jargon in the "Everyone" voice. Explain trade-offs honestly
   without alarmism.
 

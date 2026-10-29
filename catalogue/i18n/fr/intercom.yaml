@@ -1,0 +1,40 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Intercom supports strict nonce-based CSP Level 3 policies. If your site already uses one, no change is needed apart from nonces on the scripts the Messenger loads.
+    { en: f18ed7ce, text: "Intercom gère les politiques CSP Level 3 strictes à base de nonces. Si votre site en utilise déjà une, rien à changer à part les nonces sur les scripts que charge le Messenger." }
+notes:
+  # This entry covers US-hosted workspaces. EU and Australian workspaces use regional domains (e.g. api-iam.eu.intercom.io, uploads.intercomcdn.eu): see the official article.
+  { en: 703be17b, text: "Cette fiche couvre les espaces de travail hébergés aux États-Unis. Les espaces européens et australiens utilisent des domaines régionaux (par ex. api-iam.eu.intercom.io, uploads.intercomcdn.eu) : voir l'article officiel." }
+features:
+  messenger:
+    label:
+      # Messenger (US workspace)
+      { en: 7ea5bd48, text: "Messenger (espace de travail US)" }
+    reasons:
+      script:
+        # Loads the Messenger.
+        { en: c108fc9d, text: "Charge le Messenger." }
+      connect:
+        # Real-time conversations and uploads.
+        { en: d9c17614, text: "Conversations en temps réel et envois de fichiers." }
+      frame:
+        # Embedded sheets and videos (Intercom documents these under child-src).
+        { en: 05f94783, text: "Volets et vidéos intégrés (Intercom les documente sous child-src)." }
+      font:
+        # Messenger fonts.
+        { en: a9248e0c, text: "Polices du Messenger." }
+      form:
+        # Forms inside the Messenger.
+        { en: 5844d7f9, text: "Formulaires dans le Messenger." }
+      media:
+        # Sounds and media.
+        { en: 7bfed9a4, text: "Sons et médias." }
+      img:
+        # Avatars, attachments and GIFs.
+        { en: "63143528", text: "Avatars, pièces jointes et GIF." }
+      inline-style:
+        # The Messenger injects its styles.
+        { en: d89c667f, text: "Le Messenger injecte ses styles." }

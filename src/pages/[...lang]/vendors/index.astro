@@ -1,10 +1,14 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { Rich } from '../../components/Rich';
-import { REPO_URL } from '../../config';
-import { groupByCategory } from '../../lib/catalogue/categories';
-import { localeOf, translatorFor } from '../../i18n';
-import { contentFor } from '../../lib/site-content';
+import Base from '../../../layouts/Base.astro';
+import { Rich } from '../../../components/Rich';
+import { REPO_URL } from '../../../config';
+import { groupByCategory } from '../../../lib/catalogue/categories';
+import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
+import { contentFor } from '../../../lib/site-content';
+
+export function getStaticPaths() {
+  return localeParams();
+}
 
 const t = translatorFor(Astro);
 const groups = groupByCategory(contentFor(localeOf(Astro.currentLocale)).vendors, t);
@@ -21,7 +25,7 @@ const groups = groupByCategory(contentFor(localeOf(Astro.currentLocale)).vendors
           <ul class="vendor-index">
             {g.vendors.map((v) => (
               <li>
-                <a href={`/vendors/${v.id}`}>{v.name}</a>
+                <a href={localePath(t.locale, `/vendors/${v.id}`)}>{v.name}</a>
                 <span class="muted">
                   {v.confidence === 'verified' ? t('pages.vendors.checked', { date: v.lastVerified }) : t('pages.vendors.partial')}
                 </span>

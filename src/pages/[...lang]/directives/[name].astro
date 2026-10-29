@@ -1,15 +1,17 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { Rich } from '../../components/Rich';
-import { localeOf, translatorFor } from '../../i18n';
-import { contentFor } from '../../lib/site-content';
-import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
+import Base from '../../../layouts/Base.astro';
+import { Rich } from '../../../components/Rich';
+import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
+import { contentFor } from '../../../lib/site-content';
+import { DIRECTIVES, type DirectiveInfo } from '../../../lib/csp/directives';
 
 export function getStaticPaths() {
-  return [...DIRECTIVES.values()].map((info) => ({
-    params: { name: info.name },
-    props: { info },
-  }));
+  return localeParams().flatMap(({ params }) =>
+    [...DIRECTIVES.values()].map((info) => ({
+      params: { ...params, name: info.name },
+      props: { info },
+    })),
+  );
 }
 
 const { info } = Astro.props as { info: DirectiveInfo };
@@ -18,13 +20,13 @@ const t = translatorFor(Astro);
 const m = (key: string) => `pages.directives.${key}`;
 // The linked list of directives goes where `{directives}` is in the sentence.
 const [usedBefore, usedAfter] = t(m('usedInPlaceOf')).split('{directives}');
-const mdn = `https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`;
+const mdn = `https://developer.mozilla.org/${t(m('mdnLocale'))}/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`;
 const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === info.name).map((d) => d.name);
 ---
 
 <Base title={`${info.name}: ${doc.title}`} description={doc.simple}>
   <article class="wrap prose directive-page">
-    <p class="crumb"><a href="/directives">{t(m('all'))}</a></p>
+    <p class="crumb"><a href={localePath(t.locale, '/directives')}>{t(m('all'))}</a></p>
     <h1><code>{info.name}</code></h1>
     <p class="title">{doc.title}</p>
     {info.deprecated && <p class="warn">{t(m('deprecated'))}</p>}
@@ -46,7 +48,7 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
             )
           }
         </li>
-        {fallsBackHere.length > 0 && <li>{usedBefore}{fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={`/directives/${n}`}><code>{n}</code></a></>)}{usedAfter}</li>}
+        {fallsBackHere.length > 0 && <li>{usedBefore}{fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={localePath(t.locale, `/directives/${n}`)}><code>{n}</code></a></>)}{usedAfter}</li>}
         {info.ignoredInMeta && <li><Rich t={t} msg={m('ignoredInMeta')} /></li>}
       </ul>
     </section>

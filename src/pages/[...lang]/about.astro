@@ -1,15 +1,19 @@
 ---
-import Base from '../layouts/Base.astro';
-import { Rich } from '../components/Rich';
-import { encodeState } from '../components/state';
-import { REPO_URL } from '../config';
-import { translatorFor } from '../i18n';
-import { HEADER_POLICY, META_DIRECTIVES } from '../site-policy';
+import Base from '../../layouts/Base.astro';
+import { Rich } from '../../components/Rich';
+import { encodeState } from '../../components/state';
+import { REPO_URL } from '../../config';
+import { localeParams, localePath, translatorFor } from '../../i18n';
+import { HEADER_POLICY, META_DIRECTIVES } from '../../site-policy';
+
+export function getStaticPaths() {
+  return localeParams();
+}
 
 const t = translatorFor(Astro);
 const metaPolicy = [...META_DIRECTIVES, "script-src 'self' 'sha256-…'", "style-src 'self' 'sha256-…'"].join('; ');
 const ownPolicy = `Content-Security-Policy: ${HEADER_POLICY}\n<meta http-equiv="Content-Security-Policy" content="${metaPolicy}">`;
-const analyzeOwn = `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} })}`;
+const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} })}`);
 ---
 
 <Base title={t('pages.about.title')} description={t('pages.about.description')}>

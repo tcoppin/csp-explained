@@ -1,16 +1,17 @@
 /**
  * Renders the link-preview image (public/og-image.png, 1200×630) with the site's fonts and light colour tokens.
- * Run after changing the tagline or the palette: `yarn og:image` (`--theme dark` for the dark palette,
- * `--out <file>` to write elsewhere).
+ * Run after changing the tagline or the palette: `yarn og:image` for every language (`--locale fr` for one,
+ * `--theme dark` for the dark palette, `--out <file>` to write elsewhere).
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from '@playwright/test';
 import en from '../src/i18n/en.json' with { type: 'json' };
+import fr from '../src/i18n/fr.json' with { type: 'json' };
 
 const { values: args } = parseArgs({
-  options: { theme: { type: 'string', default: 'light' }, out: { type: 'string', default: 'public/og-image.png' } },
+  options: { theme: { type: 'string', default: 'light' }, locale: { type: 'string' }, out: { type: 'string' } },
 });
 
 const root = new URL('../', import.meta.url);
@@ -28,7 +29,11 @@ const font = (pkg: string, file: string) =>
   `url(data:font/woff2;base64,${readFileSync(new URL(`node_modules/@fontsource/${pkg}/files/${file}`, root)).toString('base64')}) format('woff2')`;
 
 const c = tokens(args.theme);
-const html = `<!doctype html>
+
+/** One image per language: the English one at the site's root, the others named after their locale. */
+const imagePath = (locale: string) => (locale === 'en' ? 'public/og-image.png' : `public/og-image-${locale}.png`);
+
+const page = (m: typeof en) => `<!doctype html>
 <style>
   @font-face { font-family: Sans; font-weight: 400; src: ${font('atkinson-hyperlegible-next', 'atkinson-hyperlegible-next-latin-400-normal.woff2')}; }
   @font-face { font-family: Sans; font-weight: 800; src: ${font('atkinson-hyperlegible-next', 'atkinson-hyperlegible-next-latin-800-normal.woff2')}; }
@@ -48,17 +53,22 @@ const html = `<!doctype html>
   .nowrap { white-space: nowrap; }
   .note { font-size: 26px; color: ${c['ink-soft']}; margin-top: 14px; }
 </style>
-<span class="mark">${en.site.name}</span>
-<h1>${en.site.tagline.replace(/Content-Security-Policy|in plain language\./g, (m) => `<span class="nowrap">${m}</span>`)}</h1>
+<span class="mark">${m.site.name}</span>
+<h1>${m.site.tagline.replace(/Content-Security-Policy|(?<=, )[^,]+$/g, (s) => `<span class="nowrap">${s}</span>`)}</h1>
 <div>
   <p class="policy"><b>script-src</b> <span class="hl k">'self'</span> <span class="hl h">https://www.googletagmanager.com</span>;</p>
-  <p class="note">Every rule explained, for everyone, developers and security teams.</p>
+  <p class="note">${m.site.ogNote}</p>
 </div>`;
 
+const messages: Record<string, typeof en> = { en, fr };
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-await page.setContent(html);
-await page.evaluate(() => document.fonts.ready);
-await page.screenshot({ path: fileURLToPath(new URL(args.out, root)) });
+for (const locale of args.locale ? [args.locale] : Object.keys(messages)) {
+  const tab = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+  await tab.setContent(page(messages[locale]!));
+  await tab.evaluate(() => document.fonts.ready);
+  const out = args.out ?? imagePath(locale);
+  await tab.screenshot({ path: fileURLToPath(new URL(out, root)) });
+  await tab.close();
+  console.log(`Wrote ${out}`);
+}
 await browser.close();
-console.log(`Wrote ${args.out}`);

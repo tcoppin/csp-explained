@@ -1,0 +1,39 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # When loaded through Google Tag Manager or the Google tag with a nonce, the nonce is passed on.
+    { en: 6a404a9b, text: "Chargé par Google Tag Manager ou la balise Google avec un nonce, le nonce est transmis." }
+notes:
+  # With advertising features (Google Signals, remarketing), Google also asks to list https://*.google.<TLD> for every country domain your visitors use (google.fr, google.de, …). Those country domains are not checked here.
+  { en: c4904ce7, text: "Avec les fonctionnalités publicitaires (Google Signals, remarketing), Google demande aussi de lister https://*.google.<TLD> pour chaque domaine national utilisé par vos visiteurs (google.fr, google.de…). Ces domaines nationaux ne sont pas vérifiés ici." }
+features:
+  measurement:
+    label:
+      # Measurement (without advertising features)
+      { en: c8c08073, text: "Mesure (sans fonctionnalités publicitaires)" }
+    reasons:
+      script:
+        # Loads the Google tag (gtag.js).
+        { en: 66083d68, text: "Charge la balise Google (gtag.js)." }
+      img:
+        # Sends hits as image pixels.
+        { en: 4933fdb5, text: "Envoie les hits sous forme de pixels." }
+      connect:
+        # Sends hits to the collection servers.
+        { en: 30e2c55f, text: "Envoie les hits aux serveurs de collecte." }
+  advertising-features:
+    label:
+      # Advertising features (Google Signals, remarketing)
+      { en: 81e1f7aa, text: "Fonctionnalités publicitaires (Google Signals, remarketing)" }
+    reasons:
+      img:
+        # Ads-related pixels.
+        { en: 4bfd8b47, text: "Pixels liés à la publicité." }
+      connect:
+        # Ads-related requests.
+        { en: 826d94fe, text: "Requêtes liées à la publicité." }
+      frame:
+        # Ads-related frame.
+        { en: 779cf373, text: "Cadre lié à la publicité." }

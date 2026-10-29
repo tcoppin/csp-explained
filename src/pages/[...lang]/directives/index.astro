@@ -1,8 +1,12 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { localeOf, translatorFor } from '../../i18n';
-import { DIRECTIVES, type DirectiveCategory } from '../../lib/csp/directives';
-import { contentFor } from '../../lib/site-content';
+import Base from '../../../layouts/Base.astro';
+import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
+import { DIRECTIVES, type DirectiveCategory } from '../../../lib/csp/directives';
+import { contentFor } from '../../../lib/site-content';
+
+export function getStaticPaths() {
+  return localeParams();
+}
 
 const t = translatorFor(Astro);
 const content = contentFor(localeOf(Astro.currentLocale));
@@ -25,7 +29,7 @@ const groups = CATEGORIES.map((c) => ({
             {g.items.map((d) => (
               <div class={d.deprecated ? 'deprecated' : undefined}>
                 <dt>
-                  <a href={`/directives/${d.name}`}>
+                  <a href={localePath(t.locale, `/directives/${d.name}`)}>
                     <code>{d.name}</code>
                   </a>
                   <span class="muted"> {content.directives[d.name]?.title}</span>

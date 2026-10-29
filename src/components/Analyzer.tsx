@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
-import { translator, type Locale, type Translate } from '../i18n';
+import { localePath, translator, type Locale, type Translate } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
@@ -207,7 +207,7 @@ export default function Analyzer({ content, locale }: { content: ContentBundle; 
                   </button>
                 )}
                 <p class="find-hint">
-                  {t('analyzer.noPolicy')} <a href="/find-my-csp">{t('analyzer.findLink')}</a>
+                  {t('analyzer.noPolicy')} <a href={localePath(locale, '/find-my-csp')}>{t('analyzer.findLink')}</a>
                 </p>
               </div>
               <details class="site-field">

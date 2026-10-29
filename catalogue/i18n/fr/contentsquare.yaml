@@ -1,0 +1,32 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The official page also documents img-src tracking subdomains, blob: workers (child-src / worker-src) and csxd. frames for cross-domain tracking. Those are not captured here yet.
+  { en: d2b74d15, text: "La page officielle documente aussi des sous-domaines de suivi pour img-src, des workers blob: (child-src / worker-src) et des cadres csxd. pour le suivi entre domaines. Ils ne sont pas encore repris ici." }
+features:
+  experience-analytics:
+    label:
+      # Experience Analytics
+      { en: f57bc2a1, text: "Experience Analytics" }
+    reasons:
+      script:
+        # Loads the tag (from t.contentsquare.net) and zoning from the app.
+        { en: "88083750", text: "Charge le tag (depuis t.contentsquare.net) et le zoning depuis l'application." }
+      inline-script:
+        # The tag is usually started by a small inline script.
+        { en: daeab25f, text: "Le tag est en général lancé par un petit script dans la page." }
+      connect:
+        # Sends data.
+        { en: ec9a65aa, text: "Envoie les données." }
+      style:
+        # Styles for in-page zoning.
+        { en: "42328644", text: "Styles du zoning dans la page." }
+  voice-of-customer:
+    label:
+      # Voice of Customer
+      { en: 38d9e999, text: "Voice of Customer" }
+    reasons:
+      inline-style:
+        # Survey widgets inject their styles.
+        { en: 5bb8d4e3, text: "Les questionnaires injectent leurs styles." }

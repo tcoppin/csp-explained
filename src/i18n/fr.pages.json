@@ -1,0 +1,255 @@
+{
+  "notFound": {
+    "title": "Page introuvable",
+    "heading": "Cette page n'est pas sur la liste",
+    "body": "Comme une ressource bloquée par une Content-Security-Policy, cette adresse n'est pas autorisée ici, surtout parce qu'elle n'existe pas.",
+    "button": "Aller à l'analyseur"
+  },
+  "learn": {
+    "title": "C'est quoi une CSP ?",
+    "description": "La Content-Security-Policy expliquée à ceux qui n'écrivent pas de code : ce que c'est, pourquoi elle bloque les outils marketing et comment en parler avec votre équipe informatique.",
+    "heading": "Qu'est-ce qu'une Content-Security-Policy ?",
+    "lead": "C'est une liste que votre site donne au navigateur de chaque visiteur, pour dire d'où la page a le droit d'utiliser du contenu. Tout ce qui n'est pas sur la liste est refusé.",
+    "exampleLine1": "**Ligne 1 :** le code (les scripts) ne peut venir que de notre propre site et de Google Tag Manager.",
+    "exampleLine2": "**Ligne 2 :** les images ne peuvent venir que de notre propre site, ou être intégrées directement dans la page.",
+    "whyTitle": "Pourquoi les sites en ont une",
+    "why1": "Une page web est assemblée à partir de nombreux morceaux : votre propre code, mais aussi des scripts d'outils de mesure d'audience, de publicité, de chat ou de test. Si un attaquant réussit à glisser son propre script dans une page, par exemple via un plugin vulnérable ou un fournisseur compromis, ce script peut lire ce que tapent les visiteurs, y compris les mots de passe et les numéros de carte. Des attaques de ce type ont touché de grandes enseignes et des compagnies aériennes.",
+    "why2": "La politique est un filet de sécurité : même si du code malveillant entre, le navigateur refuse de l'exécuter ou d'envoyer des données vers des endroits qui ne sont pas sur la liste. Pour les sites qui prennent des paiements, des normes comme PCI DSS attendent désormais ce type de contrôle.",
+    "toolsTitle": "Pourquoi elle bloque les outils marketing",
+    "tools1": "Du point de vue du navigateur, un nouveau tag de mesure d'audience ou un outil d'A/B testing n'est que du code de plus, venant d'un nouvel endroit. Si cet endroit n'est pas sur la liste, il est bloqué, exactement comme le serait une attaque. Le navigateur ne peut pas distinguer un outil que vous avez choisi d'un outil malveillant : seule la liste le peut.",
+    "tools2": "Ajouter un outil revient donc généralement à ajouter ses adresses à la liste. La plupart des éditeurs publient exactement quoi ajouter. Certains demandent aussi des permissions qui affaiblissent la protection pour tout le monde, comme autoriser le code écrit directement dans la page (`'unsafe-inline'`). C'est là que votre équipe sécurité peut tiquer, et c'est une discussion légitime, pas un refus.",
+    "wordsTitle": "Les mots que vous entendrez",
+    "words": {
+      "directive": {
+        "term": "Directive",
+        "definition": "Une règle de la politique, pour un type de contenu : `script-src` pour le code, `img-src` pour les images, etc."
+      },
+      "source": {
+        "term": "Source",
+        "definition": "Un endroit autorisé dans une règle : une adresse de site, ou un mot-clé comme `'self'` (votre propre site)."
+      },
+      "unsafeInline": {
+        "term": "`'unsafe-inline'`",
+        "definition": "Autorise le code écrit directement dans la page. Beaucoup d'outils marketing en ont besoin ; c'est aussi ce qui affaiblit le plus la protection."
+      },
+      "nonce": {
+        "term": "Nonce",
+        "definition": "Un code secret à usage unique que le site met sur les scripts auxquels il fait confiance. C'est l'alternative moderne et plus sûre à `'unsafe-inline'`, et la plupart des gestionnaires de balises la gèrent."
+      },
+      "reportOnly": {
+        "term": "Mode rapport seul",
+        "definition": "Un mode d'essai : le navigateur signale ce qu'il bloquerait, mais ne bloque rien. Les équipes s'en servent pour tester une politique sans risque."
+      }
+    },
+    "askTitle": "Comment demander un changement",
+    "ask1": "[Trouvez la politique actuelle de votre site](/find-my-csp).",
+    "ask2": "[Collez-la dans l'analyseur](/) et choisissez les outils que vous voulez utiliser.",
+    "ask3": "Copiez le message qu'il rédige pour votre équipe informatique ou sécurité. Il liste exactement quoi ajouter, pourquoi, et les risques à peser."
+  },
+  "about": {
+    "title": "À propos",
+    "description": "Un outil indépendant et gratuit pour comprendre les Content-Security-Policies. Votre politique ne quitte jamais votre navigateur.",
+    "lead": "Un outil gratuit et indépendant pour aider tous ceux qui travaillent sur un site, pas seulement les développeurs, à comprendre sa Content-Security-Policy et à en parler en confiance.",
+    "privacyTitle": "Votre politique reste dans votre navigateur",
+    "privacy": "Tout est calculé sur votre appareil. La politique que vous collez n'est jamais envoyée à un serveur. Les liens de partage gardent la politique après le `#` de l'adresse, une partie que les navigateurs n'envoient jamais aux serveurs.",
+    "countTitle": "Ce que nous comptons",
+    "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser une politique, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier un rapport ou le snippet. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique ni l'adresse de votre site.",
+    "sourcesTitle": "D'où viennent les informations",
+    "sourceSpec": "Le comportement des directives suit la spécification [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/).",
+    "sourceEvaluator": "Les constats de sécurité viennent de la bibliothèque [CSP Evaluator](https://github.com/google/csp-evaluator) de Google (Apache-2.0), les mêmes vérifications que csp-evaluator.withgoogle.com.",
+    "sourceVendors": "Ce dont chaque outil a besoin vient de la documentation officielle de l'éditeur, liée sur chaque fiche avec la date de dernière vérification. Aucun éditeur ne paie pour être listé ni n'influence les résultats.",
+    "catalogueTitle": "Aidez à garder le catalogue juste",
+    "catalogue": "Les éditeurs changent leurs exigences. Si une fiche est obsolète ou qu'un outil manque, [ouvrez une issue]({issues}) avec un lien vers la documentation officielle.",
+    "ownTitle": "La politique de ce site",
+    "own": "Nous suivons nos propres conseils. Ce site envoie deux politiques : un en-tête pour ce que seul un en-tête peut faire (refuser d'être intégré dans d'autres sites), et une balise `<meta>` avec des règles strictes où scripts et styles sont autorisés par leur empreinte exacte (hash).",
+    "analyseOwn": "Analyser la politique de ce site"
+  },
+  "find": {
+    "title": "Trouver la CSP de votre site",
+    "description": "Plusieurs façons, pas à pas, de trouver la Content-Security-Policy de n'importe quel site, pour les non-techniciens comme pour les développeurs.",
+    "lead": "Votre site envoie sa politique avec chaque page, en général sans qu'on la voie. Choisissez une de ces façons d'en obtenir une copie. Le snippet est le plus rapide ; le terminal est pour les développeurs. Un message d'erreur ne contient pas la politique, mais il indique quelle règle a bloqué quelque chose.",
+    "methodsLabel": "Façons de trouver votre politique",
+    "methods": {
+      "console": {
+        "label": "Snippet",
+        "hint": "le plus simple"
+      },
+      "devtools": {
+        "label": "Onglet Réseau"
+      },
+      "source": {
+        "label": "Source de la page"
+      },
+      "terminal": {
+        "label": "Terminal",
+        "hint": "développeurs"
+      },
+      "errors": {
+        "label": "Lire une erreur"
+      }
+    },
+    "console": {
+      "title": "La copier avec un snippet",
+      "intro": "Environ une minute, dans Chrome, Edge, Firefox ou Safari. Aucune connaissance technique nécessaire.",
+      "step1": "Ouvrez la page de votre site qui vous intéresse : l'accueil, une page produit, le panier…",
+      "step2": "Ouvrez les outils de développement : [[F12]] sur Windows, [[⌘]] [[⌥]] [[J]] sur Mac. Dans Safari, activez d'abord *Réglages › Avancé › Afficher les fonctionnalités pour les développeurs web*.",
+      "step3": "Cliquez sur l'onglet **Console**.",
+      "step4": "Copiez ce snippet, collez-le dans la console et appuyez sur [[Entrée]].",
+      "snippetCaption": "À coller dans la console du navigateur",
+      "step5": "La politique est maintenant dans votre presse-papiers : [collez-la dans l'analyseur](/).",
+      "note": "Le snippet ne fait que lire : il recharge la page où vous êtes, garde sa politique et la copie. Il n'envoie rien nulle part.",
+      "safeQuestion": "Est-ce prudent de coller du code dans la console ?",
+      "safeAnswer": "Méfiez-vous du code venant de gens que vous ne connaissez pas : tout ce qui est collé dans la console s'exécute en votre nom, sur ce site. C'est pour cela que Chrome et Firefox peuvent vous demander de taper d'abord `allow pasting`. Chaque ligne de ce snippet est affichée ci-dessus : vous pouvez vérifier ce qu'il fait avant de le lancer.",
+      "syncQuestion": "Je vois un avertissement jaune à propos de « synchronous XMLHttpRequest »",
+      "syncAnswer": "C'est sans danger. Le snippet lit la page d'un coup, sans attendre, parce que c'est la seule façon dont le navigateur le laisse copier le résultat pour vous.",
+      "refusedQuestion": "Je vois une erreur du type « Refused to connect »",
+      "refusedAnswer": "Votre politique bloque le snippet lui-même. Utilisez plutôt l'onglet Réseau."
+    },
+    "devtools": {
+      "title": "Regarder dans l'onglet Réseau",
+      "intro": "Pas de code : vous lisez la politique dans les outils de développement du navigateur.",
+      "browserLabel": "Votre navigateur",
+      "chrome": {
+        "label": "Chrome et Edge",
+        "steps": [
+          "Appuyez sur [[F12]] et cliquez sur l'onglet **Réseau**.",
+          "Rechargez la page : [[F5]], ou [[⌘]] [[R]] sur Mac.",
+          "Cliquez sur la première ligne de la liste. Elle porte l'adresse de votre page et le type *document*.",
+          "Dans **En-têtes**, descendez jusqu'à **En-têtes de réponse**.",
+          "Trouvez `content-security-policy`, faites un clic droit sur sa valeur et choisissez *Copier la valeur*."
+        ],
+        "sketch": {
+          "browser": "Chrome et Edge",
+          "type": "document",
+          "section": "En-têtes de réponse"
+        }
+      },
+      "firefox": {
+        "label": "Firefox",
+        "steps": [
+          "Appuyez sur [[F12]] et cliquez sur l'onglet **Réseau**.",
+          "Rechargez la page.",
+          "Cliquez sur la première ligne (type *html*).",
+          "Dans le panneau **En-têtes**, ouvrez **En-têtes de la réponse**.",
+          "Trouvez `content-security-policy` et copiez sa valeur."
+        ],
+        "sketch": {
+          "browser": "Firefox",
+          "type": "html",
+          "section": "En-têtes de la réponse"
+        }
+      },
+      "safari": {
+        "label": "Safari",
+        "steps": [
+          "Activez *Réglages › Avancé › Afficher les fonctionnalités pour les développeurs web*.",
+          "Appuyez sur [[⌘]] [[⌥]] [[I]] et ouvrez l'onglet **Réseau**.",
+          "Rechargez la page et cliquez sur la première ressource.",
+          "Dans **En-têtes**, trouvez `Content-Security-Policy` sous *Réponse* et copiez sa valeur."
+        ],
+        "sketch": {
+          "browser": "Safari",
+          "type": "Document",
+          "section": "Réponse"
+        }
+      },
+      "note": "Pas de ligne `content-security-policy` ? Cherchez `content-security-policy-report-only`, ou fouillez la source de la page : la politique est peut-être dans la page."
+    },
+    "source": {
+      "title": "Chercher dans la source de la page",
+      "intro": "Certains sites écrivent leur politique dans la page au lieu de l'envoyer à part.",
+      "steps": [
+        "Faites un clic droit sur la page et choisissez *Afficher le code source de la page*.",
+        "Cherchez ([[Ctrl]] [[F]], ou [[⌘]] [[F]] sur Mac) `Content-Security-Policy`.",
+        "Copiez toute la balise `<meta http-equiv=\"Content-Security-Policy\" …>`. L'analyseur la lit telle quelle."
+      ]
+    },
+    "terminal": {
+      "title": "Depuis un terminal",
+      "intro": "Affiche les en-têtes que renvoie votre serveur. Collez toute la sortie dans l'analyseur.",
+      "caption": "À lancer dans un terminal, avec l'adresse de votre site",
+      "whereQuestion": "Où la politique est-elle configurée en général ?",
+      "where": [
+        "**Serveur web :** nginx (`add_header`), Apache (`Header set`), IIS (`web.config`).",
+        "**CDN ou edge :** response headers policies CloudFront, Transform Rules Cloudflare, Fastly, Akamai.",
+        "**Framework :** helmet (Express), `headers()` de Next.js, Django CSP, Spring Security, `content_security_policy` de Rails.",
+        "**Hébergement :** `_headers` chez Netlify, `vercel.json` chez Vercel.",
+        "**Gabarit HTML ou plugin de CMS** pour les politiques en `<meta>`."
+      ]
+    },
+    "errors": {
+      "title": "Lire un message d'erreur",
+      "intro": "Un message d'erreur n'est pas votre politique, il n'y a donc rien à copier ici. Mais il dit ce qui a été bloqué et pourquoi. Quand un outil ne marche pas, la console ([[F12]], onglet **Console**) affiche souvent un message rouge comme celui-ci :",
+      "blockedTerm": "Ce qui a été bloqué",
+      "blocked": "L'adresse après *Refused to load* : un script de `cdn.vendor.example`.",
+      "ruleTerm": "La règle qui l'a bloqué",
+      "rule": "Le nom entre guillemets après *directive* : `script-src`.",
+      "allowsTerm": "Ce que la règle autorise aujourd'hui",
+      "allows": "Les valeurs après le nom de la règle.",
+      "note": "Ne collez pas le message dans l'analyseur : il ne montre qu'une règle de votre politique. Pour vérifier la politique complète, obtenez-en une copie avec le [snippet](#console) ou une des autres façons."
+    },
+    "pitfalls": {
+      "title": "Avant de l'analyser",
+      "items": [
+        {
+          "term": "Les pages peuvent avoir des politiques différentes",
+          "definition": "Le panier, la page de connexion ou un blog sur une autre plateforme ont souvent la leur. Vérifiez la page où votre outil doit fonctionner."
+        },
+        {
+          "term": "Il peut y en avoir plusieurs",
+          "definition": "Plusieurs en-têtes, ou un en-tête et une balise `<meta>`. Un élément doit être autorisé par toutes : collez-les ensemble."
+        },
+        {
+          "term": "Le mode rapport seul ne bloque rien",
+          "definition": "`Content-Security-Policy-Report-Only` ne fait que signaler les problèmes, souvent pendant qu'une équipe teste une nouvelle politique."
+        },
+        {
+          "term": "Elle peut venir d'un endroit inattendu",
+          "definition": "Un CDN, un pare-feu ou un plugin de sécurité peut ajouter ou modifier l'en-tête. Demandez à vos développeurs où elle est configurée."
+        }
+      ],
+      "button": "Analyser ma politique"
+    }
+  },
+  "directives": {
+    "title": "Toutes les directives CSP",
+    "description": "Chaque directive de Content-Security-Policy expliquée en termes simples, pour les développeurs et pour les équipes sécurité.",
+    "heading": "Chaque directive, expliquée",
+    "categories": {
+      "fetch": "Ce que la page peut charger",
+      "document": "La page elle-même",
+      "navigation": "Où la page peut aller, et qui peut l'intégrer",
+      "reporting": "Signalement",
+      "other": "Autres protections"
+    },
+    "all": "Toutes les directives",
+    "deprecated": "Obsolète ou non prise en charge : les navigateurs l'ignorent aujourd'hui.",
+    "simpleTitle": "En termes simples",
+    "developerTitle": "Pour les développeurs",
+    "securityTitle": "Pour les équipes sécurité",
+    "fallback": "Quand elle est absente, le navigateur utilise `{chain}`.",
+    "noFallback": "Pas de repli : quand elle est absente, rien n'est restreint.",
+    "usedInPlaceOf": "Utilisée à la place de {directives} quand celles-ci sont absentes.",
+    "ignoredInMeta": "Ignorée quand la politique est fournie par une balise `<meta>`.",
+    "reference": "Référence : [MDN]({url})",
+    "mdnLocale": "fr"
+  },
+  "vendors": {
+    "title": "Outils",
+    "description": "Ce dont les outils marketing et de mesure d'audience courants ont besoin dans votre Content-Security-Policy, d'après leur documentation officielle.",
+    "heading": "Ce dont chaque outil a besoin",
+    "lead": "Chaque fiche vient de la documentation officielle de l'éditeur, avec la date de dernière vérification. Choisissez un outil pour voir ce dont il a besoin, ou comparez-le à votre propre politique dans l'analyseur.",
+    "checked": "vérifié le {date}",
+    "partial": "partiellement vérifié",
+    "missingTitle": "Un outil manque ?",
+    "missing": "Le catalogue est ouvert. [Proposez un outil]({url}) avec un lien vers sa documentation CSP officielle.",
+    "vendorTitle": "{name} et la Content-Security-Policy",
+    "vendorDescription": "Ce dont {name} a besoin dans votre Content-Security-Policy, d'après sa documentation officielle.",
+    "check": "Comparer {name} à ma politique",
+    "nonceTitle": "L'option plus sûre : les nonces",
+    "content": "Contenu",
+    "allowedSource": "Source autorisée",
+    "why": "Pourquoi",
+    "outdated": "Quelque chose a changé ? [Signaler une fiche obsolète]({url})."
+  }
+}

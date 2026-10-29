@@ -1,16 +1,16 @@
 ---
-import Base from '../../layouts/Base.astro';
-import { NewTabLink } from '../../components/NewTabLink';
-import { Rich } from '../../components/Rich';
-import { outdatedIssueUrl } from '../../config';
-import { DEFAULT_LOCALE, localeOf, translatorFor } from '../../i18n';
-import { requirementsOf } from '../../lib/catalogue/requirements';
-import type { Feature } from '../../lib/catalogue/schema';
-import { CANONICAL_DIRECTIVE } from '../../lib/csp/directives';
-import { contentFor } from '../../lib/site-content';
+import Base from '../../../layouts/Base.astro';
+import { NewTabLink } from '../../../components/NewTabLink';
+import { Rich } from '../../../components/Rich';
+import { outdatedIssueUrl } from '../../../config';
+import { DEFAULT_LOCALE, localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
+import { requirementsOf } from '../../../lib/catalogue/requirements';
+import type { Feature } from '../../../lib/catalogue/schema';
+import { CANONICAL_DIRECTIVE } from '../../../lib/csp/directives';
+import { contentFor } from '../../../lib/site-content';
 
 export function getStaticPaths() {
-  return contentFor(DEFAULT_LOCALE).vendors.map((vendor) => ({ params: { id: vendor.id } }));
+  return localeParams().flatMap(({ params }) => contentFor(DEFAULT_LOCALE).vendors.map((vendor) => ({ params: { ...params, id: vendor.id } })));
 }
 
 // The page's language decides the text; the facts are the same in every language.
@@ -30,12 +30,12 @@ function linesFor(feature: Feature): string[] {
   return [...byDirective].map(([d, values]) => `${d} ${values.join(' ')};`);
 }
 
-const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).map((f) => f.id).join('+')}`;
+const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).map((f) => f.id).join('+')}`);
 ---
 
 <Base title={t(m('vendorTitle'), { name: vendor.name })} description={t(m('vendorDescription'), { name: vendor.name })}>
   <article class="wrap prose vendor-page">
-    <p class="crumb"><a href="/vendors">{t('site.nav.vendors')}</a></p>
+    <p class="crumb"><a href={localePath(t.locale, '/vendors')}>{t('site.nav.vendors')}</a></p>
     <h1>{vendor.name}</h1>
     <p class="provenance">
       {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.

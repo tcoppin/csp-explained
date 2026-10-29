@@ -1,0 +1,237 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+"'self'":
+  title:
+    # Your own site
+    { en: 60e8e34c, text: "Votre propre site" }
+  simple:
+    # Content from your own website (the same address you are on).
+    { en: 36bd4b90, text: "Le contenu de votre propre site (la même adresse que celle où vous êtes)." }
+  developer:
+    # Matches the page's origin, plus its secure upgrades (http→https, ws/wss). Does not match subdomains.
+    { en: c1a85095, text: "Correspond à l'origine de la page, plus ses versions sécurisées (http→https, ws/wss). Ne couvre pas les sous-domaines." }
+  security:
+    # Safe as long as your own origin doesn't host user-uploaded files or JSONP endpoints that could be abused.
+    { en: a1b73074, text: "Sans danger tant que votre propre origine n'héberge pas de fichiers envoyés par les utilisateurs ni de points d'accès JSONP exploitables." }
+"'none'":
+  title:
+    # Nothing
+    { en: 67e1bca0, text: "Rien" }
+  simple:
+    # Nothing is allowed for this type of content.
+    { en: c8967ab9, text: "Rien n'est autorisé pour ce type de contenu." }
+  developer:
+    # Matches nothing. Must be the only value; combined with other sources it is ignored.
+    { en: bb02e8cc, text: "Ne correspond à rien. Doit être la seule valeur ; combinée à d'autres sources, elle est ignorée." }
+  security:
+    # The safest value for anything you don't use (object-src, base-uri, frame-ancestors…).
+    { en: 0236b1b7, text: "La valeur la plus sûre pour tout ce que vous n'utilisez pas (object-src, base-uri, frame-ancestors…)." }
+"'unsafe-inline'":
+  title:
+    # Inline code
+    { en: e767deee, text: "Code dans la page" }
+  simple:
+    # Allows code written directly inside the page, not only code loaded from files. Many marketing tools need it, but it also removes much of the protection against malicious code.
+    { en: 0a9a9b8a, text: "Autorise le code écrit directement dans la page, pas seulement celui chargé depuis des fichiers. Beaucoup d'outils marketing en ont besoin, mais cela retire aussi une grande partie de la protection contre le code malveillant." }
+  developer:
+    # Allows inline <script>/<style> blocks, event handlers and style attributes. Ignored when the same directive has a nonce, a hash or 'strict-dynamic' (browsers keep it only for old-browser compatibility).
+    { en: 78baa748, text: "Autorise les blocs <script>/<style> dans la page, les gestionnaires d'événements et les attributs style. Ignoré quand la même directive a un nonce, un hash ou 'strict-dynamic' (les navigateurs ne le gardent que pour la compatibilité avec les anciens navigateurs)." }
+  security:
+    # In script-src it lets any HTML injection become script execution, so it essentially disables CSP's XSS protection. Prefer nonces. In style-src the risk is much lower.
+    { en: 3b843cc3, text: "Dans script-src, il transforme toute injection HTML en exécution de script : il désactive en pratique la protection de la CSP contre le XSS. Préférez les nonces. Dans style-src, le risque est bien plus faible." }
+"'unsafe-eval'":
+  title:
+    # Code from text
+    { en: caf8fcb8, text: "Code depuis du texte" }
+  simple:
+    # Allows the page to turn text into running code. Some tools need it for custom code features.
+    { en: 148acae0, text: "Permet à la page de transformer du texte en code qui s'exécute. Certains outils en ont besoin pour leurs fonctions de code personnalisé." }
+  developer:
+    # Allows eval(), new Function(), setTimeout/setInterval with strings, and similar.
+    { en: 1796e3c1, text: "Autorise eval(), new Function(), setTimeout/setInterval avec des chaînes, et équivalents." }
+  security:
+    # Turns string-injection bugs into code execution. Acceptable trade-off for some tools, but keep it out if you can.
+    { en: d3c42245, text: "Transforme les failles d'injection de chaînes en exécution de code. Compromis acceptable pour certains outils, mais évitez-le si vous pouvez." }
+"'strict-dynamic'":
+  title:
+    # Trust what trusted scripts load
+    { en: 4625cb11, text: "Faire confiance à ce que chargent les scripts de confiance" }
+  simple:
+    # Scripts that the site has approved with a secret code (a nonce) may load other scripts. Lists of allowed websites are then ignored for scripts.
+    { en: 8b95dbf8, text: "Les scripts que le site a approuvés avec un code secret (un nonce) peuvent charger d'autres scripts. Les listes de sites autorisés sont alors ignorées pour les scripts." }
+  developer:
+    # Scripts allowed by a nonce or hash can add more scripts via createElement('script'); host/scheme sources, 'self' and 'unsafe-inline' in the same directive are ignored by supporting browsers. Parser-inserted scripts (document.write, HTML) still need the nonce.
+    { en: 1982b2d2, text: "Les scripts autorisés par un nonce ou un hash peuvent ajouter d'autres scripts via createElement('script') ; les sources d'hôte ou de schéma, 'self' et 'unsafe-inline' de la même directive sont ignorés par les navigateurs qui le gèrent. Les scripts insérés par le parseur (document.write, HTML) ont toujours besoin du nonce." }
+  security:
+    # The recommended "strict CSP" model: resistant to allowlist bypasses while tag managers keep working if they propagate the nonce.
+    { en: 370c0a21, text: "Le modèle recommandé de « CSP stricte » : résistant aux contournements des listes d'hôtes, tandis que les gestionnaires de balises continuent de fonctionner s'ils propagent le nonce." }
+"'unsafe-hashes'":
+  title:
+    # Approved inline handlers
+    { en: b073e4a7, text: "Gestionnaires approuvés dans la page" }
+  simple:
+    # Allows specific small pieces of code on buttons and links, approved one by one.
+    { en: 5685ea21, text: "Autorise des petits bouts de code précis sur les boutons et les liens, approuvés un par un." }
+  developer:
+    # Lets hashes match inline event handlers and style attributes, not only <script>/<style> blocks.
+    { en: ef9e7391, text: "Permet aux hashes de couvrir les gestionnaires d'événements et les attributs style dans la page, pas seulement les blocs <script>/<style>." }
+  security:
+    # Narrower than 'unsafe-inline', but approved handlers can still be reused by an attacker.
+    { en: 7e088c1b, text: "Plus étroit que 'unsafe-inline', mais un attaquant peut quand même réutiliser les gestionnaires approuvés." }
+"'report-sample'":
+  title:
+    # Include a sample in reports
+    { en: 64a9db7d, text: "Inclure un extrait dans les rapports" }
+  simple:
+    # Adds a short extract of the blocked code to violation reports, to help the technical team.
+    { en: 00f34400, text: "Ajoute un court extrait du code bloqué aux rapports de violation, pour aider l'équipe technique." }
+  developer:
+    # Adds the first 40 characters of the blocked inline script/style to violation reports.
+    { en: 51ca812e, text: "Ajoute les 40 premiers caractères du script ou du style bloqué dans la page aux rapports de violation." }
+  security:
+    # Helpful for triage; make sure your report endpoint is trusted, as samples may contain data.
+    { en: 0ab722f7, text: "Utile pour le tri ; assurez-vous que votre point de réception des rapports est fiable, car les extraits peuvent contenir des données." }
+"'wasm-unsafe-eval'":
+  title:
+    # WebAssembly
+    { en: 3cc64514, text: "WebAssembly" }
+  simple:
+    # Allows high-performance compiled code (WebAssembly) to run.
+    { en: de3b179f, text: "Autorise l'exécution de code compilé haute performance (WebAssembly)." }
+  developer:
+    # Allows WebAssembly compilation without allowing JavaScript eval.
+    { en: 8bad2815, text: "Autorise la compilation WebAssembly sans autoriser eval en JavaScript." }
+  security:
+    # Much narrower than 'unsafe-eval'.
+    { en: e27c8918, text: "Bien plus étroit que 'unsafe-eval'." }
+"'inline-speculation-rules'":
+  title:
+    # Speculation rules
+    { en: f138540e, text: "Règles de spéculation" }
+  simple:
+    # Allows the page to tell the browser which pages to load in advance.
+    { en: 5bc89820, text: "Permet à la page d'indiquer au navigateur quelles pages charger à l'avance." }
+  developer:
+    # Allows inline <script type="speculationrules"> blocks.
+    { en: dd2de5dd, text: "Autorise les blocs <script type=\"speculationrules\"> dans la page." }
+  security:
+    # Low risk.
+    { en: c9127a8b, text: "Faible risque." }
+nonce:
+  title:
+    # One-time code
+    { en: 1b774f3c, text: "Code à usage unique" }
+  simple:
+    # A secret code that changes on every page load. Only code carrying today's code may run, which is a strong protection.
+    { en: "523e7619", text: "Un code secret qui change à chaque chargement de page. Seul le code qui porte le code du moment peut s'exécuter : c'est une protection forte." }
+  developer:
+    # 'nonce-<base64>' allows <script>/<style> elements with a matching nonce attribute. Must be random and regenerated on every response; never cached.
+    { en: 2a7cd676, text: "'nonce-<base64>' autorise les éléments <script>/<style> dont l'attribut nonce correspond. Doit être aléatoire et régénéré à chaque réponse ; jamais mis en cache." }
+  security:
+    # The core of a strict CSP. A static or predictable nonce gives no protection.
+    { en: 3cec160c, text: "Le cœur d'une CSP stricte. Un nonce fixe ou prévisible ne protège de rien." }
+hash:
+  title:
+    # Fingerprint
+    { en: ba7af0b7, text: "Empreinte" }
+  simple:
+    # Allows one exact piece of code, identified by its fingerprint. If the code changes by one character, it is blocked.
+    { en: 920b87e6, text: "Autorise un bout de code exact, identifié par son empreinte. Si le code change d'un seul caractère, il est bloqué." }
+  developer:
+    # 'sha256-…' (or sha384/sha512) allows inline blocks whose content hashes to this value, and external scripts with a matching integrity attribute.
+    { en: 501fc567, text: "'sha256-…' (ou sha384/sha512) autorise les blocs dans la page dont le contenu a ce hash, et les scripts externes dont l'attribut integrity correspond." }
+  security:
+    # Good for static inline snippets; every change needs a policy update.
+    { en: c4bd33ed, text: "Adapté aux petits bouts de code fixes ; chaque modification demande de mettre la politique à jour." }
+wildcard:
+  title:
+    # Anywhere
+    { en: 911b14a9, text: "N'importe où" }
+  simple:
+    # Content can come from any website. This rule is effectively switched off.
+    { en: 9bc480b0, text: "Le contenu peut venir de n'importe quel site. Cette règle est en pratique désactivée." }
+  developer:
+    # * matches any URL with a network scheme (http, https, ws, wss) and the page's own scheme, but not data:, blob: or filesystem:.
+    { en: 0edfd81a, text: "* couvre toute URL avec un schéma réseau (http, https, ws, wss) et le schéma de la page elle-même, mais pas data:, blob: ni filesystem:." }
+  security:
+    # Offers almost no protection for this content type.
+    { en: a8442a5b, text: "N'offre presque aucune protection pour ce type de contenu." }
+wildcard-host:
+  title:
+    # All subdomains
+    { en: da1774a4, text: "Tous les sous-domaines" }
+  simple:
+    # Any address ending with this domain, for example both www. and cdn. versions.
+    { en: 0b1a38d6, text: "Toute adresse qui se termine par ce domaine, par exemple les versions www. et cdn." }
+  developer:
+    # *.example.com matches any subdomain at any depth, but not example.com itself.
+    { en: 9275ba88, text: "*.example.com couvre tous les sous-domaines, à toute profondeur, mais pas example.com lui-même." }
+  security:
+    # Convenient for vendors with many subdomains; risky if any subdomain serves user content or old, vulnerable files.
+    { en: fbfb09ba, text: "Pratique pour les éditeurs qui ont beaucoup de sous-domaines ; risqué si l'un d'eux sert du contenu d'utilisateurs ou d'anciens fichiers vulnérables." }
+host:
+  title:
+    # A specific website
+    { en: 0a8960c0, text: "Un site précis" }
+  simple:
+    # Content from this specific address.
+    { en: 1dcfb106, text: "Le contenu de cette adresse précise." }
+  developer:
+    # Host-source. Without a scheme it inherits the page's scheme (http also allows https). Without a port only the default port matches. A path ending in / matches everything under it.
+    { en: 2b19012d, text: "Source d'hôte. Sans schéma, elle hérite du schéma de la page (http autorise aussi https). Sans port, seul le port par défaut correspond. Un chemin qui se termine par / couvre tout ce qui est en dessous." }
+  security:
+    # Only as safe as everything the host serves: public CDNs and analytics domains often expose JSONP or script gadgets that let attackers bypass the allowlist.
+    { en: 5bedeea0, text: "Aussi sûre que tout ce que l'hôte sert : les CDN publics et les domaines de mesure d'audience exposent souvent du JSONP ou des gadgets de script qui permettent de contourner la liste." }
+"scheme:https:":
+  title:
+    # Any secure website
+    { en: "80487766", text: "N'importe quel site sécurisé" }
+  simple:
+    # Content from any website using a secure connection (https). That is almost every website.
+    { en: f992d30b, text: "Le contenu de n'importe quel site utilisant une connexion sécurisée (https). C'est presque tous les sites." }
+  developer:
+    # Matches any https: URL.
+    { en: a61560ee, text: "Couvre toute URL https:." }
+  security:
+    # As permissive as a wildcard for scripts; attackers can host code on any HTTPS server.
+    { en: 783fc23a, text: "Aussi permissif qu'un joker pour les scripts ; un attaquant peut héberger du code sur n'importe quel serveur HTTPS." }
+"scheme:data:":
+  title:
+    # Embedded data
+    { en: b873ac53, text: "Données intégrées" }
+  simple:
+    # Content embedded directly in the page as text (often small images or fonts).
+    { en: 3f0fc8a6, text: "Du contenu intégré directement dans la page sous forme de texte (souvent de petites images ou des polices)." }
+  developer:
+    # Allows data: URLs.
+    { en: b78e02ea, text: "Autorise les URL data:." }
+  security:
+    # Fine for img-src and font-src; dangerous in script-src and object-src.
+    { en: 1235e1da, text: "Sans problème pour img-src et font-src ; dangereux dans script-src et object-src." }
+"scheme:blob:":
+  title:
+    # Generated content
+    { en: 14dbaff6, text: "Contenu généré" }
+  simple:
+    # Content generated on the fly by code already running in the page.
+    { en: 0851c420, text: "Du contenu généré à la volée par du code qui tourne déjà dans la page." }
+  developer:
+    # Allows blob: URLs created with URL.createObjectURL().
+    { en: "01213859", text: "Autorise les URL blob: créées avec URL.createObjectURL()." }
+  security:
+    # In script-src or worker-src, any script that can create a blob can run arbitrary code.
+    { en: 5725a248, text: "Dans script-src ou worker-src, tout script capable de créer un blob peut exécuter du code arbitraire." }
+scheme:
+  title:
+    # Any address with this prefix
+    { en: 683f3ecb, text: "Toute adresse avec ce préfixe" }
+  simple:
+    # Any content whose address starts with this prefix.
+    { en: 34616be9, text: "Tout contenu dont l'adresse commence par ce préfixe." }
+  developer:
+    # Scheme-source; matches any URL with this scheme (http: also matches https:).
+    { en: 3c04a251, text: "Source de schéma ; couvre toute URL avec ce schéma (http: couvre aussi https:)." }
+  security:
+    # Very broad; consider listing specific hosts instead.
+    { en: e219409e, text: "Très large ; envisagez plutôt de lister des hôtes précis." }

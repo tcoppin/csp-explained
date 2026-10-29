@@ -1,0 +1,18 @@
+---
+import Analyzer from '../../components/Analyzer';
+import Base from '../../layouts/Base.astro';
+import { localeOf, localeParams } from '../../i18n';
+import { contentFor } from '../../lib/site-content';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const locale = localeOf(Astro.currentLocale);
+---
+
+<Base>
+  <div class="wrap">
+    <Analyzer client:load content={contentFor(locale)} locale={locale} />
+  </div>
+</Base>

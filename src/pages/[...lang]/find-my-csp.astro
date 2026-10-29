@@ -1,10 +1,14 @@
 ---
-import CodeBlock from '../components/CodeBlock.astro';
-import DevtoolsSketch from '../components/DevtoolsSketch.astro';
-import { Rich } from '../components/Rich';
-import Base from '../layouts/Base.astro';
-import { translatorFor } from '../i18n';
-import { FIND_CSP_SNIPPET } from '../lib/snippets/find-csp-console';
+import CodeBlock from '../../components/CodeBlock.astro';
+import DevtoolsSketch from '../../components/DevtoolsSketch.astro';
+import { Rich } from '../../components/Rich';
+import Base from '../../layouts/Base.astro';
+import { localeParams, localePath, translatorFor } from '../../i18n';
+import { FIND_CSP_SNIPPET } from '../../lib/snippets/find-csp-console';
+
+export function getStaticPaths() {
+  return localeParams();
+}
 
 const t = translatorFor(Astro);
 const m = (key: string) => `pages.find.${key}`;
@@ -163,13 +167,13 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
           ))
         }
       </dl>
-      <p><a class="button" href="/">{t(m('pitfalls.button'))}</a></p>
+      <p><a class="button" href={localePath(t.locale, '/')}>{t(m('pitfalls.button'))}</a></p>
     </section>
   </div>
 </Base>
 
 <script>
-  import '../scripts/tabs';
+  import '../../scripts/tabs';
 </script>
 
 <style>

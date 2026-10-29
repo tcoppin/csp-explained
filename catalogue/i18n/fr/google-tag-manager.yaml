@@ -1,0 +1,56 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Add a per-response nonce to script-src-elem and use Google's nonce-aware container snippet. Tag Manager then passes the nonce on to every script it adds, so 'unsafe-inline' is not needed.
+    { en: 3251c11d, text: "Ajoutez un nonce propre à chaque réponse dans script-src-elem et utilisez le snippet de conteneur de Google compatible avec les nonces. Tag Manager transmet alors le nonce à chaque script qu'il ajoute : 'unsafe-inline' n'est plus nécessaire." }
+notes:
+  # Google discourages the 'unsafe-inline' fallback. Tags fired by the container (analytics, ads, …) have their own requirements: check those vendors too.
+  { en: 736dabcf, text: "Google déconseille de se rabattre sur 'unsafe-inline'. Les balises déclenchées par le conteneur (mesure d'audience, publicité…) ont leurs propres besoins : vérifiez aussi ces éditeurs." }
+features:
+  container:
+    label:
+      # Load the container
+      { en: e2e01d8d, text: "Charger le conteneur" }
+    reasons:
+      script:
+        # Downloads the Tag Manager container script.
+        { en: 4fe5a4c1, text: "Télécharge le script du conteneur Tag Manager." }
+      inline-script:
+        # The container snippet is a small inline script (not needed with the nonce snippet).
+        { en: c654205b, text: "Le snippet du conteneur est un petit script dans la page (inutile avec le snippet à nonce)." }
+      img:
+        # Sends requests as image pixels.
+        { en: 6aef1f2a, text: "Envoie des requêtes sous forme de pixels." }
+      connect:
+        # Sends requests to Google's servers.
+        { en: 3db5a16f, text: "Envoie des requêtes aux serveurs de Google." }
+  custom-js-variables:
+    description:
+      # Without it these variables evaluate to undefined. Google recommends Custom Templates instead.
+      { en: d80d04a7, text: "Sans cela, ces variables valent undefined. Google recommande plutôt les modèles personnalisés." }
+    label:
+      # Custom JavaScript variables
+      { en: c74de93d, text: "Variables JavaScript personnalisées" }
+    reasons:
+      eval:
+        # Custom JavaScript variables are evaluated with eval().
+        { en: 1c8e2ece, text: "Les variables JavaScript personnalisées sont évaluées avec eval()." }
+  preview:
+    label:
+      # Preview / debug mode
+      { en: 175f457b, text: "Mode aperçu / débogage" }
+    reasons:
+      script:
+        # Loads the preview panel scripts.
+        { en: "51987483", text: "Charge les scripts du panneau d'aperçu." }
+      style:
+        # Loads the preview panel styles.
+        { en: f0b114f8, text: "Charge les styles du panneau d'aperçu." }
+      img:
+        # Loads the preview panel images.
+        { en: "272e2104", text: "Charge les images du panneau d'aperçu." }
+      font:
+        # Loads the preview panel fonts.
+        { en: e842c16b, text: "Charge les polices du panneau d'aperçu." }
