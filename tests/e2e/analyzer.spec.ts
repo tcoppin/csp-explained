@@ -254,6 +254,15 @@ test('find my CSP shows one method at a time', async ({ page }) => {
   await expect(page.locator('#terminal')).toBeVisible();
 });
 
+test('pages describe themselves for link previews', async ({ page, request }) => {
+  await page.goto('/find-my-csp');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://csp-explained.com/find-my-csp');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /^Find your website's CSP/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://csp-explained.com/og-image.png');
+  const image = await request.get('/og-image.png');
+  expect(image.headers()['content-type']).toBe('image/png');
+});
+
 test('search engines get a sitemap of the pages, and robots.txt points to it', async ({ request }) => {
   const robots = await (await request.get('/robots.txt')).text();
   expect(robots).toContain('Sitemap: https://csp-explained.com/sitemap-index.xml');

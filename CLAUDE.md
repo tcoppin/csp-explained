@@ -22,6 +22,7 @@ yarn test                # vitest (unit), src/**/*.test.ts and scripts/**/*.test
 yarn check               # astro check (types)
 yarn build && yarn test:e2e   # Playwright against the production build, desktop + mobile
 yarn catalogue:validate
+yarn og:image            # regenerates public/og-image.png (tagline or palette changed)
 yarn infra:synth         # CDK synth (infra/ workspace); never deploy without being asked
 ```
 

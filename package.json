@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "catalogue:validate": "tsx scripts/validate-catalogue.ts",
+    "og:image": "tsx scripts/og-image.ts",
     "infra:synth": "yarn workspace csp-explained-infra synth",
     "infra:deploy": "yarn workspace csp-explained-infra deploy"
   },

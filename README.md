@@ -48,6 +48,7 @@ yarn dev               # http://localhost:4321 (our own CSP is only applied by `
 yarn test              # unit tests (vitest)
 yarn check             # type check
 yarn build && yarn test:e2e   # end-to-end tests against the production build
+yarn og:image          # regenerate the link-preview image after changing the tagline or the palette
 ```
 
 Yarn refuses package versions published in the last few days (`npmMinimalAgeGate`, a supply-chain safeguard). If an install fails with "quarantined", wait or pick the previous version rather than disabling it.
