@@ -1,6 +1,10 @@
 import en from './en.json';
+import enPages from './en.pages.json';
 
+/** Interface and report text: what the analyzer island needs, so it is all the browser downloads. */
 export type Messages = typeof en;
+/** The pages' long-form copy (`pages.*`), rendered at build time only. */
+export type PageMessages = typeof enPages;
 export const LOCALES = ['en'] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'en';
@@ -14,6 +18,7 @@ export interface Translate {
 }
 
 const MESSAGES: Record<Locale, Messages> = { en };
+const PAGE_MESSAGES: Record<Locale, PageMessages> = { en: enPages };
 
 export const isLocale = (value: unknown): value is Locale => LOCALES.includes(value as Locale);
 
@@ -29,8 +34,7 @@ export const interpolate = (text: string, vars: Vars = {}) =>
   text.replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m));
 
 /** `t('report.subject', { vendors: 'X' })` → interpolates `{vendors}`; returns the key when missing. */
-export function translator(locale: Locale): Translate {
-  const messages = MESSAGES[locale];
+export function translator(locale: Locale, messages: object = MESSAGES[locale]): Translate {
   const t = (key: string, vars?: Vars) => {
     const value = lookup(messages, key);
     return typeof value === 'string' ? interpolate(value, vars) : key;
@@ -43,5 +47,8 @@ export function translator(locale: Locale): Translate {
   return Object.assign(t, { keys, has });
 }
 
-/** The translator for an Astro page or component: `const t = translatorFor(Astro)`. */
-export const translatorFor = (astro: { currentLocale?: string }) => translator(localeOf(astro.currentLocale));
+/** The translator for an Astro page or component, with the page copy: `const t = translatorFor(Astro)`. */
+export function translatorFor(astro: { currentLocale?: string }): Translate {
+  const locale = localeOf(astro.currentLocale);
+  return translator(locale, { ...MESSAGES[locale], pages: PAGE_MESSAGES[locale] });
+}

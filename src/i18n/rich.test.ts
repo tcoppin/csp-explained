@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import en from './en.json';
-import { translator } from './index';
+import enPages from './en.pages.json';
+import { translator, translatorFor } from './index';
 import { parseRich } from './rich';
 
 describe('parseRich', () => {
@@ -44,7 +44,8 @@ describe('translator', () => {
     expect(t('nope.missing')).toBe('nope.missing');
   });
 
-  it('lists the keys of a group in order', () => {
+  it('lists the keys of a group in order, page copy included', () => {
+    const t = translatorFor({ currentLocale: 'en' });
     expect(t.keys('pages.find.source.steps')).toEqual(['pages.find.source.steps.0', 'pages.find.source.steps.1', 'pages.find.source.steps.2']);
     expect(t.keys('site.name')).toEqual([]);
   });
@@ -57,7 +58,7 @@ function leaves(node: unknown, prefix: string): [string, string][] {
 }
 
 describe('page messages', () => {
-  it.each(leaves(en.pages, 'pages'))('%s has no unbalanced markup', (_key, text) => {
+  it.each(leaves(enPages, 'pages'))('%s has no unbalanced markup', (_key, text) => {
     const stray = parseRich(text)
       .filter((n) => n.type === 'text')
       .map((n) => n.text)
@@ -66,7 +67,7 @@ describe('page messages', () => {
     expect(stray).toBeNull();
   });
 
-  it.each(leaves(en.pages, 'pages'))('%s links only within the site, to https or to a placeholder', (_key, text) => {
+  it.each(leaves(enPages, 'pages'))('%s links only within the site, to https or to a placeholder', (_key, text) => {
     for (const n of parseRich(text)) if (n.type === 'link') expect(n.href).toMatch(/^(\/|#|https:\/\/|\{\w+\}$)/);
   });
 });
