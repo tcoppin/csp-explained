@@ -40,7 +40,8 @@
     "img-src",
     "llms.txt",
     "script-src",
-    "style-src"
+    "style-src",
+    "t.contentsquare.net"
   ],
   "https://developers.google.com/tag-platform/security/guides/csp": [
     "'unsafe-eval'",
