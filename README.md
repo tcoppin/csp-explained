@@ -61,7 +61,7 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 | `src/lib/reports/` | Report generators for each audience. |
 | `src/content/` | Plain-language explanations of directives and sources (YAML, validated at build). |
 | `catalogue/vendors/` | One YAML file per tool, built from its official documentation. |
-| `src/i18n/en.json` | All interface and report text. |
+| `src/i18n/en.json` | All interface, page and report text. |
 | `src/components/` | The analyzer (Preact island). |
 | `src/pages/` | Analyzer, Find my CSP, What is a CSP, tool pages, directive pages, about. |
 | `src/site-policy.ts` | This site's own CSP (meta policy + header policy). |

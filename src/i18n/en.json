@@ -253,5 +253,273 @@
     "consent": "Consent management",
     "chat": "Chat & support",
     "other": "Other"
+  },
+  "sketch": {
+    "tabs": {
+      "elements": "Elements",
+      "console": "Console",
+      "network": "Network",
+      "sources": "Sources"
+    },
+    "types": {
+      "stylesheet": "stylesheet",
+      "script": "script",
+      "image": "image"
+    },
+    "caption": "Simplified drawing of the Network tab in {browser}. The numbers match the steps."
+  },
+  "pages": {
+    "notFound": {
+      "title": "Page not found",
+      "heading": "This page isn't on the list",
+      "body": "Like a resource blocked by a Content-Security-Policy, this address isn't allowed here, mostly because it doesn't exist.",
+      "button": "Go to the analyzer"
+    },
+    "learn": {
+      "title": "What is a CSP?",
+      "description": "Content-Security-Policy explained for people who don't write code: what it is, why it blocks marketing tools, and how to talk about it with your IT team.",
+      "heading": "What is a Content-Security-Policy?",
+      "lead": "It's a list your website gives to every visitor's browser, saying which places the page is allowed to use content from. Anything not on the list is refused.",
+      "exampleLine1": "**Line 1:** code (scripts) may only come from our own website and from Google Tag Manager.",
+      "exampleLine2": "**Line 2:** images may only come from our own website, or be embedded directly in the page.",
+      "whyTitle": "Why websites have one",
+      "why1": "A web page is assembled from many pieces: your own code, but also scripts from analytics, advertising, chat or testing tools. If an attacker manages to slip their own script into a page, for example through a vulnerable plugin or a compromised supplier, that script can read what visitors type, including passwords and card numbers. Attacks like this have hit well-known retailers and airlines.",
+      "why2": "The policy is a safety net: even if malicious code gets in, the browser refuses to run it or to send data to places that aren't on the list. For sites that take payments, standards such as PCI DSS now expect this kind of control.",
+      "toolsTitle": "Why it blocks marketing tools",
+      "tools1": "From the browser's point of view, a new analytics tag or A/B testing tool is just more code coming from a new place. If that place isn't on the list, it's blocked, exactly like an attack would be. The browser can't tell a tool you chose from a malicious one: only the list can.",
+      "tools2": "So adding a tool usually means adding its addresses to the list. Most vendors publish exactly what to add. Some also ask for permissions that loosen the protection for everyone, like allowing code written directly in the page (`'unsafe-inline'`). That's where your security team may push back, and that's a reasonable conversation, not a refusal.",
+      "wordsTitle": "Words you'll hear",
+      "words": {
+        "directive": {
+          "term": "Directive",
+          "definition": "One rule of the policy, for one kind of content: `script-src` for code, `img-src` for images, and so on."
+        },
+        "source": {
+          "term": "Source",
+          "definition": "An allowed place in a rule: a website address, or a keyword like `'self'` (your own site)."
+        },
+        "unsafeInline": {
+          "term": "`'unsafe-inline'`",
+          "definition": "Allows code written directly inside the page. Many marketing tools need it; it also weakens the protection the most."
+        },
+        "nonce": {
+          "term": "Nonce",
+          "definition": "A secret one-time code the site puts on the scripts it trusts. It's the modern, safer alternative to `'unsafe-inline'`, and most tag managers support it."
+        },
+        "reportOnly": {
+          "term": "Report-only",
+          "definition": "A trial mode: the browser reports what it would block, but blocks nothing. Teams use it to test a policy safely."
+        }
+      },
+      "askTitle": "How to ask for a change",
+      "ask1": "[Find your site's current policy](/find-my-csp).",
+      "ask2": "[Paste it into the analyzer](/) and pick the tools you want to use.",
+      "ask3": "Copy the message it writes for your IT or security team. It lists exactly what to add, why, and the risks to weigh."
+    },
+    "about": {
+      "title": "About",
+      "description": "An independent, free tool to understand Content-Security-Policies. Your policy never leaves your browser.",
+      "lead": "A free, independent tool to help everyone who works on a website, not only developers, understand its Content-Security-Policy and talk about it with confidence.",
+      "privacyTitle": "Your policy stays in your browser",
+      "privacy": "Everything is computed on your device. The policy you paste is never sent to a server. Share links keep the policy after the `#` of the address, a part browsers never send to servers.",
+      "countTitle": "What we count",
+      "count": "To know whether the site is useful, we count visits and a few actions: analysing a policy, trying the example, opening a share link, adding a tool, copying a report or the snippet. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy or your site address.",
+      "sourcesTitle": "Where the information comes from",
+      "sourceSpec": "Directive behaviour follows the [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) specification.",
+      "sourceEvaluator": "Security findings come from Google's [CSP Evaluator](https://github.com/google/csp-evaluator) library (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.",
+      "sourceVendors": "What each tool needs comes from the vendor's official documentation, linked on every entry with the date it was last checked. No vendor pays to be listed or influences the results.",
+      "catalogueTitle": "Help keep the catalogue right",
+      "catalogue": "Vendors change their requirements. If an entry is outdated or a tool is missing, [open an issue]({issues}) with a link to the official documentation.",
+      "ownTitle": "This site's own policy",
+      "own": "We follow our own advice. This site sends two policies: a header for what only a header can do (refusing to be embedded in other sites), and a `<meta>` tag with strict rules where scripts and styles are allowed by their exact fingerprint (hash).",
+      "analyseOwn": "Analyse this site's policy"
+    },
+    "find": {
+      "title": "Find your website's CSP",
+      "description": "Step-by-step ways to find the Content-Security-Policy of any website, for non-technical people and developers.",
+      "lead": "Your website sends its policy along with every page, usually out of sight. Pick one of these ways to get a copy. The snippet is the quickest; the terminal is for developers. An error message doesn't contain the policy, but it tells you which rule blocked something.",
+      "methodsLabel": "Ways to find your policy",
+      "methods": {
+        "console": {
+          "label": "Snippet",
+          "hint": "easiest"
+        },
+        "devtools": {
+          "label": "Network tab"
+        },
+        "source": {
+          "label": "Page source"
+        },
+        "terminal": {
+          "label": "Terminal",
+          "hint": "developers"
+        },
+        "errors": {
+          "label": "Read an error"
+        }
+      },
+      "console": {
+        "title": "Copy it with a snippet",
+        "intro": "About a minute, in Chrome, Edge, Firefox or Safari. No technical knowledge needed.",
+        "step1": "Open the page of your website you're interested in: the homepage, a product page, the checkout…",
+        "step2": "Open the developer tools: [[F12]] on Windows, [[⌘]] [[⌥]] [[J]] on Mac. In Safari, first turn on *Settings › Advanced › Show features for web developers*.",
+        "step3": "Click the **Console** tab.",
+        "step4": "Copy this snippet, paste it into the console and press [[Enter]].",
+        "snippetCaption": "Paste into the browser console",
+        "step5": "The policy is now in your clipboard: [paste it into the analyzer](/).",
+        "note": "The snippet only reads: it loads the page you're on again, keeps its policy and copies it. It sends nothing anywhere.",
+        "safeQuestion": "Is it safe to paste code into the console?",
+        "safeAnswer": "Be careful with code from people you don't know: anything pasted into the console runs as you, on that website. That's why Chrome and Firefox may ask you to type `allow pasting` first. Every line of this snippet is shown above, so you can check what it does before running it.",
+        "syncQuestion": "I see a yellow warning about \"synchronous XMLHttpRequest\"",
+        "syncAnswer": "It's harmless. The snippet reads the page in one go, without waiting, because that's the only way the browser lets it copy the result for you.",
+        "refusedQuestion": "I see an error such as \"Refused to connect\"",
+        "refusedAnswer": "Your policy blocks the snippet itself. Use the Network tab instead."
+      },
+      "devtools": {
+        "title": "Look in the Network tab",
+        "intro": "No code involved: you read the policy in the browser's developer tools.",
+        "browserLabel": "Your browser",
+        "chrome": {
+          "label": "Chrome & Edge",
+          "steps": [
+            "Press [[F12]] and click the **Network** tab.",
+            "Reload the page: [[F5]], or [[⌘]] [[R]] on Mac.",
+            "Click the first line of the list. It has your page's address and the type *document*.",
+            "In **Headers**, scroll to **Response Headers**.",
+            "Find `content-security-policy`, right-click its value and choose *Copy value*."
+          ],
+          "sketch": {
+            "browser": "Chrome and Edge",
+            "type": "document",
+            "section": "Response Headers"
+          }
+        },
+        "firefox": {
+          "label": "Firefox",
+          "steps": [
+            "Press [[F12]] and click the **Network** tab.",
+            "Reload the page.",
+            "Click the first line (type *html*).",
+            "In the **Headers** panel, open **Response Headers**.",
+            "Find `content-security-policy` and copy its value."
+          ],
+          "sketch": {
+            "browser": "Firefox",
+            "type": "html",
+            "section": "Response Headers"
+          }
+        },
+        "safari": {
+          "label": "Safari",
+          "steps": [
+            "Turn on *Settings › Advanced › Show features for web developers*.",
+            "Press [[⌘]] [[⌥]] [[I]] and open the **Network** tab.",
+            "Reload the page and click the first resource.",
+            "In **Headers**, find `Content-Security-Policy` under *Response* and copy its value."
+          ],
+          "sketch": {
+            "browser": "Safari",
+            "type": "Document",
+            "section": "Response"
+          }
+        },
+        "note": "No `content-security-policy` line? Look for `content-security-policy-report-only`, or search the page source: the policy may be inside the page."
+      },
+      "source": {
+        "title": "Search the page source",
+        "intro": "Some sites write their policy inside the page instead of sending it separately.",
+        "steps": [
+          "Right-click the page and choose *View Page Source*.",
+          "Search ([[Ctrl]] [[F]], or [[⌘]] [[F]] on Mac) for `Content-Security-Policy`.",
+          "Copy the whole `<meta http-equiv=\"Content-Security-Policy\" …>` tag. The analyzer reads it as is."
+        ]
+      },
+      "terminal": {
+        "title": "From a terminal",
+        "intro": "Shows the headers your server returns. Paste the whole output into the analyzer.",
+        "caption": "Run in a terminal, with your site's address",
+        "whereQuestion": "Where is the policy usually configured?",
+        "where": [
+          "**Web server:** nginx (`add_header`), Apache (`Header set`), IIS (`web.config`).",
+          "**CDN or edge:** CloudFront response headers policies, Cloudflare Transform Rules, Fastly, Akamai.",
+          "**Framework:** helmet (Express), Next.js `headers()`, Django CSP, Spring Security, Rails `content_security_policy`.",
+          "**Hosting:** Netlify `_headers`, Vercel `vercel.json`.",
+          "**HTML template or CMS plugin** for `<meta>` policies."
+        ]
+      },
+      "errors": {
+        "title": "Read an error message",
+        "intro": "An error message isn't your policy, so there's nothing to copy here. But it tells you what was blocked and why. When a tool doesn't work, the console ([[F12]], **Console** tab) often shows a red message like this:",
+        "blockedTerm": "What was blocked",
+        "blocked": "The address after *Refused to load*: a script from `cdn.vendor.example`.",
+        "ruleTerm": "Which rule blocked it",
+        "rule": "The name in quotes after *directive*: `script-src`.",
+        "allowsTerm": "What the rule allows today",
+        "allows": "The values after the rule name.",
+        "note": "Don't paste the message into the analyzer: it only shows one rule of your policy. To check the whole policy, get a copy with the [snippet](#console) or one of the other ways."
+      },
+      "pitfalls": {
+        "title": "Before you analyse it",
+        "items": [
+          {
+            "term": "Pages can have different policies",
+            "definition": "The checkout, the login page or a blog on another platform often have their own. Check the page where your tool must run."
+          },
+          {
+            "term": "There can be more than one",
+            "definition": "Several headers, or a header and a `<meta>` tag. Something must be allowed by all of them, so paste them together."
+          },
+          {
+            "term": "Report-only policies block nothing",
+            "definition": "`Content-Security-Policy-Report-Only` only reports problems, often while a team tests a new policy."
+          },
+          {
+            "term": "It may come from somewhere unexpected",
+            "definition": "A CDN, a firewall or a security plugin can add or change the header. Ask your developers where it's configured."
+          }
+        ],
+        "button": "Analyse my policy"
+      }
+    },
+    "directives": {
+      "title": "All CSP directives",
+      "description": "Every Content-Security-Policy directive explained in plain language, for developers and for security teams.",
+      "heading": "Every directive, explained",
+      "categories": {
+        "fetch": "What the page can load",
+        "document": "The page itself",
+        "navigation": "Where the page can go, and who can embed it",
+        "reporting": "Reporting",
+        "other": "Other protections"
+      },
+      "all": "All directives",
+      "deprecated": "Deprecated or unsupported: browsers ignore it today.",
+      "simpleTitle": "In plain words",
+      "developerTitle": "For developers",
+      "securityTitle": "For security teams",
+      "fallback": "When absent, the browser uses `{chain}`.",
+      "noFallback": "No fallback: when absent, nothing is restricted.",
+      "usedInPlaceOf": "Used in place of {directives} when those are absent.",
+      "ignoredInMeta": "Ignored when the policy is delivered in a `<meta>` tag.",
+      "reference": "Reference: [MDN]({url})"
+    },
+    "vendors": {
+      "title": "Tools",
+      "description": "What popular marketing and analytics tools need in your Content-Security-Policy, taken from their official documentation.",
+      "heading": "What each tool needs",
+      "lead": "Every entry comes from the vendor's official documentation, with the date it was last checked. Pick a tool to see what it needs, or check it against your own policy in the analyzer.",
+      "checked": "checked {date}",
+      "partial": "partially verified",
+      "missingTitle": "Missing a tool?",
+      "missing": "The catalogue is open. [Suggest a tool]({url}) with a link to its official CSP documentation.",
+      "vendorTitle": "{name} and Content-Security-Policy",
+      "vendorDescription": "What {name} needs in your Content-Security-Policy, from its official documentation.",
+      "check": "Check {name} against my policy",
+      "nonceTitle": "The safer option: nonces",
+      "content": "Content",
+      "allowedSource": "Allowed source",
+      "why": "Why",
+      "outdated": "Something changed? [Report an outdated entry]({url})."
+    }
   }
 }

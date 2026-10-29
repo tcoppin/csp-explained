@@ -46,7 +46,7 @@ Keeping it current (internal tooling, never part of the public site):
 
 Added 2026-10-29. English stays the reference; other languages only replace text, never facts.
 
-- [ ] **Step 1, all copy through `t()`**: move the copy written into pages (What is a CSP, About, Find my CSP)
+- [x] **Step 1, all copy through `t()`**: move the copy written into pages (What is a CSP, About, Find my CSP)
       and code (deploy target captions) into `src/i18n/`, and pass the locale to `t` instead of importing a
       fixed English one. Useful even if no translation ships.
 - [ ] **Step 2, translation files for YAML content**: `src/content/fr/*.yaml` and `catalogue/i18n/fr/<id>.yaml`

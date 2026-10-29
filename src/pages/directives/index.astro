@@ -1,25 +1,21 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { content } from '../../lib/content';
+import { translatorFor } from '../../i18n';
 import { DIRECTIVES, type DirectiveCategory } from '../../lib/csp/directives';
 
-const CATEGORY: Record<DirectiveCategory, string> = {
-  fetch: 'What the page can load',
-  document: 'The page itself',
-  navigation: 'Where the page can go, and who can embed it',
-  reporting: 'Reporting',
-  other: 'Other protections',
-};
+const t = translatorFor(Astro);
+const CATEGORIES: DirectiveCategory[] = ['fetch', 'document', 'navigation', 'reporting', 'other'];
 
-const groups = (Object.keys(CATEGORY) as DirectiveCategory[]).map((c) => ({
-  label: CATEGORY[c],
+const groups = CATEGORIES.map((c) => ({
+  label: t(`pages.directives.categories.${c}`),
   items: [...DIRECTIVES.values()].filter((d) => d.category === c).sort((a, b) => Number(!!a.deprecated) - Number(!!b.deprecated)),
 }));
 ---
 
-<Base title="All CSP directives" description="Every Content-Security-Policy directive explained in plain language, for developers and for security teams.">
+<Base title={t('pages.directives.title')} description={t('pages.directives.description')}>
   <div class="wrap prose">
-    <h1>Every directive, explained</h1>
+    <h1>{t('pages.directives.heading')}</h1>
     {
       groups.map((g) => (
         <section>

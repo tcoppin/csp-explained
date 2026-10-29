@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { NewTabLink } from '../../components/NewTabLink';
+import { Rich } from '../../components/Rich';
 import { outdatedIssueUrl } from '../../config';
 import { translatorFor } from '../../i18n';
 import { requirementsOf, type Feature } from '../../lib/catalogue/schema';
@@ -13,6 +14,7 @@ export function getStaticPaths() {
 
 const { vendor } = Astro.props;
 const t = translatorFor(Astro);
+const m = (key: string) => `pages.vendors.${key}`;
 
 /** The directive lines a feature needs, grouped as people would write them. */
 function linesFor(feature: Feature): string[] {
@@ -29,7 +31,7 @@ function linesFor(feature: Feature): string[] {
 const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).map((f) => f.id).join('+')}`;
 ---
 
-<Base title={`${vendor.name} and Content-Security-Policy`} description={`What ${vendor.name} needs in your Content-Security-Policy, from its official documentation.`}>
+<Base title={t(m('vendorTitle'), { name: vendor.name })} description={t(m('vendorDescription'), { name: vendor.name })}>
   <article class="wrap prose vendor-page">
     <p class="crumb"><a href="/vendors">{t('site.nav.vendors')}</a></p>
     <h1>{vendor.name}</h1>
@@ -43,14 +45,14 @@ const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).m
         </>
       ))}
     </p>
-    <p><a class="button" href={checkLink}>Check {vendor.name} against my policy</a></p>
+    <p><a class="button" href={checkLink}>{t(m('check'), { name: vendor.name })}</a></p>
 
     {vendor.notes && <p>{vendor.notes}</p>}
 
     {
       vendor.nonce?.how && (
         <section class="nonce">
-          <h2>The safer option: nonces</h2>
+          <h2>{t(m('nonceTitle'))}</h2>
           <p>{vendor.nonce.how}</p>
         </section>
       )
@@ -65,9 +67,9 @@ const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).m
           <table>
             <thead>
               <tr>
-                <th scope="col">Content</th>
-                <th scope="col">Allowed source</th>
-                <th scope="col">Why</th>
+                <th scope="col">{t(m('content'))}</th>
+                <th scope="col">{t(m('allowedSource'))}</th>
+                <th scope="col">{t(m('why'))}</th>
               </tr>
             </thead>
             <tbody>
@@ -89,7 +91,7 @@ const checkLink = `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).m
     }
 
     <p class="muted">
-      Something changed? <NewTabLink t={t} href={outdatedIssueUrl(vendor.id, vendor.name)} label={t('vendors.reportOutdated')} />.
+      <Rich t={t} msg={m('outdated')} vars={{ url: outdatedIssueUrl(vendor.id, vendor.name) }} />
     </p>
   </article>
 </Base>

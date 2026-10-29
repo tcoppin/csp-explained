@@ -1,202 +1,169 @@
 ---
 import CodeBlock from '../components/CodeBlock.astro';
 import DevtoolsSketch from '../components/DevtoolsSketch.astro';
+import { Rich } from '../components/Rich';
 import Base from '../layouts/Base.astro';
+import { translatorFor } from '../i18n';
 import { FIND_CSP_SNIPPET } from '../lib/snippets/find-csp-console';
 
+const t = translatorFor(Astro);
+const m = (key: string) => `pages.find.${key}`;
+
 const methods = [
-  { id: 'console', label: 'Snippet', hint: 'easiest' },
-  { id: 'devtools', label: 'Network tab' },
-  { id: 'source', label: 'Page source' },
-  { id: 'terminal', label: 'Terminal', hint: 'developers' },
-  { id: 'errors', label: 'Read an error' },
+  { id: 'console', hint: true },
+  { id: 'devtools' },
+  { id: 'source' },
+  { id: 'terminal', hint: true },
+  { id: 'errors' },
 ];
 
-const browsers = [
-  { id: 'chrome', label: 'Chrome & Edge' },
-  { id: 'firefox', label: 'Firefox', match: 'firefox|fxios' },
-  { id: 'safari', label: 'Safari', match: '^((?!chrome|chromium|crios|edg|android).)*safari' },
+// Step numbers for the drawing: Network tab, the page's row, the response headers, the policy.
+const browsers: { id: string; match?: string; steps: [number, number, number, number] }[] = [
+  { id: 'chrome', steps: [1, 3, 4, 5] },
+  { id: 'firefox', match: 'firefox|fxios', steps: [1, 3, 4, 5] },
+  { id: 'safari', match: '^((?!chrome|chromium|crios|edg|android).)*safari', steps: [2, 3, 4, 4] },
 ];
+const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
 ---
 
-<Base title="Find your website's CSP" description="Step-by-step ways to find the Content-Security-Policy of any website, for non-technical people and developers.">
+<Base title={t(m('title'))} description={t(m('description'))}>
   <div class="wrap prose guide">
-    <h1>Find your website's CSP</h1>
-    <p class="lead">
-      Your website sends its policy along with every page, usually out of sight. Pick one of these ways to get a copy. The
-      snippet is the quickest; the terminal is for developers. An error message doesn't contain the policy, but it tells you
-      which rule blocked something.
-    </p>
+    <h1>{t(m('title'))}</h1>
+    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
 
     <div class="methods" data-tabs data-tabs-hash>
-      <div role="tablist" aria-label="Ways to find your policy" class="tablist" hidden>
+      <div role="tablist" aria-label={t(m('methodsLabel'))} class="tablist" hidden>
         {
-          methods.map((m, i) => (
-            <button type="button" role="tab" id={`tab-${m.id}`} aria-controls={m.id} aria-selected={i === 0 ? 'true' : 'false'}>
-              <span class="tab-label">{m.label}</span>
-              {m.hint && <span class="tab-hint">{m.hint}</span>}
+          methods.map((method, i) => (
+            <button type="button" role="tab" id={`tab-${method.id}`} aria-controls={method.id} aria-selected={i === 0 ? 'true' : 'false'}>
+              <span class="tab-label">{t(m(`methods.${method.id}.label`))}</span>
+              {method.hint && <span class="tab-hint">{t(m(`methods.${method.id}.hint`))}</span>}
             </button>
           ))
         }
       </div>
 
       <section id="console" class="method">
-        <h2>Copy it with a snippet</h2>
-        <p>About a minute, in Chrome, Edge, Firefox or Safari. No technical knowledge needed.</p>
+        <h2>{t(m('console.title'))}</h2>
+        <p><Rich t={t} msg={m('console.intro')} /></p>
         <ol class="steps">
-          <li>Open the page of your website you're interested in: the homepage, a product page, the checkout…</li>
+          <li><Rich t={t} msg={m('console.step1')} /></li>
+          <li><Rich t={t} msg={m('console.step2')} /></li>
+          <li><Rich t={t} msg={m('console.step3')} /></li>
           <li>
-            Open the developer tools: <kbd>F12</kbd> on Windows, <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>J</kbd> on Mac.
-            In Safari, first turn on <em>Settings › Advanced › Show features for web developers</em>.
+            <Rich t={t} msg={m('console.step4')} />
+            <CodeBlock id="snippet" caption={t(m('console.snippetCaption'))} code={FIND_CSP_SNIPPET} track="copy-snippet" />
           </li>
-          <li>Click the <strong>Console</strong> tab.</li>
-          <li>
-            Copy this snippet, paste it into the console and press <kbd>Enter</kbd>.
-            <CodeBlock id="snippet" caption="Paste into the browser console" code={FIND_CSP_SNIPPET} track="copy-snippet" />
-          </li>
-          <li>The policy is now in your clipboard: <a href="/">paste it into the analyzer</a>.</li>
+          <li><Rich t={t} msg={m('console.step5')} /></li>
         </ol>
 
-        <p class="note">
-          The snippet only reads: it loads the page you're on again, keeps its policy and copies it. It sends nothing anywhere.
-        </p>
+        <p class="note"><Rich t={t} msg={m('console.note')} /></p>
 
         <details class="more">
-          <summary>Is it safe to paste code into the console?</summary>
-          <p>
-            Be careful with code from people you don't know: anything pasted into the console runs as you, on that website.
-            That's why Chrome and Firefox may ask you to type <code>allow pasting</code> first. Every line of this snippet is shown above, so
-            you can check what it does before running it.
-          </p>
+          <summary>{t(m('console.safeQuestion'))}</summary>
+          <p><Rich t={t} msg={m('console.safeAnswer')} /></p>
         </details>
         <details class="more">
-          <summary>I see a yellow warning about "synchronous XMLHttpRequest"</summary>
-          <p>
-            It's harmless. The snippet reads the page in one go, without waiting, because that's the only way the browser lets it
-            copy the result for you.
-          </p>
+          <summary>{t(m('console.syncQuestion'))}</summary>
+          <p><Rich t={t} msg={m('console.syncAnswer')} /></p>
         </details>
 
         <details class="more">
-          <summary>I see an error such as "Refused to connect"</summary>
-          <p>Your policy blocks the snippet itself. Use the Network tab instead.</p>
+          <summary>{t(m('console.refusedQuestion'))}</summary>
+          <p><Rich t={t} msg={m('console.refusedAnswer')} /></p>
         </details>
       </section>
 
       <section id="devtools" class="method">
-        <h2>Look in the Network tab</h2>
-        <p>No code involved: you read the policy in the browser's developer tools.</p>
+        <h2>{t(m('devtools.title'))}</h2>
+        <p><Rich t={t} msg={m('devtools.intro')} /></p>
 
         <div class="browsers" data-tabs data-tabs-detect>
-          <div role="tablist" aria-label="Your browser" class="segmented" hidden>
+          <div role="tablist" aria-label={t(m('devtools.browserLabel'))} class="segmented" hidden>
             {
               browsers.map((b, i) => (
                 <button type="button" role="tab" id={`tab-${b.id}`} aria-controls={`browser-${b.id}`} aria-selected={i === 0 ? 'true' : 'false'} data-match={b.match}>
-                  {b.label}
+                  {t(browser(b.id, 'label'))}
                 </button>
               ))
             }
           </div>
-          <div id="browser-chrome" class="browser">
-            <h3>Chrome & Edge</h3>
-            <ol class="steps">
-              <li>Press <kbd>F12</kbd> and click the <strong>Network</strong> tab.</li>
-              <li>Reload the page: <kbd>F5</kbd>, or <kbd>⌘</kbd> <kbd>R</kbd> on Mac.</li>
-              <li>Click the first line of the list. It has your page's address and the type <em>document</em>.</li>
-              <li>In <strong>Headers</strong>, scroll to <strong>Response Headers</strong>.</li>
-              <li>Find <code>content-security-policy</code>, right-click its value and choose <em>Copy value</em>.</li>
-            </ol>
-            <DevtoolsSketch browser="Chrome and Edge" type="document" section="Response Headers" steps={[1, 3, 4, 5]} />
-          </div>
-          <div id="browser-firefox" class="browser">
-            <h3>Firefox</h3>
-            <ol class="steps">
-              <li>Press <kbd>F12</kbd> and click the <strong>Network</strong> tab.</li>
-              <li>Reload the page.</li>
-              <li>Click the first line (type <em>html</em>).</li>
-              <li>In the <strong>Headers</strong> panel, open <strong>Response Headers</strong>.</li>
-              <li>Find <code>content-security-policy</code> and copy its value.</li>
-            </ol>
-            <DevtoolsSketch browser="Firefox" type="html" section="Response Headers" steps={[1, 3, 4, 5]} />
-          </div>
-          <div id="browser-safari" class="browser">
-            <h3>Safari</h3>
-            <ol class="steps">
-              <li>Turn on <em>Settings › Advanced › Show features for web developers</em>.</li>
-              <li>Press <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>I</kbd> and open the <strong>Network</strong> tab.</li>
-              <li>Reload the page and click the first resource.</li>
-              <li>In <strong>Headers</strong>, find <code>Content-Security-Policy</code> under <em>Response</em> and copy its value.</li>
-            </ol>
-            <DevtoolsSketch browser="Safari" type="Document" section="Response" steps={[2, 3, 4, 4]} />
-          </div>
+          {
+            browsers.map((b) => (
+              <div id={`browser-${b.id}`} class="browser">
+                <h3>{t(browser(b.id, 'label'))}</h3>
+                <ol class="steps">
+                  {t.keys(browser(b.id, 'steps')).map((step) => (
+                    <li><Rich t={t} msg={step} /></li>
+                  ))}
+                </ol>
+                <DevtoolsSketch
+                  browser={t(browser(b.id, 'sketch.browser'))}
+                  type={t(browser(b.id, 'sketch.type'))}
+                  section={t(browser(b.id, 'sketch.section'))}
+                  steps={b.steps}
+                />
+              </div>
+            ))
+          }
         </div>
-        <p class="note">
-          No <code>content-security-policy</code> line? Look for <code>content-security-policy-report-only</code>, or search the
-          page source: the policy may be inside the page.
-        </p>
+        <p class="note"><Rich t={t} msg={m('devtools.note')} /></p>
       </section>
 
       <section id="source" class="method">
-        <h2>Search the page source</h2>
-        <p>Some sites write their policy inside the page instead of sending it separately.</p>
+        <h2>{t(m('source.title'))}</h2>
+        <p><Rich t={t} msg={m('source.intro')} /></p>
         <ol class="steps">
-          <li>Right-click the page and choose <em>View Page Source</em>.</li>
-          <li>Search (<kbd>Ctrl</kbd> <kbd>F</kbd>, or <kbd>⌘</kbd> <kbd>F</kbd> on Mac) for <code>Content-Security-Policy</code>.</li>
-          <li>Copy the whole <code>&lt;meta http-equiv="Content-Security-Policy" …&gt;</code> tag. The analyzer reads it as is.</li>
+          {t.keys(m('source.steps')).map((step) => (
+            <li><Rich t={t} msg={step} /></li>
+          ))}
         </ol>
       </section>
 
       <section id="terminal" class="method">
-        <h2>From a terminal</h2>
-        <p>Shows the headers your server returns. Paste the whole output into the analyzer.</p>
-        <CodeBlock caption="Run in a terminal, with your site's address" code="curl -sI https://www.example.com | grep -i content-security-policy" />
+        <h2>{t(m('terminal.title'))}</h2>
+        <p><Rich t={t} msg={m('terminal.intro')} /></p>
+        <CodeBlock caption={t(m('terminal.caption'))} code="curl -sI https://www.example.com | grep -i content-security-policy" />
         <details class="more">
-          <summary>Where is the policy usually configured?</summary>
+          <summary>{t(m('terminal.whereQuestion'))}</summary>
           <ul>
-            <li><strong>Web server:</strong> nginx (<code>add_header</code>), Apache (<code>Header set</code>), IIS (<code>web.config</code>).</li>
-            <li><strong>CDN or edge:</strong> CloudFront response headers policies, Cloudflare Transform Rules, Fastly, Akamai.</li>
-            <li><strong>Framework:</strong> helmet (Express), Next.js <code>headers()</code>, Django CSP, Spring Security, Rails <code>content_security_policy</code>.</li>
-            <li><strong>Hosting:</strong> Netlify <code>_headers</code>, Vercel <code>vercel.json</code>.</li>
-            <li><strong>HTML template or CMS plugin</strong> for <code>&lt;meta&gt;</code> policies.</li>
+            {t.keys(m('terminal.where')).map((item) => (
+              <li><Rich t={t} msg={item} /></li>
+            ))}
           </ul>
         </details>
       </section>
 
       <section id="errors" class="method">
-        <h2>Read an error message</h2>
-        <p>
-          An error message isn't your policy, so there's nothing to copy here. But it tells you what was blocked and why. When a
-          tool doesn't work, the console (<kbd>F12</kbd>, <strong>Console</strong> tab) often shows a red message like this:
-        </p>
+        <h2>{t(m('errors.title'))}</h2>
+        <p><Rich t={t} msg={m('errors.intro')} /></p>
+        {/* Browsers write this message in English whatever their language, so it isn't translated. */}
         <pre class="error-sample"><code>Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following Content Security Policy directive: "script-src 'self' https://www.googletagmanager.com".</code></pre>
         <dl class="reading">
-          <dt>What was blocked</dt>
-          <dd>The address after <em>Refused to load</em>: a script from <code>cdn.vendor.example</code>.</dd>
-          <dt>Which rule blocked it</dt>
-          <dd>The name in quotes after <em>directive</em>: <code>script-src</code>.</dd>
-          <dt>What the rule allows today</dt>
-          <dd>The values after the rule name.</dd>
+          <dt>{t(m('errors.blockedTerm'))}</dt>
+          <dd><Rich t={t} msg={m('errors.blocked')} /></dd>
+          <dt>{t(m('errors.ruleTerm'))}</dt>
+          <dd><Rich t={t} msg={m('errors.rule')} /></dd>
+          <dt>{t(m('errors.allowsTerm'))}</dt>
+          <dd><Rich t={t} msg={m('errors.allows')} /></dd>
         </dl>
-        <p class="note">
-          Don't paste the message into the analyzer: it only shows one rule of your policy. To check the whole policy, get a copy
-          with the <a href="#console">snippet</a> or one of the other ways.
-        </p>
+        <p class="note"><Rich t={t} msg={m('errors.note')} /></p>
       </section>
     </div>
 
     <section class="pitfalls" aria-labelledby="pitfalls-title">
-      <h2 id="pitfalls-title">Before you analyse it</h2>
+      <h2 id="pitfalls-title">{t(m('pitfalls.title'))}</h2>
       <dl>
-        <dt>Pages can have different policies</dt>
-        <dd>The checkout, the login page or a blog on another platform often have their own. Check the page where your tool must run.</dd>
-        <dt>There can be more than one</dt>
-        <dd>Several headers, or a header and a <code>&lt;meta&gt;</code> tag. Something must be allowed by all of them, so paste them together.</dd>
-        <dt>Report-only policies block nothing</dt>
-        <dd><code>Content-Security-Policy-Report-Only</code> only reports problems, often while a team tests a new policy.</dd>
-        <dt>It may come from somewhere unexpected</dt>
-        <dd>A CDN, a firewall or a security plugin can add or change the header. Ask your developers where it's configured.</dd>
+        {
+          t.keys(m('pitfalls.items')).map((item) => (
+            <>
+              <dt>{t(`${item}.term`)}</dt>
+              <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+            </>
+          ))
+        }
       </dl>
-      <p><a class="button" href="/">Analyse my policy</a></p>
+      <p><a class="button" href="/">{t(m('pitfalls.button'))}</a></p>
     </section>
   </div>
 </Base>

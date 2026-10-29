@@ -1,14 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
+import { Rich } from '../components/Rich';
+import { translatorFor } from '../i18n';
+
+const t = translatorFor(Astro);
+const words = t.keys('pages.learn.words');
 ---
 
-<Base title="What is a CSP?" description="Content-Security-Policy explained for people who don't write code: what it is, why it blocks marketing tools, and how to talk about it with your IT team.">
+<Base title={t('pages.learn.title')} description={t('pages.learn.description')}>
   <article class="wrap prose learn">
-    <h1>What is a Content-Security-Policy?</h1>
-    <p class="lead">
-      It's a list your website gives to every visitor's browser, saying which places the page is allowed to use content from.
-      Anything not on the list is refused.
-    </p>
+    <h1>{t('pages.learn.heading')}</h1>
+    <p class="lead"><Rich t={t} msg="pages.learn.lead" /></p>
 
     <figure class="example">
       <div class="example-policy">
@@ -16,57 +18,35 @@ import Base from '../layouts/Base.astro';
         <p><code><span class="tok tok-directive">img-src</span> <span class="tok hl-keyword">'self'</span> <span class="tok hl-scheme">data:</span>;</code></p>
       </div>
       <figcaption>
-        <p>
-          <strong>Line 1:</strong> code (scripts) may only come from our own website and from Google Tag Manager.<br />
-          <strong>Line 2:</strong> images may only come from our own website, or be embedded directly in the page.
-        </p>
+        <p><Rich t={t} msg="pages.learn.exampleLine1" /><br /><Rich t={t} msg="pages.learn.exampleLine2" /></p>
       </figcaption>
     </figure>
 
-    <h2>Why websites have one</h2>
-    <p>
-      A web page is assembled from many pieces: your own code, but also scripts from analytics, advertising, chat or testing tools.
-      If an attacker manages to slip their own script into a page, for example through a vulnerable plugin or a compromised
-      supplier, that script can read what visitors type, including passwords and card numbers. Attacks like this have hit
-      well-known retailers and airlines.
-    </p>
-    <p>
-      The policy is a safety net: even if malicious code gets in, the browser refuses to run it or to send data to places that
-      aren't on the list. For sites that take payments, standards such as PCI DSS now expect this kind of control.
-    </p>
+    <h2>{t('pages.learn.whyTitle')}</h2>
+    <p><Rich t={t} msg="pages.learn.why1" /></p>
+    <p><Rich t={t} msg="pages.learn.why2" /></p>
 
-    <h2>Why it blocks marketing tools</h2>
-    <p>
-      From the browser's point of view, a new analytics tag or A/B testing tool is just more code coming from a new place. If that
-      place isn't on the list, it's blocked, exactly like an attack would be. The browser can't tell a tool you chose from a
-      malicious one: only the list can.
-    </p>
-    <p>
-      So adding a tool usually means adding its addresses to the list. Most vendors publish exactly what to add. Some also ask
-      for permissions that loosen the protection for everyone, like allowing code written directly in the page
-      (<code>'unsafe-inline'</code>). That's where your security team may push back, and that's a reasonable conversation, not a
-      refusal.
-    </p>
+    <h2>{t('pages.learn.toolsTitle')}</h2>
+    <p><Rich t={t} msg="pages.learn.tools1" /></p>
+    <p><Rich t={t} msg="pages.learn.tools2" /></p>
 
-    <h2>Words you'll hear</h2>
+    <h2>{t('pages.learn.wordsTitle')}</h2>
     <dl class="glossary">
-      <dt>Directive</dt>
-      <dd>One rule of the policy, for one kind of content: <code>script-src</code> for code, <code>img-src</code> for images, and so on.</dd>
-      <dt>Source</dt>
-      <dd>An allowed place in a rule: a website address, or a keyword like <code>'self'</code> (your own site).</dd>
-      <dt><code>'unsafe-inline'</code></dt>
-      <dd>Allows code written directly inside the page. Many marketing tools need it; it also weakens the protection the most.</dd>
-      <dt>Nonce</dt>
-      <dd>A secret one-time code the site puts on the scripts it trusts. It's the modern, safer alternative to <code>'unsafe-inline'</code>, and most tag managers support it.</dd>
-      <dt>Report-only</dt>
-      <dd>A trial mode: the browser reports what it would block, but blocks nothing. Teams use it to test a policy safely.</dd>
+      {
+        words.map((key) => (
+          <>
+            <dt><Rich t={t} msg={`${key}.term`} /></dt>
+            <dd><Rich t={t} msg={`${key}.definition`} /></dd>
+          </>
+        ))
+      }
     </dl>
 
-    <h2>How to ask for a change</h2>
+    <h2>{t('pages.learn.askTitle')}</h2>
     <ol class="steps">
-      <li><a href="/find-my-csp">Find your site's current policy</a>.</li>
-      <li><a href="/">Paste it into the analyzer</a> and pick the tools you want to use.</li>
-      <li>Copy the message it writes for your IT or security team. It lists exactly what to add, why, and the risks to weigh.</li>
+      <li><Rich t={t} msg="pages.learn.ask1" /></li>
+      <li><Rich t={t} msg="pages.learn.ask2" /></li>
+      <li><Rich t={t} msg="pages.learn.ask3" /></li>
     </ol>
   </article>
 </Base>

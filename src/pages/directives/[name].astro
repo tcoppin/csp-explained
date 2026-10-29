@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { NewTabLink } from '../../components/NewTabLink';
+import { Rich } from '../../components/Rich';
 import { translatorFor } from '../../i18n';
 import { content, type DirectiveDoc } from '../../lib/content';
 import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
@@ -14,43 +14,47 @@ export function getStaticPaths() {
 
 const { info, doc } = Astro.props as { info: DirectiveInfo; doc: DirectiveDoc };
 const t = translatorFor(Astro);
+const m = (key: string) => `pages.directives.${key}`;
+// The linked list of directives goes where `{directives}` is in the sentence.
+const [usedBefore, usedAfter] = t(m('usedInPlaceOf')).split('{directives}');
+const mdn = `https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`;
 const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === info.name).map((d) => d.name);
 ---
 
 <Base title={`${info.name}: ${doc.title}`} description={doc.simple}>
   <article class="wrap prose directive-page">
-    <p class="crumb"><a href="/directives">All directives</a></p>
+    <p class="crumb"><a href="/directives">{t(m('all'))}</a></p>
     <h1><code>{info.name}</code></h1>
     <p class="title">{doc.title}</p>
-    {info.deprecated && <p class="warn">Deprecated or unsupported: browsers ignore it today.</p>}
+    {info.deprecated && <p class="warn">{t(m('deprecated'))}</p>}
 
     <section>
-      <h2>In plain words</h2>
+      <h2>{t(m('simpleTitle'))}</h2>
       <p>{doc.simple}</p>
     </section>
     <section>
-      <h2>For developers</h2>
+      <h2>{t(m('developerTitle'))}</h2>
       <p>{doc.developer}</p>
       <ul class="facts">
         <li>
           {
             info.fallback.length > 0 ? (
-              <>When absent, the browser uses <code>{info.fallback.join(' → ')}</code>.</>
+              <Rich t={t} msg={m('fallback')} vars={{ chain: info.fallback.join(' → ') }} />
             ) : (
-              <>No fallback: when absent, nothing is restricted.</>
+              <Rich t={t} msg={m('noFallback')} />
             )
           }
         </li>
-        {fallsBackHere.length > 0 && <li>Used in place of {fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={`/directives/${n}`}><code>{n}</code></a></>)} when those are absent.</li>}
-        {info.ignoredInMeta && <li>Ignored when the policy is delivered in a <code>&lt;meta&gt;</code> tag.</li>}
+        {fallsBackHere.length > 0 && <li>{usedBefore}{fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={`/directives/${n}`}><code>{n}</code></a></>)}{usedAfter}</li>}
+        {info.ignoredInMeta && <li><Rich t={t} msg={m('ignoredInMeta')} /></li>}
       </ul>
     </section>
     <section>
-      <h2>For security teams</h2>
+      <h2>{t(m('securityTitle'))}</h2>
       <p>{doc.security}</p>
     </section>
     <p class="muted">
-      Reference: <NewTabLink t={t} href={`https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/${info.name}`} label="MDN" />
+      <Rich t={t} msg={m('reference')} vars={{ url: mdn }} />
     </p>
   </article>
 </Base>

@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { NewTabLink } from '../components/NewTabLink';
+import { Rich } from '../components/Rich';
 import { encodeState } from '../components/state';
 import { REPO_URL } from '../config';
 import { translatorFor } from '../i18n';
@@ -12,56 +12,31 @@ const ownPolicy = `Content-Security-Policy: ${HEADER_POLICY}\n<meta http-equiv="
 const analyzeOwn = `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} })}`;
 ---
 
-<Base title="About" description="An independent, free tool to understand Content-Security-Policies. Your policy never leaves your browser.">
+<Base title={t('pages.about.title')} description={t('pages.about.description')}>
   <article class="wrap prose about">
-    <h1>About</h1>
-    <p class="lead">
-      A free, independent tool to help everyone who works on a website, not only developers, understand its
-      Content-Security-Policy and talk about it with confidence.
-    </p>
+    <h1>{t('pages.about.title')}</h1>
+    <p class="lead"><Rich t={t} msg="pages.about.lead" /></p>
 
-    <h2>Your policy stays in your browser</h2>
-    <p>
-      Everything is computed on your device. The policy you paste is never sent to a server. Share links keep the policy after
-      the <code>#</code> of the address, a part browsers never send to servers.
-    </p>
+    <h2>{t('pages.about.privacyTitle')}</h2>
+    <p><Rich t={t} msg="pages.about.privacy" /></p>
 
-    <h2>What we count</h2>
-    <p>
-      To know whether the site is useful, we count visits and a few actions: analysing a policy, trying the example, opening a
-      share link, adding a tool, copying a report or the snippet. For each one we keep a line with the time, what happened and the
-      page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your
-      policy or your site address.
-    </p>
+    <h2>{t('pages.about.countTitle')}</h2>
+    <p><Rich t={t} msg="pages.about.count" /></p>
 
-    <h2>Where the information comes from</h2>
+    <h2>{t('pages.about.sourcesTitle')}</h2>
     <ul>
-      <li>Directive behaviour follows the <NewTabLink t={t} href="https://www.w3.org/TR/CSP3/" label="W3C Content Security Policy Level 3" /> specification.</li>
-      <li>
-        Security findings come from
-        Google's <NewTabLink t={t} href="https://github.com/google/csp-evaluator" label="CSP Evaluator" /> library
-        (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.
-      </li>
-      <li>
-        What each tool needs comes from the vendor's official documentation, linked on every entry with the date it was last
-        checked. No vendor pays to be listed or influences the results.
-      </li>
+      <li><Rich t={t} msg="pages.about.sourceSpec" /></li>
+      <li><Rich t={t} msg="pages.about.sourceEvaluator" /></li>
+      <li><Rich t={t} msg="pages.about.sourceVendors" /></li>
     </ul>
 
-    <h2>Help keep the catalogue right</h2>
-    <p>
-      Vendors change their requirements. If an entry is outdated or a tool is
-      missing, <NewTabLink t={t} href={`${REPO_URL}/issues`} label="open an issue" /> with a link to the official documentation.
-    </p>
+    <h2>{t('pages.about.catalogueTitle')}</h2>
+    <p><Rich t={t} msg="pages.about.catalogue" vars={{ issues: `${REPO_URL}/issues` }} /></p>
 
-    <h2>This site's own policy</h2>
-    <p>
-      We follow our own advice. This site sends two policies: a header for what only a header can do (refusing to be embedded in
-      other sites), and a <code>&lt;meta&gt;</code> tag with strict rules where scripts and styles are allowed by their exact
-      fingerprint (hash).
-    </p>
+    <h2>{t('pages.about.ownTitle')}</h2>
+    <p><Rich t={t} msg="pages.about.own" /></p>
     <pre><code>{ownPolicy}</code></pre>
-    <p><a class="button" href={analyzeOwn}>Analyse this site's policy</a></p>
+    <p><a class="button" href={analyzeOwn}>{t('pages.about.analyseOwn')}</a></p>
   </article>
 </Base>
 

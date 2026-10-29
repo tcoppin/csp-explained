@@ -3,6 +3,8 @@
  * A simplified drawing of a browser's Network panel, with numbered marks matching the steps above it.
  * Not a screenshot: real panels change with every browser version, so this only shows where things are.
  */
+import { translatorFor } from '../i18n';
+
 interface Props {
   browser: string;
   /** How the browser labels the page's own request in the Type column. */
@@ -15,21 +17,22 @@ interface Props {
 
 const { browser, type, section, steps } = Astro.props;
 const [tab, row, headers, policy] = steps;
+const t = translatorFor(Astro);
 ---
 
 <figure class="sketch">
   <div class="panel" aria-hidden="true">
     <div class="tabs">
-      <span>Elements</span><span>Console</span><span class="on">Network<b class="step">{tab}</b></span><span class="more">Sources</span>
+      <span>{t('sketch.tabs.elements')}</span><span>{t('sketch.tabs.console')}</span><span class="on">{t('sketch.tabs.network')}<b class="step">{tab}</b></span><span class="more">{t('sketch.tabs.sources')}</span>
     </div>
     <div class="body">
       <ol class="requests">
         <li class="on">
           <span class="name">www.example.com</span><span class="type">{type}</span><b class="step">{row}</b>
         </li>
-        <li><span class="name">main.css</span><span class="type">stylesheet</span></li>
-        <li><span class="name">gtm.js</span><span class="type">script</span></li>
-        <li><span class="name">logo.svg</span><span class="type">image</span></li>
+        <li><span class="name">main.css</span><span class="type">{t('sketch.types.stylesheet')}</span></li>
+        <li><span class="name">gtm.js</span><span class="type">{t('sketch.types.script')}</span></li>
+        <li><span class="name">logo.svg</span><span class="type">{t('sketch.types.image')}</span></li>
       </ol>
       <div class="headers">
         <p class="section">{section}<b class="step">{headers}</b></p>
@@ -41,7 +44,7 @@ const [tab, row, headers, policy] = steps;
       </div>
     </div>
   </div>
-  <figcaption>Simplified drawing of the Network tab in {browser}. The numbers match the steps.</figcaption>
+  <figcaption>{t('sketch.caption', { browser })}</figcaption>
 </figure>
 
 <style>
