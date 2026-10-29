@@ -21,7 +21,8 @@ yarn dev                 # no CSP in dev: our own policy only exists in the buil
 yarn test                # vitest (unit), src/**/*.test.ts and scripts/**/*.test.ts
 yarn check               # astro check (types)
 yarn build && yarn test:e2e   # Playwright against the production build, desktop + mobile
-yarn catalogue:validate
+yarn catalogue:validate  # vendor schema, plus translation files that don't match the English ones
+yarn i18n:status [fr] [--write]   # YAML text still in English; --write adds empty entries to translate
 yarn og:image            # regenerates public/og-image.png (tagline or palette changed)
 yarn infra:synth         # CDK synth (infra/ workspace); never deploy without being asked
 ```
@@ -39,6 +40,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from
   `src/lib/site-content.ts`). `src/lib/content.ts` holds the types and helpers the island uses: keep YAML, zod and
   `node:` imports out of anything the island imports.
+- Translations of YAML content: `src/content/<locale>/*.yaml` and `catalogue/i18n/<locale>/<id>.yaml`, text only,
+  each field `{ en: <hash of the English>, text }`. Missing, empty or stale fields show in English. Reasons are
+  keyed by requirement type, so a feature lists each type once.
 - `src/i18n/en.json`: every user-facing string, including report text and page copy (`pages.*`). No hard-coded
   copy in pages or components. Astro pages take `t` from `translatorFor(Astro)`; island components call `useT()`
   (`src/components/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through
