@@ -1,8 +1,9 @@
 # CLAUDE.md
 
 CSP Explained: a free, independent web app that explains Content-Security-Policies to non-technical people,
-developers and security teams. Everything runs in the browser. See `README.md` for the overview and
-`ROADMAP.md` for what comes next. Add new ideas to `ROADMAP.md`, not here.
+developers and security teams. Everything runs in the browser. See `README.md` for the overview, `CONTRIBUTING.md`
+for development and the catalogue rules, `DEPLOY.md` for hosting, and `ROADMAP.md` for what comes next. Add new
+ideas to `ROADMAP.md`, not here.
 
 ## Working with the owner
 
@@ -106,7 +107,7 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 ## Vendor catalogue rules
 
 - Only from the vendor's **official documentation**, linked in `sources`, with `lastVerified`.
-- Only **public** documentation (README › Vendor catalogue): never what is shown behind a login, including through
+- Only **public** documentation (CONTRIBUTING.md › Vendor catalogue): never what is shown behind a login, including through
   the owner's work accounts, unless the vendor approved publishing it in writing. Such tools wait in group 3 of
   the roadmap's catalogue section.
 - `confidence: partial` when the page couldn't be fully read, with what's missing in `notes`.

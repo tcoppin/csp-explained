@@ -12,8 +12,8 @@ add the date when an idea comes in so old ones can be reviewed.
       outside contributors.
 - [ ] `cspexplained.com` registration failed (AWS support contacted).
 - [x] Register `csp-explained.com` (Route 53).
-- [x] Certificate in us-east-1; set `certificateArn` and `hostedZoneId` in `infra/cdk.json` (see README › Deploy).
-- [x] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
+- [x] Certificate in us-east-1; set `certificateArn` and `hostedZoneId` in `infra/cdk.json` (see DEPLOY.md).
+- [x] First `cdk deploy`, GitHub repository variables, `production` environment (see DEPLOY.md).
 - [x] Check the console snippet's `copy()` by hand in Chrome, Firefox and Safari (synchronous since Firefox
       ignored late calls).
 - [x] Illustrations for the Network tab steps on Find my CSP: a simplified, themed drawing per browser
@@ -23,7 +23,7 @@ add the date when an idea comes in so old ones can be reviewed.
 
 ## Vendor catalogue
 
-Contribution rules for the catalogue are in the [README](README.md#vendor-catalogue).
+Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#vendor-catalogue).
 
 ### 1. In the catalogue, with known gaps
 
