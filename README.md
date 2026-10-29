@@ -109,6 +109,22 @@ again. `yarn i18n:status fr` lists what is missing or stale, and `yarn i18n:stat
 with the English text as a comment, for every missing field. Keys that match nothing in English fail
 `yarn catalogue:validate` and the tests.
 
+## Releases
+
+Versions follow [semantic versioning](https://semver.org/). Each one is a `vMAJOR.MINOR.PATCH` tag with a
+[GitHub release](https://github.com/tcoppin/csp-explained/releases) whose notes say what changed: the releases
+page is the changelog, so there is no `CHANGELOG.md`.
+
+- **Major**: a change that breaks what people rely on: the share-link format, page addresses, or the catalogue
+  YAML schema that contributors write.
+- **Minor**: new features, tools or languages.
+- **Patch**: fixes and catalogue corrections.
+
+The site deploys on every push to `main`. A version is tagged once its changes are live on
+[csp-explained.com](https://csp-explained.com), so a tag always names something that was in production. Tags
+don't trigger any workflow. The `version` in `package.json` is bumped in the last commit before a tag, so each
+tagged commit carries its own version.
+
 ## Deploy (AWS)
 
 1. Create the GitHub repository and set `REPO_URL` in `src/config.ts` and `githubRepo` in `infra/cdk.json`. Newer
