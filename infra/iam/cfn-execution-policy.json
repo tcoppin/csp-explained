@@ -1,0 +1,130 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SiteBucket",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::cspexplainedsite-*",
+        "arn:aws:s3:::cspexplainedsite-*/*"
+      ]
+    },
+    {
+      "Sid": "CloudFront",
+      "Effect": "Allow",
+      "Action": "cloudfront:*",
+      "Resource": "*"
+    },
+    {
+      "Sid": "Certificate",
+      "Effect": "Allow",
+      "Action": [
+        "acm:DescribeCertificate",
+        "acm:ListCertificates"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DnsRecords",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets",
+        "route53:GetHostedZone"
+      ],
+      "Resource": "arn:aws:route53:::hostedzone/Z088736226REIDDMOWBHE"
+    },
+    {
+      "Sid": "DnsChanges",
+      "Effect": "Allow",
+      "Action": "route53:GetChange",
+      "Resource": "arn:aws:route53:::change/*"
+    },
+    {
+      "Sid": "StackRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:UpdateRole",
+        "iam:UpdateRoleDescription",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:ListRoleTags",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfilesForRole"
+      ],
+      "Resource": "arn:aws:iam::873379166683:role/CspExplainedSite-*"
+    },
+    {
+      "Sid": "GitHubOidcProvider",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:GetOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider",
+        "iam:UntagOpenIDConnectProvider",
+        "iam:AddClientIDToOpenIDConnectProvider",
+        "iam:RemoveClientIDFromOpenIDConnectProvider",
+        "iam:UpdateOpenIDConnectProviderThumbprint"
+      ],
+      "Resource": "arn:aws:iam::873379166683:oidc-provider/token.actions.githubusercontent.com"
+    },
+    {
+      "Sid": "CdkBootstrapVersion",
+      "Effect": "Allow",
+      "Action": "ssm:GetParameters",
+      "Resource": "arn:aws:ssm:ca-central-1:873379166683:parameter/cdk-bootstrap/hnb659fds/version"
+    },
+    {
+      "Sid": "PassStackRolesToLambda",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::873379166683:role/CspExplainedSite-*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "lambda.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "UsageFunction",
+      "Effect": "Allow",
+      "Action": "lambda:*",
+      "Resource": "arn:aws:lambda:ca-central-1:873379166683:function:CspExplainedSite-*"
+    },
+    {
+      "Sid": "UsageLogGroup",
+      "Effect": "Allow",
+      "Action": "logs:*",
+      "Resource": [
+        "arn:aws:logs:ca-central-1:873379166683:log-group:CspExplainedSite-*",
+        "arn:aws:logs:ca-central-1:873379166683:log-group:CspExplainedSite-*:*"
+      ]
+    },
+    {
+      "Sid": "DescribeLogGroups",
+      "Effect": "Allow",
+      "Action": "logs:DescribeLogGroups",
+      "Resource": "*"
+    },
+    {
+      "Sid": "UsageDashboard",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutDashboard",
+        "cloudwatch:GetDashboard",
+        "cloudwatch:DeleteDashboards"
+      ],
+      "Resource": "arn:aws:cloudwatch::873379166683:dashboard/CspExplained-Usage"
+    }
+  ]
+}

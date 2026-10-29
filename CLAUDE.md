@@ -62,6 +62,8 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   it only values our parser recognised, and run each check in its own `try`.
 - **The island hydrates after first paint.** Tests must wait for `astro-island:not([ssr])` before typing.
 - In screenshot scripts that inject styles, use `bypassCSP: true`. Our CSP blocks them otherwise.
+- **The CloudFormation execution role is narrow** (`infra/iam/cfn-execution-policy.json`). A new kind of AWS resource
+  needs that policy extended first. It can't attach managed policies: give roles inline policies (`grant*`).
 
 ## Design rules
 

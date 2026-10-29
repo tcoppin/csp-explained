@@ -90,14 +90,32 @@ Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalo
    for both `example.com` and `*.example.com` (a wildcard alone doesn't cover the bare domain), then set
    `domainName`, `certificateArn` and `hostedZoneId` in `infra/cdk.json`.
    The stack adds the DNS records and redirects `www.` to the domain.
-3. Deploy the infrastructure once from your machine:
+3. Set up least-privilege deploys (once, with an administrator account). CloudFormation deploys the stack through
+   an execution role limited to what this stack creates, and your everyday user can only use CDK's roles:
+   - [`infra/iam/cfn-execution-policy.json`](infra/iam/cfn-execution-policy.json): what CloudFormation may create
+     (the site bucket, CloudFront, DNS records, `CspExplainedSite-*` roles, the usage Lambda, log group and dashboard).
+   - [`infra/iam/deployer-policy.json`](infra/iam/deployer-policy.json): attach it to the IAM user (or group) that
+     runs `cdk deploy`. It only allows assuming the `cdk-hnb659fds-*` roles created by `cdk bootstrap`.
+
+   Both files contain this site's account, region and hosted zone: replace them with yours.
    ```sh
+   aws iam create-policy --policy-name CspExplainedCfnExecution \
+     --policy-document file://infra/iam/cfn-execution-policy.json
    cd infra
-   yarn cdk bootstrap       # once per account/region
-   yarn cdk deploy          # add -c githubOidcProviderArn=… if your account already has the GitHub OIDC provider
+   yarn cdk bootstrap --cloudformation-execution-policies arn:aws:iam::ACCOUNT_ID:policy/CspExplainedCfnExecution
    ```
-4. In GitHub, add the repository variables printed as outputs: `AWS_DEPLOY_ROLE_ARN`, `SITE_BUCKET`, `DISTRIBUTION_ID`, plus `AWS_REGION`, and create a `production` environment.
-5. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`.
+4. Deploy the infrastructure from your machine with the everyday user: `yarn infra:deploy` (add
+   `-c githubOidcProviderArn=…` if your account already has the GitHub OIDC provider). CI never deploys the
+   infrastructure: run it again after changing `infra/`, **before** pushing site code that depends on it.
+   If the stack gains a new kind of resource, extend the execution policy first:
+   ```sh
+   aws iam create-policy-version --set-as-default \
+     --policy-arn arn:aws:iam::ACCOUNT_ID:policy/CspExplainedCfnExecution \
+     --policy-document file://infra/iam/cfn-execution-policy.json
+   ```
+   A policy keeps at most five versions: delete an old one when AWS refuses a new one.
+5. In GitHub, add the repository variables printed as outputs: `AWS_DEPLOY_ROLE_ARN`, `SITE_BUCKET`, `DISTRIBUTION_ID`, plus `AWS_REGION`, and create a `production` environment.
+6. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`.
 
 ## Roadmap
 
