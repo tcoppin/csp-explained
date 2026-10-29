@@ -31,8 +31,10 @@ Known gaps:
 - [ ] Google: country domains (`google.<TLD>`) for Ads and GA4 advertising features aren't checked.
 - [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).
+- [ ] OneTrust: the official page lists domains without directives. Ask OneTrust which directive each domain
+      belongs to, and whether the banner needs `'unsafe-inline'` for styles without a nonce.
 
-Tools to add (official docs only): Didomi, OneTrust, Cookiebot, Meta Pixel, TikTok Pixel,
+Tools to add (official docs only): Didomi, Cookiebot, Meta Pixel, TikTok Pixel,
 LinkedIn Insight Tag, Microsoft Clarity, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
 Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
 

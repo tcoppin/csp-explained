@@ -1,0 +1,31 @@
+id: onetrust
+name: OneTrust Cookie Consent
+category: consent
+website: https://www.onetrust.com
+sources:
+  - https://developer.onetrust.com/onetrust/docs/content-security-policy-cdn
+lastVerified: 2026-10-29
+confidence: partial
+nonce:
+  supported: true
+  how: >-
+    Generate a nonce for every response, put it on the OneTrust script tag (otSDKStub.js) and add it to
+    script-src and style-src. OneTrust offers this instead of unsafe keywords.
+notes: >-
+  Be careful with this entry: OneTrust's page lists the domains as "CDN script sources" without saying which
+  directive each one belongs to, so they are checked in script-src only. Check OneTrust's own documentation
+  for your account, or ask OneTrust, before changing your policy. The page allows the wildcard *onetrust.com.
+features:
+  - id: banner
+    label: Cookie banner with consent logging
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.cookielaw.org, https://privacyportal.onetrust.com, https://geolocation.onetrust.com]
+        reason: Loads the banner script, the visitor's location and consent logging.
+  - id: cookiepro
+    label: CookiePro accounts
+    requirements:
+      - type: script
+        sources: [https://cookie-cdn.cookiepro.com]
+        reason: CookiePro accounts load the banner from this CDN.

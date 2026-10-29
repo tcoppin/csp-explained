@@ -1,0 +1,27 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Generate a nonce for every response, put it on the OneTrust script tag (otSDKStub.js) and add it to script-src and style-src. OneTrust offers this instead of unsafe keywords.
+    { en: b01933bc, text: "Générez un nonce pour chaque réponse, mettez-le sur la balise script de OneTrust (otSDKStub.js) et ajoutez-le à script-src et style-src. OneTrust le propose à la place des mots-clés « unsafe »." }
+notes:
+  # Be careful with this entry: OneTrust's page lists the domains as "CDN script sources" without saying which directive each one belongs to, so they are checked in script-src only. Check OneTrust's own documentation for your account, or ask OneTrust, before changing your policy. The page allows the wildcard *onetrust.com.
+  { en: d918a566, text: "Prudence avec cette fiche : la page de OneTrust liste les domaines comme « sources de script du CDN » sans dire à quelle directive appartient chacun, ils ne sont donc vérifiés que dans script-src. Consultez la documentation de OneTrust pour votre compte, ou demandez à OneTrust, avant de modifier votre politique. La page autorise le joker *onetrust.com." }
+features:
+  banner:
+    label:
+      # Cookie banner with consent logging
+      { en: c1ea794f, text: "Bandeau de cookies avec journalisation du consentement" }
+    reasons:
+      script:
+        # Loads the banner script, the visitor's location and consent logging.
+        { en: 905c0706, text: "Charge le script du bandeau, la localisation du visiteur et la journalisation du consentement." }
+  cookiepro:
+    label:
+      # CookiePro accounts
+      { en: f27faf7a, text: "Comptes CookiePro" }
+    reasons:
+      script:
+        # CookiePro accounts load the banner from this CDN.
+        { en: 91c07092, text: "Les comptes CookiePro chargent le bandeau depuis ce CDN." }

@@ -200,5 +200,16 @@
     "script-src",
     "t.parentnode.insertbefore",
     "window.axeptiosettings"
+  ],
+  "https://developer.onetrust.com/onetrust/docs/content-security-policy-cdn": [
+    "cdn.cookielaw.org",
+    "cookie-cdn.cookiepro.com",
+    "geolocation.onetrust.com",
+    "https://cdn.cookielaw.org",
+    "https://developer.onetrust.com",
+    "onetrust.com",
+    "privacyportal.onetrust.com",
+    "script-src",
+    "style-src"
   ]
 }
