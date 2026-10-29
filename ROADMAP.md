@@ -37,7 +37,7 @@ Known gaps:
 - Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
 
 Tools to add (official docs only): Meta Pixel, TikTok Pixel,
-LinkedIn Insight Tag, Microsoft Clarity, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
+LinkedIn Insight Tag, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
 Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
 
 Keeping it current (internal tooling, never part of the public site):

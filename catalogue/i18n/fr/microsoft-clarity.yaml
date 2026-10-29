@@ -1,0 +1,24 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Microsoft documents one default-src rule (https://*.clarity.ms https://c.bing.com 'unsafe-inline'), so the same hosts are checked for scripts, data and images here. Clarity balances its traffic across www.clarity.ms and a.clarity.ms to z.clarity.ms: https://*.clarity.ms covers them all.
+  { en: 8e48c0b5, text: "Microsoft documente une seule règle default-src (https://*.clarity.ms https://c.bing.com 'unsafe-inline') : les mêmes hôtes sont donc vérifiés ici pour les scripts, les données et les images. Clarity répartit son trafic entre www.clarity.ms et a.clarity.ms à z.clarity.ms : https://*.clarity.ms les couvre tous." }
+features:
+  tracking:
+    label:
+      # Tracking code
+      { en: 1f0877cd, text: "Code de suivi" }
+    reasons:
+      script:
+        # Loads the Clarity script.
+        { en: 974614f6, text: "Charge le script de Clarity." }
+      inline-script:
+        # Part of Microsoft's recommended rule, for inline code.
+        { en: a4533b58, text: "Fait partie de la règle recommandée par Microsoft, pour le code dans la page." }
+      connect:
+        # Sends recordings and events.
+        { en: 1788d91a, text: "Envoie les enregistrements et les événements." }
+      img:
+        # Part of Microsoft's recommended rule, which covers every type of content.
+        { en: f7cf63e3, text: "Fait partie de la règle recommandée par Microsoft, qui couvre tous les types de contenu." }

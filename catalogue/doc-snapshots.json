@@ -288,5 +288,16 @@
     "privacyportal.onetrust.com",
     "script-src",
     "style-src"
+  ],
+  "https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-csp": [
+    "'self'",
+    "'unsafe-inline'",
+    "a.clarity.ms",
+    "b.clarity.ms",
+    "default-src",
+    "https://*.clarity.ms",
+    "https://c.bing.com",
+    "https://www.clarity.ms",
+    "z.clarity.ms"
   ]
 }

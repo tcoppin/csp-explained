@@ -1,0 +1,29 @@
+id: microsoft-clarity
+name: Microsoft Clarity
+category: session-replay
+website: https://clarity.microsoft.com
+sources:
+  - https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-csp
+lastVerified: 2026-10-29
+confidence: verified
+notes: >-
+  Microsoft documents one default-src rule (https://*.clarity.ms https://c.bing.com 'unsafe-inline'), so the
+  same hosts are checked for scripts, data and images here. Clarity balances its traffic across
+  www.clarity.ms and a.clarity.ms to z.clarity.ms: https://*.clarity.ms covers them all.
+features:
+  - id: tracking
+    label: Tracking code
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.clarity.ms, https://c.bing.com]
+        reason: Loads the Clarity script.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Part of Microsoft's recommended rule, for inline code.
+      - type: connect
+        sources: [https://*.clarity.ms, https://c.bing.com]
+        reason: Sends recordings and events.
+      - type: img
+        sources: [https://*.clarity.ms, https://c.bing.com]
+        reason: Part of Microsoft's recommended rule, which covers every type of content.
