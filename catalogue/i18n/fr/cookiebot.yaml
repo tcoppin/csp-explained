@@ -1,0 +1,48 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Cookiebot's policy uses 'nonce-…' and 'strict-dynamic' in script-src: generate a new nonce on every page load and put it on the uc.js script tag (and on cd.js for the cookie declaration). A hash also works.
+    { en: e1602ab5, text: "La politique de Cookiebot utilise 'nonce-…' et 'strict-dynamic' dans script-src : générez un nouveau nonce à chaque chargement de page et mettez-le sur la balise script de uc.js (et sur cd.js pour la déclaration des cookies). Un hash fonctionne aussi." }
+notes:
+  # Checked by hand against the support article, which blocks automated reads. The article lists the image host with http:// (http://imgsct.cookiebot.com/), so it is kept as written. Accounts on the European CDN use the same hosts ending in .eu.
+  { en: eda728db, text: "Vérifiée à la main avec l'article d'aide, qui bloque la lecture automatique. L'article liste l'hôte des images en http:// (http://imgsct.cookiebot.com/) : il est gardé tel quel. Les comptes sur le CDN européen utilisent les mêmes hôtes en .eu." }
+features:
+  banner:
+    label:
+      # Consent banner
+      { en: 3edd0226, text: "Bandeau de consentement" }
+    reasons:
+      script:
+        # Loads the consent script (uc.js) and the cookie declaration (cd.js).
+        { en: e54bd258, text: "Charge le script de consentement (uc.js) et la déclaration des cookies (cd.js)." }
+      connect:
+        # Talks to Cookiebot's servers.
+        { en: 3245f604, text: "Échange avec les serveurs de Cookiebot." }
+      frame:
+        # Listed for frames in Cookiebot's policy.
+        { en: 35d11795, text: "Listé pour les cadres dans la politique de Cookiebot." }
+      img:
+        # Listed for images in Cookiebot's policy.
+        { en: 7d388330, text: "Listé pour les images dans la politique de Cookiebot." }
+      inline-style:
+        # The banner injects its styles.
+        { en: 81cab1ab, text: "Le bandeau injecte ses styles." }
+  eu-cdn:
+    label:
+      # European CDN
+      { en: 363202ae, text: "CDN européen" }
+    reasons:
+      script:
+        # Loads the consent script from the European CDN.
+        { en: 014839cf, text: "Charge le script de consentement depuis le CDN européen." }
+      connect:
+        # Talks to Cookiebot's servers on the European CDN.
+        { en: 1b359d7c, text: "Échange avec les serveurs de Cookiebot sur le CDN européen." }
+      frame:
+        # Frames on the European CDN.
+        { en: e7e0ead0, text: "Cadres sur le CDN européen." }
+      img:
+        # Images on the European CDN.
+        { en: dc1decca, text: "Images sur le CDN européen." }

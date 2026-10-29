@@ -1,0 +1,53 @@
+id: cookiebot
+name: Cookiebot
+category: consent
+website: https://www.cookiebot.com
+sources:
+  - https://support.cookiebot.com/hc/en-us/articles/360018907220
+  - https://www.cookiebot.com/en/developer/
+lastVerified: 2026-10-29
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Cookiebot's policy uses 'nonce-…' and 'strict-dynamic' in script-src: generate a new nonce on every page
+    load and put it on the uc.js script tag (and on cd.js for the cookie declaration). A hash also works.
+notes: >-
+  Checked by hand against the support article, which blocks automated reads. The article lists the image
+  host with http:// (http://imgsct.cookiebot.com/), so it is kept as written. Accounts on the European CDN
+  use the same hosts ending in .eu.
+features:
+  - id: banner
+    label: Consent banner
+    default: true
+    requirements:
+      - type: script
+        sources: [https://consent.cookiebot.com]
+        reason: Loads the consent script (uc.js) and the cookie declaration (cd.js).
+      - type: connect
+        sources: [https://consentcdn.cookiebot.com, https://consent.cookiebot.com]
+        reason: Talks to Cookiebot's servers.
+      - type: frame
+        sources: [https://consentcdn.cookiebot.com]
+        reason: Listed for frames in Cookiebot's policy.
+      - type: img
+        sources: [http://imgsct.cookiebot.com/]
+        reason: Listed for images in Cookiebot's policy.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The banner injects its styles.
+  - id: eu-cdn
+    label: European CDN
+    requirements:
+      - type: script
+        sources: [https://consent.cookiebot.eu]
+        reason: Loads the consent script from the European CDN.
+      - type: connect
+        sources: [https://consentcdn.cookiebot.eu, https://consent.cookiebot.eu]
+        reason: Talks to Cookiebot's servers on the European CDN.
+      - type: frame
+        sources: [https://consentcdn.cookiebot.eu]
+        reason: Frames on the European CDN.
+      - type: img
+        sources: [http://imgsct.cookiebot.eu/]
+        reason: Images on the European CDN.

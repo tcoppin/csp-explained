@@ -36,7 +36,7 @@ Known gaps:
 - [ ] Didomi: directives aren't named in the docs (SDK host checked in script-src, API host in connect-src);
       confirm with Didomi. Its documented nonce covers injected styles only.
 
-Tools to add (official docs only): Cookiebot, Meta Pixel, TikTok Pixel,
+Tools to add (official docs only): Meta Pixel, TikTok Pixel,
 LinkedIn Insight Tag, Microsoft Clarity, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
 Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
 
