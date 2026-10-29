@@ -3,16 +3,18 @@ import Base from '../../layouts/Base.astro';
 import { NewTabLink } from '../../components/NewTabLink';
 import { Rich } from '../../components/Rich';
 import { outdatedIssueUrl } from '../../config';
-import { translatorFor } from '../../i18n';
-import { requirementsOf, type Feature } from '../../lib/catalogue/schema';
-import { content } from '../../lib/content';
+import { DEFAULT_LOCALE, localeOf, translatorFor } from '../../i18n';
+import { requirementsOf } from '../../lib/catalogue/requirements';
+import type { Feature } from '../../lib/catalogue/schema';
 import { CANONICAL_DIRECTIVE } from '../../lib/csp/directives';
+import { contentFor } from '../../lib/site-content';
 
 export function getStaticPaths() {
-  return content.vendors.map((vendor) => ({ params: { id: vendor.id }, props: { vendor } }));
+  return contentFor(DEFAULT_LOCALE).vendors.map((vendor) => ({ params: { id: vendor.id } }));
 }
 
-const { vendor } = Astro.props;
+// The page's language decides the text; the facts are the same in every language.
+const vendor = contentFor(localeOf(Astro.currentLocale)).vendors.find((v) => v.id === Astro.params.id)!;
 const t = translatorFor(Astro);
 const m = (key: string) => `pages.vendors.${key}`;
 

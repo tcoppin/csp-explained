@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { content, explainSource } from './content';
+import { explainSource } from './content';
 import { DIRECTIVES } from './csp/directives';
 import { classify } from './csp/parser';
+import { contentFor } from './site-content';
+
+const content = contentFor('en');
 
 describe('content', () => {
   it('explains every known directive', () => {

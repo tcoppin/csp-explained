@@ -1,10 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { content } from '../../lib/content';
-import { translatorFor } from '../../i18n';
+import { localeOf, translatorFor } from '../../i18n';
 import { DIRECTIVES, type DirectiveCategory } from '../../lib/csp/directives';
+import { contentFor } from '../../lib/site-content';
 
 const t = translatorFor(Astro);
+const content = contentFor(localeOf(Astro.currentLocale));
 const CATEGORIES: DirectiveCategory[] = ['fetch', 'document', 'navigation', 'reporting', 'other'];
 
 const groups = CATEGORIES.map((c) => ({

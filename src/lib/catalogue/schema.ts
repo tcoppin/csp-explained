@@ -1,6 +1,5 @@
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import type { Requirement } from '../csp/compat';
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../csp/directives';
 
 const RESOURCE_TYPES = Object.keys(EFFECTIVE_DIRECTIVE) as [ResourceType, ...ResourceType[]];
@@ -46,11 +45,4 @@ export type Feature = Vendor['features'][number];
 
 export function parseVendor(yamlText: string): Vendor {
   return VendorSchema.parse(parseYaml(yamlText));
-}
-
-/** Flattens a feature into one requirement per source expression. */
-export function requirementsOf(feature: Feature): Requirement[] {
-  return feature.requirements.flatMap((r) =>
-    r.sources.map((source) => ({ type: r.type, source, reason: r.reason, ...(r.probe ? { probe: r.probe } : {}) })),
-  );
 }

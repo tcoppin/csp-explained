@@ -36,6 +36,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/components/`: the analyzer island (Preact, `client:load`) and shared components.
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
+- YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from
+  `src/lib/site-content.ts`). `src/lib/content.ts` holds the types and helpers the island uses: keep YAML, zod and
+  `node:` imports out of anything the island imports.
 - `src/i18n/en.json`: every user-facing string, including report text and page copy (`pages.*`). No hard-coded
   copy in pages or components. Astro pages take `t` from `translatorFor(Astro)`; island components call `useT()`
   (`src/components/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through

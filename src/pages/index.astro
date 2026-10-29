@@ -2,11 +2,13 @@
 import Analyzer from '../components/Analyzer';
 import Base from '../layouts/Base.astro';
 import { localeOf } from '../i18n';
-import { content } from '../lib/content';
+import { contentFor } from '../lib/site-content';
+
+const locale = localeOf(Astro.currentLocale);
 ---
 
 <Base>
   <div class="wrap">
-    <Analyzer client:load content={content} locale={localeOf(Astro.currentLocale)} />
+    <Analyzer client:load content={contentFor(locale)} locale={locale} />
   </div>
 </Base>

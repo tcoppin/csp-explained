@@ -1,18 +1,19 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { Rich } from '../../components/Rich';
-import { translatorFor } from '../../i18n';
-import { content, type DirectiveDoc } from '../../lib/content';
+import { localeOf, translatorFor } from '../../i18n';
+import { contentFor } from '../../lib/site-content';
 import { DIRECTIVES, type DirectiveInfo } from '../../lib/csp/directives';
 
 export function getStaticPaths() {
   return [...DIRECTIVES.values()].map((info) => ({
     params: { name: info.name },
-    props: { info, doc: content.directives[info.name]! },
+    props: { info },
   }));
 }
 
-const { info, doc } = Astro.props as { info: DirectiveInfo; doc: DirectiveDoc };
+const { info } = Astro.props as { info: DirectiveInfo };
+const doc = contentFor(localeOf(Astro.currentLocale)).directives[info.name]!;
 const t = translatorFor(Astro);
 const m = (key: string) => `pages.directives.${key}`;
 // The linked list of directives goes where `{directives}` is in the sentence.

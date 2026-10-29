@@ -3,11 +3,11 @@ import Base from '../../layouts/Base.astro';
 import { Rich } from '../../components/Rich';
 import { REPO_URL } from '../../config';
 import { groupByCategory } from '../../lib/catalogue/categories';
-import { translatorFor } from '../../i18n';
-import { content } from '../../lib/content';
+import { localeOf, translatorFor } from '../../i18n';
+import { contentFor } from '../../lib/site-content';
 
 const t = translatorFor(Astro);
-const groups = groupByCategory(content.vendors, t);
+const groups = groupByCategory(contentFor(localeOf(Astro.currentLocale)).vendors, t);
 ---
 
 <Base title={t('pages.vendors.title')} description={t('pages.vendors.description')}>

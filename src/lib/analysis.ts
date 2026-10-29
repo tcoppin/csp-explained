@@ -1,4 +1,5 @@
-import { requirementsOf, type Feature, type Vendor } from './catalogue/schema';
+import { requirementsOf } from './catalogue/requirements';
+import type { Feature, Vendor } from './catalogue/schema';
 import { checkRequirements, type RequirementResult, type RequirementVerdict } from './csp/compat';
 import type { ParseResult } from './csp/model';
 import { parse } from './csp/parser';

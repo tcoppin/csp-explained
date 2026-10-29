@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import { parseVendor, requirementsOf } from '../src/lib/catalogue/schema';
+import { requirementsOf } from '../src/lib/catalogue/requirements';
+import { parseVendor } from '../src/lib/catalogue/schema';
 import { probeFor } from '../src/lib/csp/compat';
 import { classify } from '../src/lib/csp/parser';
 
