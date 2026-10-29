@@ -112,6 +112,10 @@ const themes = [
             <nav class="lang-switch" aria-label={t('site.languageLabel')}>
               {others.map((l) => (
                 <a href={localePath(l, page)} hreflang={l} lang={l} data-lang-switch>
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6.5" />
+                    <path d="M1.5 8h13M8 1.5c-2.2 2.4-2.2 10.6 0 13M8 1.5c2.2 2.4 2.2 10.6 0 13" />
+                  </svg>
                   {LOCALE_NAMES[l]}
                 </a>
               ))}
@@ -184,9 +188,23 @@ const themes = [
     margin-left: auto;
   }
   .lang-switch a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     color: var(--ink-soft);
     font-weight: 700;
     text-decoration: none;
+  }
+  /* Same line style as the theme switch icons */
+  .lang-switch svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .lang-switch a:hover {
     color: var(--ink);
