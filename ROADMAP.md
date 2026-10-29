@@ -25,9 +25,8 @@ add the date when an idea comes in so old ones can be reviewed.
 
 Known gaps:
 
-- [ ] **Hotjar**: help center blocks automated reads. Verify the stricter per-directive template by hand.
 - [ ] **Contentsquare**: add `img-src` tracking domains, `blob:` workers (child-src / worker-src), `csxd.` frames.
-- [ ] **VWO**: requirements are only shown inside the VWO app; get them from an account or support.
+- [ ] **Wingify (formerly VWO)**: requirements are only shown inside the app; add it once a public page lists them.
 - [ ] Google: country domains (`google.<TLD>`) for Ads and GA4 advertising features aren't checked.
 - [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).
@@ -35,6 +34,7 @@ Known gaps:
       belongs to, and whether the banner needs `'unsafe-inline'` for styles without a nonce.
 - [ ] Didomi: directives aren't named in the docs (SDK host checked in script-src, API host in connect-src);
       confirm with Didomi. Its documented nonce covers injected styles only.
+- Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
 
 Tools to add (official docs only): Meta Pixel, TikTok Pixel,
 LinkedIn Insight Tag, Microsoft Clarity, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,

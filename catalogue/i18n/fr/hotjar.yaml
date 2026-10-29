@@ -2,8 +2,8 @@
 # en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
 
 notes:
-  # Based on Hotjar's default-src template. Hotjar also publishes a stricter per-directive template that is not captured here yet.
-  { en: 47e70cb2, text: "D'après le modèle default-src de Hotjar. Hotjar publie aussi un modèle plus strict, directive par directive, qui n'est pas encore repris ici." }
+  # Checked by hand against the help article, which blocks automated reads. Follows its "absolute minimum" allowances; the article also offers a default-src template and a wider per-directive template with https://*.hotjar.com, which covers these hosts too.
+  { en: 1424e86f, text: "Vérifiée à la main avec l'article d'aide, qui bloque la lecture automatique. Suit ses autorisations « minimum absolu » ; l'article propose aussi un modèle default-src et un modèle plus large, directive par directive, avec https://*.hotjar.com, qui couvre aussi ces hôtes." }
 features:
   tracking:
     label:
@@ -20,8 +20,14 @@ features:
         # Sends recordings and events (including over WebSocket).
         { en: 81dc40f9, text: "Envoie les enregistrements et les événements (y compris par WebSocket)." }
       img:
-        # Hotjar images.
-        { en: d45dc322, text: "Images Hotjar." }
+        # Hotjar images, including survey images.
+        { en: 2475b2e4, text: "Images Hotjar, y compris celles des questionnaires." }
       inline-style:
         # Survey and feedback widgets inject their styles.
         { en: 5e98c731, text: "Les questionnaires et widgets de feedback injectent leurs styles." }
+      font:
+        # Hotjar fonts.
+        { en: "0e177715", text: "Polices Hotjar." }
+      style:
+        # Loads Hotjar's styles.
+        { en: f2e83ffe, text: "Charge les styles de Hotjar." }

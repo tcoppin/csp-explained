@@ -4,18 +4,19 @@ category: session-replay
 website: https://www.hotjar.com
 sources:
   - https://help.hotjar.com/hc/en-us/articles/36820026388881-Content-Security-Policies
-lastVerified: 2026-10-28
-confidence: partial
+lastVerified: 2026-10-29
+confidence: verified
 notes: >-
-  Based on Hotjar's default-src template. Hotjar also publishes a stricter per-directive template
-  that is not captured here yet.
+  Checked by hand against the help article, which blocks automated reads. Follows its "absolute minimum"
+  allowances; the article also offers a default-src template and a wider per-directive template with
+  https://*.hotjar.com, which covers these hosts too.
 features:
   - id: tracking
     label: Tracking code
     default: true
     requirements:
       - type: script
-        sources: [https://*.hotjar.com]
+        sources: [https://static.hotjar.com, https://script.hotjar.com]
         reason: Loads the tracking script.
       - type: inline-script
         sources: ["'unsafe-inline'"]
@@ -24,8 +25,14 @@ features:
         sources: [https://*.hotjar.com, https://*.hotjar.io, wss://*.hotjar.com]
         reason: Sends recordings and events (including over WebSocket).
       - type: img
-        sources: [https://*.hotjar.com]
-        reason: Hotjar images.
+        sources: [https://static.hotjar.com, https://script.hotjar.com, https://survey-images.hotjar.com]
+        reason: Hotjar images, including survey images.
+      - type: font
+        sources: [https://script.hotjar.com]
+        reason: Hotjar fonts.
+      - type: style
+        sources: [https://static.hotjar.com, https://script.hotjar.com]
+        reason: Loads Hotjar's styles.
       - type: inline-style
         sources: ["'unsafe-inline'"]
         reason: Survey and feedback widgets inject their styles.
