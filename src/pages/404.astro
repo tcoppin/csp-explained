@@ -2,13 +2,30 @@
 import Base from '../layouts/Base.astro';
 import { translatorFor } from '../i18n';
 
+// CloudFront serves this one page for every missing address, in any language, so it speaks both.
 const t = translatorFor(Astro);
+const fr = translatorFor({ currentLocale: 'fr' });
 ---
 
 <Base title={t('pages.notFound.title')} translated={false}>
-  <div class="wrap">
-    <h1>{t('pages.notFound.heading')}</h1>
-    <p>{t('pages.notFound.body')}</p>
-    <p><a class="button" href="/">{t('pages.notFound.button')}</a></p>
+  <div class="wrap not-found">
+    <section>
+      <h1>{t('pages.notFound.heading')}</h1>
+      <p>{t('pages.notFound.body')}</p>
+      <p><a class="button" href="/">{t('pages.notFound.button')}</a></p>
+    </section>
+    <section lang="fr">
+      <h2>{fr('pages.notFound.heading')}</h2>
+      <p>{fr('pages.notFound.body')}</p>
+      <p><a class="button" href="/fr" hreflang="fr">{fr('pages.notFound.button')}</a></p>
+    </section>
   </div>
 </Base>
+
+<style>
+  .not-found section + section {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+</style>

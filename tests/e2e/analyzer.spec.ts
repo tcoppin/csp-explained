@@ -306,6 +306,15 @@ test('the French site stays in French and links to the same page in English', as
   expect(errors).toEqual([]);
 });
 
+test('the 404 page speaks both languages', async ({ page }) => {
+  const res = await page.goto('/this-page-does-not-exist');
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("This page isn't on the list");
+  const french = page.locator('section[lang="fr"]');
+  await expect(french.getByRole('heading')).toHaveText("Cette page n'est pas sur la liste");
+  await expect(french.getByRole('link', { name: "Aller à l'analyseur" })).toHaveAttribute('href', '/fr');
+});
+
 test('the analyzer speaks French, and the IT message can be written in English', async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page, '/fr');

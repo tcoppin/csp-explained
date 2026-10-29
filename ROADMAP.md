@@ -84,7 +84,8 @@ Added 2026-10-29. English stays the reference; other languages only replace text
       sitemap), canonical address and Open Graph image per language, a language link in the footer that keeps
       the `#` part. Shared links carry the language through their path. The IT message can be written in the
       other language, tool texts included.
-- [ ] French 404 page: CloudFront serves one error page; a CloudFront Function could pick `/fr/404` for `/fr/…`.
+- [x] French 404 page: CloudFront serves one error page for every address, so the 404 page speaks both languages
+      (no infra change).
 - [ ] Suggest the French site to visitors whose browser prefers French (a dismissible note, never a redirect).
 
 ## Phase 2: "Check my website"
