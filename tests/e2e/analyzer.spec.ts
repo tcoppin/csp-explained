@@ -254,6 +254,15 @@ test('find my CSP shows one method at a time', async ({ page }) => {
   await expect(page.locator('#terminal')).toBeVisible();
 });
 
+test('search engines get a sitemap of the pages, and robots.txt points to it', async ({ request }) => {
+  const robots = await (await request.get('/robots.txt')).text();
+  expect(robots).toContain('Sitemap: https://csp-explained.com/sitemap-index.xml');
+  const sitemap = await (await request.get('/sitemap-0.xml')).text();
+  expect(sitemap).toContain('<loc>https://csp-explained.com/find-my-csp</loc>');
+  expect(sitemap).toContain('<loc>https://csp-explained.com/directives/script-src</loc>');
+  expect(sitemap).not.toContain('404');
+});
+
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
   for (const path of ['/', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about']) {

@@ -17,7 +17,8 @@ add the date when an idea comes in so old ones can be reviewed.
 - [x] Check the console snippet's `copy()` by hand in Chrome, Firefox and Safari (synchronous since Firefox
       ignored late calls).
 - [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
-- [ ] Open Graph image and description for link previews; `sitemap.xml` and `robots.txt`.
+- [ ] Open Graph image and description for link previews.
+- [x] `sitemap.xml` (`@astrojs/sitemap`) and `robots.txt`.
 
 ## Vendor catalogue
 
