@@ -9,6 +9,29 @@ permissions:
   contents: read
 
 jobs:
+  # Versions come from commit titles: every new commit must follow the convention (CONTRIBUTING.md › Commit messages).
+  commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+      - name: Check the new commit titles
+        env:
+          RANGE: >-
+            ${{ github.event_name == 'pull_request'
+              && format('{0}..{1}', github.event.pull_request.base.sha, github.event.pull_request.head.sha)
+              || format('{0}..{1}', github.event.before, github.sha) }}
+        run: |
+          # A new branch has no previous commit to compare with.
+          case "$RANGE" in 0000000000000000000000000000000000000000..*) echo "New branch: nothing to compare"; exit 0;; esac
+          yarn tsx scripts/release.ts check "$RANGE"
+
   site:
     runs-on: ubuntu-latest
     steps:

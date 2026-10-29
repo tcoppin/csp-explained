@@ -24,6 +24,32 @@ yarn i18n:status [fr] [--write]   # YAML text still in English; --write adds emp
 
 A change is ready when `yarn test`, `yarn check`, `yarn build` and `yarn test:e2e` all pass.
 
+## Commit messages
+
+Versions are worked out from commit titles, so every title follows
+[Conventional Commits](https://www.conventionalcommits.org/): `type(scope): summary`, the scope being optional and
+the summary a plain sentence starting in lowercase.
+
+```
+feat(catalogue): add Axeptio
+fix(i18n): keep the # part when switching language
+docs: split the README
+```
+
+| Type | Use it for | Release |
+|---|---|---|
+| `feat` | A new feature, tool or language | minor |
+| `fix`, `perf` | A bug fix, a catalogue correction, a speed-up | patch |
+| `docs`, `chore`, `ci`, `test`, `refactor`, `style`, `build`, `revert` | Everything else | none |
+
+A change that breaks share links, page addresses or the catalogue YAML schema adds `!` after the type
+(`feat!: …`) or a `BREAKING CHANGE:` footer, and makes a major release. CI refuses titles that don't follow the
+convention. To catch them before you push, enable the hook once in your clone:
+
+```sh
+git config core.hooksPath .githooks
+```
+
 Yarn refuses package versions published in the last few days (`npmMinimalAgeGate`, a supply-chain safeguard). If an install fails with "quarantined", wait or pick the previous version rather than disabling it.
 
 ## Structure

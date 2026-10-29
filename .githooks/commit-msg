@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuses commit titles that don't follow the convention (CONTRIBUTING.md › Commit messages).
+# Enable once per clone: git config core.hooksPath .githooks
+exec yarn tsx scripts/release.ts check-message "$1"

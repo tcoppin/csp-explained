@@ -30,8 +30,8 @@ jobs:
       - uses: peter-evans/create-pull-request@v8
         with:
           branch: catalogue/vendor-docs-changed
-          title: 'Vendor CSP documentation changed'
-          commit-message: 'Update vendor documentation snapshots'
+          title: 'chore(catalogue): vendor CSP documentation changed'
+          commit-message: 'chore(catalogue): update vendor documentation snapshots'
           add-paths: catalogue/doc-snapshots.json
           body-path: report.md
           labels: catalogue
