@@ -144,6 +144,7 @@
     "copied": "Copied",
     "download": "Download .md",
     "nothing": "This report is built from the tools you want to use. Pick them first, or switch to Security for a review of the policy itself.",
+    "languageLabel": "Message language",
     "formats": {
       "email": "Email",
       "chat": "Slack / Teams",
@@ -151,9 +152,11 @@
     },
     "simple": {
       "subject": "Website security policy: request to allow {vendors}",
+      "subjectLabel": "Subject:",
       "greeting": "Hi,",
       "intro": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it currently gets in the way:",
       "introOk": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it already allows them, so no change seems needed.",
+      "ourSite": "our website",
       "blockedLine": "{vendor} is blocked for {items}.",
       "needsNonceLine": "{vendor}: our policy only trusts scripts carrying a one-time code (nonce). The tool supports it, but the way it is added to the page needs to pass the code on. {how}",
       "needsNonceNoHow": "The vendor's documentation should explain how.",

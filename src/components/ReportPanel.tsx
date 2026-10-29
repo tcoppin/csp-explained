@@ -1,11 +1,12 @@
 import { useState } from 'preact/hooks';
 import { SITE_URL } from '../config';
-import type { Translate } from '../i18n';
+import { LOCALE_NAMES, LOCALES, localePath, translator, type Locale, type Translate } from '../i18n';
 import { patchedPolicies, type Analysis } from '../lib/analysis';
+import type { Vendor } from '../lib/catalogue/schema';
 import type { Audience } from '../lib/csp/model';
 import { deploySnippet, developerReport, policyDiff, TARGETS, type Target } from '../lib/reports/developer';
 import { countByLevel, findingText, securityReport } from '../lib/reports/security';
-import { itRequest, type MessageFormat } from '../lib/reports/simple';
+import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 import { useT } from './i18n';
@@ -41,11 +42,11 @@ function download(name: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
-function Tabs<T extends string>({ items, value, onChange, label }: { items: { id: T; label: string }[]; value: T; onChange: (v: T) => void; label: string }) {
+function Tabs<T extends string>({ items, value, onChange, label }: { items: { id: T; label: string; lang?: string }[]; value: T; onChange: (v: T) => void; label: string }) {
   return (
     <div class="tabs" role="radiogroup" aria-label={label}>
       {items.map((i) => (
-        <button key={i.id} type="button" role="radio" aria-checked={value === i.id} onClick={() => onChange(i.id)}>
+        <button key={i.id} type="button" role="radio" aria-checked={value === i.id} lang={i.lang} onClick={() => onChange(i.id)}>
           {i.label}
         </button>
       ))}
@@ -61,12 +62,16 @@ interface Props {
   analysis: Analysis;
   audience: Audience;
   site: string;
+  /** Each language's tool texts, so the IT message can be written in another language than the page's. */
+  vendorsIn: Record<Locale, Vendor[]>;
   onPickTools: () => void;
 }
 
-export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
+export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }: Props) {
   const t = useT();
   const [format, setFormat] = useState<MessageFormat>('email');
+  // A French marketer may write to an English-speaking IT team: the message has its own language.
+  const [messageLocale, setMessageLocale] = useState<Locale>(t.locale);
   const [target, setTarget] = useState<Target>('nginx');
   const copied = (kind: ReportPart) => () => track('copy-report', { audience, kind });
 
@@ -81,10 +86,23 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
 
   if (audience === 'simple') {
     if (analysis.vendors.length === 0) return noTools;
-    const text = itRequest(analysis, t, { format, site, toolUrl: SITE_URL });
+    const mt = messageLocale === t.locale ? t : translator(messageLocale);
+    const text = itRequest(withVendorText(analysis, vendorsIn[messageLocale]), mt, {
+      format,
+      site,
+      toolUrl: new URL(localePath(messageLocale, '/'), SITE_URL).href,
+    });
     return (
       <div class="report">
-        <Tabs items={labelled(t, FORMATS, 'report.formats')} value={format} onChange={setFormat} label={t('report.title')} />
+        <div class="report-options">
+          <Tabs items={labelled(t, FORMATS, 'report.formats')} value={format} onChange={setFormat} label={t('report.title')} />
+          <Tabs
+            items={LOCALES.map((id) => ({ id, label: LOCALE_NAMES[id], lang: id }))}
+            value={messageLocale}
+            onChange={setMessageLocale}
+            label={t('report.languageLabel')}
+          />
+        </div>
         <textarea class="code message" readOnly rows={Math.min(28, text.split('\n').length + 1)} value={text} aria-label={t('report.title')} />
         <div class="actions">
           <CopyButton text={text} onCopy={copied('message')} />

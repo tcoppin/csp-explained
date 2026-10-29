@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
 import { localePath, translator, type Locale, type Translate } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
+import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
 import { track } from '../scripts/track';
@@ -40,7 +41,14 @@ function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value:
   );
 }
 
-export default function Analyzer({ content, locale }: { content: ContentBundle; locale: Locale }) {
+interface Props {
+  content: ContentBundle;
+  locale: Locale;
+  /** The tools' texts in the other languages, for an IT message in another language than the page's. */
+  otherVendors: Partial<Record<Locale, Vendor[]>>;
+}
+
+export default function Analyzer({ content, locale, otherVendors }: Props) {
   const t = useMemo(() => translator(locale), [locale]);
   const [input, setInput] = useState('');
   const [editing, setEditing] = useState(true);
@@ -365,7 +373,13 @@ export default function Analyzer({ content, locale }: { content: ContentBundle; 
 
             {view === 'report' && (
               <div {...tabPanelProps('view', 'report')} class="panel">
-                <ReportPanel analysis={analysis} audience={audience} site={site} onPickTools={() => goTo('tools')} />
+                <ReportPanel
+                  analysis={analysis}
+                  audience={audience}
+                  site={site}
+                  vendorsIn={{ ...otherVendors, [locale]: content.vendors } as Record<Locale, Vendor[]>}
+                  onPickTools={() => goTo('tools')}
+                />
               </div>
             )}
           </section>

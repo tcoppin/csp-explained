@@ -306,6 +306,29 @@ test('the French site stays in French and links to the same page in English', as
   expect(errors).toEqual([]);
 });
 
+test('the analyzer speaks French, and the IT message can be written in English', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page, '/fr');
+  await page.getByRole('textbox', { name: 'Collez une Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Mes outils fonctionneront-ils/ }).click();
+  await page.getByRole('combobox', { name: 'Ajouter un outil' }).fill('Hotjar');
+  await page.getByRole('option', { name: 'Hotjar' }).click();
+  await expect(page.getByText('Bloqué par cette politique')).toBeVisible();
+
+  await page.getByRole('button', { name: "Rédiger la demande à l'informatique" }).click();
+  const message = page.getByRole('textbox', { name: 'Votre rapport' });
+  await expect(message).toHaveValue(/^Objet\u00a0: Politique de sécurité du site/);
+  await expect(message).toHaveValue(/Code de suivi|Charge le script de suivi|Hotjar est bloqué/);
+
+  await page.getByRole('radio', { name: 'English' }).click();
+  await expect(message).toHaveValue(/^Subject: Website security policy: request to allow Hotjar/);
+  await expect(message).toHaveValue(/https:\/\/csp-explained\.com\/(?!fr)/);
+  // The page itself stays in French.
+  await expect(page.getByRole('radio', { name: 'English' })).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByRole('tab', { name: 'Rapport' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
   for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {

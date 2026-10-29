@@ -1,6 +1,7 @@
 import type { Translate } from '../../i18n';
 import type { Analysis, VendorCheck } from '../analysis';
 import { patchedPolicies } from '../analysis';
+import type { Vendor } from '../catalogue/schema';
 import type { DirectiveChange } from '../csp/patch';
 
 export type MessageFormat = 'email' | 'chat' | 'ticket';
@@ -23,8 +24,25 @@ interface Sections {
   sources: string[];
 }
 
-const list = (items: string[]) =>
-  items.length <= 1 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+/** "A, B and C" in the message's language. */
+const list = (t: Translate, items: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(items);
+
+/**
+ * The analysis with each tool's text (labels, nonce how-to) in another language, for a message written in a
+ * language other than the page's. Facts are the same in every language, so only the text changes.
+ */
+export function withVendorText(a: Analysis, vendors: Vendor[]): Analysis {
+  const byId = new Map(vendors.map((v) => [v.id, v]));
+  return {
+    ...a,
+    vendors: a.vendors.map((check) => {
+      const vendor = byId.get(check.vendor.id);
+      if (!vendor) return check;
+      const features = new Map(vendor.features.map((f) => [f.id, f]));
+      return { ...check, vendor, features: check.features.map((f) => features.get(f.id) ?? f) };
+    }),
+  };
+}
 
 function vendorLine(v: VendorCheck, t: Translate): string {
   const name = v.vendor.name;
@@ -42,7 +60,7 @@ function vendorLine(v: VendorCheck, t: Translate): string {
         byType.set(label, (byType.get(label) ?? new Set()).add(r.requirement.source));
       }
       const items = [...byType].map(([label, sources]) => `${label} (${[...sources].join(', ')})`);
-      return t('report.simple.blockedLine', { vendor: name, items: list(items) });
+      return t('report.simple.blockedLine', { vendor: name, items: list(t, items) });
     }
   }
 }
@@ -60,7 +78,7 @@ function risks(a: Analysis, t: Translate): string[] {
       const { type, source } = r.requirement;
       const vendor = v.vendor.name;
       if (source === "'unsafe-inline'" && (type === 'inline-script' || type === 'inline-handler')) {
-        out.add(t('report.simple.risk.unsafe-inline-script', { vendor, how: v.vendor.nonce?.how ?? '' }).trim());
+        out.add(t('report.simple.risk.unsafe-inline-script', { vendor, how: v.vendor.nonce?.how ?? t('report.simple.needsNonceNoHow') }));
       } else if (source === "'unsafe-inline'") {
         out.add(t('report.simple.risk.unsafe-inline-style', { vendor }));
       } else if (source === "'unsafe-eval'") {
@@ -75,8 +93,8 @@ function risks(a: Analysis, t: Translate): string[] {
 }
 
 function sections(a: Analysis, t: Translate, opts: ItRequestOptions): Sections {
-  const vendors = list(a.vendors.map((v) => v.vendor.name));
-  const site = opts.site || 'our website';
+  const vendors = list(t, a.vendors.map((v) => v.vendor.name));
+  const site = opts.site || t('report.simple.ourSite');
   const needsAction = a.vendors.some((v) => v.verdict !== 'allowed');
   return {
     subject: t('report.simple.subject', { vendors }),
@@ -96,7 +114,7 @@ export function itRequest(a: Analysis, t: Translate, opts: ItRequestOptions): st
   const out: string[] = [];
 
   if (opts.format === 'email') {
-    out.push(`Subject: ${s.subject}`, '', t('report.simple.greeting'), '', s.intro);
+    out.push(`${t('report.simple.subjectLabel')} ${s.subject}`, '', t('report.simple.greeting'), '', s.intro);
     if (s.vendorLines.length) out.push('', ...s.vendorLines.map((l) => `- ${l}`));
     if (s.changes.length) out.push('', t('report.simple.changeTitle'), ...s.changes.map((l) => `- ${l}`));
     if (s.policies.length) out.push('', t('report.simple.fullPolicy'), '', ...s.policies.map((p) => `    ${p}`));

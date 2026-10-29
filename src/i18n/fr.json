@@ -144,6 +144,7 @@
     "copied": "Copié",
     "download": "Télécharger le .md",
     "nothing": "Ce rapport est construit à partir des outils que vous voulez utiliser. Choisissez-les d'abord, ou passez à Sécurité pour un examen de la politique elle-même.",
+    "languageLabel": "Langue du message",
     "formats": {
       "email": "E-mail",
       "chat": "Slack / Teams",
@@ -151,9 +152,11 @@
     },
     "simple": {
       "subject": "Politique de sécurité du site : demande pour autoriser {vendors}",
+      "subjectLabel": "Objet :",
       "greeting": "Bonjour,",
       "intro": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle bloque pour l'instant :",
       "introOk": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle les autorise déjà : aucun changement ne semble nécessaire.",
+      "ourSite": "notre site",
       "blockedLine": "{vendor} est bloqué pour : {items}.",
       "needsNonceLine": "{vendor} : notre politique ne fait confiance qu'aux scripts portant un code à usage unique (nonce). L'outil le gère, mais la façon dont il est ajouté à la page doit transmettre ce code. {how}",
       "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",

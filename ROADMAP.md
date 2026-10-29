@@ -58,10 +58,12 @@ Added 2026-10-29. English stays the reference; other languages only replace text
     vendor update never waits on a translation. Orphan keys fail validation, as does a `type` used twice in
     one feature.
   - Our own plain-language copy per security finding `id`, instead of csp_evaluator's English `description`.
-- [ ] **Step 3, French pages**: `/fr/…` through Astro i18n, `<html lang>`, `hreflang` alternates in the
-      sitemap, canonical address and Open Graph image per language. Long-form pages as one Markdown file per
-      language. Decide whether shared links carry the language, and let the IT message be written in another
-      language than the page (a French marketer may write to an English-speaking IT team).
+- [x] **Step 3, French pages**: `/fr/…` with the same slugs, `<html lang>`, `hreflang` alternates (pages and
+      sitemap), canonical address and Open Graph image per language, a language link in the footer that keeps
+      the `#` part. Shared links carry the language through their path. The IT message can be written in the
+      other language, tool texts included.
+- [ ] French 404 page: CloudFront serves one error page; a CloudFront Function could pick `/fr/404` for `/fr/…`.
+- [ ] Suggest the French site to visitors whose browser prefers French (a dismissible note, never a redirect).
 
 ## Phase 2: "Check my website"
 
