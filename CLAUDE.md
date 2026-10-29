@@ -10,7 +10,8 @@ ideas to `ROADMAP.md`, not here.
 - Neutral personal project: never brand it for AB Tasty or any vendor. Vendor entries stay factual and sourced.
 - Commit only when asked. One commit per change (they ask for separate commits); every commit must pass the
   tests on its own. Titles follow Conventional Commits (CONTRIBUTING.md › Commit messages): they decide the next
-  version. End messages with the `Co-Authored-By` line. Don't push or deploy unless asked.
+  version. Never tag or create a release by hand: the deploy workflow does it. End messages with the
+  `Co-Authored-By` line. Don't push or deploy unless asked.
 - Before saying a UI change is done, build it and look at it: Playwright screenshots of desktop, mobile
   (390 px) and both themes, saved in the scratchpad.
 - When a choice is a matter of taste (palette, layout), show options rendered on the real pages and let them pick.

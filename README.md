@@ -42,17 +42,19 @@ The list above, [`src/usage.ts`](src/usage.ts) and the About page must stay in s
 
 Versions follow [semantic versioning](https://semver.org/). Each one is a `vMAJOR.MINOR.PATCH` tag with a
 [GitHub release](https://github.com/tcoppin/csp-explained/releases) whose notes say what changed: the releases
-page is the changelog, so there is no `CHANGELOG.md`.
+page is the changelog, so there is no `CHANGELOG.md`, and the tag is the version (`package.json` has none).
 
 - **Major**: a change that breaks what people rely on: the share-link format, page addresses, or the catalogue
   YAML schema that contributors write.
 - **Minor**: new features, tools or languages.
 - **Patch**: fixes and catalogue corrections.
 
-The site deploys on every push to `main`. A version is tagged once its changes are live on
-[csp-explained.com](https://csp-explained.com), so a tag always names something that was in production. Tags
-don't trigger any workflow. The `version` in `package.json` is bumped in the last commit before a tag, so each
-tagged commit carries its own version.
+Releases are automatic. Commit titles say what kind of change each commit is (`feat`, `fix`, `docs`…, see
+[CONTRIBUTING.md](CONTRIBUTING.md#commit-messages)). The site deploys on every push to `main`; once it is live, the
+deploy workflow looks at the commits since the last tag and, if they include a feature, a fix or a breaking change,
+tags the deployed commit and publishes the release with notes listing them. Pushes with only documentation or
+housekeeping deploy without a release; their commits go into the next one. So a tag always names something that
+was in production.
 
 ## Contributing
 

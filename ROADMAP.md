@@ -149,4 +149,6 @@ the plain-language voice better than "CSP Explainer".
       site as it was before versioning started, v1.1.0 the six new tools. A tag marks what is already live;
       deploys stay on push to `main`.
   - [x] No `CHANGELOG.md`: the GitHub releases page is the changelog.
-  - [x] The `version` in `package.json` is bumped in the last commit before each tag (1.1.0 from now on).
+  - [x] Automatic since v1.1.0: commit titles follow Conventional Commits and decide the version; the deploy
+        workflow tags and publishes the release once the site is live (`scripts/release.ts`). The tag is the
+        version: `package.json` has none.

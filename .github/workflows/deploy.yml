@@ -52,3 +52,33 @@ jobs:
         run: aws s3 sync dist/_astro "s3://${{ vars.SITE_BUCKET }}/_astro" --delete --cache-control "public, max-age=31536000, immutable"
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "${{ vars.DISTRIBUTION_ID }}" --paths "/*"
+
+  # Once the site is live: if the commits since the last tag call for a release (feat, fix, breaking change),
+  # tag the deployed commit and publish the GitHub release. Versions come from commit titles (scripts/release.ts).
+  release:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+      - name: Tag and publish the release, if one is due
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(yarn tsx scripts/release.ts next notes.md)
+          if [ -z "$version" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$version" -m "v$version"
+          git push origin "v$version"
+          gh release create "v$version" --verify-tag --title "v$version" --notes-file notes.md --latest
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"

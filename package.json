@@ -1,6 +1,5 @@
 {
   "name": "csp-explainer",
-  "version": "1.0.0",
   "description": "Understand any Content-Security-Policy, in plain language.",
   "scripts": {
     "dev": "astro dev",
