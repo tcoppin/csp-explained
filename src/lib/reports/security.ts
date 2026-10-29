@@ -1,6 +1,6 @@
 import type { Translate } from '../../i18n';
 import type { Analysis } from '../analysis';
-import type { SecurityFinding } from '../csp/security';
+import { findingKey, type SecurityFinding } from '../csp/security';
 
 export function countByLevel(findings: SecurityFinding[]) {
   const counts = { high: 0, medium: 0, low: 0, info: 0 };
@@ -8,11 +8,19 @@ export function countByLevel(findings: SecurityFinding[]) {
   return counts;
 }
 
+/** Our explanation of a finding, or the evaluator's English one for a kind we don't know yet. */
+export function findingText(t: Translate, f: SecurityFinding): string {
+  const key = `findings.${findingKey(f)}`;
+  return t.has(key) ? t(key, { directive: f.directive, value: f.value ?? '' }) : f.description;
+}
+
 function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean): string {
   const level = t(`report.security.level.${f.level}`) + (f.maybe ? ` (${t('report.security.maybe')})` : '');
   const where = [f.directive, f.value].filter(Boolean).join(' ');
-  const policy = multiplePolicies ? ` [policy ${f.policyIndex + 1}${f.reportOnly ? ', report-only' : ''}]` : '';
-  return `- **${level}** \`${where}\`${policy}: ${f.description}`;
+  const policy = multiplePolicies
+    ? ` [${t('analyzer.policy', { index: f.policyIndex + 1 })}${f.reportOnly ? `, ${t('analyzer.reportOnlyShort')}` : ''}]`
+    : '';
+  return `- **${level}** \`${where}\`${policy}: ${findingText(t, f)}`;
 }
 
 /** Markdown review: findings in the current policy and those the proposed change would add. */

@@ -9,6 +9,8 @@ export interface Translate {
   (key: string, vars?: Vars): string;
   /** The keys under a list or group of messages, in order: `t.keys('pages.find.source.steps')`. */
   keys(key: string): string[];
+  /** Whether a message exists, for text with a fallback of its own. */
+  has(key: string): boolean;
 }
 
 const MESSAGES: Record<Locale, Messages> = { en };
@@ -37,7 +39,8 @@ export function translator(locale: Locale): Translate {
     const node = lookup(messages, key);
     return node && typeof node === 'object' ? Object.keys(node).map((k) => `${key}.${k}`) : [];
   };
-  return Object.assign(t, { keys });
+  const has = (key: string) => typeof lookup(messages, key) === 'string';
+  return Object.assign(t, { keys, has });
 }
 
 /** The translator for an Astro page or component: `const t = translatorFor(Astro)`. */

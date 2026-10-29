@@ -49,7 +49,7 @@ Added 2026-10-29. English stays the reference; other languages only replace text
 - [x] **Step 1, all copy through `t()`**: move the copy written into pages (What is a CSP, About, Find my CSP)
       and code (deploy target captions) into `src/i18n/`, and pass the locale to `t` instead of importing a
       fixed English one. Useful even if no translation ships.
-- [ ] **Step 2, translation files for YAML content**: `src/content/fr/*.yaml` and `catalogue/i18n/fr/<id>.yaml`
+- [x] **Step 2, translation files for YAML content**: `src/content/fr/*.yaml` and `catalogue/i18n/fr/<id>.yaml`
       hold text only (titles, voices, `label`, `reason`, `notes`, `nonce.how`), keyed by `name`/`id`, feature id
       and requirement `type`. Hosts, types and dates come only from the English files, so a translation can't
       change a requirement, and `lastVerified` stays tied to the facts.

@@ -4,8 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { translator } from '../../i18n';
 import { analyze } from '../analysis';
 import { parseVendor } from '../catalogue/schema';
+import { parse } from '../csp/parser';
+import { evaluateSecurity, findingKey } from '../csp/security';
 import { deploySnippet, developerReport, policyDiff } from './developer';
-import { securityReport } from './security';
+import { findingText, securityReport } from './security';
 import { itRequest } from './simple';
 
 const t = translator('en');
@@ -75,5 +77,41 @@ describe('security report', () => {
     expect(report).toContain('Security review');
     expect(report).toContain('script-src');
     expect(report).not.toContain('{high}');
+  });
+});
+
+describe('findingKey', () => {
+  // Policies that trigger every check we run, and each variant of the checks that say several things.
+  const POLICIES = [
+    "script-src 'unsafe-inline' 'unsafe-eval' 'unsafe-hashes' data: https: http://x.example *",
+    "script-src 'nonce-abcdefgh1234'",
+    "img-src 'self'",
+    "script-src https://www.google.com; object-src 'none'; base-uri 'none'",
+    "script-src 'self' https://cdn.example.com; object-src https://x.example https://ajax.googleapis.com",
+    "script-src http://127.0.0.1 https://10.0.0.1",
+    "script-src 'nonce-abc'",
+    'reflected-xss block',
+    "script-src: 'self'; foo-src x",
+    "script-src 'self' object-src 'none'",
+    'script-src self',
+    "script-src 'nonce-abcdefgh1234' 'unsafe-inline' 'strict-dynamic' https://x.example",
+    "default-src 'self'; report-uri http://r.example",
+  ];
+  const produced = new Set(POLICIES.flatMap((p) => evaluateSecurity(parse(p)).map((f) => findingKey(f))));
+
+  it('has a message for every finding', () => {
+    expect([...produced].filter((key) => !t.has(`findings.${key}`))).toEqual([]);
+  });
+
+  it('has no message for a finding that never happens', () => {
+    // Our parser drops these values before the evaluator sees them; the messages stay in case it changes.
+    const unreachable = ['invalid-keyword.invalid', 'nonce-charset'];
+    const messages = t.keys('findings').flatMap((k) => (t.has(k) ? [k] : t.keys(k))).map((k) => k.slice('findings.'.length));
+    expect(messages.filter((k) => !produced.has(k) && !unreachable.includes(k))).toEqual([]);
+  });
+
+  it('falls back to the evaluator text for a kind of finding we have no message for', () => {
+    const f = { ...evaluateSecurity(parse("script-src 'unsafe-inline'"))[0]!, id: 'future-check', description: 'From the evaluator.' };
+    expect(findingText(t, f)).toBe('From the evaluator.');
   });
 });

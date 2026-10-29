@@ -4,7 +4,7 @@ import type { Translate } from '../i18n';
 import { patchedPolicies, type Analysis } from '../lib/analysis';
 import type { Audience } from '../lib/csp/model';
 import { deploySnippet, developerReport, policyDiff, TARGETS, type Target } from '../lib/reports/developer';
-import { countByLevel, securityReport } from '../lib/reports/security';
+import { countByLevel, findingText, securityReport } from '../lib/reports/security';
 import { itRequest, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
@@ -156,7 +156,7 @@ export function ReportPanel({ analysis, audience, site, onPickTools }: Props) {
           </span>
           <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
           {analysis.parsed.policies.length > 1 && <span class="muted"> · {t('analyzer.policy', { index: f.policyIndex + 1 })}</span>}
-          <span class="desc">{f.description}</span>
+          <span class="desc">{findingText(t, f)}</span>
         </li>
       ))}
     </ul>

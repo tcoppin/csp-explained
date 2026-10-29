@@ -43,6 +43,8 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - Translations of YAML content: `src/content/<locale>/*.yaml` and `catalogue/i18n/<locale>/<id>.yaml`, text only,
   each field `{ en: <hash of the English>, text }`. Missing, empty or stale fields show in English. Reasons are
   keyed by requirement type, so a feature lists each type once.
+- Security findings are explained by `findings.*` in the messages (`findingKey` in `src/lib/csp/security.ts`);
+  the evaluator's English description is only a fallback for kinds we don't know.
 - `src/i18n/en.json`: every user-facing string, including report text and page copy (`pages.*`). No hard-coded
   copy in pages or components. Astro pages take `t` from `translatorFor(Astro)`; island components call `useT()`
   (`src/components/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through

@@ -19,7 +19,7 @@ export interface SecurityFinding {
   maybe: boolean;
   directive: string;
   value?: string;
-  /** The evaluator's own (technical) description. */
+  /** The evaluator's own description, in English; shown only when we have no message for the finding (`findingKey`). */
   description: string;
   policyIndex: number;
   reportOnly: boolean;
@@ -64,6 +64,34 @@ function runChecks(csp: Csp): Finding[] {
     }
   }
   return findings;
+}
+
+/**
+ * Which of our messages (`findings.*` in the i18n messages) explains a finding. Some evaluator types say
+ * different things depending on the directive, the value or how sure it is, so those have one message each.
+ */
+export function findingKey(f: Pick<SecurityFinding, 'id' | 'directive' | 'value' | 'maybe'>): string {
+  const value = f.value ?? '';
+  switch (f.id) {
+    case 'missing-directives':
+      return `${f.id}.${f.directive}`;
+    case 'script-allowlist-bypass':
+      return `${f.id}.${value === "'self'" ? 'self' : f.maybe ? 'unverified' : 'known'}`;
+    case 'object-allowlist-bypass':
+      return `${f.id}.${f.maybe ? 'restrict' : 'known'}`;
+    case 'ip-source':
+      return `${f.id}.${value.includes('127.0.0.1') ? 'localhost' : 'ip'}`;
+    case 'src-http':
+      return `${f.id}.${f.directive === 'report-uri' ? 'report' : 'resource'}`;
+    case 'unknown-directive':
+      return `${f.id}.${f.directive.endsWith(':') ? 'colon' : 'unknown'}`;
+    case 'invalid-keyword':
+      return `${f.id}.${value.startsWith("'") ? 'invalid' : 'quotes'}`;
+    case 'ignored':
+      return `${f.id}.${value === "'unsafe-inline'" ? 'unsafe-inline' : 'strict-dynamic'}`;
+    default:
+      return f.id;
+  }
 }
 
 export function evaluateSecurity(parsed: ParseResult): SecurityFinding[] {

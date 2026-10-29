@@ -214,7 +214,7 @@
         "info": "Info"
       },
       "maybe": "possible",
-      "attribution": "Findings computed with Google's CSP Evaluator library (Apache-2.0).",
+      "attribution": "Checks from Google's CSP Evaluator library (Apache-2.0), explained in our words.",
       "strictHint": "Consider a nonce-based policy with 'strict-dynamic': it resists allowlist bypasses and most tag managers support nonce propagation.",
       "multiplePolicies": "Each policy is rated on its own. The browser enforces all of them together, so a weakness reported in one policy may be covered by another."
     },
@@ -520,6 +520,51 @@
       "allowedSource": "Allowed source",
       "why": "Why",
       "outdated": "Something changed? [Report an outdated entry]({url})."
+    }
+  },
+  "findings": {
+    "script-unsafe-inline": "'unsafe-inline' in {directive} lets any injected inline script or event handler run, which removes most of the protection against XSS. Nonces or hashes allow your own inline code without it.",
+    "script-unsafe-hashes": "'unsafe-hashes' in {directive} allows the inline event handlers whose hashes are listed. Safer than 'unsafe-inline', but those handlers remain; moving them into script files removes the need.",
+    "script-unsafe-eval": "'unsafe-eval' in {directive} lets the page turn text into code (eval(), new Function()), so injected data can end up running. Keep it only if a tool you need requires it.",
+    "plain-url-schemes": "{value} in {directive} allows scripts from any address with that scheme, including a site an attacker controls.",
+    "plain-wildcard": "{directive} allows '*', any website, so it does little against injected content.",
+    "missing-directives": {
+      "object-src": "Plugins (<object>, <embed>) aren't restricted, and they can run JavaScript. Set object-src 'none'.",
+      "script-src": "Scripts aren't restricted: there is no script-src and no default-src to fall back on. This is the rule that protects against XSS.",
+      "base-uri": "No base-uri: an injected <base> tag could send every relative script address to an attacker's server, even with nonces. Set base-uri 'none' or 'self'."
+    },
+    "script-allowlist-bypass": {
+      "known": "{value} is known to host JSONP endpoints or Angular libraries that let an attacker run code despite this policy. Remove it, or move to nonces with 'strict-dynamic'.",
+      "unverified": "No known bypass on {value}, but if it serves JSONP replies or Angular libraries, an attacker can use it to run code. Host allowlists are hard to keep safe; nonces with 'strict-dynamic' are more robust.",
+      "self": "'self' trusts every file on your own site. If it hosts JSONP endpoints, Angular or files uploaded by users, they can be used to get around the policy."
+    },
+    "object-allowlist-bypass": {
+      "known": "{value} is known to host Flash files that let an attacker get around this policy. Set object-src 'none'.",
+      "restrict": "object-src allows {value}. Plugins are rarely needed today: can it be 'none'?"
+    },
+    "ip-source": {
+      "localhost": "{directive} allows localhost ({value}). Fine while developing; remove it in production.",
+      "ip": "{value} in {directive} is an IP address rather than a host name. Browsers may not match it, so it may allow nothing; use the host name."
+    },
+    "nonce-length": "The nonce {value} is shorter than 8 characters and could be guessed. Generate a new random value of at least 128 bits for every response.",
+    "nonce-charset": "The nonce {value} uses characters outside base64. Use a base64 value.",
+    "src-http": {
+      "resource": "{value} in {directive} is loaded over plain HTTP, which anyone on the network can change. Use https://.",
+      "report": "Violation reports are sent to {value} over plain HTTP. Use https:// so they can't be read or changed on the way."
+    },
+    "deprecated-directive": "{directive} is deprecated and modern browsers ignore it.",
+    "unknown-directive": {
+      "colon": "Directive names don't end with a colon, so {directive} is ignored.",
+      "unknown": "{directive} isn't a CSP directive, so browsers ignore it."
+    },
+    "missing-semicolon": "{value} in {directive} looks like a directive name, not a value. Is a semicolon missing before it?",
+    "invalid-keyword": {
+      "quotes": "{value} in {directive} must be written with single quotes ('{value}'). Without them it is read as a host name.",
+      "invalid": "{value} in {directive} isn't a CSP keyword, so it is ignored."
+    },
+    "ignored": {
+      "unsafe-inline": "'unsafe-inline' in {directive} is ignored because the rule also has a nonce or a hash. It only matters for very old browsers.",
+      "strict-dynamic": "{value} in {directive} is ignored because of 'strict-dynamic': only scripts with the nonce or hash, and the scripts they load, run."
     }
   }
 }
