@@ -306,6 +306,38 @@ test('the French site stays in French and links to the same page in English', as
   expect(errors).toEqual([]);
 });
 
+test.describe('a visitor whose browser prefers French', () => {
+  test.use({ locale: 'fr-FR' });
+
+  test('is told, in French, that the page exists in French, and can dismiss it', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/find-my-csp#terminal');
+    const note = page.locator('[data-language-note="fr"]');
+    await expect(note).toBeVisible();
+    await expect(note).toHaveAttribute('lang', 'fr');
+    await expect(note).toContainText('Cette page existe aussi en français.');
+
+    // Dismissed once, gone on the next pages too.
+    await note.getByRole('button', { name: 'Fermer' }).click();
+    await expect(note).toBeHidden();
+    await page.goto('/learn');
+    await expect(page.locator('[data-language-note]')).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test('follows the note to the same page in French, keeping the # part, and sees no note there', async ({ page }) => {
+    await page.goto('/find-my-csp#terminal');
+    await page.getByRole('link', { name: 'La lire en français' }).click();
+    await expect(page).toHaveURL(/\/fr\/find-my-csp#terminal$/);
+    await expect(page.locator('[data-language-note]')).toBeHidden();
+  });
+});
+
+test('a browser that prefers English sees no note on English pages', async ({ page }) => {
+  await page.goto('/learn');
+  await expect(page.locator('[data-language-note]')).toBeHidden();
+});
+
 test('the 404 page speaks both languages', async ({ page }) => {
   const res = await page.goto('/this-page-does-not-exist');
   expect(res?.status()).toBe(404);

@@ -21,6 +21,11 @@
     "skip": "Aller au contenu",
     "navLabel": "Principale",
     "languageLabel": "Langue",
+    "languageNote": {
+      "text": "Cette page existe aussi en français.",
+      "link": "La lire en français",
+      "dismiss": "Fermer"
+    },
     "ogLocale": "fr_FR"
   },
   "audience": {

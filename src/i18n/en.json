@@ -21,6 +21,11 @@
     "skip": "Skip to content",
     "navLabel": "Main",
     "languageLabel": "Language",
+    "languageNote": {
+      "text": "This page is also in English.",
+      "link": "Read it in English",
+      "dismiss": "Dismiss"
+    },
     "ogLocale": "en_US"
   },
   "audience": {

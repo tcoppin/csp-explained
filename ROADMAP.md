@@ -86,7 +86,8 @@ Added 2026-10-29. English stays the reference; other languages only replace text
       other language, tool texts included.
 - [x] French 404 page: CloudFront serves one error page for every address, so the 404 page speaks both languages
       (no infra change).
-- [ ] Suggest the French site to visitors whose browser prefers French (a dismissible note, never a redirect).
+- [x] Suggest the other language to visitors whose browser prefers it: a quiet note above the header, in that
+      language, never a redirect. Dismissing it or using the footer language link is remembered on the device.
 
 ## Phase 2: "Check my website"
 

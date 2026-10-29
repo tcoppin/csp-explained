@@ -71,6 +71,24 @@ const themes = [
   </head>
   <body data-page={Astro.url.pathname}>
     <a class="skip visually-hidden" href="#main">{t('site.skip')}</a>
+    {
+      /* Shown by the script below only to visitors whose browser prefers that language. */
+      others.map((l) => (
+        <div class="language-note" lang={l} data-language-note={l} hidden>
+          <p class="wrap note-bar">
+            <span class="note-text">
+              {translator(l)('site.languageNote.text')}{' '}
+              <a href={localePath(l, page)} hreflang={l} data-lang-switch>
+                {translator(l)('site.languageNote.link')}
+              </a>
+            </span>
+            <button type="button" data-language-note-dismiss aria-label={translator(l)('site.languageNote.dismiss')}>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+          </p>
+        </div>
+      ))
+    }
     <header class="site-header">
       <div class="wrap bar">
         <a class="brand" href={localePath(locale, '/')}>{t('site.name')}</a>
@@ -135,9 +153,41 @@ const themes = [
   if (from !== location.origin) track('visit', { page: document.body.dataset.page });
 
   // Language switch: the same page in the other language, keeping what follows the # (a shared policy, a tab).
+  // Choosing a language also means the language note below is no longer needed.
+  const NOTE_KEY = 'csp-explained:language-note';
+  const remember = () => {
+    try {
+      localStorage.setItem(NOTE_KEY, 'dismissed');
+    } catch {
+      // Not remembered: the note may show again on the next page.
+    }
+  };
   for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]')) {
     link.addEventListener('click', () => {
       link.hash = location.hash;
+      remember();
+    });
+  }
+
+  // Language note: when the browser prefers another language the page exists in, say so in that language.
+  // Never a redirect, and dismissing it is remembered on this device.
+  const notes = [...document.querySelectorAll<HTMLElement>('[data-language-note]')];
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(NOTE_KEY) === 'dismissed';
+  } catch {
+    // No storage: show the note when it applies.
+  }
+  if (notes.length > 0 && !dismissed) {
+    const available = [document.documentElement.lang, ...notes.map((n) => n.dataset.languageNote)];
+    const preferred = navigator.languages.map((l) => l.slice(0, 2).toLowerCase()).find((l) => available.includes(l));
+    const note = notes.find((n) => n.dataset.languageNote === preferred);
+    if (note) note.hidden = false;
+  }
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-language-note-dismiss]')) {
+    button.addEventListener('click', () => {
+      button.closest<HTMLElement>('[data-language-note]')!.hidden = true;
+      remember();
     });
   }
 
@@ -172,6 +222,52 @@ const themes = [
     width: auto;
     height: auto;
     clip-path: none;
+  }
+  /* A quiet band above the header: a suggestion, not a banner */
+  .language-note {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    font-size: var(--step--1);
+  }
+  /* Text and link wrap together; the close button stays on the right */
+  .note-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-block: 0;
+    padding-block: 0.4rem;
+  }
+  .note-text a {
+    margin-left: 0.5rem;
+    white-space: nowrap;
+  }
+  .language-note a {
+    font-weight: 700;
+    color: var(--action);
+  }
+  .language-note button {
+    flex: none;
+    margin-left: auto;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink-soft);
+  }
+  .language-note button:hover {
+    color: var(--ink);
+    background: var(--paper);
+  }
+  .language-note svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
   }
   .site-header {
     border-bottom: 1px solid var(--rule);
