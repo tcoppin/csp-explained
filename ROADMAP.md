@@ -16,7 +16,8 @@ add the date when an idea comes in so old ones can be reviewed.
 - [x] First `cdk deploy`, GitHub repository variables, `production` environment (see README › Deploy).
 - [x] Check the console snippet's `copy()` by hand in Chrome, Firefox and Safari (synchronous since Firefox
       ignored late calls).
-- [ ] Screenshots or small illustrations for the Network tab steps on Find my CSP.
+- [x] Illustrations for the Network tab steps on Find my CSP: a simplified, themed drawing per browser
+      (`DevtoolsSketch.astro`) rather than screenshots, which go stale with each browser release.
 - [x] Open Graph image and description for link previews (`yarn og:image`).
 - [x] `sitemap.xml` (`@astrojs/sitemap`) and `robots.txt`.
 

@@ -1,5 +1,6 @@
 ---
 import CodeBlock from '../components/CodeBlock.astro';
+import DevtoolsSketch from '../components/DevtoolsSketch.astro';
 import Base from '../layouts/Base.astro';
 import { FIND_CSP_SNIPPET } from '../lib/snippets/find-csp-console';
 
@@ -105,6 +106,7 @@ const browsers = [
               <li>In <strong>Headers</strong>, scroll to <strong>Response Headers</strong>.</li>
               <li>Find <code>content-security-policy</code>, right-click its value and choose <em>Copy value</em>.</li>
             </ol>
+            <DevtoolsSketch browser="Chrome and Edge" type="document" section="Response Headers" steps={[1, 3, 4, 5]} />
           </div>
           <div id="browser-firefox" class="browser">
             <h3>Firefox</h3>
@@ -115,6 +117,7 @@ const browsers = [
               <li>In the <strong>Headers</strong> panel, open <strong>Response Headers</strong>.</li>
               <li>Find <code>content-security-policy</code> and copy its value.</li>
             </ol>
+            <DevtoolsSketch browser="Firefox" type="html" section="Response Headers" steps={[1, 3, 4, 5]} />
           </div>
           <div id="browser-safari" class="browser">
             <h3>Safari</h3>
@@ -124,6 +127,7 @@ const browsers = [
               <li>Reload the page and click the first resource.</li>
               <li>In <strong>Headers</strong>, find <code>Content-Security-Policy</code> under <em>Response</em> and copy its value.</li>
             </ol>
+            <DevtoolsSketch browser="Safari" type="Document" section="Response" steps={[2, 3, 4, 4]} />
           </div>
         </div>
         <p class="note">

@@ -1,0 +1,157 @@
+---
+/**
+ * A simplified drawing of a browser's Network panel, with numbered marks matching the steps above it.
+ * Not a screenshot: real panels change with every browser version, so this only shows where things are.
+ */
+interface Props {
+  browser: string;
+  /** How the browser labels the page's own request in the Type column. */
+  type: string;
+  /** The heading above the response headers. */
+  section: string;
+  /** Step numbers for: Network tab, the page's row, the response headers, the policy. */
+  steps: [number, number, number, number];
+}
+
+const { browser, type, section, steps } = Astro.props;
+const [tab, row, headers, policy] = steps;
+---
+
+<figure class="sketch">
+  <div class="panel" aria-hidden="true">
+    <div class="tabs">
+      <span>Elements</span><span>Console</span><span class="on">Network<b class="step">{tab}</b></span><span class="more">Sources</span>
+    </div>
+    <div class="body">
+      <ol class="requests">
+        <li class="on">
+          <span class="name">www.example.com</span><span class="type">{type}</span><b class="step">{row}</b>
+        </li>
+        <li><span class="name">main.css</span><span class="type">stylesheet</span></li>
+        <li><span class="name">gtm.js</span><span class="type">script</span></li>
+        <li><span class="name">logo.svg</span><span class="type">image</span></li>
+      </ol>
+      <div class="headers">
+        <p class="section">{section}<b class="step">{headers}</b></p>
+        <p><span class="key">content-type</span> text/html</p>
+        <p class="policy">
+          <span class="key">content-security-policy</span>{' '}<mark>default-src 'self'; script-src …</mark><b class="step">{policy}</b>
+        </p>
+        <p><span class="key">date</span> Wed, 28 Oct 2026</p>
+      </div>
+    </div>
+  </div>
+  <figcaption>Simplified drawing of the Network tab in {browser}. The numbers match the steps.</figcaption>
+</figure>
+
+<style>
+  .sketch {
+    margin: 1.25rem 0 1.5rem;
+    max-width: 44rem;
+  }
+  .panel {
+    border: 2px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    overflow: hidden;
+  }
+  .tabs {
+    display: flex;
+    gap: 1rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 2px solid var(--rule);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .tabs .on {
+    color: var(--ink);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: calc(-0.4rem - 2px);
+    padding-bottom: 0.4rem;
+  }
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+  .requests {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-right: 2px solid var(--rule);
+  }
+  .requests li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.3rem 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+  .requests li.on {
+    background: var(--hl-host);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .headers {
+    padding: 0.5rem 0.75rem;
+  }
+  .headers p {
+    margin: 0 0 0.35rem;
+    overflow-wrap: anywhere;
+  }
+  .headers .section {
+    font-family: var(--font);
+    font-weight: 700;
+  }
+  .key {
+    font-weight: 700;
+  }
+  .policy mark {
+    background: var(--hl-keyword);
+    color: var(--ink);
+    padding: 0 0.15em;
+  }
+  .step {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 0.4rem;
+    border-radius: 50%;
+    background: var(--action);
+    color: var(--action-ink);
+    font-family: var(--font);
+    font-size: 0.8rem;
+    line-height: 1;
+    vertical-align: middle;
+  }
+  figcaption {
+    margin-top: 0.4rem;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+  @media (max-width: 40rem) {
+    .tabs .more {
+      display: none;
+    }
+    .body {
+      grid-template-columns: 1fr;
+    }
+    .requests {
+      border-right: 0;
+      border-bottom: 2px solid var(--rule);
+    }
+    .requests li:nth-child(n + 3) {
+      display: none;
+    }
+  }
+</style>
