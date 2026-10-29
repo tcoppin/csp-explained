@@ -42,6 +42,27 @@ Keeping it current (internal tooling, never part of the public site):
       loads each vendor's own tag there, and records which domains the tag really uses. It flags vendors that
       start using a domain their documentation doesn't list yet. Complements the weekly documentation watcher.
 
+## Translations (French first)
+
+Added 2026-10-29. English stays the reference; other languages only replace text, never facts.
+
+- [ ] **Step 1, all copy through `t()`**: move the copy written into pages (What is a CSP, About, Find my CSP)
+      and code (deploy target captions) into `src/i18n/`, and pass the locale to `t` instead of importing a
+      fixed English one. Useful even if no translation ships.
+- [ ] **Step 2, translation files for YAML content**: `src/content/fr/*.yaml` and `catalogue/i18n/fr/<id>.yaml`
+      hold text only (titles, voices, `label`, `reason`, `notes`, `nonce.how`), keyed by `name`/`id`, feature id
+      and requirement `type`. Hosts, types and dates come only from the English files, so a translation can't
+      change a requirement, and `lastVerified` stays tied to the facts.
+  - Each translated field stores a short hash of the English text it came from. Missing or stale fields fall
+    back to English, field by field; the validators list them without failing (`yarn i18n:status`), so a
+    vendor update never waits on a translation. Orphan keys fail validation, as does a `type` used twice in
+    one feature.
+  - Our own plain-language copy per security finding `id`, instead of csp_evaluator's English `description`.
+- [ ] **Step 3, French pages**: `/fr/…` through Astro i18n, `<html lang>`, `hreflang` alternates in the
+      sitemap, canonical address and Open Graph image per language. Long-form pages as one Markdown file per
+      language. Decide whether shared links carry the language, and let the IT message be written in another
+      language than the page (a French marketer may write to an English-speaking IT team).
+
 ## Phase 2: "Check my website"
 
 Enter a site address instead of copying and pasting the policy.
@@ -90,7 +111,6 @@ the plain-language voice better than "CSP Explainer".
 
 ## Ideas backlog
 
-- [ ] French translation (strings are already in `src/i18n/en.json`).
 - [ ] Compare two policies (before/after, staging vs production) with a plain-language diff.
 - [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
 - [ ] Policy builder for people starting from nothing, driven by the tools they use.
