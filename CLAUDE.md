@@ -106,6 +106,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 ## Vendor catalogue rules
 
 - Only from the vendor's **official documentation**, linked in `sources`, with `lastVerified`.
+- Only **public** documentation (README › Vendor catalogue): never what is shown behind a login, including through
+  the owner's work accounts, unless the vendor approved publishing it in writing. Such tools wait in group 3 of
+  the roadmap's catalogue section.
 - `confidence: partial` when the page couldn't be fully read, with what's missing in `notes`.
 - Don't bypass bot protection to read a vendor page; note it and ask the owner to check by hand.
 - Run `yarn catalogue:validate` and, after adding a vendor, `yarn tsx scripts/watch-vendor-docs.ts --update`

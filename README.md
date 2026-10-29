@@ -74,12 +74,17 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 Each `catalogue/vendors/<id>.yaml` lists, per feature, what the tool needs (`type` of resource, CSP `sources`, `reason`). Rules:
 
 - Every entry comes from the vendor's **official documentation**, listed in `sources`, with the `lastVerified` date.
+- That documentation must be **public**. Some vendors only show their requirements to signed-in customers (in
+  their app or a customer portal): suggest those tools only with the vendor's written approval to publish the
+  list, or once the vendor makes it public.
 - Use `confidence: partial` when the official page couldn't be fully captured, and explain what's missing in `notes`.
 - `yarn catalogue:validate` checks the schema and that every source is a valid CSP expression.
 
-Keeping it current: `.github/workflows/vendor-watch.yml` runs weekly. It extracts the CSP-relevant tokens (directives, keywords, hosts) from every documentation page, compares them with `catalogue/doc-snapshots.json`, and opens a pull request listing added or removed tokens. Pages that block automated reads (Hotjar at the moment) are reported for a manual check.
+The [roadmap](ROADMAP.md#vendor-catalogue) lists the tools in three groups: in the catalogue with known gaps, to
+add from public documentation (anyone can suggest one with a link to the vendor's page), and private
+documentation waiting for the vendor's approval.
 
-Known gaps and tools to add are tracked in [ROADMAP.md](ROADMAP.md#vendor-catalogue).
+Keeping it current: `.github/workflows/vendor-watch.yml` runs weekly. It extracts the CSP-relevant tokens (directives, keywords, hosts) from every documentation page, compares them with `catalogue/doc-snapshots.json`, and opens a pull request listing added or removed tokens. Pages that block automated reads (Hotjar and Cookiebot at the moment) are reported for a manual check.
 
 ## Translations
 

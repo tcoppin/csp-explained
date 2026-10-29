@@ -23,10 +23,11 @@ add the date when an idea comes in so old ones can be reviewed.
 
 ## Vendor catalogue
 
-Known gaps:
+Contribution rules for the catalogue are in the [README](README.md#vendor-catalogue).
+
+### 1. In the catalogue, with known gaps
 
 - [ ] **Contentsquare**: add `img-src` tracking domains, `blob:` workers (child-src / worker-src), `csxd.` frames.
-- [ ] **Wingify (formerly VWO)**: requirements are only shown inside the app; add it once a public page lists them.
 - [ ] Google: country domains (`google.<TLD>`) for Ads and GA4 advertising features aren't checked.
 - [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).
@@ -38,11 +39,26 @@ Known gaps:
       collection domains (CDDC) if Piano documents them.
 - Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
 
-Tools to add (official docs only): Meta Pixel, TikTok Pixel,
-LinkedIn Insight Tag, Matomo, Segment, Mixpanel, Amplitude, HubSpot,
-Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
+### 2. To add from public documentation (contributions welcome)
 
-Keeping it current (internal tooling, never part of the public site):
+- [ ] Meta Pixel: no official CSP page yet; the public base code only shows the script and image hosts, not how
+      events are sent.
+- [ ] TikTok Pixel: the official documentation only renders with JavaScript; needs someone to read it in a
+      browser.
+- [ ] LinkedIn Insight Tag: the public troubleshooting page lists domains not to block, without directives or the
+      tag code.
+- [ ] Matomo: the public FAQ is complete, but describes the site's own Matomo server, an address the catalogue
+      can't know (Matomo Cloud domains, or a field to type it in, would solve it).
+- [ ] Not looked into yet: Segment, Mixpanel, Amplitude, HubSpot, Zendesk, Crisp, Stripe.js, YouTube and Vimeo
+      embeds, reCAPTCHA, Cloudflare Turnstile.
+
+### 3. Private documentation (only with the vendor's approval)
+
+- [ ] **Wingify (formerly VWO)**: the CSP list is only shown inside the app; its public help article links there.
+
+### Keeping it current
+
+Internal tooling, never part of the public site.
 
 - [ ] Drift check in CI: a scheduled GitHub Actions job opens a blank local test page in a headless browser,
       loads each vendor's own tag there, and records which domains the tag really uses. It flags vendors that
