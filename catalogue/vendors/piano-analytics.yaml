@@ -1,0 +1,26 @@
+id: piano-analytics
+name: Piano Analytics
+category: analytics
+website: https://piano.io
+sources:
+  - https://developers.piano.io/analytics/data-collection/sdks/javascript/
+lastVerified: 2026-10-29
+confidence: partial
+notes: >-
+  Covers the SDK loaded from Piano's CDN. Your collection domain has the form xxxxxxx.pa-cd.com and is
+  checked here as https://*.pa-cd.com. The page doesn't cover a self-hosted SDK or a custom collection
+  domain (CDDC), where your own hosts are needed instead, and doesn't mention nonces.
+features:
+  - id: sdk
+    label: JavaScript SDK
+    default: true
+    requirements:
+      - type: script
+        sources: [https://tag.aticdn.net]
+        reason: Loads the Piano Analytics SDK.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The install snippet is an inline script.
+      - type: connect
+        sources: [https://*.pa-cd.com]
+        reason: Sends events to your collection domain.

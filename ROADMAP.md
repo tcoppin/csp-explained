@@ -34,10 +34,12 @@ Known gaps:
       belongs to, and whether the banner needs `'unsafe-inline'` for styles without a nonce.
 - [ ] Didomi: directives aren't named in the docs (SDK host checked in script-src, API host in connect-src);
       confirm with Didomi. Its documented nonce covers injected styles only.
+- [ ] Piano Analytics: the official page covers the CDN-hosted SDK only; add a self-hosted SDK and custom
+      collection domains (CDDC) if Piano documents them.
 - Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
 
 Tools to add (official docs only): Meta Pixel, TikTok Pixel,
-LinkedIn Insight Tag, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
+LinkedIn Insight Tag, Matomo, Segment, Mixpanel, Amplitude, HubSpot,
 Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
 
 Keeping it current (internal tooling, never part of the public site):

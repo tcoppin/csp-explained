@@ -1,0 +1,21 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Covers the SDK loaded from Piano's CDN. Your collection domain has the form xxxxxxx.pa-cd.com and is checked here as https://*.pa-cd.com. The page doesn't cover a self-hosted SDK or a custom collection domain (CDDC), where your own hosts are needed instead, and doesn't mention nonces.
+  { en: aaacd4bc, text: "Couvre le SDK chargé depuis le CDN de Piano. Votre domaine de collecte a la forme xxxxxxx.pa-cd.com et il est vérifié ici comme https://*.pa-cd.com. La page ne couvre ni un SDK auto-hébergé ni un domaine de collecte personnalisé (CDDC), qui demandent vos propres hôtes, et ne parle pas des nonces." }
+features:
+  sdk:
+    label:
+      # JavaScript SDK
+      { en: e99df88b, text: "SDK JavaScript" }
+    reasons:
+      script:
+        # Loads the Piano Analytics SDK.
+        { en: 6bc987a0, text: "Charge le SDK Piano Analytics." }
+      inline-script:
+        # The install snippet is an inline script.
+        { en: 3458ae8e, text: "Le snippet d'installation est un script dans la page." }
+      connect:
+        # Sends events to your collection domain.
+        { en: 3b3c8b45, text: "Envoie les événements à votre domaine de collecte." }

@@ -299,5 +299,20 @@
     "https://c.bing.com",
     "https://www.clarity.ms",
     "z.clarity.ms"
+  ],
+  "https://developers.piano.io/analytics/data-collection/sdks/javascript/": [
+    "'unsafe-inline'",
+    "collect.example.com",
+    "connect-src",
+    "https://collect.example.com",
+    "https://tag.aticdn.net",
+    "https://xxxxxxx.pa-cd.com",
+    "mysite.com",
+    "pa.refresh",
+    "page.display",
+    "piano-analytics.js",
+    "script-src",
+    "version.number",
+    "xxxxxxx.pa-cd.com"
   ]
 }
