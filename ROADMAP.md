@@ -144,3 +144,12 @@ the plain-language voice better than "CSP Explainer".
 - [x] Privacy-friendly usage counts: one anonymous log line per event through our own `/e` endpoint, counted on a
       CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
 - [ ] Accessibility audit with a screen reader user.
+- [ ] **Release management** (added 2026-10-29): semantic versioning with git tags (`vMAJOR.MINOR.PATCH`) and a
+      GitHub release for each, with notes written for developers and contributors, so they can follow what changed.
+  - Major: changes that break what people rely on (share-link format, page addresses, the catalogue YAML
+    schema). Minor: new features, tools or languages. Patch: fixes and catalogue corrections.
+  - `package.json` already says 1.0.0 but nothing uses it yet: decide the first tag, for example v1.0.0 on the
+    commit in production today.
+  - Release notes built from the commits since the previous tag (one commit per change keeps them readable);
+    decide whether a `CHANGELOG.md` mirrors them.
+  - Decide whether a tag only marks what is deployed (deploys stay on push to `main`) or triggers the deploy.
