@@ -1,0 +1,34 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Use 'strict-dynamic' and a per-response nonce in script-src, and pass the same nonce to the widget through axeptioSettings.
+    { en: 5fe08565, text: "Utilisez 'strict-dynamic' et un nonce propre à chaque réponse dans script-src, et transmettez le même nonce au widget via axeptioSettings." }
+notes:
+  # Follows the article's "absolute minimum" list for granular policies. The article also suggests a wider pattern (https://*.axept.io in script-src, 'unsafe-inline' in default-src). Its lists spell the video host both axeptio-video.imgix.net and axeptio-videos.imgix.net, so both are listed.
+  { en: 0bef7110, text: "Suit la liste « minimum absolu » de l'article pour les politiques détaillées. L'article propose aussi un modèle plus large (https://*.axept.io dans script-src, 'unsafe-inline' dans default-src). Ses listes écrivent l'hôte des vidéos à la fois axeptio-video.imgix.net et axeptio-videos.imgix.net : les deux sont listés." }
+features:
+  widget:
+    label:
+      # Consent widget
+      { en: e004d9ac, text: "Widget de consentement" }
+    reasons:
+      script:
+        # Loads the consent widget.
+        { en: 6a72808f, text: "Charge le widget de consentement." }
+      inline-script:
+        # The widget is started by an inline script (not needed with a nonce).
+        { en: 13db208a, text: "Le widget est lancé par un script dans la page (inutile avec un nonce)." }
+      connect:
+        # Talks to Axeptio's servers.
+        { en: 47fbe801, text: "Échange avec les serveurs d'Axeptio." }
+      img:
+        # Widget images.
+        { en: 9428ab41, text: "Images du widget." }
+      font:
+        # Widget fonts.
+        { en: e8ce2d02, text: "Polices du widget." }
+      media:
+        # Videos shown in the widget.
+        { en: eccfb2c1, text: "Vidéos affichées dans le widget." }

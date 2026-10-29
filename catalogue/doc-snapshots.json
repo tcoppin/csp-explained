@@ -175,5 +175,30 @@
     "script-src",
     "style-src",
     "wss://*.optimizely.com"
+  ],
+  "https://support.axeptio.eu/en/articles/273997-axeptio-csp-configuration": [
+    "connect-src",
+    "d.createelement",
+    "d.getelementsbytagname",
+    "default-src",
+    "e.async",
+    "e.src",
+    "font-src",
+    "http://www.w3.org",
+    "https://*.axept.io",
+    "https://*.axeptio.eu",
+    "https://*.axeptio.tech",
+    "https://*.gstatic.com",
+    "https://axeptio-video.imgix.net",
+    "https://axeptio-videos.imgix.net",
+    "https://axeptio.imgix.net",
+    "https://favicons.axept.io",
+    "https://fonts.axept.io",
+    "https://static.axept.io",
+    "img-src",
+    "media-src",
+    "script-src",
+    "t.parentnode.insertbefore",
+    "window.axeptiosettings"
   ]
 }

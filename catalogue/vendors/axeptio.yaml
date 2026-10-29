@@ -1,0 +1,40 @@
+id: axeptio
+name: Axeptio
+category: consent
+website: https://www.axeptio.eu
+sources:
+  - https://support.axeptio.eu/en/articles/273997-axeptio-csp-configuration
+lastVerified: 2026-10-29
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Use 'strict-dynamic' and a per-response nonce in script-src, and pass the same nonce to the widget
+    through axeptioSettings.
+notes: >-
+  Follows the article's "absolute minimum" list for granular policies. The article also suggests a wider
+  pattern (https://*.axept.io in script-src, 'unsafe-inline' in default-src). Its lists spell the video host
+  both axeptio-video.imgix.net and axeptio-videos.imgix.net, so both are listed.
+features:
+  - id: widget
+    label: Consent widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://static.axept.io]
+        reason: Loads the consent widget.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The widget is started by an inline script (not needed with a nonce).
+      - type: connect
+        sources: [https://*.axept.io, https://*.axeptio.eu, https://*.axeptio.tech]
+        reason: Talks to Axeptio's servers.
+      - type: img
+        sources: [https://axeptio.imgix.net, https://favicons.axept.io, https://*.gstatic.com]
+        reason: Widget images.
+      - type: font
+        sources: [https://fonts.axept.io]
+        reason: Widget fonts.
+      - type: media
+        sources: [https://axeptio-video.imgix.net, https://axeptio-videos.imgix.net]
+        reason: Videos shown in the widget.

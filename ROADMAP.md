@@ -32,7 +32,7 @@ Known gaps:
 - [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).
 
-Tools to add (official docs only): Didomi, OneTrust, Cookiebot, Axeptio, Meta Pixel, TikTok Pixel,
+Tools to add (official docs only): Didomi, OneTrust, Cookiebot, Meta Pixel, TikTok Pixel,
 LinkedIn Insight Tag, Microsoft Clarity, Matomo, Piano Analytics, Segment, Mixpanel, Amplitude, HubSpot,
 Zendesk, Crisp, Stripe.js, YouTube and Vimeo embeds, reCAPTCHA, Cloudflare Turnstile.
 
