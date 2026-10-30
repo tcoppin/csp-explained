@@ -11,16 +11,19 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Each job asks for what it needs; only the deploy job can get AWS credentials.
 permissions:
   contents: read
-  id-token: write # GitHub OIDC → short-lived AWS credentials
 
 concurrency:
   group: deploy
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Skips the deploy, and its approval, when nothing the site is built from changed since the commit
+  # that is live: workflows, infra/ (deployed by hand), tests, scripts and Markdown docs don't count.
+  # A manual run always deploys.
+  changes:
     # Only after CI on a push to this repository's main: the branch filter above also matches pull
     # requests from a fork's own "main", which must never reach production.
     if: >-
@@ -29,7 +32,51 @@ jobs:
        github.event.workflow_run.event == 'push' &&
        github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: read
+    outputs:
+      site: ${{ steps.diff.outputs.site }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+      - name: Compare with the commit that is live
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+          NOT_SITE: '^(\.github/|\.githooks/|infra/|tests/|scripts/|[^/]+\.md$|LICENSE$|catalogue/doc-snapshots\.json$|playwright\.config\.ts$|vitest\.config\.ts$)|\.test\.ts$'
+        run: |
+          if [ "$MANUAL" = true ]; then echo "site=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # The deploy job marks the commit it put live with a "deploy/production" commit status.
+          live=""
+          for sha in $(git rev-list --first-parent --max-count=50 HEAD); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/statuses" --jq 'map(select(.context == "deploy/production"))[0].state // ""')
+            if [ "$state" = success ]; then live=$sha; break; fi
+          done
+          if [ -z "$live" ]; then
+            echo "No deployed commit among the last 50: deploying." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "site=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          site_files=$(git diff --name-only "$live" HEAD | grep -E -v "$NOT_SITE" || true)
+          if [ -n "$site_files" ]; then
+            echo "site=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing the site is built from changed since ${live:0:7}: no deploy." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "site=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
+    runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC → short-lived AWS credentials
+      statuses: write # marks the deployed commit, for the next run's comparison
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -52,11 +99,20 @@ jobs:
         run: aws s3 sync dist/_astro "s3://${{ vars.SITE_BUCKET }}/_astro" --delete --cache-control "public, max-age=31536000, immutable"
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id "${{ vars.DISTRIBUTION_ID }}" --paths "/*"
+      - name: Mark the commit as live
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -f state=success -f context=deploy/production -f description="Live on the site"
 
-  # Once the site is live: if the commits since the last tag call for a release (feat, fix, breaking change),
-  # tag the deployed commit and publish the GitHub release. Versions come from commit titles (scripts/release.ts).
+  # Once the site is live (or had nothing to deploy): if the commits since the last tag call for a release
+  # (feat, fix, breaking change), tag the commit and publish the GitHub release. Versions come from commit
+  # titles (scripts/release.ts). Not after a failed or rejected deploy.
   release:
-    needs: deploy
+    needs: [changes, deploy]
+    if: >-
+      always() && needs.changes.result == 'success' &&
+      (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
