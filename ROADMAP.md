@@ -144,7 +144,14 @@ the plain-language voice better than "CSP Explainer".
       it stays on the device, and that anyone using the same browser can see it. Pairs with comparing two
       policies.
 - [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
-- [ ] Policy builder for people starting from nothing, driven by the tools they use.
+- [x] **Policy builder** (`/build`, 2026-10-30): start from nothing (a tight allowlist, or a nonce with
+      `'strict-dynamic'` when the site can add one) or from an existing policy, answer a few questions about the
+      site's own pages, pick catalogue tools or describe your own. Every added value says who asked for it.
+      Own tools stay in the link and in the browser's storage. Hand-offs both ways with the analyzer.
+  - [ ] Hashes for inline scripts and styles: paste the code, get its `'sha256-…'`, as an alternative to
+        `'unsafe-inline'` when a nonce isn't possible.
+  - [ ] Directives beyond fetch: `report-to` with a `Reporting-Endpoints` header, `frame-ancestors` choices,
+        Trusted Types (pairs with the reporting and Trusted Types items below).
 - [ ] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like.
 - [ ] Trusted Types explainer and compatibility notes per tool.
 - [ ] Print-friendly / PDF export of the reports.
