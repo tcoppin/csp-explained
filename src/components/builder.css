@@ -1,0 +1,348 @@
+.builder {
+  margin-top: 1.5rem;
+  scroll-margin-top: 1rem;
+}
+.builder-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Steps: numbered, the current one underlined like the analyzer's tabs */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0;
+}
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  padding: 0.35rem 0.1rem;
+  color: var(--ink-soft);
+  font: inherit;
+}
+.step:not(:disabled):hover {
+  color: var(--ink);
+}
+.step:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.step[aria-current='step'] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--action);
+}
+.step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: var(--step--1);
+}
+
+.builder-grid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 60rem) {
+  .builder-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+  .step-review .builder-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .builder-preview {
+    position: sticky;
+    top: 1rem;
+  }
+}
+.builder-step h2 {
+  margin-top: 0;
+}
+.builder-step h3 {
+  margin-top: 2rem;
+}
+
+/* Live preview: the policy as it stands, what was added highlighted */
+.builder-preview {
+  border-left: 2px solid var(--rule);
+  padding-left: 1.25rem;
+}
+.builder-preview h2 {
+  font-size: var(--step-0);
+  margin: 0 0 0.75rem;
+}
+.preview-policy {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.preview-line {
+  display: block;
+}
+.preview-directive {
+  font-weight: 700;
+}
+.preview-policy .tok {
+  padding: 0.05em 0.2em;
+}
+
+/* Questions answered by picking one or several options */
+.choices {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+.choices legend {
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+.choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+.choice input {
+  margin-top: 0.3rem;
+  accent-color: var(--action);
+}
+.choice > span {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin: 1.25rem 0;
+}
+.field > label,
+.field > span {
+  font-weight: 700;
+}
+.field input,
+.own-row input,
+.own-row select {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+.field input:focus,
+.own-row input:focus,
+.own-row select:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.req-added::before {
+  content: '+';
+  color: var(--ok);
+}
+
+.step-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+.step-nav .button:not(.quiet) {
+  margin-left: auto;
+}
+
+/* Own tools */
+.own-tools {
+  margin-top: 2.5rem;
+}
+.own-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+}
+.own-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.own-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.own-summary .tag {
+  font-size: var(--step--1);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+.own-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+.own-editor {
+  border-left: 4px solid var(--rule);
+  padding-left: 1.25rem;
+  margin: 1rem 0;
+}
+.own-rows {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.own-rows legend {
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 0.35rem;
+}
+.own-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 40rem) {
+  .own-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.own-saved {
+  margin-top: 1rem;
+}
+
+/* Review */
+.who-asked {
+  border-left: 4px solid var(--action);
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
+}
+.who-asked h3 {
+  margin: 0 0 0.35rem;
+  font-size: var(--step-0);
+}
+.who-asked ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.who-asked p {
+  margin: 0;
+}
+.companion-note {
+  border-left: 4px solid var(--warn);
+  padding-left: 1rem;
+  margin: 2rem 0;
+}
+.companion-note h3 {
+  margin-top: 0;
+}
+
+/* Tools folded to a summary line; the last one picked starts open */
+.tool-list {
+  margin-top: 1rem;
+}
+.tool {
+  border-bottom: 1px solid var(--rule);
+}
+.tool summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+}
+.tool-name {
+  font-weight: 700;
+}
+.tool-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.tool-status .tag {
+  font-size: var(--step--1);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--ink-soft);
+}
+.tool-status .tag-ok {
+  color: var(--ok);
+  border-color: currentColor;
+}
+.tool-status .tag-warn {
+  color: var(--warn);
+  border-color: currentColor;
+}
+.tool-status .tag-bad {
+  color: var(--bad);
+  border-color: currentColor;
+}
+.tool-body {
+  border-left: 4px solid var(--rule);
+  padding: 0 0 0.5rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.tool-body .requirements {
+  margin-top: 0;
+}
+.req-sources {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.6rem;
+}
+.describe {
+  border-top: 1px solid var(--rule);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+}
+.link-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--action);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.own-storage {
+  margin-top: 1rem;
+}
+
+/* Review tabs */
+.review .tablist {
+  margin-bottom: 1rem;
+}
+.review > .actions {
+  margin-top: 1.5rem;
+}

@@ -6,11 +6,26 @@ import { matchesTool } from '../lib/catalogue/search';
 import { NewTabLink } from './NewTabLink';
 import { useT } from './i18n';
 
+/** A tool the visitor described, listed in its own group before the catalogue. */
+export interface OwnOption {
+  id: string;
+  name: string;
+}
+
 interface Props {
   vendors: Vendor[];
-  /** Selected vendor ids, in the order they were picked. */
+  /** Selected ids (vendors and own tools), in the order they were picked. */
   selected: string[];
   onToggle: (id: string) => void;
+  own?: OwnOption[];
+  /** Offers to describe a tool that isn't listed, starting from what was typed. */
+  onDescribe?: (name: string) => void;
+}
+
+interface Option {
+  id: string;
+  name: string;
+  partial?: boolean;
 }
 
 const LISTBOX_ID = 'tool-listbox';
@@ -20,7 +35,7 @@ const optionId = (id: string) => `tool-option-${id}`;
  * Searchable multi-select (ARIA combobox + multi-selectable listbox). Picked tools show as
  * removable chips; the list stays open after picking so several tools can be added in a row.
  */
-export function ToolPicker({ vendors, selected, onToggle }: Props) {
+export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }: Props) {
   const t = useT();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -29,13 +44,18 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
 
   const groups = useMemo(
     () =>
-      groupByCategory(vendors, t)
-        .map((g) => ({ ...g, vendors: g.vendors.filter((v) => matchesTool(v, query, g.label)) }))
-        .filter((g) => g.vendors.length > 0),
-    [vendors, query, t],
+      [
+        { id: 'own', label: t('build.own.group'), options: own.filter((o) => matchesTool(o, query)) as Option[] },
+        ...groupByCategory(vendors, t).map((g) => ({
+          id: g.id,
+          label: g.label,
+          options: g.vendors.filter((v) => matchesTool(v, query, g.label)).map((v) => ({ id: v.id, name: v.name, partial: v.confidence === 'partial' })),
+        })),
+      ].filter((g) => g.options.length > 0),
+    [vendors, own, query, t],
   );
-  const visible = groups.flatMap((g) => g.vendors);
-  const byId = new Map(vendors.map((v) => [v.id, v]));
+  const visible = groups.flatMap((g) => g.options);
+  const byId = new Map<string, { name: string }>([...vendors, ...own].map((v) => [v.id, v]));
 
   // Keep the active option valid and in view.
   const activeId = active && visible.some((v) => v.id === active) ? active : visible[0]?.id;
@@ -151,7 +171,7 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
                     {g.label}
                   </span>
                   <ul role="group" aria-labelledby={`tool-group-${g.id}`}>
-                    {g.vendors.map((v) => {
+                    {g.options.map((v) => {
                       const isSelected = selected.includes(v.id);
                       return (
                         <li
@@ -171,7 +191,7 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
                             </svg>
                           </span>
                           {v.name}
-                          {v.confidence === 'partial' && <span class="option-note">{t('vendors.partialShort')}</span>}
+                          {v.partial && <span class="option-note">{t('vendors.partialShort')}</span>}
                         </li>
                       );
                     })}
@@ -180,6 +200,21 @@ export function ToolPicker({ vendors, selected, onToggle }: Props) {
               ))}
             </ul>
             {visible.length === 0 && <p class="no-match">{t('vendors.noMatch', { query })}</p>}
+            {onDescribe && (
+              <p class="describe">
+                <button
+                  type="button"
+                  class="button quiet"
+                  onClick={() => {
+                    onDescribe(query.trim());
+                    setQuery('');
+                    setOpen(false);
+                  }}
+                >
+                  {query.trim() ? t('build.own.describe', { query: query.trim() }) : t('build.own.describeAny')}
+                </button>
+              </p>
+            )}
             <p class="suggest">
               <NewTabLink href={suggestUrl} label={t('vendors.suggest')} />
             </p>
