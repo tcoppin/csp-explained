@@ -35,7 +35,8 @@ export function overallVerdict(results: RequirementResult[]): RequirementVerdict
   return results.reduce<RequirementVerdict>((acc, r) => (RANK[r.verdict] > RANK[acc] ? r.verdict : acc), 'allowed');
 }
 
-const findingKey = (f: SecurityFinding) => `${f.policyIndex}|${f.id}|${f.directive}|${f.value ?? ''}`;
+/** Identifies a finding in a policy, to tell the findings a change introduces from those already there. */
+const sameFinding = (f: SecurityFinding) => `${f.policyIndex}|${f.id}|${f.directive}|${f.value ?? ''}`;
 
 export function analyze(input: string, selections: VendorSelection[], origin = DEFAULT_ORIGIN): Analysis {
   const parsed = parse(input);
@@ -53,8 +54,8 @@ export function analyze(input: string, selections: VendorSelection[], origin = D
       const after = patches.find((x) => x.policyIndex === i)?.after;
       return after === undefined ? p : parseSinglePolicy(after, p.origin, p.reportOnly);
     });
-    const before = new Set(findings.map(findingKey));
-    introducedFindings = evaluateSecurity({ policies: patched }).filter((f) => !before.has(findingKey(f)));
+    const before = new Set(findings.map(sameFinding));
+    introducedFindings = evaluateSecurity({ policies: patched }).filter((f) => !before.has(sameFinding(f)));
   }
 
   return { parsed, origin, vendors, patches, findings, introducedFindings };
