@@ -104,9 +104,9 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const currentIndex = Math.min(policyIndex, Math.max(parsed.policies.length - 1, 0));
   const policy = parsed.policies[currentIndex];
 
-  // Select the first directive whenever the policy changes shape.
+  // Select the first directive whenever the policy changes shape, or another policy is shown.
   const activeSelection =
-    selection && parsed.policies[selection.policyIndex]?.directives[selection.directiveIndex]
+    selection && selection.policyIndex === currentIndex && policy?.directives[selection.directiveIndex]
       ? selection
       : policy && policy.directives.length > 0
         ? { policyIndex: currentIndex, directiveIndex: 0 }
@@ -303,14 +303,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
             {view === 'read' && (
               <div {...tabPanelProps('view', 'read')} class="panel">
                 <div class="panel-head">
-                  <PolicySwitch
-                    parsed={parsed}
-                    value={currentIndex}
-                    onChange={(i) => {
-                      setPolicyIndex(i);
-                      setSelection(undefined);
-                    }}
-                  />
+                  <PolicySwitch parsed={parsed} value={currentIndex} onChange={setPolicyIndex} />
                   <p class="muted">{t('analyzer.clickHint')}</p>
                 </div>
                 <div class="decoded-grid">
@@ -322,7 +315,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     selection={activeSelection}
                     onSelect={setSelection}
                   />
-                  {activeSelection && activeSelection.policyIndex === currentIndex && (
+                  {activeSelection && (
                     <div class="explanation-slot">
                       <Explanation policy={policy} selection={activeSelection} issues={parsed.issues} audience={audience} content={content} />
                     </div>

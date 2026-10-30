@@ -189,6 +189,17 @@ test('views can be switched with the keyboard', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toContainText('Scripts');
 });
 
+test('switching policy on another view still explains the policy shown', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self', img-src 'self'");
+  await page.locator('.policy').getByRole('button', { name: "'self'" }).click();
+  await expect(page.locator('.explanation')).toContainText('script-src');
+  await page.getByRole('tab', { name: 'What it allows' }).click();
+  await page.getByRole('radio', { name: 'Policy 2' }).click();
+  await page.getByRole('tab', { name: /Read it/ }).click();
+  await expect(page.locator('.explanation')).toContainText('img-src');
+});
+
 test("the allow map shows the sources 'strict-dynamic' makes the browser ignore", async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'nonce-abc' 'strict-dynamic' https://cdn.vendor.test");
