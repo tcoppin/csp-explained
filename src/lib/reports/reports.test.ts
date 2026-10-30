@@ -75,6 +75,13 @@ describe('developer report', () => {
     expect(JSON.parse(deploySnippet(a, 'vercel')).headers[0].headers[0].key).toBe('Content-Security-Policy');
   });
 
+  it('escapes quotes in the policy inside quoted snippets', () => {
+    const odd = analyze(`script-src 'self' "x\\y"`, [{ vendor: abTasty, features: tag }]);
+    expect(deploySnippet(odd, 'nginx')).toContain(`'self' \\"x\\\\y\\" *.abtasty.com`);
+    expect(deploySnippet(odd, 'apache')).toContain(`'self' \\"x\\\\y\\" *.abtasty.com`);
+    expect(deploySnippet(odd, 'cloudfront')).toContain(`'self' \\"x\\\\y\\" *.abtasty.com`);
+  });
+
   it('produces markdown', () => {
     expect(developerReport(a, t)).toContain('```diff');
   });

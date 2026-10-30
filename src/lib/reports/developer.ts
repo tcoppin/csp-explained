@@ -7,6 +7,9 @@ export type Target = (typeof TARGETS)[number];
 
 const headerName = (reportOnly: boolean) => (reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy');
 
+/** The policy as a double-quoted nginx or Apache string: whatever was pasted can't end the string early. */
+const quoted = (text: string) => `"${text.replace(/["\\]/g, '\\$&')}"`;
+
 /** Directive-per-line diff of every changed policy. */
 export function policyDiff(a: Analysis): string {
   return a.patches
@@ -39,9 +42,9 @@ export function deploySnippet(a: Analysis, target: Target): string {
   const policies = patchedPolicies(a);
   switch (target) {
     case 'nginx':
-      return policies.map((p) => `add_header ${headerName(p.reportOnly)} "${p.text}" always;`).join('\n');
+      return policies.map((p) => `add_header ${headerName(p.reportOnly)} ${quoted(p.text)} always;`).join('\n');
     case 'apache':
-      return policies.map((p) => `Header always set ${headerName(p.reportOnly)} "${p.text}"`).join('\n');
+      return policies.map((p) => `Header always set ${headerName(p.reportOnly)} ${quoted(p.text)}`).join('\n');
     case 'cloudfront': {
       // Response headers policy (CloudFormation / CDK). Only one CSP header can be set this way.
       const enforced = policies.find((p) => !p.reportOnly) ?? policies[0];
@@ -49,7 +52,8 @@ export function deploySnippet(a: Analysis, target: Target): string {
         'ResponseHeadersPolicyConfig:',
         '  SecurityHeadersConfig:',
         '    ContentSecurityPolicy:',
-        `      ContentSecurityPolicy: "${enforced?.text ?? ''}"`,
+        // A JSON string is a valid double-quoted YAML string.
+        `      ContentSecurityPolicy: ${JSON.stringify(enforced?.text ?? '')}`,
         '      Override: true',
       ].join('\n');
     }
