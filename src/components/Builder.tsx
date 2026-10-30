@@ -1,9 +1,10 @@
-import { useMemo } from 'preact/hooks';
+import { useEffect, useMemo, useRef } from 'preact/hooks';
 import { translator, type Locale } from '../i18n';
 import type { ContentBundle } from '../lib/content';
 import type { Audience } from '../lib/csp/model';
 import { STEPS, type Step } from './build-state';
 import { PolicyPreview, ReviewPanel, SitePanel, StartPanel, ToolsPanel } from './BuildPanels';
+import { track } from '../scripts/track';
 import { I18n } from './i18n';
 import { Rich } from './Rich';
 import { Segmented } from './Segmented';
@@ -36,6 +37,14 @@ export default function Builder({ content, locale }: Props) {
     </Segmented>
   );
   const canContinue = b.start !== undefined && b.built.policy !== undefined;
+
+  // Count one built policy per page load, when it is first shown.
+  const counted = useRef(false);
+  useEffect(() => {
+    if (counted.current || b.step !== 'review' || !canContinue || !b.start) return;
+    counted.current = true;
+    track('build', { start: b.start });
+  }, [b.step, canContinue, b.start]);
   const panel = (s: Step) =>
     s === 'start' ? <StartPanel b={b} /> : s === 'site' ? <SitePanel b={b} /> : s === 'tools' ? <ToolsPanel b={b} /> : <ReviewPanel b={b} content={content} />;
   const preview = (

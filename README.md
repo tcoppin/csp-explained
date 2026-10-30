@@ -5,9 +5,11 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 - **An annotated policy**: every directive and value is highlighted and explained, for three audiences (everyone, developers, security teams).
 - **What it allows**: for each type of content, where the browser accepts it from.
 - **Tool compatibility**: "Will Google Tag Manager / AB Tasty / Intercom… work with this policy? If not, which line is missing?"
+- **A policy builder**: start from nothing or from your policy, add the tools you use (or describe your own), and get a policy where every value says who asked for it.
 - **A report per audience**: a message for IT that people can send as is (email, chat, ticket), a diff plus server snippets for developers, and a security review for security teams.
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).
+Tools described in the builder are also remembered in the browser's own storage, never sent anywhere.
 
 ## Usage counts
 
@@ -22,9 +24,11 @@ To know whether the site is useful, it counts visits and a few actions. That's a
 | `tool` | A tool is added in the tool picker | The tool's catalogue id |
 | `copy-report` | A report is copied | The audience and the part copied (message, diff, deploy snippet, Markdown) |
 | `copy-snippet` | The Find my CSP console snippet is copied | None |
+| `build` | The builder's policy is shown (once per page load) | What it started from: `allowlist`, `nonce` or `policy` |
+| `copy-build` | The built policy is copied | `policy`, or the deploy target (e.g. `nginx`) |
 
-What is never sent: the policy, the site address, the share link, any identifier. There are no cookies, nothing is stored
-in the browser for counting, and no third-party service is involved.
+What is never sent: the policy, the site address, the share link, the tools you describe, any identifier. There are no
+cookies, nothing is stored in the browser for counting, and no third-party service is involved.
 
 How it works, so you can check it:
 

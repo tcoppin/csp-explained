@@ -7,6 +7,7 @@ import type { ContentBundle } from '../lib/content';
 import type { Audience, Policy } from '../lib/csp/model';
 import { deploySnippet, headersBesideMeta, TARGETS, type Target } from '../lib/reports/developer';
 import { findingText } from '../lib/reports/security';
+import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 import { Explanation } from './Explanation';
 import { useT } from './i18n';
@@ -449,9 +450,9 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
             onChange={setTarget}
             label={t('report.developer.deploy')}
           />
-          {snippet && <CodeBox caption={t(`report.developer.targetCaptions.${target}`)} copyText={snippet} />}
-          {metaHeaders && <CodeBox caption={t('report.developer.metaHeaders')} copyText={metaHeaders} />}
-          <CodeBox caption={t('build.review.policyCaption')} copyText={built.text} />
+          {snippet && <CodeBox caption={t(`report.developer.targetCaptions.${target}`)} copyText={snippet} onCopy={() => track('copy-build', { kind: target })} />}
+          {metaHeaders && <CodeBox caption={t('report.developer.metaHeaders')} copyText={metaHeaders} onCopy={() => track('copy-build', { kind: target })} />}
+          <CodeBox caption={t('build.review.policyCaption')} copyText={built.text} onCopy={() => track('copy-build', { kind: 'policy' })} />
         </div>
       )}
 

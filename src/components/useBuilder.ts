@@ -5,6 +5,7 @@ import { baselinePolicy, buildPolicy, customContribution, siteContribution, type
 import { requirementsOf } from '../lib/catalogue/requirements';
 import type { ContentBundle } from '../lib/content';
 import type { Audience } from '../lib/csp/model';
+import { track } from '../scripts/track';
 import { decodeBuildState, encodeBuildState, loadTools, saveTools, type Start, type Step } from './build-state';
 import { loadAudience, saveAudience, toOrigin } from './state';
 
@@ -97,6 +98,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
       else if (vendor) {
         next[id] = vendor.features.filter((f) => f.default).map((f) => f.id);
         setLastPicked(id);
+        track('tool', { tool: id });
       }
       setVendors(next);
     },
