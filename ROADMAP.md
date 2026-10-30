@@ -138,6 +138,11 @@ the plain-language voice better than "CSP Explainer".
 ## Ideas backlog
 
 - [ ] Compare two policies (before/after, staging vs production) with a plain-language diff.
+- [ ] **Recent analyses** (added 2026-10-30): keep the last policies analysed, with the tools picked and the
+      audience, in the browser's own storage only, never sent anywhere. A history list to reopen one where it
+      was left, delete one, or clear them all. Off switch remembered on the device; say on the About page that
+      it stays on the device, and that anyone using the same browser can see it. Pairs with comparing two
+      policies.
 - [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
 - [ ] Policy builder for people starting from nothing, driven by the tools they use.
 - [ ] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like.
