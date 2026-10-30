@@ -20,6 +20,10 @@ export const USAGE_EVENTS = {
   'copy-report': ['audience', 'kind'],
   /** The Find my CSP console snippet was copied. */
   'copy-snippet': [],
+  /** The builder's policy was shown (once per page load), and what it started from: allowlist, nonce or policy. */
+  build: ['start'],
+  /** The built policy was copied: on its own (`policy`) or as a deploy snippet (the target, e.g. `nginx`). */
+  'copy-build': ['kind'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type UsageEvent = keyof typeof USAGE_EVENTS;
