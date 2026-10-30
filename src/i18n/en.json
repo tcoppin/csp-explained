@@ -66,6 +66,7 @@
     "whatYouGet": "You'll get a plain-language explanation, what the policy allows, whether your tools will work with it, and a message for your IT team.",
     "rules": { "one": "{count} rule", "other": "{count} rules" },
     "edit": "Edit",
+    "build": "Open in the builder",
     "hideEditor": "Done",
     "policiesShort": "{count} policies",
     "yourPolicy": "Your policy",

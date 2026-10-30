@@ -66,6 +66,7 @@
     "whatYouGet": "Vous obtiendrez une explication en termes simples, ce que la politique autorise, si vos outils fonctionneront avec elle et un message pour votre équipe informatique.",
     "rules": { "one": "{count} règle", "other": "{count} règles" },
     "edit": "Modifier",
+    "build": "Ouvrir dans le constructeur",
     "hideEditor": "Terminé",
     "policiesShort": "{count} politiques",
     "yourPolicy": "Votre politique",

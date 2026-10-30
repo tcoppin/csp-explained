@@ -88,10 +88,12 @@ interface SummaryProps {
   policy: Policy | undefined;
   onEdit: () => void;
   onClear: () => void;
+  /** The builder, opened on this policy and its tools. */
+  buildHref: string;
 }
 
 /** The folded editor: what was found, and the actions on it. */
-export function PolicySummary({ parsed, policy, onEdit, onClear }: SummaryProps) {
+export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: SummaryProps) {
   const t = useT();
   const { copied: shared, copy } = useCopy();
   const ruleCount = parsed.policies.reduce((n, p) => n + p.directives.length, 0);
@@ -118,6 +120,9 @@ export function PolicySummary({ parsed, policy, onEdit, onClear }: SummaryProps)
           <button type="button" class="button quiet" onClick={() => copy(location.href)} title={t('analyzer.shareHint')}>
             {shared ? t('analyzer.shared') : t('analyzer.share')}
           </button>
+          <a class="button quiet" href={buildHref}>
+            {t('analyzer.build')}
+          </a>
           <button type="button" class="button quiet" onClick={onClear}>
             {t('analyzer.clear')}
           </button>
