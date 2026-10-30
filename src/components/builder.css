@@ -339,9 +339,12 @@
   margin-top: 1rem;
 }
 
-/* Review tabs */
-.review .tablist {
-  margin-bottom: 1rem;
+/* Review tabs: the panel sits close under them */
+.review .panel {
+  padding-top: 1rem;
+}
+.review .panel > p.muted:first-child {
+  margin-top: 0;
 }
 .review > .actions {
   margin-top: 1.5rem;
