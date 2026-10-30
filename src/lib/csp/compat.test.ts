@@ -58,6 +58,14 @@ describe('checkRequirements + buildPatches', () => {
     expect(buildPatches(parsed, results)).toEqual([]);
   });
 
+  it('does not patch a source that is already listed but ignored', () => {
+    // The nonce makes browsers ignore 'unsafe-inline': adding it again would fix nothing.
+    const parsed = parse("default-src 'self' 'unsafe-inline' 'nonce-abc123'");
+    const results = checkRequirements(parsed, [{ type: 'inline-handler', source: "'unsafe-inline'", reason: '' }], SELF);
+    expect(results[0]!.verdict).toBe('blocked');
+    expect(buildPatches(parsed, results)).toEqual([]);
+  });
+
   it('only reports when every policy is report-only', () => {
     const parsed = parse("Content-Security-Policy-Report-Only: default-src 'self'");
     expect(checkRequirements(parsed, [vendor[0]!], SELF)[0]!.verdict).toBe('reported');

@@ -50,7 +50,6 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
       let target = governing.name;
       let pending: Pending;
       const changes = perPolicy.get(check.policyIndex) ?? new Map<string, Pending>();
-      perPolicy.set(check.policyIndex, changes);
 
       if (governing.name === 'default-src' && canonical !== 'default-src') {
         target = canonical;
@@ -65,8 +64,11 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
       }
 
       const already = new Set([...pending.base, ...pending.added].map((v) => v.toLowerCase()));
-      if (!already.has(r.requirement.source.toLowerCase())) pending.added.push(r.requirement.source);
+      // Already listed but ignored (e.g. 'unsafe-inline' next to a nonce): adding it again would change nothing.
+      if (already.has(r.requirement.source.toLowerCase())) continue;
+      pending.added.push(r.requirement.source);
       changes.set(target, pending);
+      perPolicy.set(check.policyIndex, changes);
     }
   }
 
