@@ -13,6 +13,7 @@ import { PolicyView, type Selection } from './PolicyView';
 import { ReportPanel } from './ReportPanel';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
 import { TabList, tabPanelProps } from './Tabs';
+import { useCopy } from './useCopy';
 import { VendorChecker } from './VendorChecker';
 import './analyzer.css';
 
@@ -58,7 +59,6 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const [selectedVendors, setSelectedVendors] = useState<Record<string, string[]>>({});
   const [selection, setSelection] = useState<Selection | undefined>();
   const [policyIndex, setPolicyIndex] = useState(0);
-  const [shared, setShared] = useState(false);
   // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
@@ -144,15 +144,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     saveAudience(a);
   };
 
-  const share = async () => {
-    try {
-      await navigator.clipboard.writeText(location.href);
-      setShared(true);
-      setTimeout(() => setShared(false), 1800);
-    } catch {
-      // The address bar already holds the link.
-    }
-  };
+  const { copied: shared, copy } = useCopy();
 
   const issues = parsed.issues.filter((i) => i.code !== 'empty-input');
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
@@ -250,7 +242,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   <button type="button" class="button quiet" onClick={() => setEditing(true)}>
                     {t('analyzer.edit')}
                   </button>
-                  <button type="button" class="button quiet" onClick={share} title={t('analyzer.shareHint')}>
+                  <button type="button" class="button quiet" onClick={() => copy(location.href)} title={t('analyzer.shareHint')}>
                     {shared ? t('analyzer.shared') : t('analyzer.share')}
                   </button>
                   <button

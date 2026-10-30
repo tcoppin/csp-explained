@@ -10,25 +10,16 @@ import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/si
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 import { useT } from './i18n';
+import { useCopy } from './useCopy';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 
 function CopyButton({ text, label, onCopy }: { text: string; label?: string; onCopy?: () => void }) {
   const t = useT();
-  const [done, setDone] = useState(false);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      onCopy?.();
-      setDone(true);
-      setTimeout(() => setDone(false), 1800);
-    } catch {
-      // Clipboard can be blocked; the text stays selectable.
-    }
-  };
+  const { copied, copy } = useCopy(onCopy);
   return (
-    <button type="button" class="button" onClick={copy}>
-      {done ? t('report.copied') : (label ?? t('report.copy'))}
+    <button type="button" class="button" onClick={() => copy(text)}>
+      {copied ? t('report.copied') : (label ?? t('report.copy'))}
     </button>
   );
 }
