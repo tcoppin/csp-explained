@@ -210,7 +210,8 @@
         "vercel": "Add to vercel.json",
         "express": "Add to your Express app",
         "meta": "Add to the <head> of every page"
-      }
+      },
+      "metaHeaders": "Browsers ignore these in a <meta> tag: send them as HTTP headers from your server"
     },
     "security": {
       "title": "Security review",

@@ -6,7 +6,7 @@ import { analyze } from '../analysis';
 import { parseVendor } from '../catalogue/schema';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
-import { deploySnippet, developerReport, policyDiff } from './developer';
+import { deploySnippet, developerReport, headersBesideMeta, policyDiff } from './developer';
 import { findingText, securityReport } from './security';
 import { itRequest } from './simple';
 
@@ -73,6 +73,16 @@ describe('developer report', () => {
     expect(deploySnippet(a, 'express')).toContain('scriptSrc: ["\'self\'", "*.abtasty.com", "\'unsafe-inline\'"]');
     expect(deploySnippet(a, 'meta')).toContain('<meta http-equiv="Content-Security-Policy"');
     expect(JSON.parse(deploySnippet(a, 'vercel')).headers[0].headers[0].key).toBe('Content-Security-Policy');
+  });
+
+  it('moves what a <meta> tag cannot carry to HTTP headers', () => {
+    const input = `Content-Security-Policy: script-src 'self'; frame-ancestors 'none'; report-uri /csp\nContent-Security-Policy-Report-Only: img-src 'self'`;
+    const both = analyze(input, [{ vendor: abTasty, features: tag }]);
+    expect(deploySnippet(both, 'meta')).toBe(`<meta http-equiv="Content-Security-Policy" content="script-src 'self' *.abtasty.com 'unsafe-inline'">`);
+    expect(headersBesideMeta(both)).toBe(
+      "Content-Security-Policy: frame-ancestors 'none'; report-uri /csp\nContent-Security-Policy-Report-Only: img-src 'self'",
+    );
+    expect(headersBesideMeta(a)).toBe('');
   });
 
   it('escapes quotes in the policy inside quoted snippets', () => {

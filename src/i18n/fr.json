@@ -210,7 +210,8 @@
         "vercel": "À ajouter dans vercel.json",
         "express": "À ajouter dans votre application Express",
         "meta": "À ajouter dans le <head> de chaque page"
-      }
+      },
+      "metaHeaders": "Les navigateurs les ignorent dans une balise <meta> : envoyez-les en en-têtes HTTP depuis votre serveur"
     },
     "security": {
       "title": "Examen de sécurité",

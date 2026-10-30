@@ -1,5 +1,7 @@
 import type { Translate } from '../../i18n';
 import { patchedPolicies, type Analysis } from '../analysis';
+import { directiveInfo } from '../csp/directives';
+import { parseSinglePolicy } from '../csp/parser';
 
 /** Where a developer can deploy the policy, in display order. Labels and captions: `report.developer.targets.*`. */
 export const TARGETS = ['nginx', 'apache', 'cloudfront', 'netlify', 'vercel', 'express', 'meta'] as const;
@@ -23,6 +25,31 @@ export function policyDiff(a: Analysis): string {
       return lines.join('\n');
     })
     .join('\n\n');
+}
+
+/** Splits an enforced policy into what a <meta> tag can carry and the directives browsers ignore there. */
+function splitForMeta(policy: string): { meta: string; headerOnly: string } {
+  const directives = parseSinglePolicy(policy, 'meta').directives;
+  const text = (ignored: boolean) =>
+    directives
+      .filter((d) => Boolean(directiveInfo(d.name)?.ignoredInMeta) === ignored)
+      .map((d) => policy.slice(d.span.start, d.span.end))
+      .join('; ');
+  return { meta: text(false), headerOnly: text(true) };
+}
+
+/**
+ * What a <meta> tag can't carry, as HTTP headers to send next to it: report-only policies, and the directives
+ * browsers ignore in <meta> (frame-ancestors, sandbox, report-uri, report-to). Empty when there is none.
+ */
+export function headersBesideMeta(a: Analysis): string {
+  return patchedPolicies(a)
+    .flatMap((p) => {
+      if (p.reportOnly) return [`${headerName(true)}: ${p.text}`];
+      const { headerOnly } = splitForMeta(p.text);
+      return headerOnly ? [`${headerName(false)}: ${headerOnly}`] : [];
+    })
+    .join('\n');
 }
 
 function helmetDirectives(policy: string): string {
@@ -82,9 +109,12 @@ export function deploySnippet(a: Analysis, target: Target): string {
         )
         .join('\n\n');
     case 'meta':
+      // What a <meta> tag can't carry is in headersBesideMeta().
       return policies
         .filter((p) => !p.reportOnly)
-        .map((p) => `<meta http-equiv="Content-Security-Policy" content="${p.text.replace(/"/g, '&quot;')}">`)
+        .map((p) => splitForMeta(p.text).meta)
+        .filter((text) => text !== '')
+        .map((text) => `<meta http-equiv="Content-Security-Policy" content="${text.replace(/"/g, '&quot;')}">`)
         .join('\n');
   }
 }
