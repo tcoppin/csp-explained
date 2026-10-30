@@ -370,8 +370,19 @@ button.tok:hover {
   overflow-wrap: anywhere;
 }
 .explanation .crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
   color: var(--ink-soft);
   margin-bottom: 0.25rem;
+}
+/* The rule's name, outlined so it reads apart from its plain title without a separator */
+.explanation .crumb code {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0 0.35rem;
+  color: var(--ink);
 }
 .explanation .lead,
 .report .lead {
@@ -704,10 +715,14 @@ button.tok:hover {
   padding-left: 0.75rem;
 }
 .provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
   font-size: var(--step--1);
 }
-.provenance a + a {
-  margin-left: 0.5rem;
+.provenance-report {
+  margin-left: auto;
 }
 
 /* Report */
@@ -766,6 +781,14 @@ textarea.message {
 .finding .level {
   font-weight: 700;
   min-width: 5rem;
+}
+/* Which policy a finding is about: neutral, so it never reads as a status */
+.finding .tag {
+  font-size: var(--step--1);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--ink-soft);
 }
 .finding .desc {
   flex-basis: 100%;

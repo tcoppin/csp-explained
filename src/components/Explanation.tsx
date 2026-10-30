@@ -45,7 +45,8 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
       {value ? (
         <>
           <p class="crumb">
-            <code>{directive.name}</code> · {doc?.title}
+            <code>{directive.name}</code>
+            {doc && <span>{doc.title}</span>}
           </p>
           <h3>
             <code class={`tok ${highlightClass(value)}`}>{value.raw}</code>

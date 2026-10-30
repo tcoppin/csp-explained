@@ -97,9 +97,10 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
             {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.{' '}
             {vendor.sources.map((s, i) => (
               <NewTabLink key={s} href={s} label={t('vendors.sources') + (vendor.sources.length > 1 ? ` ${i + 1}` : '')} />
-            ))}{' '}
-            ·{' '}
-            <NewTabLink href={outdatedIssueUrl(vendor.id, vendor.name)} label={t('vendors.reportOutdated')} />
+            ))}
+            <span class="provenance-report">
+              <NewTabLink href={outdatedIssueUrl(vendor.id, vendor.name)} label={t('vendors.reportOutdated')} />
+            </span>
           </p>
         </section>
       ))}

@@ -156,7 +156,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
             {f.maybe && ` (${t('report.security.maybe')})`}
           </span>
           <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
-          {analysis.parsed.policies.length > 1 && <span class="muted"> · {t('analyzer.policy', { index: f.policyIndex + 1 })}</span>}
+          {analysis.parsed.policies.length > 1 && <span class="tag">{t('analyzer.policy', { index: f.policyIndex + 1 })}</span>}
           <span class="desc">{findingText(t, f)}</span>
         </li>
       ))}
