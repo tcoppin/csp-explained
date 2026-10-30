@@ -253,7 +253,7 @@ test('no word is glued to a link or inline code on any page', async ({ page }) =
   const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   await page.goto('/directives');
   const directivePages = await page.locator('main a[href^="/directives/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
-  const paths = ['/404', ...inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
+  const paths = ['/404', ...inEveryLanguage(['/', '/build', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
 
   const glued: string[] = [];
   for (const path of paths) {
@@ -345,7 +345,7 @@ test('the French site stays in French and links to the same page in English', as
   expect((await request.get('/og-image-fr.png')).headers()['content-type']).toBe('image/png');
 
   // Every link within the site, in the header, the page and the footer, stays on French pages.
-  for (const path of ['/fr', '/fr/learn', '/fr/find-my-csp', '/fr/vendors', '/fr/vendors/hotjar', '/fr/directives', '/fr/directives/script-src', '/fr/about']) {
+  for (const path of ['/fr', '/fr/build', '/fr/build#b=allowlist&step=review', '/fr/learn', '/fr/find-my-csp', '/fr/vendors', '/fr/vendors/hotjar', '/fr/directives', '/fr/directives/script-src', '/fr/about']) {
     await page.goto(path);
     const english = await page
       .locator('a[href^="/"]:not([data-lang-switch])')
@@ -430,7 +430,7 @@ test('the analyzer speaks French, and the IT message can be written in English',
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
-  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
     expect(res?.ok(), path).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
@@ -441,7 +441,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
 test('text fits a 360px phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
-  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
     // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
     const overflowing = await page.evaluate(() => {
@@ -462,7 +462,7 @@ test('text fits a 360px phone screen', async ({ page }) => {
 
 test('links to other websites open in a new tab and say so', async ({ page }) => {
   let checked = 0;
-  for (const path of inEveryLanguage(['/', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
     await page.goto(path);
     const links = page.locator('a[href^="http"]:not([href^="http://localhost"])');
     for (const link of await links.all()) {
@@ -521,4 +521,86 @@ test('the find-my-csp snippet works in the DevTools console, copy() included', a
   const expected = `Content-Security-Policy: default-src 'self'\n<meta http-equiv="Content-Security-Policy" content="img-src *">`;
   await expect.poll(() => copied).toEqual([expected]);
   expect(logs).toEqual([expected, 'Copied to your clipboard.']);
+});
+
+/** Waits until the builder island is interactive. */
+async function openBuilder(page: Page, path = '/build') {
+  await page.goto(path);
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+}
+
+test('builds a policy from nothing, with a catalogue tool and one of our own', async ({ page, context }) => {
+  const errors = watchErrors(page);
+  await openBuilder(page);
+  await page.getByRole('radio', { name: /^Nothing/ }).check();
+  await page.getByRole('radio', { name: /^No, or not sure/ }).check();
+  await page.getByRole('button', { name: 'Next: your site' }).click();
+
+  await page.getByRole('checkbox', { name: /Have styles written directly in the page/ }).check();
+  const preview = page.getByRole('complementary', { name: 'Your policy so far' });
+  await expect(preview).toContainText("style-src 'self' 'unsafe-inline'");
+  await page.getByRole('button', { name: 'Next: your tools' }).click();
+
+  await pickTool(page, 'Hotjar');
+  await expect(page.locator('details.tool[open] summary')).toContainText('Hotjar');
+  await expect(preview).toContainText('wss://*.hotjar.com');
+
+  // A tool the catalogue doesn't know, described from what was typed in the picker.
+  await page.getByRole('combobox', { name: 'Add a tool' }).fill('Our CDN');
+  await page.getByRole('button', { name: 'Describe “Our CDN” yourself' }).click();
+  await page.getByRole('combobox', { name: 'Kind of resource' }).selectOption('img');
+  await page.getByRole('textbox', { name: 'Addresses, separated by spaces' }).fill('cdn.example.org self');
+  await expect(page.getByText('Not understood by browsers: self.')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Addresses, separated by spaces' }).fill('https://cdn.example.org');
+  await page.getByRole('button', { name: 'Add this tool' }).click();
+  await expect(page.getByRole('list', { name: 'Selected tools' })).toContainText('Our CDN');
+  await expect(preview).toContainText('https://cdn.example.org');
+
+  await page.getByRole('button', { name: 'See your policy' }).click();
+  await page.locator('.policy').getByRole('button', { name: 'https://cdn.example.org' }).click();
+  await expect(page.locator('.who-asked')).toContainText('Our CDN: You added it for Our CDN.');
+  await page.getByRole('tab', { name: /Put it live/ }).click();
+  await page.locator('.code-block', { hasText: 'The policy on its own' }).getByRole('button', { name: 'Copy this' }).click();
+  await expect.poll(sent).toContain('n=copy-build&kind=policy');
+  expect(sent()).toContain('n=build&start=allowlist');
+  expect(sent()).toContain('n=tool&tool=hotjar');
+  for (const q of sent()) expect(q).not.toMatch(/cdn|example|Our/i);
+
+  // The link keeps everything, and the tool we described is remembered in this browser.
+  const again = await context.newPage();
+  await openBuilder(again, page.url().replace(/^.*?\/\/[^/]+/, ''));
+  await expect(again.locator('.policy')).toContainText('https://cdn.example.org');
+  const fresh = await context.newPage();
+  await openBuilder(fresh, '/build#b=allowlist&step=tools');
+  await fresh.getByRole('combobox', { name: 'Add a tool' }).click();
+  await expect(fresh.getByRole('group', { name: 'Your own tools' }).getByRole('option', { name: 'Our CDN' })).toBeVisible();
+  await fresh.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  await fresh.getByRole('button', { name: 'Forget the tools saved in this browser' }).click();
+  await fresh.getByRole('combobox', { name: 'Add a tool' }).click();
+  await expect(fresh.getByRole('group', { name: 'Your own tools' })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('with a nonce, the builder explains the placeholder and what waits on it', async ({ page }) => {
+  await openBuilder(page, '/build#b=nonce&n=inline-scripts&step=review');
+  await expect(page.locator('.policy')).toContainText("'nonce-REPLACE_PER_PAGE' 'strict-dynamic'");
+  await expect(page.locator('.policy')).not.toContainText("'unsafe-inline'");
+  await page.getByRole('tab', { name: /Things to know/ }).click();
+  await expect(page.getByRole('heading', { name: 'Replace the nonce placeholder' })).toBeVisible();
+  await expect(page.locator('.companion-note', { hasText: 'Waiting on the nonce' })).toContainText('Have code written directly in the page');
+});
+
+test('the analyzer opens its policy in the builder, and the builder sends it back', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await page.getByRole('link', { name: 'Open in the builder' }).click();
+  await expect(page).toHaveURL(/\/build#/);
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+  await expect(page.getByRole('radio', { name: /^The policy I have/ })).toBeChecked();
+  await expect(page.getByRole('textbox', { name: 'Your current policy' })).toHaveValue(/default-src/);
+
+  await page.getByRole('button', { name: /Your policy$/ }).click();
+  await page.getByRole('link', { name: 'Analyze this policy' }).click();
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+  await expect(page.getByRole('heading', { name: 'Your policy' })).toBeVisible();
 });
