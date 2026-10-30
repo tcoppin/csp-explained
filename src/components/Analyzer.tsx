@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
-import { translator, type Locale } from '../i18n';
+import { localePath, translator, type Locale } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
@@ -181,6 +181,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
               parsed={parsed}
               policy={policy}
               onEdit={() => setEditing(true)}
+              buildHref={localePath(locale, `/build#${encodeState({ policy: input, site, vendors: selectedVendors })}`)}
               onClear={() => {
                 setPolicy('', false);
                 setEditing(true);
