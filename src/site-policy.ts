@@ -17,6 +17,8 @@ export const META_DIRECTIVES = [
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
+  // Scripts can't write raw HTML (innerHTML and the like); in the <meta> part so the e2e suite enforces it.
+  "require-trusted-types-for 'script'",
 ];
 
 export const HEADER_POLICY = "frame-ancestors 'none'; object-src 'none'; base-uri 'none'; upgrade-insecure-requests";
