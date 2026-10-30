@@ -1,6 +1,6 @@
+import { Fragment } from 'preact';
 import { localePath, type Translate } from '../i18n';
 import { explainSource, type ContentBundle } from '../lib/content';
-import { Fragment } from 'preact';
 import { directiveInfo, DIRECTIVES } from '../lib/csp/directives';
 import { resolve } from '../lib/csp/fallback';
 import { issuesAt } from '../lib/csp/parser';
@@ -16,7 +16,7 @@ interface Props {
   content: ContentBundle;
 }
 
-function issueText(t: Translate, i: ParseIssue): string {
+export function issueText(t: Translate, i: ParseIssue): string {
   return t(`issues.${i.code}`, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
 }
 
@@ -121,5 +121,3 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
     </article>
   );
 }
-
-export { issueText };

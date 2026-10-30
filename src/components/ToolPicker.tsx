@@ -6,7 +6,6 @@ import { matchesTool } from '../lib/catalogue/search';
 import { NewTabLink } from './NewTabLink';
 import { useT } from './i18n';
 
-
 interface Props {
   vendors: Vendor[];
   /** Selected vendor ids, in the order they were picked. */

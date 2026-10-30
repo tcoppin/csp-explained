@@ -366,7 +366,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   analysis={analysis}
                   audience={audience}
                   site={site}
-                  vendorsIn={{ ...otherVendors, [locale]: content.vendors } as Record<Locale, Vendor[]>}
+                  vendorsIn={{ ...otherVendors, [locale]: content.vendors }}
                   onPickTools={() => goTo('tools')}
                 />
               </div>

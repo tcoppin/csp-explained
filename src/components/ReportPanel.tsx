@@ -43,7 +43,7 @@ interface Props {
   audience: Audience;
   site: string;
   /** Each language's tool texts, so the IT message can be written in another language than the page's. */
-  vendorsIn: Record<Locale, Vendor[]>;
+  vendorsIn: Partial<Record<Locale, Vendor[]>>;
   onPickTools: () => void;
 }
 
@@ -67,7 +67,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
   if (audience === 'simple') {
     if (analysis.vendors.length === 0) return noTools;
     const mt = messageLocale === t.locale ? t : translator(messageLocale);
-    const text = itRequest(withVendorText(analysis, vendorsIn[messageLocale]), mt, {
+    const text = itRequest(withVendorText(analysis, vendorsIn[messageLocale] ?? []), mt, {
       format,
       site,
       toolUrl: new URL(localePath(messageLocale, '/'), SITE_URL).href,
