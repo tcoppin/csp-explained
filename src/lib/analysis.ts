@@ -2,7 +2,7 @@ import { requirementsOf } from './catalogue/requirements';
 import type { Feature, Vendor } from './catalogue/schema';
 import { checkRequirements, type RequirementResult, type RequirementVerdict } from './csp/compat';
 import type { ParseResult } from './csp/model';
-import { parse } from './csp/parser';
+import { parse, parseSinglePolicy } from './csp/parser';
 import { buildPatches, type PolicyPatch } from './csp/patch';
 import { evaluateSecurity, type SecurityFinding } from './csp/security';
 
@@ -48,11 +48,13 @@ export function analyze(input: string, selections: VendorSelection[], origin = D
 
   let introducedFindings: SecurityFinding[] = [];
   if (patches.length > 0) {
-    const patchedPolicies = parsed.policies.map((p, i) => patches.find((x) => x.policyIndex === i)?.after ?? p.text);
-    const patched = parse(patchedPolicies.join(', '));
-    patched.policies.forEach((p, i) => (p.reportOnly = parsed.policies[i]?.reportOnly ?? false));
+    // Each policy on its own: joining them with commas would split a <meta> policy that contains one.
+    const patched = parsed.policies.map((p, i) => {
+      const after = patches.find((x) => x.policyIndex === i)?.after;
+      return after === undefined ? p : parseSinglePolicy(after, p.origin, p.reportOnly);
+    });
     const before = new Set(findings.map(findingKey));
-    introducedFindings = evaluateSecurity(patched).filter((f) => !before.has(findingKey(f)));
+    introducedFindings = evaluateSecurity({ policies: patched }).filter((f) => !before.has(findingKey(f)));
   }
 
   return { parsed, origin, vendors, patches, findings, introducedFindings };

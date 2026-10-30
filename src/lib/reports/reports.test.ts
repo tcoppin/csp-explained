@@ -24,6 +24,15 @@ describe('analyze', () => {
     expect(a.patches[0]!.after).toContain("script-src 'self' *.abtasty.com 'unsafe-inline'");
     expect(a.introducedFindings.some((f) => f.id === 'script-unsafe-inline')).toBe(true);
   });
+
+  it('keeps each patched policy whole, even a <meta> policy containing a comma', () => {
+    // A comma doesn't separate policies in <meta>: a.example, is one (invalid) source.
+    const html = `<meta http-equiv="Content-Security-Policy" content="img-src a.example, b.example; script-src 'self'">`;
+    const a = analyze(`Content-Security-Policy-Report-Only: script-src 'self'\n${html}`, [{ vendor: abTasty, features: tag }]);
+    expect(a.patches.map((p) => p.policyIndex)).toEqual([1]);
+    expect(a.introducedFindings.length).toBeGreaterThan(0);
+    expect(a.introducedFindings.every((f) => f.policyIndex === 1 && !f.reportOnly)).toBe(true);
+  });
 });
 
 describe('itRequest', () => {

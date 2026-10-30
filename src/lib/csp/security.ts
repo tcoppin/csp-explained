@@ -94,7 +94,7 @@ export function findingKey(f: Pick<SecurityFinding, 'id' | 'directive' | 'value'
   }
 }
 
-export function evaluateSecurity(parsed: ParseResult): SecurityFinding[] {
+export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
   parsed.policies.forEach((policy, policyIndex) => {
     if (policy.directives.length === 0) return;
