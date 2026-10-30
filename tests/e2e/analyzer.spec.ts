@@ -189,6 +189,21 @@ test('views can be switched with the keyboard', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toContainText('Scripts');
 });
 
+test('options are chosen with the arrow keys', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  const everyone = page.getByRole('radio', { name: 'Everyone' });
+  await everyone.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('radio', { name: 'Developers' })).toBeFocused();
+  await expect(page.getByRole('radio', { name: 'Developers' })).toHaveAttribute('aria-checked', 'true');
+  await page.keyboard.press('Home');
+  await expect(everyone).toBeFocused();
+  await expect(everyone).toHaveAttribute('aria-checked', 'true');
+  // Only the chosen option is in the tab order.
+  await expect(page.getByRole('radio', { name: 'Security' })).toHaveAttribute('tabindex', '-1');
+});
+
 test('switching policy on another view still explains the policy shown', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self', img-src 'self'");
