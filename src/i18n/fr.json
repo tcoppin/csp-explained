@@ -11,6 +11,10 @@
       "about": "À propos"
     },
     "footer": "Indépendant et gratuit. Votre politique ne quitte jamais votre navigateur.",
+    "issue": {
+      "link": "Signaler un problème",
+      "body": "Page : {page}\n\nQu'est-ce qui ne va pas ? Un bug, une erreur ou un texte peu clair :\n\n\n\nLes tickets sont publics : merci de ne pas coller de politique ni d'information privée."
+    },
     "newTab": "(s'ouvre dans un nouvel onglet)",
     "theme": {
       "label": "Thème de couleurs",

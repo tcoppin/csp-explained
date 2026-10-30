@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-import { SITE_URL } from '../config';
+import { NewTabLink } from '../components/NewTabLink';
+import { REPO_URL, SITE_URL } from '../config';
 import { DEFAULT_LOCALE, LOCALE_NAMES, LOCALES, localeOf, localePath, stripLocale, translator } from '../i18n';
 
 interface Props {
@@ -18,6 +19,8 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 /** The page's path in English (`/fr/learn` → `/learn`): the same page in every language. */
 const page = stripLocale(path);
 const pageUrl = new URL(path, SITE_URL).href;
+// A new GitHub issue naming the page, without what follows the # (it can hold a shared policy).
+const issueUrl = `${REPO_URL}/issues/new?${new URLSearchParams({ body: t('site.issue.body', { page: pageUrl }) })}`;
 const others = translated ? LOCALES.filter((l) => l !== locale) : [];
 const alternates = translated ? LOCALES.map((l) => ({ hreflang: l, href: new URL(localePath(l, page), SITE_URL).href })) : [];
 // Link previews (Open Graph, X): one image per language, made by scripts/og-image.ts.
@@ -125,21 +128,24 @@ const themes = [
     <footer class="site-footer">
       <div class="wrap footer-bar">
         <p class="muted">{t('site.footer')}</p>
-        {
-          others.length > 0 && (
-            <nav class="lang-switch" aria-label={t('site.languageLabel')}>
-              {others.map((l) => (
-                <a href={localePath(l, page)} hreflang={l} lang={l} data-lang-switch>
-                  <svg viewBox="0 0 16 16" aria-hidden="true">
-                    <circle cx="8" cy="8" r="6.5" />
-                    <path d="M1.5 8h13M8 1.5c-2.2 2.4-2.2 10.6 0 13M8 1.5c2.2 2.4 2.2 10.6 0 13" />
-                  </svg>
-                  {LOCALE_NAMES[l]}
-                </a>
-              ))}
-            </nav>
-          )
-        }
+        <div class="footer-links">
+          <NewTabLink t={t} href={issueUrl} label={t('site.issue.link')} />
+          {
+            others.length > 0 && (
+              <nav class="lang-switch" aria-label={t('site.languageLabel')}>
+                {others.map((l) => (
+                  <a href={localePath(l, page)} hreflang={l} lang={l} data-lang-switch>
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <circle cx="8" cy="8" r="6.5" />
+                      <path d="M1.5 8h13M8 1.5c-2.2 2.4-2.2 10.6 0 13M8 1.5c2.2 2.4 2.2 10.6 0 13" />
+                    </svg>
+                    {LOCALE_NAMES[l]}
+                  </a>
+                ))}
+              </nav>
+            )
+          }
+        </div>
       </div>
     </footer>
   </body>
@@ -382,11 +388,23 @@ const themes = [
   .site-footer p {
     margin: 0;
   }
-  /* The footer line on the left, the other language on the right; stacked on narrow screens */
+  /* The footer line on the left, the issue link and the other language on the right; stacked on narrow screens */
   .footer-bar {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem 2rem;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+  }
+  .footer-links > :global(.new-tab) {
+    color: var(--ink-soft);
+  }
+  .footer-links > :global(.new-tab):hover {
+    color: var(--ink);
   }
 </style>
