@@ -38,7 +38,7 @@ export function overallVerdict(results: RequirementResult[]): RequirementVerdict
 }
 
 /** Identifies a finding in a policy, to tell the findings a change introduces from those already there. */
-const sameFinding = (f: SecurityFinding) => `${f.policyIndex}|${f.id}|${f.directive}|${f.value ?? ''}`;
+export const sameFinding = (f: SecurityFinding) => `${f.policyIndex}|${f.id}|${f.directive}|${f.value ?? ''}`;
 
 export function analyze(input: string, selections: VendorSelection[], origin = DEFAULT_ORIGIN): Analysis {
   const parsed = parse(input);
