@@ -9,6 +9,7 @@ import { countByLevel, findingText, securityReport } from '../lib/reports/securi
 import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
+import { Segmented } from './Segmented';
 import { useT } from './i18n';
 import { useCopy } from './useCopy';
 
@@ -31,18 +32,6 @@ function download(name: string, text: string) {
   a.download = name;
   a.click();
   URL.revokeObjectURL(url);
-}
-
-function Tabs<T extends string>({ items, value, onChange, label }: { items: { id: T; label: string; lang?: string }[]; value: T; onChange: (v: T) => void; label: string }) {
-  return (
-    <div class="tabs" role="radiogroup" aria-label={label}>
-      {items.map((i) => (
-        <button key={i.id} type="button" role="radio" aria-checked={value === i.id} lang={i.lang} onClick={() => onChange(i.id)}>
-          {i.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 const FORMATS: MessageFormat[] = ['email', 'chat', 'ticket'];
@@ -86,8 +75,9 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
     return (
       <div class="report">
         <div class="report-options">
-          <Tabs items={labelled(t, FORMATS, 'report.formats')} value={format} onChange={setFormat} label={t('report.title')} />
-          <Tabs
+          <Segmented class="tabs" items={labelled(t, FORMATS, 'report.formats')} value={format} onChange={setFormat} label={t('report.title')} />
+          <Segmented
+            class="tabs"
             items={LOCALES.map((id) => ({ id, label: LOCALE_NAMES[id], lang: id }))}
             value={messageLocale}
             onChange={setMessageLocale}
@@ -124,7 +114,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
                 ))}
             </CodeBox>
             <h3>{t('report.developer.deploy')}</h3>
-            <Tabs items={labelled(t, TARGETS, 'report.developer.targets')} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
+            <Segmented class="tabs" items={labelled(t, TARGETS, 'report.developer.targets')} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
             <CodeBox caption={t(`report.developer.targetCaptions.${target}`)} copyText={snippet} onCopy={copied('deploy')} />
           </>
         )}

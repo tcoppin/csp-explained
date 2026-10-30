@@ -11,6 +11,7 @@ import { Explanation, issueText } from './Explanation';
 import { I18n, useT } from './i18n';
 import { PolicyView, type Selection } from './PolicyView';
 import { ReportPanel } from './ReportPanel';
+import { Segmented } from './Segmented';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
 import { TabList, tabPanelProps } from './Tabs';
 import { useCopy } from './useCopy';
@@ -31,14 +32,16 @@ function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value:
   const t = useT();
   if (parsed.policies.length < 2) return null;
   return (
-    <div class="segmented" role="radiogroup" aria-label={t('analyzer.policies', { count: parsed.policies.length })}>
-      {parsed.policies.map((p, i) => (
-        <button key={i} type="button" role="radio" aria-checked={i === value} onClick={() => onChange(i)}>
-          {t('analyzer.policy', { index: i + 1 })}
-          {p.reportOnly && ` (${t('analyzer.reportOnlyShort')})`}
-        </button>
-      ))}
-    </div>
+    <Segmented
+      class="segmented"
+      label={t('analyzer.policies', { count: parsed.policies.length })}
+      items={parsed.policies.map((p, i) => ({
+        id: i,
+        label: t('analyzer.policy', { index: i + 1 }) + (p.reportOnly ? ` (${t('analyzer.reportOnlyShort')})` : ''),
+      }))}
+      value={value}
+      onChange={onChange}
+    />
   );
 }
 
@@ -280,16 +283,17 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   ),
                 }))}
               />
-              <div class="audience" role="radiogroup" aria-label={t('audience.label')}>
+              <Segmented
+                class="audience"
+                label={t('audience.label')}
+                items={AUDIENCES.map((a) => ({ id: a, label: t(`audience.${a}`), title: t(`audience.${a}Hint`) }))}
+                value={audience}
+                onChange={chooseAudience}
+              >
                 <span class="audience-label" aria-hidden="true">
                   {t('audience.label')}
                 </span>
-                {AUDIENCES.map((a) => (
-                  <button key={a} type="button" role="radio" aria-checked={audience === a} title={t(`audience.${a}Hint`)} onClick={() => chooseAudience(a)}>
-                    {t(`audience.${a}`)}
-                  </button>
-                ))}
-              </div>
+              </Segmented>
             </div>
 
             {view === 'read' && (
