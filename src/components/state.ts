@@ -16,28 +16,40 @@ export interface ShareState {
   audience?: Audience;
 }
 
-const isAudience = (v: string | null): v is Audience => v === 'simple' || v === 'developer' || v === 'security';
+export const isAudience = (v: string | null): v is Audience => v === 'simple' || v === 'developer' || v === 'security';
 const isView = (v: string | null): v is View => (VIEWS as readonly (string | null)[]).includes(v);
 
-function toBase64Url(text: string): string {
+export function toBase64Url(text: string): string {
   const bytes = new TextEncoder().encode(text);
   let bin = '';
   for (const b of bytes) bin += String.fromCharCode(b);
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function fromBase64Url(value: string): string {
+export function fromBase64Url(value: string): string {
   const bin = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
   return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
 }
+
+/** `ab-tasty:tag+editor,intercom:messenger` */
+export const encodeVendors = (vendors: Record<string, string[]>) =>
+  Object.entries(vendors)
+    .map(([id, features]) => `${id}:${features.join('+')}`)
+    .join(',');
+
+export const decodeVendors = (v: string): Record<string, string[]> =>
+  Object.fromEntries(
+    v.split(',').map((entry) => {
+      const [id = '', features = ''] = entry.split(':');
+      return [id, features.split('+').filter(Boolean)];
+    }),
+  );
 
 export function encodeState(s: ShareState): string {
   const params = new URLSearchParams();
   if (s.policy) params.set('p', toBase64Url(s.policy));
   if (s.site) params.set('s', s.site);
-  const vendors = Object.entries(s.vendors)
-    .map(([id, features]) => `${id}:${features.join('+')}`)
-    .join(',');
+  const vendors = encodeVendors(s.vendors);
   if (vendors) params.set('v', vendors);
   if (s.policy && s.view && s.view !== 'read') params.set('t', s.view);
   if (s.policy && s.audience && s.audience !== 'simple') params.set('a', s.audience);
@@ -56,14 +68,7 @@ export function decodeState(hash: string): Partial<ShareState> {
   const s = params.get('s');
   if (s) out.site = s;
   const v = params.get('v');
-  if (v) {
-    out.vendors = Object.fromEntries(
-      v.split(',').map((entry) => {
-        const [id = '', features = ''] = entry.split(':');
-        return [id, features.split('+').filter(Boolean)];
-      }),
-    );
-  }
+  if (v) out.vendors = decodeVendors(v);
   const view = params.get('t');
   if (isView(view)) out.view = view;
   const audience = params.get('a');
