@@ -145,6 +145,7 @@
     "partialShort": "partly verified"
   },
   "report": {
+    "needsNonceNoHow": "The vendor's documentation should explain how.",
     "title": "Your report",
     "copy": "Copy",
     "copied": "Copied",
@@ -165,7 +166,6 @@
       "ourSite": "our website",
       "blockedLine": "{vendor} is blocked for {items}.",
       "needsNonceLine": "{vendor}: our policy only trusts scripts carrying a one-time code (nonce). The tool supports it, but the way it is added to the page needs to pass the code on. {how}",
-      "needsNonceNoHow": "The vendor's documentation should explain how.",
       "reportedLine": "{vendor}: our policy is in report-only mode, so nothing is blocked, but these would show up in the violation reports.",
       "okLine": "{vendor}: already allowed.",
       "changeTitle": "Proposed change (only additions, nothing is removed):",

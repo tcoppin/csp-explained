@@ -126,7 +126,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
                 .filter((v) => v.verdict === 'needs-nonce')
                 .map((v) => (
                   <li key={v.vendor.id}>
-                    <strong>{v.vendor.name}</strong>: {v.vendor.nonce?.how}
+                    <strong>{v.vendor.name}</strong>: {v.vendor.nonce?.how ?? t('report.needsNonceNoHow')}
                   </li>
                 ))}
             </ul>

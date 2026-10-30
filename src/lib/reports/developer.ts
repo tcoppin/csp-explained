@@ -97,7 +97,7 @@ export function developerReport(a: Analysis, t: Translate): string {
   const nonce = a.vendors.filter((v) => v.verdict === 'needs-nonce');
   if (nonce.length > 0) {
     out.push('', `### ${t('report.developer.needsNonce')}`, '');
-    for (const v of nonce) out.push(`- **${v.vendor.name}**: ${v.vendor.nonce?.how ?? ''} (${v.vendor.sources[0]})`);
+    for (const v of nonce) out.push(`- **${v.vendor.name}**: ${v.vendor.nonce?.how ?? t('report.needsNonceNoHow')} (${v.vendor.sources[0]})`);
   }
   out.push('', `> ${t('report.developer.verify')}`);
   return out.join('\n');

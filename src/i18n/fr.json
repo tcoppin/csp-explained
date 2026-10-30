@@ -145,6 +145,7 @@
     "partialShort": "partiellement vérifié"
   },
   "report": {
+    "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",
     "title": "Votre rapport",
     "copy": "Copier",
     "copied": "Copié",
@@ -165,7 +166,6 @@
       "ourSite": "notre site",
       "blockedLine": "{vendor} est bloqué pour : {items}.",
       "needsNonceLine": "{vendor} : notre politique ne fait confiance qu'aux scripts portant un code à usage unique (nonce). L'outil le gère, mais la façon dont il est ajouté à la page doit transmettre ce code. {how}",
-      "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",
       "reportedLine": "{vendor} : notre politique est en mode rapport seul, donc rien n'est bloqué, mais ces éléments apparaîtraient dans les rapports de violation.",
       "okLine": "{vendor} : déjà autorisé.",
       "changeTitle": "Changement proposé (uniquement des ajouts, rien n'est retiré) :",

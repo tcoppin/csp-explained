@@ -52,7 +52,7 @@ function vendorLine(v: VendorCheck, t: Translate): string {
     case 'reported':
       return t('report.simple.reportedLine', { vendor: name });
     case 'needs-nonce':
-      return t('report.simple.needsNonceLine', { vendor: name, how: v.vendor.nonce?.how ?? t('report.simple.needsNonceNoHow') });
+      return t('report.simple.needsNonceLine', { vendor: name, how: v.vendor.nonce?.how ?? t('report.needsNonceNoHow') });
     case 'blocked': {
       const byType = new Map<string, Set<string>>();
       for (const r of v.results.filter((r) => r.verdict === 'blocked')) {
@@ -78,7 +78,7 @@ function risks(a: Analysis, t: Translate): string[] {
       const { type, source } = r.requirement;
       const vendor = v.vendor.name;
       if (source === "'unsafe-inline'" && (type === 'inline-script' || type === 'inline-handler')) {
-        out.add(t('report.simple.risk.unsafe-inline-script', { vendor, how: v.vendor.nonce?.how ?? t('report.simple.needsNonceNoHow') }));
+        out.add(t('report.simple.risk.unsafe-inline-script', { vendor, how: v.vendor.nonce?.how ?? t('report.needsNonceNoHow') }));
       } else if (source === "'unsafe-inline'") {
         out.add(t('report.simple.risk.unsafe-inline-style', { vendor }));
       } else if (source === "'unsafe-eval'") {

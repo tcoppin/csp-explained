@@ -78,6 +78,13 @@ describe('developer report', () => {
   it('produces markdown', () => {
     expect(developerReport(a, t)).toContain('```diff');
   });
+
+  it('says where to look when a tool needing a nonce documents no how-to', () => {
+    const quiet = { ...abTasty, nonce: undefined };
+    const strict = analyze("script-src 'nonce-abc' 'strict-dynamic'", [{ vendor: quiet, features: tag }]);
+    expect(strict.vendors[0]!.verdict).toBe('needs-nonce');
+    expect(developerReport(strict, t)).toContain(`**AB Tasty**: ${t('report.needsNonceNoHow')}`);
+  });
 });
 
 describe('security report', () => {
