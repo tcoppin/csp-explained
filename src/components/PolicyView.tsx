@@ -43,7 +43,9 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
   const isSelected = (d: number, v?: number) =>
     selection?.policyIndex === policyIndex && selection.directiveIndex === d && selection.valueIndex === v;
 
-  const flagged = (d: Directive) => issues.some((i) => i.policyIndex === policyIndex && i.directive === d.name);
+  // Any issue on the directive or one of its values.
+  const flagged = (d: Directive) =>
+    issues.some((i) => i.policyIndex === policyIndex && i.span && i.span.start >= d.span.start && i.span.end <= d.span.end);
 
   return (
     <ol class="policy" aria-label={t('analyzer.policy', { index: policyIndex + 1 })}>

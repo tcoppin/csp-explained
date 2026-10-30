@@ -3,6 +3,7 @@ import { explainSource, type ContentBundle } from '../lib/content';
 import { Fragment } from 'preact';
 import { directiveInfo, DIRECTIVES } from '../lib/csp/directives';
 import { resolve } from '../lib/csp/fallback';
+import { issuesAt } from '../lib/csp/parser';
 import type { Audience, ParseIssue, Policy } from '../lib/csp/model';
 import { useT } from './i18n';
 import { highlightClass, type Selection } from './PolicyView';
@@ -29,12 +30,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
   const value = selection.valueIndex === undefined ? undefined : directive.values[selection.valueIndex];
   const valueDoc = value ? explainSource(content, value) : undefined;
 
-  const relevant = issues.filter(
-    (i) =>
-      i.policyIndex === selection.policyIndex &&
-      i.directive === directive.name &&
-      (value ? i.value === value.raw : i.value === undefined),
-  );
+  const relevant = issuesAt(issues, selection.policyIndex, directive, value);
 
   // Absent directives that fall back to this one, and are therefore governed by it.
   const covers = directive.duplicate
@@ -117,8 +113,8 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
           )}
         </>
       )}
-      {relevant.map((i) => (
-        <p key={i.code} class="issue" role="note">
+      {relevant.map((i, n) => (
+        <p key={n} class="issue" role="note">
           {issueText(t, i)}
         </p>
       ))}

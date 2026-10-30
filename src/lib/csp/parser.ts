@@ -223,6 +223,18 @@ export function parseHostSource(raw: string): HostParts | undefined {
   return parts;
 }
 
+/**
+ * The issues about one directive (or one of its values): matched by position, not by name, so a directive
+ * repeated later in the policy doesn't share the warnings meant for its copies.
+ */
+export function issuesAt(issues: ParseIssue[], policyIndex: number, directive: Directive, value?: SourceExpression): ParseIssue[] {
+  return issues.filter((i) => {
+    if (i.policyIndex !== policyIndex || !i.span) return false;
+    if (value) return i.span.start === value.span.start && i.span.end === value.span.end;
+    return i.value === undefined && i.span.start >= directive.span.start && i.span.end <= directive.span.end;
+  });
+}
+
 /** Splits a policy string into directives without any of the extraction heuristics. */
 export function parseSinglePolicy(text: string, origin: PolicyOrigin = 'raw', reportOnly = false): Policy {
   return parsePolicy({ origin, reportOnly, text }, 0, []);

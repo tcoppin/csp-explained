@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parse } from './parser';
+import { issuesAt, parse } from './parser';
 
 const codes = (input: string) => parse(input).issues.map((i) => i.code);
 
@@ -96,6 +96,16 @@ describe('parse', () => {
   it('marks the second occurrence of a directive as duplicate', () => {
     const ds = parse("script-src 'self'; script-src *").policies[0]!.directives;
     expect(ds.map((d) => d.duplicate)).toEqual([false, true]);
+  });
+
+  it('gives each directive and value only its own issues', () => {
+    const { policies, issues } = parse('script-src a; script-src b; script-src self');
+    const [first, second, third] = policies[0]!.directives;
+    expect(issuesAt(issues, 0, first!)).toEqual([]);
+    expect(issuesAt(issues, 0, second!).map((i) => i.code)).toEqual(['duplicate-directive']);
+    expect(issuesAt(issues, 0, third!).map((i) => i.code)).toEqual(['duplicate-directive']);
+    expect(issuesAt(issues, 0, third!, third!.values[0]).map((i) => i.code)).toEqual(['missing-quotes']);
+    expect(issuesAt(issues, 1, second!)).toEqual([]);
   });
 
   it('treats values of non source-list directives as tokens', () => {
