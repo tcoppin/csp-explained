@@ -35,5 +35,8 @@ your own account and domain; after that, every push to `main` that passes CI is 
      --policy-document file://infra/iam/cfn-execution-policy.json
    ```
    A policy keeps at most five versions: delete an old one when AWS refuses a new one.
-5. In GitHub, add the repository variables printed as outputs: `AWS_DEPLOY_ROLE_ARN`, `SITE_BUCKET`, `DISTRIBUTION_ID`, plus `AWS_REGION`, and create a `production` environment.
-6. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`.
+5. In GitHub, add the repository variables printed as outputs: `AWS_DEPLOY_ROLE_ARN`, `SITE_BUCKET`, `DISTRIBUTION_ID`, plus `AWS_REGION`, and create a `production` environment. In its settings, add yourself as required reviewer,
+   untick "Allow administrators to bypass", and limit deployment branches to `main`. The AWS deploy role only
+   trusts jobs in that environment, so nothing else can reach AWS.
+6. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`, once you approve it
+   (the run waits under Actions › Deploy › Review deployments).

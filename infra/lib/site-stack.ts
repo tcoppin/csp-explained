@@ -205,16 +205,14 @@ function handler(event) {
       }).oidcProviderArn;
 
     const deployRole = new iam.Role(this, 'GitHubDeployRole', {
-      description: `Deploys the site from ${props.githubRepo} (main branch)`,
+      description: `Deploys the site from ${props.githubRepo} (production environment)`,
       maxSessionDuration: Duration.hours(1),
       assumedBy: new iam.WebIdentityPrincipal(providerArn, {
-        // Jobs that use a GitHub environment identify as the environment, not the branch.
+        // Only jobs in the `production` environment, which GitHub limits to `main` and holds for the owner's
+        // approval (DEPLOY.md). Such jobs identify as the environment, not the branch.
         StringEquals: {
           'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-          'token.actions.githubusercontent.com:sub': [
-            `repo:${props.githubRepo}:ref:refs/heads/main`,
-            `repo:${props.githubRepo}:environment:production`,
-          ],
+          'token.actions.githubusercontent.com:sub': `repo:${props.githubRepo}:environment:production`,
         },
       }),
     });
