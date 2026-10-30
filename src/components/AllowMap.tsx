@@ -1,7 +1,7 @@
 import { explainSource, type ContentBundle } from '../lib/content';
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
 import { resolve } from '../lib/csp/fallback';
-import { checkResource } from '../lib/csp/matcher';
+import { checkResource, ignoredSources } from '../lib/csp/matcher';
 import type { Audience, Policy } from '../lib/csp/model';
 import { highlightClass } from './PolicyView';
 import { useT } from './i18n';
@@ -26,6 +26,7 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
         {LOADED.map((type) => {
           const { governing } = resolve(policy, EFFECTIVE_DIRECTIVE[type]);
           const none = governing && (governing.values.length === 0 || governing.values.every((v) => v.value === "'none'"));
+          const ignored = governing ? ignoredSources(governing, type) : [];
           return (
             <tr key={type}>
               <th scope="row">{t(`resources.${type}`)}</th>
@@ -36,14 +37,21 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
                   <span class="verdict-none">{t('map.nothing')}</span>
                 ) : (
                   <ul class="chips">
-                    {governing.values.map((v, i) => (
-                      <li key={i}>
-                        <code class={`tok ${highlightClass(v)}`}>{v.raw}</code>
-                        {audience === 'simple' && v.kind !== 'host' && (
-                          <span class="chip-note">{explainSource(content, v)?.title}</span>
-                        )}
-                      </li>
-                    ))}
+                    {governing.values.map((v, i) =>
+                      ignored.includes(v) ? (
+                        <li key={i} class="chip-ignored">
+                          <code class={`tok ${highlightClass(v)}`}>{v.raw}</code>
+                          <span class="chip-note">{t('map.ignored')}</span>
+                        </li>
+                      ) : (
+                        <li key={i}>
+                          <code class={`tok ${highlightClass(v)}`}>{v.raw}</code>
+                          {audience === 'simple' && v.kind !== 'host' && (
+                            <span class="chip-note">{explainSource(content, v)?.title}</span>
+                          )}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 )}
               </td>

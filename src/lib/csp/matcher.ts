@@ -130,6 +130,31 @@ const hasNonceOrHash = (d: Directive) => d.values.some((v) => v.kind === 'nonce'
 const SCRIPT_DIRECTIVES = new Set(['script-src', 'script-src-elem', 'script-src-attr', 'default-src']);
 const STYLE_DIRECTIVES = new Set(['style-src', 'style-src-elem', 'style-src-attr', 'default-src']);
 
+/** What in the governing directive changes how the browser reads the rest of it, for this type. */
+function modifiers(governing: Directive, type: ResourceType) {
+  const scriptLike = SCRIPT_DIRECTIVES.has(governing.name) && (type === 'script' || type === 'inline-script' || type === 'inline-handler' || type === 'eval' || type === 'worker');
+  const styleLike = STYLE_DIRECTIVES.has(governing.name) && (type === 'style' || type === 'inline-style' || type === 'style-attr');
+  return {
+    strictDynamic: scriptLike && has(governing, "'strict-dynamic'"),
+    nonceOrHash: (scriptLike || styleLike) && hasNonceOrHash(governing),
+  };
+}
+
+/**
+ * Sources the browser skips in the directive governing `type`: with 'strict-dynamic', hosts, schemes, 'self' and
+ * 'unsafe-inline' (only nonced/hashed scripts and the scripts they load are allowed); with a nonce or a hash,
+ * 'unsafe-inline'.
+ */
+export function ignoredSources(governing: Directive, type: ResourceType): SourceExpression[] {
+  const { strictDynamic, nonceOrHash } = modifiers(governing, type);
+  const isKeyword = (v: SourceExpression, k: string) => v.kind === 'keyword' && v.value === k;
+  return governing.values.filter(
+    (v) =>
+      (strictDynamic && (v.kind === 'host' || v.kind === 'scheme' || isKeyword(v, "'self'"))) ||
+      ((strictDynamic || nonceOrHash) && isKeyword(v, "'unsafe-inline'")),
+  );
+}
+
 /**
  * Would a single policy let the page load `url` as `type`?
  * For inline/eval types the URL is ignored.
@@ -139,10 +164,7 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
   const { governing } = resolve(policy, requested);
   if (!governing) return { verdict: 'allowed', requested, ignored: [] };
 
-  const scriptLike = SCRIPT_DIRECTIVES.has(governing.name) && (type === 'script' || type === 'inline-script' || type === 'inline-handler' || type === 'eval' || type === 'worker');
-  const styleLike = STYLE_DIRECTIVES.has(governing.name) && (type === 'style' || type === 'inline-style' || type === 'style-attr');
-  const strictDynamic = scriptLike && has(governing, "'strict-dynamic'");
-  const nonceOrHash = (scriptLike || styleLike) && hasNonceOrHash(governing);
+  const { strictDynamic, nonceOrHash } = modifiers(governing, type);
 
   const base = { requested, directive: governing };
 
@@ -167,12 +189,7 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
 
   if (!url) return { ...base, verdict: 'blocked', ignored: [] };
 
-  if (strictDynamic) {
-    // Hosts, schemes, 'self' and 'unsafe-inline' are all ignored: only nonced/hashed scripts
-    // and scripts they load themselves are allowed.
-    const ignored = governing.values.filter((v) => v.kind === 'host' || v.kind === 'scheme' || (v.kind === 'keyword' && (v.value === "'self'" || v.value === "'unsafe-inline'")));
-    return { ...base, verdict: 'needs-nonce', ignored };
-  }
+  if (strictDynamic) return { ...base, verdict: 'needs-nonce', ignored: ignoredSources(governing, type) };
 
   const matchedBy = governing.values.find((v) => expressionMatchesUrl(v, url, selfOrigin));
   if (matchedBy) return { ...base, verdict: 'allowed', matchedBy, ignored: [] };

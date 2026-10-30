@@ -447,6 +447,10 @@ button.tok:hover {
   color: var(--ink-soft);
   font-size: var(--step--1);
 }
+.chip-ignored code {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
 .verdict-unrestricted {
   color: var(--warn);
 }

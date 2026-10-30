@@ -87,6 +87,7 @@
     "notRestricted": "Aucune restriction : autorisé depuis n'importe où",
     "via": "utilise la règle {directive}",
     "nothing": "Entièrement bloqué",
+    "ignored": "ignoré ici par le navigateur",
     "verdict": {
       "allowed": "Autorisé",
       "blocked": "Bloqué",

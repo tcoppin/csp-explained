@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolve } from './fallback';
-import { checkResource, expressionMatchesUrl } from './matcher';
+import { checkResource, expressionMatchesUrl, ignoredSources } from './matcher';
 import { classify, parseSinglePolicy } from './parser';
 
 const SELF = 'https://shop.example.com';
@@ -89,5 +89,23 @@ describe('checkResource', () => {
   it('respects script-src-elem over script-src', () => {
     const p = parseSinglePolicy("script-src 'self'; script-src-elem 'self' https://cdn.vendor.test");
     expect(checkResource(p, 'script', 'https://cdn.vendor.test/x.js', SELF).verdict).toBe('allowed');
+  });
+});
+
+describe('ignoredSources', () => {
+  const raws = (policy: string, type: Parameters<typeof ignoredSources>[1]) =>
+    ignoredSources(parseSinglePolicy(policy).directives[0]!, type).map((v) => v.raw);
+
+  it("drops allowlists and 'unsafe-inline' with 'strict-dynamic'", () => {
+    const policy = "script-src 'self' 'unsafe-inline' 'nonce-abc' 'strict-dynamic' https: cdn.vendor.test";
+    expect(raws(policy, 'script')).toEqual(["'self'", "'unsafe-inline'", 'https:', 'cdn.vendor.test']);
+  });
+
+  it("drops only 'unsafe-inline' with a nonce or a hash", () => {
+    expect(raws("style-src 'self' 'unsafe-inline' 'sha256-abc'", 'style')).toEqual(["'unsafe-inline'"]);
+  });
+
+  it("keeps everything for types 'strict-dynamic' doesn't apply to", () => {
+    expect(raws("default-src 'self' 'strict-dynamic' 'nonce-abc'", 'img')).toEqual([]);
   });
 });

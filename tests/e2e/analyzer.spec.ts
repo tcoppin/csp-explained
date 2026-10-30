@@ -189,6 +189,16 @@ test('views can be switched with the keyboard', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toContainText('Scripts');
 });
 
+test("the allow map shows the sources 'strict-dynamic' makes the browser ignore", async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'nonce-abc' 'strict-dynamic' https://cdn.vendor.test");
+  await page.getByRole('tab', { name: 'What it allows' }).click();
+  const scripts = page.getByRole('row', { name: /^Scripts/ });
+  await expect(scripts.locator('.chip-ignored')).toContainText('https://cdn.vendor.test');
+  await expect(scripts.locator('.chip-ignored')).toContainText('ignored by the browser here');
+  await expect(scripts.locator('.chip-ignored')).toHaveCount(1);
+});
+
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
   // Astro drops a line break between an inline element and the next word ("<a>…</a>\nlibrary" → "…library").
   await page.goto('/vendors');
