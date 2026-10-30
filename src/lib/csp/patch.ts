@@ -1,4 +1,4 @@
-import { allChecks, type RequirementResult } from './compat';
+import { allChecks, type Requirement, type RequirementResult } from './compat';
 import { CANONICAL_DIRECTIVE } from './directives';
 import { findDirective } from './fallback';
 import type { Directive, ParseResult, Policy } from './model';
@@ -9,6 +9,8 @@ export interface DirectiveChange {
   created: boolean;
   copiedFrom?: string;
   added: string[];
+  /** The requirements behind each added value (keyed as in `added`): several tools can ask for the same one. */
+  requestedBy: Record<string, Requirement[]>;
   /** `'none'` is dropped when a source is added to a `'none'` directive. */
   removedNone: boolean;
   before?: string;
@@ -27,6 +29,7 @@ interface Pending {
   copiedFrom?: string;
   base: string[];
   added: string[];
+  requestedBy: Record<string, Requirement[]>;
 }
 
 const valuesOf = (d: Directive) => d.values.map((v) => v.raw);
@@ -58,15 +61,22 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
           copiedFrom: 'default-src',
           base: valuesOf(governing),
           added: [],
+          requestedBy: {},
         };
       } else {
-        pending = changes.get(target) ?? { created: false, base: valuesOf(governing), added: [] };
+        pending = changes.get(target) ?? { created: false, base: valuesOf(governing), added: [], requestedBy: {} };
       }
 
-      const already = new Set([...pending.base, ...pending.added].map((v) => v.toLowerCase()));
+      const source = r.requirement.source;
+      const added = pending.added.find((v) => v.toLowerCase() === source.toLowerCase());
+      if (added !== undefined) {
+        pending.requestedBy[added]!.push(r.requirement);
+        continue;
+      }
       // Already listed but ignored (e.g. 'unsafe-inline' next to a nonce): adding it again would change nothing.
-      if (already.has(r.requirement.source.toLowerCase())) continue;
-      pending.added.push(r.requirement.source);
+      if (pending.base.some((v) => v.toLowerCase() === source.toLowerCase())) continue;
+      pending.added.push(source);
+      pending.requestedBy[source] = [r.requirement];
       changes.set(target, pending);
       perPolicy.set(check.policyIndex, changes);
     }
@@ -90,6 +100,7 @@ function applyChanges(policy: Policy, policyIndex: number, pending: Map<string, 
       created: p.created,
       copiedFrom: p.copiedFrom,
       added: p.added,
+      requestedBy: p.requestedBy,
       removedNone,
       before: existing ? policy.text.slice(existing.span.start, existing.span.end) : undefined,
       after,
