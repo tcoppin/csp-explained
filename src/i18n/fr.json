@@ -5,6 +5,7 @@
     "ogNote": "Chaque règle expliquée, pour tout le monde, les développeurs et les équipes sécurité.",
     "nav": {
       "analyzer": "Analyseur",
+      "build": "Construire",
       "find": "Trouver ma CSP",
       "learn": "C'est quoi une CSP ?",
       "vendors": "Outils",
@@ -339,6 +340,161 @@
     "ignored": {
       "unsafe-inline": "'unsafe-inline' dans {directive} est ignoré parce que la règle a aussi un nonce ou un hash. Il ne compte que pour les très vieux navigateurs.",
       "strict-dynamic": "{value} dans {directive} est ignoré à cause de 'strict-dynamic' : seuls les scripts portant le nonce ou le hash, et les scripts qu'ils chargent, s'exécutent."
+    }
+  },
+  "build": {
+    "steps": {
+      "label": "Étapes",
+      "start": "Départ",
+      "site": "Votre site",
+      "tools": "Vos outils",
+      "review": "Votre politique",
+      "startTitle": "D'où partez-vous ?",
+      "siteTitle": "Que font vos propres pages ?",
+      "toolsTitle": "Quels outils utilisez-vous ?",
+      "reviewTitle": "Votre politique, ligne par ligne"
+    },
+    "intro": {
+      "start": "Construisez une politique à partir de rien, ou améliorez celle que vous avez. Rien de ce que vous tapez ne quitte votre navigateur.",
+      "site": "Certaines habitudes de vos pages demandent une exception dans la politique. Cochez ce qui s'applique ; laissez le reste en cas de doute.",
+      "tools": "Choisissez les outils de votre site. Chacun n'ajoute que ce que sa documentation officielle demande. Il en manque un ? Décrivez-le vous-même.",
+      "review": "Cliquez sur une partie de la politique pour voir ce qu'elle fait et **qui l'a demandée**. Puis testez-la avant de l'appliquer."
+    },
+    "next": {
+      "site": "Suivant : votre site",
+      "tools": "Suivant : vos outils",
+      "review": "Voir votre politique"
+    },
+    "back": "Retour",
+    "start": {
+      "question": "Partir de",
+      "scratch": "Rien",
+      "scratchHint": "Un point de départ strict qui ne fait confiance qu'à votre site, ouvert pour ce dont vous avez besoin.",
+      "policy": "La politique que j'ai",
+      "policyHint": "Collez-la ; tout ce qu'elle autorise déjà est conservé.",
+      "paste": "Votre politique actuelle",
+      "otherPolicies": {
+        "one": "Autre politique trouvée : {count}. Le constructeur travaille sur la première appliquée.",
+        "other": "Autres politiques trouvées : {count}. Le constructeur travaille sur la première appliquée."
+      },
+      "nonceQuestion": "Votre site peut-il ajouter un nonce à chaque page ?",
+      "nonceExplain": {
+        "simple": "Un nonce est un code à usage unique que votre serveur écrit dans chaque page et dans ses balises `<script>`. Seuls les scripts qui le portent s'exécutent. Demandez à vos développeurs : en cas de doute, choisissez **Non**.",
+        "developer": "Une valeur aléatoire nouvelle à chaque réponse, envoyée dans la politique et placée dans l'attribut `nonce` de chaque `<script>`. Avec `'strict-dynamic'`, les scripts chargés par un script muni du nonce sont aussi acceptés : les gestionnaires de balises continuent de fonctionner.",
+        "security": "Un nonce avec `'strict-dynamic'` résiste aux contournements des listes d'adresses autorisées (JSONP, redirections ouvertes, gadgets de script sur les CDN autorisés). Il faut un rendu côté serveur ou une fonction en périphérie pour injecter la valeur."
+      },
+      "nonce": "Oui",
+      "nonceHint": "L'option la plus solide : un script ne s'exécute que si votre page s'en porte garante.",
+      "allowlist": "Non, ou je ne sais pas",
+      "allowlistHint": "Les scripts sont acceptés selon leur provenance. Plus simple à gérer, plus facile à contourner."
+    },
+    "site": {
+      "question": "Mes pages",
+      "you": "Votre site",
+      "unsure": "Vous ne savez pas ? Laissez décoché : la console du navigateur nommera ce qui est bloqué quand vous testerez la politique.",
+      "addressHint": "Sert à vérifier ce que couvre 'self'. Laissez vide si vous préférez.",
+      "needs": {
+        "inline-scripts": {
+          "label": "Contiennent du code écrit directement dans la page",
+          "hint": "Des blocs <script> avec du code dedans, comme un extrait de balise collé dans la page.",
+          "detail": "Éléments <script> dans la page. Autorisés avec 'unsafe-inline', ou avec le nonce."
+        },
+        "inline-handlers": {
+          "label": "Utilisent des attributs du type onclick=\"…\"",
+          "hint": "Des boutons ou liens avec du code dans un attribut. Fréquent sur les sites anciens et certains thèmes.",
+          "detail": "Gestionnaires d'événements dans la page (script-src-attr). Un nonce ne peut pas les couvrir : seulement 'unsafe-inline' ou 'unsafe-hashes'."
+        },
+        "eval": {
+          "label": "Exécutent du code construit à partir de texte",
+          "hint": "Certaines bibliothèques et certains modèles anciens le font. Rare sur les sites récents.",
+          "detail": "eval(), new Function() ou setTimeout avec une chaîne. Demande 'unsafe-eval'."
+        },
+        "inline-styles": {
+          "label": "Contiennent des styles écrits directement dans la page",
+          "hint": "Des blocs <style> dans la page, fréquents avec les constructeurs de pages.",
+          "detail": "Éléments <style> dans la page. Autorisés avec 'unsafe-inline', ou avec le nonce."
+        },
+        "style-attributes": {
+          "label": "Utilisent des attributs style=\"…\"",
+          "hint": "Des éléments mis en forme un par un, fréquent avec les constructeurs de pages et les contenus riches.",
+          "detail": "Attributs style (style-src-attr). Demande 'unsafe-inline'."
+        },
+        "data-images": {
+          "label": "Affichent des images écrites en adresses data:",
+          "hint": "De petites icônes intégrées au code au lieu d'être chargées comme fichiers.",
+          "detail": "Adresses data: dans img-src. Peu risqué pour des images."
+        }
+      }
+    },
+    "tools": {
+      "none": "Ajoutez les outils de votre site. Leurs besoins s'affichent ici, avec ce que chacun change dans la politique.",
+      "status": {
+        "added": { "one": "{count} ajoutée", "other": "{count} ajoutées" },
+        "nonce": { "one": "En attente du nonce : {count}", "other": "En attente du nonce : {count}" },
+        "blocked": { "one": "Impossible à autoriser : {count}", "other": "Impossibles à autoriser : {count}" },
+        "allowed": "Rien à ajouter"
+      }
+    },
+    "own": {
+      "intro": "Indiquez ce qu'il charge et d'où, comme le dit sa documentation.",
+      "name": "Nom",
+      "namePlaceholder": "ex. : Notre CDN d'images",
+      "loads": "Ce qu'il charge, et d'où",
+      "type": "Type de ressource",
+      "sources": "Adresses, séparées par des espaces",
+      "sourcesHint": "Écrivez des adresses comme https://cdn.example.com ou https://*.example.com, telles que la documentation de l'outil les donne.",
+      "invalid": "Non comprises par les navigateurs : {values}. Vérifiez l'orthographe ; les mots-clés prennent des guillemets, comme 'self'.",
+      "addRow": "Ajouter un autre type",
+      "removeRow": "Retirer",
+      "save": "Ajouter cet outil",
+      "update": "Enregistrer",
+      "cancel": "Annuler",
+      "edit": "Modifier",
+      "remove": "Retirer {name}",
+      "reason": "Vous l'avez ajouté pour {name}.",
+      "forget": "Oublier les outils mémorisés dans ce navigateur",
+      "group": "Vos propres outils",
+      "describe": "Décrire « {query} » vous-même",
+      "describeAny": "Décrire un outil absent de la liste",
+      "newTitle": "Décrire un outil",
+      "editTitle": "Modifier {name}",
+      "storage": "Les outils que vous décrivez sont gardés dans le lien, et mémorisés dans ce navigateur pour les choisir à nouveau."
+    },
+    "outcome": {
+      "added": "Ajouté à {directive}",
+      "allowed": "Déjà autorisé par {source}",
+      "unrestricted": "Déjà autorisé : rien ne le limite",
+      "needs-nonce": "Demande le nonce : ajoutez-le à la balise sur vos pages",
+      "blocked": "Impossible à autoriser en ajoutant une valeur"
+    },
+    "preview": {
+      "title": "Votre politique pour l'instant",
+      "empty": "Votre politique apparaîtra ici.",
+      "summary": {
+        "one": "Valeur ajoutée pour votre site et vos outils : {count}. Elle est surlignée.",
+        "other": "Valeurs ajoutées pour votre site et vos outils : {count}. Elles sont surlignées."
+      }
+    },
+    "review": {
+      "intro": "Les valeurs surlignées ont été ajoutées pour votre site ou vos outils.",
+      "whoAsked": "Qui l'a demandé",
+      "fromStart": "Elle était dans votre point de départ.",
+      "copied": "Copiée depuis {directive} à la création de cette ligne, pour que rien de ce qui marchait ne cesse de marcher.",
+      "nonceTitle": "Remplacez le nonce d'exemple",
+      "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien.",
+      "waitingTitle": "En attente du nonce",
+      "findingsTitle": "Bon à savoir",
+      "fromTools": "nouveau avec vos ajouts",
+      "deployTitle": "La mettre en ligne",
+      "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`.",
+      "policyCaption": "La politique seule",
+      "analyze": "Analyser cette politique",
+      "tabs": {
+        "label": "Votre politique",
+        "lines": "Ligne par ligne",
+        "notes": "Bon à savoir",
+        "live": "La mettre en ligne"
+      }
     }
   }
 }

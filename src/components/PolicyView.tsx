@@ -35,10 +35,12 @@ interface Props {
   docs: ContentBundle['directives'];
   selection: Selection | undefined;
   onSelect: (s: Selection) => void;
+  /** Highlights only the values it returns true for (the builder's additions); all of them by default. */
+  highlighted?: (d: Directive, v: SourceExpression) => boolean;
 }
 
 /** The policy, one directive per line, every token clickable, annotated with a plain title in the margin. */
-export function PolicyView({ policy, policyIndex, issues, docs, selection, onSelect }: Props) {
+export function PolicyView({ policy, policyIndex, issues, docs, selection, onSelect, highlighted }: Props) {
   const t = useT();
   const isSelected = (d: number, v?: number) =>
     selection?.policyIndex === policyIndex && selection.directiveIndex === d && selection.valueIndex === v;
@@ -69,7 +71,7 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
                 {' '}
                 <button
                   type="button"
-                  class={`tok ${highlightClass(v)}${isSelected(di, vi) ? ' selected' : ''}`}
+                  class={`tok ${!highlighted || highlighted(d, v) ? highlightClass(v) : 'hl-none'}${isSelected(di, vi) ? ' selected' : ''}`}
                   aria-pressed={isSelected(di, vi)}
                   onClick={() => onSelect({ policyIndex, directiveIndex: di, valueIndex: vi })}
                 >

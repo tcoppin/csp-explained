@@ -251,5 +251,10 @@
     "allowedSource": "Source autorisée",
     "why": "Pourquoi",
     "outdated": "Quelque chose a changé ? [Signaler une fiche obsolète]({url})."
+  },
+  "build": {
+    "title": "Construire une politique",
+    "description": "Construisez une Content-Security-Policy à partir de rien ou de celle que vous avez, selon vos outils, chaque ligne expliquée.",
+    "lead": "Partez de rien ou de votre politique actuelle, ajoutez vos outils, et obtenez une politique où chaque ligne dit qui l'a demandée."
   }
 }

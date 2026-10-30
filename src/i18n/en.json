@@ -5,6 +5,7 @@
     "ogNote": "Every rule explained, for everyone, developers and security teams.",
     "nav": {
       "analyzer": "Analyzer",
+      "build": "Build a policy",
       "find": "Find my CSP",
       "learn": "What is a CSP?",
       "vendors": "Tools",
@@ -339,6 +340,161 @@
     "ignored": {
       "unsafe-inline": "'unsafe-inline' in {directive} is ignored because the rule also has a nonce or a hash. It only matters for very old browsers.",
       "strict-dynamic": "{value} in {directive} is ignored because of 'strict-dynamic': only scripts with the nonce or hash, and the scripts they load, run."
+    }
+  },
+  "build": {
+    "steps": {
+      "label": "Steps",
+      "start": "Start",
+      "site": "Your site",
+      "tools": "Your tools",
+      "review": "Your policy",
+      "startTitle": "Where do you start?",
+      "siteTitle": "What do your own pages do?",
+      "toolsTitle": "Which tools do you use?",
+      "reviewTitle": "Your policy, line by line"
+    },
+    "intro": {
+      "start": "Build a policy from nothing, or improve the one you have. Nothing you type leaves your browser.",
+      "site": "Some habits of your own pages need an exception in the policy. Tick what applies; leave the rest if you're not sure.",
+      "tools": "Pick the tools on your site. Each one adds only what its official documentation asks for. Missing one? Describe it yourself.",
+      "review": "Click any part of the policy to see what it does and **who asked for it**. Then test it before you enforce it."
+    },
+    "next": {
+      "site": "Next: your site",
+      "tools": "Next: your tools",
+      "review": "See your policy"
+    },
+    "back": "Back",
+    "start": {
+      "question": "Start from",
+      "scratch": "Nothing",
+      "scratchHint": "A strict starting point that only trusts your own site, opened up for what you need.",
+      "policy": "The policy I have",
+      "policyHint": "Paste it; everything it already allows is kept.",
+      "paste": "Your current policy",
+      "otherPolicies": {
+        "one": "Another policy found: {count}. The builder works on the first enforced one.",
+        "other": "Other policies found: {count}. The builder works on the first enforced one."
+      },
+      "nonceQuestion": "Can your site add a nonce to each page?",
+      "nonceExplain": {
+        "simple": "A nonce is a one-time code your server writes into each page and into its `<script>` tags. Only scripts carrying it run. Ask your developers: if they're not sure, choose **No**.",
+        "developer": "A fresh random value per response, sent in the policy and set as the `nonce` attribute of every `<script>`. With `'strict-dynamic'`, scripts loaded by a nonced script are trusted too, so tag managers keep working.",
+        "security": "A nonce with `'strict-dynamic'` resists the allowlist bypasses that affect host-based policies (JSONP, open redirects, script gadgets on allowed CDNs). It needs server-side rendering or an edge function to inject the value."
+      },
+      "nonce": "Yes",
+      "nonceHint": "The strongest option: scripts run only if your page vouches for them.",
+      "allowlist": "No, or not sure",
+      "allowlistHint": "Scripts are trusted by where they come from. Simpler to run, easier to bypass."
+    },
+    "site": {
+      "question": "My pages",
+      "you": "Your site",
+      "unsure": "Not sure? Leave it unticked: the browser console will name what's blocked when you test the policy.",
+      "addressHint": "Used to check what 'self' covers. Leave it empty if you prefer.",
+      "needs": {
+        "inline-scripts": {
+          "label": "Have code written directly in the page",
+          "hint": "<script> blocks with code inside, such as a tag snippet pasted into the page.",
+          "detail": "Inline <script> elements. Allowed with 'unsafe-inline', or with the nonce."
+        },
+        "inline-handlers": {
+          "label": "Use onclick=\"…\" style attributes",
+          "hint": "Buttons or links with code in an attribute. Common in older sites and some themes.",
+          "detail": "Inline event handlers (script-src-attr). A nonce can't cover them: only 'unsafe-inline' or 'unsafe-hashes'."
+        },
+        "eval": {
+          "label": "Run code built from text",
+          "hint": "Some older libraries and templates do this. Rare in modern sites.",
+          "detail": "eval(), new Function() or setTimeout with a string. Needs 'unsafe-eval'."
+        },
+        "inline-styles": {
+          "label": "Have styles written directly in the page",
+          "hint": "<style> blocks inside the page, common with page builders.",
+          "detail": "Inline <style> elements. Allowed with 'unsafe-inline', or with the nonce."
+        },
+        "style-attributes": {
+          "label": "Use style=\"…\" attributes",
+          "hint": "Elements styled one by one, common with page builders and rich-text content.",
+          "detail": "Style attributes (style-src-attr). Needs 'unsafe-inline'."
+        },
+        "data-images": {
+          "label": "Show images written as data: addresses",
+          "hint": "Small icons embedded in the code instead of loaded as files.",
+          "detail": "data: URLs in img-src. Low risk for images."
+        }
+      }
+    },
+    "tools": {
+      "none": "Add the tools your site uses. Their needs appear here, with what each one changes in the policy.",
+      "status": {
+        "added": { "one": "{count} added", "other": "{count} added" },
+        "nonce": { "one": "Waiting on the nonce: {count}", "other": "Waiting on the nonce: {count}" },
+        "blocked": { "one": "Can't be allowed: {count}", "other": "Can't be allowed: {count}" },
+        "allowed": "Nothing to add"
+      }
+    },
+    "own": {
+      "intro": "Write what it loads and from where, as its documentation says.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Our image CDN",
+      "loads": "What it loads, and from where",
+      "type": "Kind of resource",
+      "sources": "Addresses, separated by spaces",
+      "sourcesHint": "Write addresses like https://cdn.example.com or https://*.example.com, as listed in the tool's documentation.",
+      "invalid": "Not understood by browsers: {values}. Check the spelling; keywords need quotes, like 'self'.",
+      "addRow": "Add another kind",
+      "removeRow": "Remove",
+      "save": "Add this tool",
+      "update": "Save changes",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "remove": "Remove {name}",
+      "reason": "You added it for {name}.",
+      "forget": "Forget the tools saved in this browser",
+      "group": "Your own tools",
+      "describe": "Describe “{query}” yourself",
+      "describeAny": "Describe a tool that isn't listed",
+      "newTitle": "Describe a tool",
+      "editTitle": "Edit {name}",
+      "storage": "The tools you describe are kept in the link, and remembered in this browser so you can pick them again."
+    },
+    "outcome": {
+      "added": "Added to {directive}",
+      "allowed": "Already allowed by {source}",
+      "unrestricted": "Already allowed: nothing restricts it",
+      "needs-nonce": "Needs the nonce: add it to the tag on your pages",
+      "blocked": "Can't be allowed by adding a value"
+    },
+    "preview": {
+      "title": "Your policy so far",
+      "empty": "Your policy will appear here.",
+      "summary": {
+        "one": "Value added for your site and tools: {count}. It's highlighted.",
+        "other": "Values added for your site and tools: {count}. They're highlighted."
+      }
+    },
+    "review": {
+      "intro": "Highlighted values were added for your site or your tools.",
+      "whoAsked": "Who asked for it",
+      "fromStart": "It was in your starting point.",
+      "copied": "Copied from {directive} when this line was created, so nothing that worked before stops working.",
+      "nonceTitle": "Replace the nonce placeholder",
+      "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection.",
+      "waitingTitle": "Waiting on the nonce",
+      "findingsTitle": "Things to know",
+      "fromTools": "new with your changes",
+      "deployTitle": "Put it live",
+      "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`.",
+      "policyCaption": "The policy on its own",
+      "analyze": "Analyze this policy",
+      "tabs": {
+        "label": "Your policy",
+        "lines": "Line by line",
+        "notes": "Things to know",
+        "live": "Put it live"
+      }
     }
   }
 }

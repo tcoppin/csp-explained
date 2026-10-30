@@ -251,5 +251,10 @@
     "allowedSource": "Allowed source",
     "why": "Why",
     "outdated": "Something changed? [Report an outdated entry]({url})."
+  },
+  "build": {
+    "title": "Build a policy",
+    "description": "Build a Content-Security-Policy from scratch or from the one you have, from the tools you use, with every line explained.",
+    "lead": "Start from nothing or from your current policy, add the tools you use, and get a policy where every line says who asked for it."
   }
 }
