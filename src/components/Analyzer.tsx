@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../config';
-import { localePath, translator, type Locale, type Translate } from '../i18n';
+import { translator, type Locale } from '../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
@@ -9,23 +9,16 @@ import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
 import { I18n, useT } from './i18n';
+import { PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from './PolicyView';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from './Segmented';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
 import { TabList, tabPanelProps } from './Tabs';
-import { useCopy } from './useCopy';
 import { VendorChecker } from './VendorChecker';
 import './analyzer.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
-
-/** Why nothing could be analysed: a pasted console error gets its own explanation. */
-function emptyMessage(t: Translate, issues: ParseResult['issues']): string {
-  const violation = issues.find((i) => i.code === 'violation-message');
-  if (!violation) return t('issues.empty-input');
-  return violation.directive ? t('issues.violation-message', { directive: violation.directive }) : t('issues.violation-message-unnamed');
-}
 
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
@@ -147,12 +140,10 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     saveAudience(a);
   };
 
-  const { copied: shared, copy } = useCopy();
 
   const issues = parsed.issues.filter((i) => i.code !== 'empty-input');
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
-  const ruleCount = parsed.policies.reduce((n, p) => n + p.directives.length, 0);
 
   const badge = (v: View) => {
     if (v === 'read' && issues.length > 0) return <span class="count count-warn">{t('views.issues', { count: issues.length })}</span>;
@@ -169,99 +160,30 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
       <div class="analyzer">
         <section class="input-block" aria-labelledby="input-title">
           {showEditor ? (
-            <>
-              <h1 id="input-title">
-                <label for="policy-input">{t('analyzer.inputLabel')}</label>
-              </h1>
-              <p class="muted">{t('analyzer.inputHint')}</p>
-              <textarea
-                id="policy-input"
-                class="code"
-                rows={hasPolicy ? 4 : 5}
-                spellcheck={false}
-                autocomplete="off"
-                placeholder={t('analyzer.placeholder')}
-                value={input}
-                onInput={(e) => {
-                  typed.current = true;
-                  setPolicy(e.currentTarget.value, false);
-                }}
-                onPaste={(e) => {
-                  // A paste is a complete policy: show the analysis right away.
-                  const text = e.clipboardData?.getData('text') ?? '';
-                  if (text.trim() && !input.trim()) {
-                    e.preventDefault();
-                    typed.current = true;
-                    setPolicy(text, true);
-                  }
-                }}
-              />
-              <div class="input-actions">
-                {hasPolicy ? (
-                  <button type="button" class="button" onClick={() => setEditing(false)}>
-                    {t('analyzer.hideEditor')}
-                  </button>
-                ) : (
-                  <button type="button" class="button quiet" onClick={() => {
-                      track('example');
-                      setPolicy(EXAMPLE_POLICY, true);
-                    }}>
-                    {t('analyzer.example')}
-                  </button>
-                )}
-                <p class="find-hint">
-                  {t('analyzer.noPolicy')} <a href={localePath(locale, '/find-my-csp')}>{t('analyzer.findLink')}</a>
-                </p>
-              </div>
-              <details class="site-field">
-                <summary>{t('analyzer.siteLabel')}</summary>
-                <input type="text" inputMode="url" value={site} placeholder="www.example.com" onInput={(e) => setSite(e.currentTarget.value)} />
-                <p class="muted">{t('analyzer.siteHint')}</p>
-              </details>
-              {!hasPolicy &&
-                (input.trim() !== '' ? (
-                  <p class="issue">{emptyMessage(t, parsed.issues)}</p>
-                ) : (
-                  <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
-                ))}
-            </>
+            <PolicyEditor
+              input={input}
+              parsed={parsed}
+              hasPolicy={hasPolicy}
+              site={site}
+              onType={(text, collapse) => {
+                typed.current = true;
+                setPolicy(text, collapse);
+              }}
+              onExample={() => setPolicy(EXAMPLE_POLICY, true)}
+              onSite={setSite}
+              onDone={() => setEditing(false)}
+            />
           ) : (
-            <>
-              <h1 id="input-title">{t('analyzer.yourPolicy')}</h1>
-              <div class="summary-bar">
-                <p class="summary">
-                  {parsed.policies.length > 1 ? (
-                    <span class="badge">{t('analyzer.policiesShort', { count: parsed.policies.length })}</span>
-                  ) : (
-                    <span class={policy?.reportOnly ? 'badge badge-report' : 'badge'}>
-                      {policy?.reportOnly ? t('analyzer.reportOnly') : t('analyzer.enforced')}
-                    </span>
-                  )}
-                  <span>{t('analyzer.rules', { count: ruleCount })}</span>
-                  {policy?.origin === 'header' && <span class="muted">{t('analyzer.fromHeader')}</span>}
-                  {policy?.origin === 'meta' && <span class="muted">{t('analyzer.fromMeta')}</span>}
-                </p>
-                <div class="summary-actions">
-                  <button type="button" class="button quiet" onClick={() => setEditing(true)}>
-                    {t('analyzer.edit')}
-                  </button>
-                  <button type="button" class="button quiet" onClick={() => copy(location.href)} title={t('analyzer.shareHint')}>
-                    {shared ? t('analyzer.shared') : t('analyzer.share')}
-                  </button>
-                  <button
-                    type="button"
-                    class="button quiet"
-                    onClick={() => {
-                      setPolicy('', false);
-                      setEditing(true);
-                      setView('read');
-                    }}
-                  >
-                    {t('analyzer.clear')}
-                  </button>
-                </div>
-              </div>
-            </>
+            <PolicySummary
+              parsed={parsed}
+              policy={policy}
+              onEdit={() => setEditing(true)}
+              onClear={() => {
+                setPolicy('', false);
+                setEditing(true);
+                setView('read');
+              }}
+            />
           )}
         </section>
 
