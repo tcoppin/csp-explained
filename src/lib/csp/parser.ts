@@ -235,6 +235,20 @@ export function issuesAt(issues: ParseIssue[], policyIndex: number, directive: D
   });
 }
 
+/**
+ * One issue per kind of mistake, for the list of things to check: a directive written three times, or the
+ * same invalid value in two policies, is one thing to fix and reads as the same sentence.
+ */
+export function distinctIssues(issues: ParseIssue[]): ParseIssue[] {
+  const seen = new Set<string>();
+  return issues.filter((i) => {
+    const key = `${i.code}|${i.directive ?? ''}|${i.value ?? ''}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /** Splits a policy string into directives without any of the extraction heuristics. */
 export function parseSinglePolicy(text: string, origin: PolicyOrigin = 'raw', reportOnly = false): Policy {
   return parsePolicy({ origin, reportOnly, text }, 0, []);

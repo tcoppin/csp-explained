@@ -5,6 +5,7 @@ import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
+import { distinctIssues } from '../lib/csp/parser';
 import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
@@ -141,7 +142,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   };
 
 
-  const issues = parsed.issues.filter((i) => i.code !== 'empty-input');
+  const issues = distinctIssues(parsed.issues.filter((i) => i.code !== 'empty-input'));
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
 

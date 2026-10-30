@@ -204,6 +204,16 @@ test('options are chosen with the arrow keys', async ({ page }) => {
   await expect(page.getByRole('radio', { name: 'Security' })).toHaveAttribute('tabindex', '-1');
 });
 
+test('a directive written three times is one thing to check', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self'; script-src https://a.example; script-src 'none'");
+  await expect(page.locator('.issue-list li')).toHaveCount(1);
+  await expect(page.getByRole('tab', { name: /Read it/ })).toContainText('1 to check');
+  // The copy the browser uses carries no warning; the ignored copies do.
+  await expect(page.locator('.policy .line').nth(0).locator('.flag')).toHaveCount(0);
+  await expect(page.locator('.policy .line').nth(2).locator('.flag')).toHaveCount(1);
+});
+
 test('switching policy on another view still explains the policy shown', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self', img-src 'self'");
