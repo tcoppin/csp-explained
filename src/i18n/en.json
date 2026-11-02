@@ -170,6 +170,7 @@
       "greeting": "Hi,",
       "intro": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it currently gets in the way:",
       "introOk": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use) and it already allows them, so no change seems needed.",
+      "introReported": "We'd like to use {vendors} on {site}. I checked our Content-Security-Policy (the browser rule that lists which outside services our pages can use): nothing blocks them, but our report-only policy would report them, so they would show up in the violation reports:",
       "ourSite": "our website",
       "blockedLine": "{vendor} is blocked for {items}.",
       "needsNonceLine": "{vendor}: our policy only trusts scripts carrying a one-time code (nonce). The tool supports it, but the way it is added to the page needs to pass the code on. {how}",
@@ -199,6 +200,7 @@
       "full": "Updated policy",
       "deploy": "Where to set it",
       "needsNonce": "Needs nonce propagation",
+      "reportOnly": "The report-only policy changes too: as it stands, it would report {vendors} on every page load.",
       "verify": "Test it first with Content-Security-Policy-Report-Only, then watch the browser console for \"Refused to load\" messages.",
       "diffCaption": "Changes, rule by rule. Copying gives the full updated policy.",
       "targets": {
@@ -257,6 +259,7 @@
     "issues": "{count} to check",
     "blocked": "{count} blocked",
     "nonce": "{count} need a nonce",
+    "reported": "{count} reported",
     "allOk": "all OK"
   },
   "explanation": {

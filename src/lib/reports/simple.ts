@@ -74,7 +74,8 @@ function risks(a: Analysis, t: Translate): string[] {
   const out = new Set<string>();
   for (const v of a.vendors) {
     for (const r of v.results) {
-      if (r.verdict !== 'blocked') continue;
+      // What the patch adds: to the enforced policy, or to the report-only one that would report it.
+      if (r.verdict !== 'blocked' && !r.reported) continue;
       const { type, source } = r.requirement;
       const vendor = v.vendor.name;
       if (source === "'unsafe-inline'" && (type === 'inline-script' || type === 'inline-handler')) {
@@ -96,9 +97,12 @@ function sections(a: Analysis, t: Translate, opts: ItRequestOptions): Sections {
   const vendors = list(t, a.vendors.map((v) => v.vendor.name));
   const site = opts.site || t('report.simple.ourSite');
   const needsAction = a.vendors.some((v) => v.verdict !== 'allowed' || v.reported);
+  // Nothing is blocked, but a report-only policy would report some of the tools.
+  const onlyReported = needsAction && a.vendors.every((v) => v.verdict === 'allowed' || v.verdict === 'reported');
+  const intro = !needsAction ? 'introOk' : onlyReported ? 'introReported' : 'intro';
   return {
     subject: t('report.simple.subject', { vendors }),
-    intro: needsAction ? t('report.simple.intro', { vendors, site }) : t('report.simple.introOk', { vendors, site }),
+    intro: t(`report.simple.${intro}`, { vendors, site }),
     vendorLines: needsAction ? a.vendors.map((v) => vendorLine(v, t)) : [],
     changes: a.patches.flatMap((p) => p.changes.map((c) => changeLine(c, t))),
     policies: a.patches.length > 0 ? patchedPolicies(a).map((p) => p.text) : [],

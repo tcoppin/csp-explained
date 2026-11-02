@@ -170,6 +170,7 @@
       "greeting": "Bonjour,",
       "intro": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle bloque pour l'instant :",
       "introOk": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) et elle les autorise déjà : aucun changement ne semble nécessaire.",
+      "introReported": "Nous aimerions utiliser {vendors} sur {site}. J'ai vérifié notre Content-Security-Policy (la règle du navigateur qui liste les services extérieurs que nos pages peuvent utiliser) : rien ne les bloque, mais notre politique en mode rapport seul les signalerait, donc ils apparaîtraient dans les rapports de violation :",
       "ourSite": "notre site",
       "blockedLine": "{vendor} est bloqué pour : {items}.",
       "needsNonceLine": "{vendor} : notre politique ne fait confiance qu'aux scripts portant un code à usage unique (nonce). L'outil le gère, mais la façon dont il est ajouté à la page doit transmettre ce code. {how}",
@@ -199,6 +200,7 @@
       "full": "Politique mise à jour",
       "deploy": "Où la définir",
       "needsNonce": "Propagation du nonce nécessaire",
+      "reportOnly": "La politique en mode rapport seul change aussi : en l'état, elle signalerait {vendors} à chaque chargement de page.",
       "verify": "Testez-la d'abord avec Content-Security-Policy-Report-Only, puis surveillez la console du navigateur pour les messages « Refused to load ».",
       "diffCaption": "Les changements, règle par règle. La copie donne la politique complète mise à jour.",
       "targets": {
@@ -257,6 +259,7 @@
     "issues": "{count} à vérifier",
     "blocked": "{count} bloqués",
     "nonce": "{count} demandent un nonce",
+    "reported": "{count} signalés",
     "allOk": "tout est OK"
   },
   "explanation": {

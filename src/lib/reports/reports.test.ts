@@ -69,8 +69,14 @@ describe('itRequest', () => {
     expect(a.vendors[0]).toMatchObject({ verdict: 'allowed', reported: true });
     const mail = itRequest(a, t, { format: 'email', toolUrl: 'x' });
     expect(mail).toContain("AB Tasty: already allowed, but our report-only policy doesn't allow it yet");
+    expect(mail).toContain('nothing blocks them, but our report-only policy would report them');
     expect(mail).toContain('Proposed change');
+    expect(mail).toContain('Good to know'); // the patch adds 'unsafe-inline' to the report-only policy
     expect(a.patches.map((p) => p.policyIndex)).toEqual([1]);
+
+    const dev = developerReport(a, t);
+    expect(dev).toContain('The report-only policy changes too: as it stands, it would report AB Tasty');
+    expect(developerReport(analyze(POLICY, [{ vendor: abTasty, features: tag }]), t)).not.toContain('report-only policy changes');
   });
 });
 

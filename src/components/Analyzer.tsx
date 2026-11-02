@@ -145,12 +145,14 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const issues = distinctIssues(parsed.issues.filter((i) => i.code !== 'empty-input'));
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
+  const reported = analysis.vendors.filter((v) => v.reported).length;
 
   const badge = (v: View) => {
     if (v === 'read' && issues.length > 0) return <span class="count count-warn">{t('views.issues', { count: issues.length })}</span>;
     if (v === 'tools' && analysis.vendors.length > 0) {
       if (blocked > 0) return <span class="count count-bad">{t('views.blocked', { count: blocked })}</span>;
       if (nonce > 0) return <span class="count count-warn">{t('views.nonce', { count: nonce })}</span>;
+      if (reported > 0) return <span class="count count-warn">{t('views.reported', { count: reported })}</span>;
       return <span class="count count-ok">{t('views.allOk')}</span>;
     }
     return null;

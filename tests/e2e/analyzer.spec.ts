@@ -83,6 +83,18 @@ test('explains a policy, checks a tool and writes the IT request', async ({ page
   expect(errors).toEqual([]);
 });
 
+test('a tool the enforced policy allows but the report-only policy would report shows as such', async ({ page }) => {
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill("Content-Security-Policy: default-src * data: 'unsafe-inline'\nContent-Security-Policy-Report-Only: default-src 'self'");
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  await expect(page.locator('.vendor-result')).toContainText('Works, but would be reported');
+  await expect(page.locator('.vendor-result')).toContainText('It works, but the report-only policy would still report it.');
+  await expect(page.getByRole('tab', { name: /Will my tools work/ })).toContainText('1 reported');
+});
+
 test('counts usage without ever sending the policy', async ({ page, context }) => {
   await openAnalyzer(page);
   await expect.poll(sent).toEqual(['n=visit&page=%2F']);

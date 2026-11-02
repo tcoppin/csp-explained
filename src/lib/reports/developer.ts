@@ -119,12 +119,29 @@ export function deploySnippet(a: Analysis, target: Target): string {
   }
 }
 
+/**
+ * Tools a report-only policy would report, when the proposed change updates a report-only policy:
+ * the diff touches a policy that doesn't block anything, and this says why.
+ */
+export function reportedTools(a: Analysis): string[] {
+  if (!a.patches.some((p) => a.parsed.policies[p.policyIndex]?.reportOnly)) return [];
+  return a.vendors.filter((v) => v.reported).map((v) => v.vendor.name);
+}
+
+/** The note that goes with `reportedTools`, or an empty string. */
+export function reportOnlyNote(a: Analysis, t: Translate): string {
+  const tools = reportedTools(a);
+  return tools.length === 0 ? '' : t('report.developer.reportOnly', { vendors: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(tools) });
+}
+
 /** Markdown summary for developers: diff, full policies, nonce notes. */
 export function developerReport(a: Analysis, t: Translate): string {
   const out: string[] = [`## ${t('report.developer.title')}`, ''];
   if (a.patches.length === 0) out.push(t('report.developer.noChange'));
   else {
     out.push(`### ${t('report.developer.diff')}`, '', '```diff', policyDiff(a), '```', '');
+    const note = reportOnlyNote(a, t);
+    if (note) out.push(note, '');
     out.push(`### ${t('report.developer.full')}`, '');
     for (const p of patchedPolicies(a)) out.push('```', `${headerName(p.reportOnly)}: ${p.text}`, '```', '');
   }
