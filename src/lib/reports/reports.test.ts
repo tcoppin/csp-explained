@@ -160,6 +160,14 @@ describe('developer report', () => {
       // Only <meta> policies: moving them to the server is what the snippet suggests.
       expect(deploySnippet(analyze(html, []), 'nginx')).toBe(`add_header Content-Security-Policy "${B}" always;`);
     });
+
+    it('names each policy in the diff by where it is set', () => {
+      const html = `<meta http-equiv="Content-Security-Policy" content="${B}">`;
+      const mixed = analyze(`Content-Security-Policy-Report-Only: ${R}\n${html}`, [{ vendor: abTasty, features: tag }]);
+      const diff = policyDiff(mixed);
+      expect(diff).toContain('# policy 1: Content-Security-Policy-Report-Only');
+      expect(diff).toContain('# policy 2: <meta> tag');
+    });
   });
 
   it('escapes quotes in the policy inside quoted snippets', () => {

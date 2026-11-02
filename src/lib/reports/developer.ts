@@ -17,7 +17,12 @@ export function policyDiff(a: Analysis): string {
   return a.patches
     .map((patch) => {
       const lines: string[] = [];
-      if (a.parsed.policies.length > 1) lines.push(`# policy ${patch.policyIndex + 1}`);
+      if (a.parsed.policies.length > 1) {
+        // Where the policy is set, in words that need no translation: its header, or the <meta> tag.
+        const p = a.parsed.policies[patch.policyIndex]!;
+        const where = p.origin === 'meta' ? '<meta> tag' : headerName(p.reportOnly);
+        lines.push(`# policy ${patch.policyIndex + 1}: ${where}`);
+      }
       for (const c of patch.changes) {
         if (c.before) lines.push(`- ${c.before}`);
         lines.push(`+ ${c.after}`);
