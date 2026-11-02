@@ -4,7 +4,7 @@ import { LOCALE_NAMES, LOCALES, localePath, translator, type Locale, type Transl
 import { patchedPolicies, type Analysis } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { Audience } from '../lib/csp/model';
-import { deploySnippet, developerReport, headersBesideMeta, policyDiff, reportOnlyNote, TARGETS, type Target } from '../lib/reports/developer';
+import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../lib/reports/developer';
 import { countByLevel, findingText, securityReport } from '../lib/reports/security';
 import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
@@ -97,6 +97,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
     const markdown = developerReport(analysis, t);
     const snippet = deploySnippet(analysis, target);
     const metaHeaders = target === 'meta' ? headersBesideMeta(analysis) : '';
+    const keptMeta = metaBesideHeaders(analysis, target);
     const reportOnly = reportOnlyNote(analysis, t);
     return (
       <div class="report">
@@ -120,6 +121,9 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
             <Segmented class="tabs" items={labelled(t, TARGETS, 'report.developer.targets')} value={target} onChange={setTarget} label={t('report.developer.deploy')} />
             {snippet && <CodeBox caption={t(`report.developer.targetCaptions.${target}`)} copyText={snippet} onCopy={copied('deploy')} />}
             {metaHeaders && <CodeBox caption={t('report.developer.metaHeaders')} copyText={metaHeaders} onCopy={copied('deploy')} />}
+            {keptMeta.tags && (
+              <CodeBox caption={t('report.developer.metaKept', { count: keptMeta.count })} copyText={keptMeta.tags} onCopy={copied('deploy')} />
+            )}
           </>
         )}
         {analysis.vendors.some((v) => v.verdict === 'needs-nonce') && (

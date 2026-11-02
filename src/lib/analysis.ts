@@ -1,7 +1,7 @@
 import { requirementsOf } from './catalogue/requirements';
 import type { Feature, Vendor } from './catalogue/schema';
 import { checkRequirements, type RequirementResult, type RequirementVerdict } from './csp/compat';
-import type { ParseResult } from './csp/model';
+import type { ParseResult, PolicyOrigin } from './csp/model';
 import { parse, parseSinglePolicy } from './csp/parser';
 import { buildPatches, type PolicyPatch } from './csp/patch';
 import { evaluateSecurity, type SecurityFinding } from './csp/security';
@@ -63,10 +63,17 @@ export function analyze(input: string, selections: VendorSelection[], origin = D
   return { parsed, origin, vendors, patches, findings, introducedFindings };
 }
 
+export interface PatchedPolicy {
+  text: string;
+  reportOnly: boolean;
+  origin: PolicyOrigin;
+  changed: boolean;
+}
+
 /** The patched version of every policy (unchanged ones included), in order. */
-export function patchedPolicies(a: Analysis): { text: string; reportOnly: boolean; changed: boolean }[] {
+export function patchedPolicies(a: Analysis): PatchedPolicy[] {
   return a.parsed.policies.map((p, i) => {
     const patch = a.patches.find((x) => x.policyIndex === i);
-    return { text: patch?.after ?? p.text, reportOnly: p.reportOnly, changed: patch !== undefined };
+    return { text: patch?.after ?? p.text, reportOnly: p.reportOnly, origin: p.origin, changed: patch !== undefined };
   });
 }

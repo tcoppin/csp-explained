@@ -6,7 +6,7 @@ import { analyze } from '../analysis';
 import { parseVendor } from '../catalogue/schema';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
-import { deploySnippet, developerReport, headersBesideMeta, policyDiff } from './developer';
+import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff } from './developer';
 import { findingText, securityReport } from './security';
 import { itRequest } from './simple';
 
@@ -102,6 +102,64 @@ describe('developer report', () => {
       "Content-Security-Policy: frame-ancestors 'none'; report-uri /csp\nContent-Security-Policy-Report-Only: img-src 'self' *.abtasty.com",
     );
     expect(headersBesideMeta(a)).toBe('');
+  });
+
+  describe('with several policies', () => {
+    const two = analyze("Content-Security-Policy: script-src 'self'\nContent-Security-Policy: img-src 'self'\nContent-Security-Policy-Report-Only: default-src 'self'", []);
+    const A = "script-src 'self'";
+    const B = "img-src 'self'";
+    const R = "default-src 'self'";
+
+    it('nginx sends each policy as its own header', () => {
+      expect(deploySnippet(two, 'nginx').split('\n')).toEqual([
+        `add_header Content-Security-Policy "${A}" always;`,
+        `add_header Content-Security-Policy "${B}" always;`,
+        `add_header Content-Security-Policy-Report-Only "${R}" always;`,
+      ]);
+    });
+
+    it('Apache adds the second policy instead of replacing the first', () => {
+      expect(deploySnippet(two, 'apache').split('\n')).toEqual([
+        `Header always set Content-Security-Policy "${A}"`,
+        `Header always add Content-Security-Policy "${B}"`,
+        `Header always set Content-Security-Policy-Report-Only "${R}"`,
+      ]);
+    });
+
+    it('CloudFront keeps every policy: enforced ones share the CSP, report-only is a custom header', () => {
+      const yaml = deploySnippet(two, 'cloudfront');
+      expect(yaml).toContain(`ContentSecurityPolicy: "${A}, ${B}"`);
+      expect(yaml).toContain('- Header: Content-Security-Policy-Report-Only');
+      expect(yaml).toContain(`Value: "${R}"`);
+      const onlyReport = deploySnippet(analyze(`Content-Security-Policy-Report-Only: ${R}`, []), 'cloudfront');
+      expect(onlyReport).not.toContain('SecurityHeadersConfig');
+    });
+
+    it('Netlify and Vercel set each header once, its policies separated by commas', () => {
+      expect(deploySnippet(two, 'netlify')).toBe(`/*\n  Content-Security-Policy: ${A}, ${B}\n  Content-Security-Policy-Report-Only: ${R}`);
+      expect(JSON.parse(deploySnippet(two, 'vercel')).headers[0].headers).toEqual([
+        { key: 'Content-Security-Policy', value: `${A}, ${B}` },
+        { key: 'Content-Security-Policy-Report-Only', value: R },
+      ]);
+    });
+
+    it('Express sends policies sharing a header together, since a second helmet call would replace the first', () => {
+      const js = deploySnippet(two, 'express');
+      expect(js).toContain(`res.setHeader("Content-Security-Policy", [\n    ${JSON.stringify(A)},\n    ${JSON.stringify(B)},\n  ]);`);
+      expect(js).toContain('reportOnly: true,');
+      expect(js.match(/helmet\.contentSecurityPolicy/g)).toHaveLength(1);
+    });
+
+    it('leaves a <meta> policy in the page when another policy comes from the server', () => {
+      const html = `<meta http-equiv="Content-Security-Policy" content="${B}">`;
+      const mixed = analyze(`Content-Security-Policy: ${A}\n${html}`, []);
+      expect(deploySnippet(mixed, 'nginx')).toBe(`add_header Content-Security-Policy "${A}" always;`);
+      expect(metaBesideHeaders(mixed, 'nginx')).toEqual({ tags: html, count: 1 });
+      expect(metaBesideHeaders(mixed, 'meta')).toEqual({ tags: '', count: 0 });
+      expect(metaBesideHeaders(two, 'nginx')).toEqual({ tags: '', count: 0 });
+      // Only <meta> policies: moving them to the server is what the snippet suggests.
+      expect(deploySnippet(analyze(html, []), 'nginx')).toBe(`add_header Content-Security-Policy "${B}" always;`);
+    });
   });
 
   it('escapes quotes in the policy inside quoted snippets', () => {

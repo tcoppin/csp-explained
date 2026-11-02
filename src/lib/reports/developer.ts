@@ -1,5 +1,5 @@
 import type { Translate } from '../../i18n';
-import { patchedPolicies, type Analysis } from '../analysis';
+import { patchedPolicies, type Analysis, type PatchedPolicy } from '../analysis';
 import { directiveInfo } from '../csp/directives';
 import { parseSinglePolicy } from '../csp/parser';
 
@@ -64,58 +64,138 @@ function helmetDirectives(policy: string): string {
   return entries.join('\n');
 }
 
+/**
+ * Policies set by a <meta> tag stay in the page when others come from the server: the server snippets leave
+ * them out and `metaBesideHeaders` shows the updated tags. Otherwise every policy goes where the target says.
+ */
+const keepsMeta = (policies: PatchedPolicy[]) =>
+  policies.some((p) => p.origin === 'meta') && policies.some((p) => p.origin !== 'meta');
+
+/** What a server or platform sends: every policy, or those not set by a <meta> tag that stays. */
+const serverPolicies = (a: Analysis) => {
+  const policies = patchedPolicies(a);
+  return keepsMeta(policies) ? policies.filter((p) => p.origin !== 'meta') : policies;
+};
+
+/** The <meta> tags for enforced policies, without the directives browsers ignore there. */
+const metaTags = (policies: PatchedPolicy[]) =>
+  policies
+    .filter((p) => !p.reportOnly)
+    .map((p) => splitForMeta(p.text).meta)
+    .filter((text) => text !== '')
+    .map((text) => `<meta http-equiv="Content-Security-Policy" content="${text.replace(/"/g, '&quot;')}">`)
+    .join('\n');
+
+/**
+ * The <meta> tags to keep in the page next to a server snippet, when some policies come from <meta> and
+ * others from the server. Empty otherwise.
+ */
+export function metaBesideHeaders(a: Analysis, target: Target): { tags: string; count: number } {
+  const policies = patchedPolicies(a);
+  if (target === 'meta' || !keepsMeta(policies)) return { tags: '', count: 0 };
+  const kept = policies.filter((p) => p.origin === 'meta');
+  return { tags: metaTags(kept), count: kept.length };
+}
+
+/**
+ * One entry per header name, its policies in order. Several policies can share a header: browsers read
+ * `Content-Security-Policy: a, b` as two policies, each enforced on its own.
+ */
+function byHeader(policies: PatchedPolicy[]): { name: string; texts: string[] }[] {
+  const out: { name: string; texts: string[] }[] = [];
+  for (const p of policies) {
+    const name = headerName(p.reportOnly);
+    const group = out.find((g) => g.name === name);
+    if (group) group.texts.push(p.text);
+    else out.push({ name, texts: [p.text] });
+  }
+  return out;
+}
+
+const joined = (texts: string[]) => texts.join(', ');
+
+function expressSnippet(policies: PatchedPolicy[]): string {
+  return byHeader(policies)
+    .map(({ name, texts }) => {
+      if (texts.length === 1) {
+        return [
+          'app.use(',
+          '  helmet.contentSecurityPolicy({',
+          '    useDefaults: false,',
+          ...(name === headerName(true) ? ['    reportOnly: true,'] : []),
+          '    directives: {',
+          helmetDirectives(texts[0]!),
+          '    },',
+          '  }),',
+          ');',
+        ].join('\n');
+      }
+      // helmet sets one policy per header, and a second call would replace the first: an array sends each one.
+      return [
+        'app.use((req, res, next) => {',
+        `  res.setHeader(${JSON.stringify(name)}, [`,
+        ...texts.map((text) => `    ${JSON.stringify(text)},`),
+        '  ]);',
+        '  next();',
+        '});',
+      ].join('\n');
+    })
+    .join('\n\n');
+}
+
 /** Configuration snippet setting the (patched) policies on a given server or platform. */
 export function deploySnippet(a: Analysis, target: Target): string {
-  const policies = patchedPolicies(a);
+  if (target === 'meta') return metaTags(patchedPolicies(a)); // What a <meta> tag can't carry: headersBesideMeta().
+  const policies = serverPolicies(a);
   switch (target) {
     case 'nginx':
+      // nginx sends each add_header, even with the same name.
       return policies.map((p) => `add_header ${headerName(p.reportOnly)} ${quoted(p.text)} always;`).join('\n');
-    case 'apache':
-      return policies.map((p) => `Header always set ${headerName(p.reportOnly)} ${quoted(p.text)}`).join('\n');
+    case 'apache': {
+      // "set" replaces a header already set: the policies after the first one with the same name are added.
+      const seen = new Set<string>();
+      return policies
+        .map((p) => {
+          const name = headerName(p.reportOnly);
+          const verb = seen.has(name) ? 'add' : 'set';
+          seen.add(name);
+          return `Header always ${verb} ${name} ${quoted(p.text)}`;
+        })
+        .join('\n');
+    }
     case 'cloudfront': {
-      // Response headers policy (CloudFormation / CDK). Only one CSP header can be set this way.
-      const enforced = policies.find((p) => !p.reportOnly) ?? policies[0];
+      // Response headers policy (CloudFormation / CDK). The security headers have one CSP, so the enforced
+      // policies share it; the report-only header is a custom header.
+      const groups = byHeader(policies);
+      const enforced = groups.find((g) => g.name === headerName(false));
+      const reportOnly = groups.find((g) => g.name === headerName(true));
+      // A JSON string is a valid double-quoted YAML string.
       return [
         'ResponseHeadersPolicyConfig:',
-        '  SecurityHeadersConfig:',
-        '    ContentSecurityPolicy:',
-        // A JSON string is a valid double-quoted YAML string.
-        `      ContentSecurityPolicy: ${JSON.stringify(enforced?.text ?? '')}`,
-        '      Override: true',
+        ...(enforced
+          ? ['  SecurityHeadersConfig:', '    ContentSecurityPolicy:', `      ContentSecurityPolicy: ${JSON.stringify(joined(enforced.texts))}`, '      Override: true']
+          : []),
+        ...(reportOnly
+          ? [
+              '  CustomHeadersConfig:',
+              '    Items:',
+              `      - Header: ${reportOnly.name}`,
+              `        Value: ${JSON.stringify(joined(reportOnly.texts))}`,
+              '        Override: true',
+            ]
+          : []),
       ].join('\n');
     }
     case 'netlify':
-      return ['/*', ...policies.map((p) => `  ${headerName(p.reportOnly)}: ${p.text}`)].join('\n');
+      return ['/*', ...byHeader(policies).map((g) => `  ${g.name}: ${joined(g.texts)}`)].join('\n');
     case 'vercel':
       return JSON.stringify(
-        { headers: [{ source: '/(.*)', headers: policies.map((p) => ({ key: headerName(p.reportOnly), value: p.text })) }] },
+        { headers: [{ source: '/(.*)', headers: byHeader(policies).map((g) => ({ key: g.name, value: joined(g.texts) })) }] },
         null,
         2,
       );
     case 'express':
-      return policies
-        .map((p) =>
-          [
-            'app.use(',
-            '  helmet.contentSecurityPolicy({',
-            '    useDefaults: false,',
-            ...(p.reportOnly ? ['    reportOnly: true,'] : []),
-            '    directives: {',
-            helmetDirectives(p.text),
-            '    },',
-            '  }),',
-            ');',
-          ].join('\n'),
-        )
-        .join('\n\n');
-    case 'meta':
-      // What a <meta> tag can't carry is in headersBesideMeta().
-      return policies
-        .filter((p) => !p.reportOnly)
-        .map((p) => splitForMeta(p.text).meta)
-        .filter((text) => text !== '')
-        .map((text) => `<meta http-equiv="Content-Security-Policy" content="${text.replace(/"/g, '&quot;')}">`)
-        .join('\n');
+      return expressSnippet(policies);
   }
 }
 

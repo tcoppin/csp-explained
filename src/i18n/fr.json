@@ -221,7 +221,11 @@
         "express": "À ajouter dans votre application Express",
         "meta": "À ajouter dans le <head> de chaque page"
       },
-      "metaHeaders": "Les navigateurs les ignorent dans une balise <meta> : envoyez-les en en-têtes HTTP depuis votre serveur"
+      "metaHeaders": "Les navigateurs les ignorent dans une balise <meta> : envoyez-les en en-têtes HTTP depuis votre serveur",
+      "metaKept": {
+        "one": "Cette politique vient d'une balise <meta> : remplacez cette balise dans le <head> de vos pages",
+        "other": "Ces politiques viennent de balises <meta> : remplacez ces balises dans le <head> de vos pages"
+      }
     },
     "security": {
       "title": "Examen de sécurité",

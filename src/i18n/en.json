@@ -221,7 +221,11 @@
         "express": "Add to your Express app",
         "meta": "Add to the <head> of every page"
       },
-      "metaHeaders": "Browsers ignore these in a <meta> tag: send them as HTTP headers from your server"
+      "metaHeaders": "Browsers ignore these in a <meta> tag: send them as HTTP headers from your server",
+      "metaKept": {
+        "one": "This policy comes from a <meta> tag: replace that tag in the <head> of your pages",
+        "other": "These policies come from <meta> tags: replace those tags in the <head> of your pages"
+      }
     },
     "security": {
       "title": "Security review",
