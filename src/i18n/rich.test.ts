@@ -47,6 +47,18 @@ describe('translator', () => {
     expect(t('nope.missing')).toBe('nope.missing');
   });
 
+  it('picks the plural form from the count, by each language\'s rules', () => {
+    const tf = translatorFor({ currentLocale: 'fr' });
+    expect(t('analyzer.rules', { count: 1 })).toBe('1 rule');
+    expect(t('analyzer.rules', { count: 0 })).toBe('0 rules');
+    expect(t('views.nonce', { count: 2 })).toBe('2 need a nonce');
+    expect(tf('views.blocked', { count: 1 })).toBe('1 bloqué');
+    expect(tf('views.blocked', { count: 0 })).toBe('0 bloqué');
+    expect(tf('views.blocked', { count: 3 })).toBe('3 bloqués');
+    expect(tf('views.blocked')).toBe('{count} bloqués');
+    expect(t.has('analyzer.rules')).toBe(true);
+  });
+
   it('lists the keys of a group in order', () => {
     expect(t.keys('pages.find.source.steps')).toEqual(['pages.find.source.steps.0', 'pages.find.source.steps.1', 'pages.find.source.steps.2']);
     expect(t.keys('site.name')).toEqual([]);

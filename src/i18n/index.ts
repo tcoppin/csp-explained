@@ -61,17 +61,36 @@ export const localeParams = () => LOCALES.map((l) => ({ params: { lang: l === DE
 export const interpolate = (text: string, vars: Vars = {}) =>
   text.replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m));
 
-/** `t('report.subject', { vendors: 'X' })` → interpolates `{vendors}`; returns the key when missing. */
+/** A message whose wording depends on `{count}`: `{ "one": "{count} rule", "other": "{count} rules" }`. */
+type Plural = { other: string } & Partial<Record<Intl.LDMLPluralRule, string>>;
+
+const isPlural = (value: unknown): value is Plural =>
+  !!value && typeof value === 'object' && typeof (value as Plural).other === 'string';
+
+/** The form for `count` in the language's plural rules (French 0 and 1 are singular), `other` when absent. */
+function pluralForm(value: Plural, locale: Locale, count: unknown): string {
+  if (typeof count !== 'number') return value.other;
+  return value[new Intl.PluralRules(locale).select(count)] ?? value.other;
+}
+
+/**
+ * `t('report.subject', { vendors: 'X' })` → interpolates `{vendors}`; returns the key when missing.
+ * A plural message picks its form from `vars.count`.
+ */
 export function translator(locale: Locale, messages: object = MESSAGES[locale]): Translate {
   const t = (key: string, vars?: Vars) => {
     const value = lookup(messages, key);
-    return typeof value === 'string' ? interpolate(value, vars) : key;
+    if (typeof value === 'string') return interpolate(value, vars);
+    return isPlural(value) ? interpolate(pluralForm(value, locale, vars?.count), vars) : key;
   };
   const keys = (key: string) => {
     const node = lookup(messages, key);
     return node && typeof node === 'object' ? Object.keys(node).map((k) => `${key}.${k}`) : [];
   };
-  const has = (key: string) => typeof lookup(messages, key) === 'string';
+  const has = (key: string) => {
+    const value = lookup(messages, key);
+    return typeof value === 'string' || isPlural(value);
+  };
   return Object.assign(t, { keys, has, locale });
 }
 

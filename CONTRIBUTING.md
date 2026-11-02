@@ -93,6 +93,10 @@ content is translated in separate files that hold text only: `src/content/<local
 `catalogue/i18n/<locale>/<vendor id>.yaml`. Hosts, resource types and verification dates always come from the
 English files, so a translation can't change what a tool needs.
 
+A message that shows a number has a form per plural category, picked from `{count}` with each language's rules
+(French uses the singular for 0 and 1): `"rules": { "one": "{count} rule", "other": "{count} rules" }`. Give every
+language the same categories, even when the words don't change.
+
 Each translated field records a hash of the English text it was translated from:
 
 ```yaml

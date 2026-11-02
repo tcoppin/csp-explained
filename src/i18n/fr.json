@@ -63,7 +63,7 @@
     "clickHint": "Cliquez sur n'importe quelle partie de la politique pour voir ce qu'elle signifie.",
     "empty": "Collez une politique ci-dessus pour commencer.",
     "whatYouGet": "Vous obtiendrez une explication en termes simples, ce que la politique autorise, si vos outils fonctionneront avec elle et un message pour votre équipe informatique.",
-    "rules": "{count} règles",
+    "rules": { "one": "{count} règle", "other": "{count} règles" },
     "edit": "Modifier",
     "hideEditor": "Terminé",
     "policiesShort": "{count} politiques",
@@ -257,9 +257,9 @@
     "tools": "Mes outils fonctionneront-ils ?",
     "report": "Rapport",
     "issues": "{count} à vérifier",
-    "blocked": "{count} bloqués",
-    "nonce": "{count} demandent un nonce",
-    "reported": "{count} signalés",
+    "blocked": { "one": "{count} bloqué", "other": "{count} bloqués" },
+    "nonce": { "one": "{count} demande un nonce", "other": "{count} demandent un nonce" },
+    "reported": { "one": "{count} signalé", "other": "{count} signalés" },
     "allOk": "tout est OK"
   },
   "explanation": {

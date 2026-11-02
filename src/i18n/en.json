@@ -63,7 +63,7 @@
     "clickHint": "Click any part of the policy to see what it means.",
     "empty": "Paste a policy above to get started.",
     "whatYouGet": "You'll get a plain-language explanation, what the policy allows, whether your tools will work with it, and a message for your IT team.",
-    "rules": "{count} rules",
+    "rules": { "one": "{count} rule", "other": "{count} rules" },
     "edit": "Edit",
     "hideEditor": "Done",
     "policiesShort": "{count} policies",
@@ -257,9 +257,9 @@
     "tools": "Will my tools work?",
     "report": "Report",
     "issues": "{count} to check",
-    "blocked": "{count} blocked",
-    "nonce": "{count} need a nonce",
-    "reported": "{count} reported",
+    "blocked": { "one": "{count} blocked", "other": "{count} blocked" },
+    "nonce": { "one": "{count} needs a nonce", "other": "{count} need a nonce" },
+    "reported": { "one": "{count} reported", "other": "{count} reported" },
     "allOk": "all OK"
   },
   "explanation": {
