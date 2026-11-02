@@ -131,14 +131,17 @@
       "allowed": "Fonctionne avec cette politique",
       "blocked": "Bloqué par cette politique",
       "needs-nonce": "Demande l'aide de vos développeurs (nonce)",
-      "reported": "Serait signalé, pas bloqué"
+      "reported": "Serait signalé, pas bloqué",
+      "allowedReported": "Fonctionne, mais serait signalé"
     },
     "requirement": {
       "allowed": "Autorisé par {directive} ({source})",
       "allowedUnrestricted": "Autorisé : rien ne le restreint",
       "blocked": "Bloqué par {directive}",
       "needs-nonce": "{directive} ne fait confiance qu'aux scripts portant le code à usage unique de la page (nonce)",
-      "reported": "Serait signalé par la politique en mode rapport seul"
+      "reported": "Serait signalé par la politique en mode rapport seul",
+      "alsoReported": "Toujours signalé par {directive} dans la politique en mode rapport seul",
+      "alsoReportedSimple": "Il fonctionne, mais la politique en mode rapport seul le signalerait quand même."
     },
     "nonceHow": "Comment cet outil fonctionne avec les nonces",
     "searchPlaceholder": "Ajouter un outil, par ex. GTM ou Hotjar",
@@ -172,6 +175,7 @@
       "needsNonceLine": "{vendor} : notre politique ne fait confiance qu'aux scripts portant un code à usage unique (nonce). L'outil le gère, mais la façon dont il est ajouté à la page doit transmettre ce code. {how}",
       "reportedLine": "{vendor} : notre politique est en mode rapport seul, donc rien n'est bloqué, mais ces éléments apparaîtraient dans les rapports de violation.",
       "okLine": "{vendor} : déjà autorisé.",
+      "okReportedLine": "{vendor} : déjà autorisé, mais notre politique en mode rapport seul ne l'autorise pas encore, donc il apparaîtrait dans les rapports de violation.",
       "changeTitle": "Changement proposé (uniquement des ajouts, rien n'est retiré) :",
       "changeAdd": "{directive} : ajouter {values}",
       "changeCreate": "ajouter une règle {directive} (copiée de default-src) avec {values}",

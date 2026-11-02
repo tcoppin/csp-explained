@@ -29,9 +29,10 @@ describe('analyze', () => {
     // A comma doesn't separate policies in <meta>: a.example, is one (invalid) source.
     const html = `<meta http-equiv="Content-Security-Policy" content="img-src a.example, b.example; script-src 'self'">`;
     const a = analyze(`Content-Security-Policy-Report-Only: script-src 'self'\n${html}`, [{ vendor: abTasty, features: tag }]);
-    expect(a.patches.map((p) => p.policyIndex)).toEqual([1]);
-    expect(a.introducedFindings.length).toBeGreaterThan(0);
-    expect(a.introducedFindings.every((f) => f.policyIndex === 1 && !f.reportOnly)).toBe(true);
+    // The report-only policy is patched too, so it stops reporting the tool.
+    expect(a.patches.map((p) => p.policyIndex)).toEqual([0, 1]);
+    expect(a.introducedFindings.some((f) => f.policyIndex === 1)).toBe(true);
+    expect(a.introducedFindings.every((f) => f.reportOnly === (f.policyIndex === 0))).toBe(true);
   });
 });
 
@@ -59,6 +60,18 @@ describe('itRequest', () => {
     expect(mail).toContain('no change seems needed');
     expect(mail).not.toContain('Proposed change');
   });
+
+  it('asks for a change when only the report-only policy would report the tool', () => {
+    const allowed = "script-src *.abtasty.com 'unsafe-inline'; style-src *.abtasty.com 'unsafe-inline'";
+    const a = analyze(`Content-Security-Policy: ${allowed}\nContent-Security-Policy-Report-Only: default-src 'self'`, [
+      { vendor: abTasty, features: tag },
+    ]);
+    expect(a.vendors[0]).toMatchObject({ verdict: 'allowed', reported: true });
+    const mail = itRequest(a, t, { format: 'email', toolUrl: 'x' });
+    expect(mail).toContain("AB Tasty: already allowed, but our report-only policy doesn't allow it yet");
+    expect(mail).toContain('Proposed change');
+    expect(a.patches.map((p) => p.policyIndex)).toEqual([1]);
+  });
 });
 
 describe('developer report', () => {
@@ -80,7 +93,7 @@ describe('developer report', () => {
     const both = analyze(input, [{ vendor: abTasty, features: tag }]);
     expect(deploySnippet(both, 'meta')).toBe(`<meta http-equiv="Content-Security-Policy" content="script-src 'self' *.abtasty.com 'unsafe-inline'">`);
     expect(headersBesideMeta(both)).toBe(
-      "Content-Security-Policy: frame-ancestors 'none'; report-uri /csp\nContent-Security-Policy-Report-Only: img-src 'self'",
+      "Content-Security-Policy: frame-ancestors 'none'; report-uri /csp\nContent-Security-Policy-Report-Only: img-src 'self' *.abtasty.com",
     );
     expect(headersBesideMeta(a)).toBe('');
   });

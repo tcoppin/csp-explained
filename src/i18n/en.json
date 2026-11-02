@@ -131,14 +131,17 @@
       "allowed": "Works with this policy",
       "blocked": "Blocked by this policy",
       "needs-nonce": "Needs your developers' help (nonce)",
-      "reported": "Would be reported, not blocked"
+      "reported": "Would be reported, not blocked",
+      "allowedReported": "Works, but would be reported"
     },
     "requirement": {
       "allowed": "Allowed by {directive} ({source})",
       "allowedUnrestricted": "Allowed: nothing restricts it",
       "blocked": "Blocked by {directive}",
       "needs-nonce": "{directive} only trusts scripts carrying the page's one-time code (nonce)",
-      "reported": "Would be reported by the report-only policy"
+      "reported": "Would be reported by the report-only policy",
+      "alsoReported": "Still reported by {directive} in the report-only policy",
+      "alsoReportedSimple": "It works, but the report-only policy would still report it."
     },
     "nonceHow": "How this tool works with nonces",
     "searchPlaceholder": "Add a tool, e.g. GTM or Hotjar",
@@ -172,6 +175,7 @@
       "needsNonceLine": "{vendor}: our policy only trusts scripts carrying a one-time code (nonce). The tool supports it, but the way it is added to the page needs to pass the code on. {how}",
       "reportedLine": "{vendor}: our policy is in report-only mode, so nothing is blocked, but these would show up in the violation reports.",
       "okLine": "{vendor}: already allowed.",
+      "okReportedLine": "{vendor}: already allowed, but our report-only policy doesn't allow it yet, so it would show up in the violation reports.",
       "changeTitle": "Proposed change (only additions, nothing is removed):",
       "changeAdd": "{directive}: add {values}",
       "changeCreate": "add a {directive} rule (copied from default-src) with {values}",

@@ -2,7 +2,7 @@ import { outdatedIssueUrl } from '../config';
 import type { Translate } from '../i18n';
 import type { VendorCheck } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
-import type { RequirementResult } from '../lib/csp/compat';
+import { allChecks, type RequirementResult, type RequirementVerdict } from '../lib/csp/compat';
 import type { Audience } from '../lib/csp/model';
 import { track } from '../scripts/track';
 import { NewTabLink } from './NewTabLink';
@@ -19,15 +19,27 @@ interface Props {
 }
 
 function requirementText(t: Translate, r: RequirementResult): string {
-  const check = r.checks.find((c) => c.match.verdict === r.verdict) ?? r.checks[0];
+  const checks = r.verdict === 'reported' ? r.reportOnly : r.checks;
+  const check = checks.find((c) => c.match.verdict === r.verdict) ?? checks[0] ?? allChecks(r)[0];
   const directive = check?.match.directive?.name ?? check?.match.requested ?? '';
   if (r.verdict === 'allowed') {
-    return check?.match.matchedBy
+    const allowed = check?.match.matchedBy
       ? t('vendors.requirement.allowed', { directive, source: check.match.matchedBy.raw })
       : t('vendors.requirement.allowedUnrestricted');
+    return r.reported ? `${allowed}. ${alsoReported(t, r)}` : allowed;
   }
   return t(`vendors.requirement.${r.verdict}`, { directive });
 }
+
+/** Allowed by the enforced policies, but a report-only one would still report it. */
+function alsoReported(t: Translate, r: RequirementResult): string {
+  const check = r.reportOnly.find((c) => c.match.verdict !== 'allowed');
+  return t('vendors.requirement.alsoReported', { directive: check?.match.directive?.name ?? check?.match.requested ?? '' });
+}
+
+/** How a requirement or a tool shows: allowed but reported looks like a report-only result. */
+const shown = (verdict: RequirementVerdict, reported: boolean): RequirementVerdict =>
+  verdict === 'allowed' && reported ? 'reported' : verdict;
 
 export function VendorChecker({ vendors, selected, checks, audience, onChange }: Props) {
   const t = useT();
@@ -54,11 +66,13 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
 
       {checks.length === 0 && <p class="muted">{t('vendors.none')}</p>}
 
-      {checks.map(({ vendor, results, verdict }) => (
-        <section key={vendor.id} class={`vendor-result verdict-border-${verdict}`} aria-labelledby={`v-${vendor.id}`}>
+      {checks.map(({ vendor, results, verdict, reported }) => (
+        <section key={vendor.id} class={`vendor-result verdict-border-${shown(verdict, reported)}`} aria-labelledby={`v-${vendor.id}`}>
           <header>
             <h3 id={`v-${vendor.id}`}>{vendor.name}</h3>
-            <p class={`verdict verdict-${verdict}`}>{t(`vendors.verdict.${verdict}`)}</p>
+            <p class={`verdict verdict-${shown(verdict, reported)}`}>
+              {t(verdict === 'allowed' && reported ? 'vendors.verdict.allowedReported' : `vendors.verdict.${verdict}`)}
+            </p>
           </header>
 
           {vendor.features.length > 1 && (
@@ -75,12 +89,16 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
 
           <ul class="requirements">
             {results.map((r, i) => (
-              <li key={i} class={`req req-${r.verdict}`}>
+              <li key={i} class={`req req-${shown(r.verdict, r.reported)}`}>
                 <span class="req-what">
                   {t(`resources.${r.requirement.type}`)} <code>{r.requirement.source}</code>
                 </span>
                 <span class="req-why">
-                  {audience === 'simple' ? r.requirement.reason : requirementText(t, r)}
+                  {audience === 'simple'
+                    ? r.verdict === 'allowed' && r.reported
+                      ? `${r.requirement.reason} ${t('vendors.requirement.alsoReportedSimple')}`
+                      : r.requirement.reason
+                    : requirementText(t, r)}
                 </span>
               </li>
             ))}

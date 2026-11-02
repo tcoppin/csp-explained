@@ -26,9 +26,14 @@ export interface PolicyCheck {
 
 export interface RequirementResult {
   requirement: Requirement;
+  /** What the browser does: decided by the enforced policies, or 'reported' when there are only report-only ones. */
   verdict: RequirementVerdict;
-  /** One entry per enforced policy (or per report-only policy when none is enforced). */
+  /** One entry per enforced policy. */
   checks: PolicyCheck[];
+  /** One entry per report-only policy, checked even when an enforced policy decides the verdict. */
+  reportOnly: PolicyCheck[];
+  /** A report-only policy would report the load, whatever the enforced policies do. */
+  reported: boolean;
 }
 
 const SUBDOMAIN_PLACEHOLDER = 'any-subdomain';
@@ -65,8 +70,8 @@ function worst(checks: PolicyCheck[]): Verdict {
 }
 
 /**
- * Every enforced policy must allow a load. Report-Only policies are only consulted
- * when there is no enforced policy, to warn that violations would be reported.
+ * Every enforced policy must allow a load: they decide the verdict. Report-Only policies never block,
+ * but each one is checked too, since it reports a load it wouldn't allow even when the enforced ones do.
  */
 export function checkRequirement(parsed: ParseResult, req: Requirement, selfOrigin: string): RequirementResult {
   const url = probeFor(req, selfOrigin);
@@ -77,12 +82,14 @@ export function checkRequirement(parsed: ParseResult, req: Requirement, selfOrig
       .map(({ policy, policyIndex }) => ({ policyIndex, match: checkResource(policy, req.type, url, selfOrigin) }));
 
   const enforced = run(false);
-  if (enforced.length > 0) return { requirement: req, verdict: worst(enforced), checks: enforced };
-
   const reportOnly = run(true);
-  const verdict = worst(reportOnly);
-  return { requirement: req, verdict: verdict === 'allowed' ? 'allowed' : 'reported', checks: reportOnly };
+  const reported = worst(reportOnly) !== 'allowed';
+  const verdict = enforced.length > 0 ? worst(enforced) : reported ? 'reported' : 'allowed';
+  return { requirement: req, verdict, checks: enforced, reportOnly, reported };
 }
+
+/** Every policy's check, enforced ones first. */
+export const allChecks = (r: RequirementResult): PolicyCheck[] => [...r.checks, ...r.reportOnly];
 
 export function checkRequirements(parsed: ParseResult, reqs: Requirement[], selfOrigin: string): RequirementResult[] {
   return reqs.map((r) => checkRequirement(parsed, r, selfOrigin));

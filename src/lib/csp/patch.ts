@@ -1,4 +1,4 @@
-import type { RequirementResult } from './compat';
+import { allChecks, type RequirementResult } from './compat';
 import { CANONICAL_DIRECTIVE } from './directives';
 import { findDirective } from './fallback';
 import type { Directive, ParseResult, Policy } from './model';
@@ -32,7 +32,7 @@ interface Pending {
 const valuesOf = (d: Directive) => d.values.map((v) => v.raw);
 
 /**
- * Computes the smallest edit that makes every blocked requirement pass.
+ * Computes the smallest edit that makes every blocked requirement pass, in enforced and report-only policies.
  * When only default-src applies, a dedicated directive is created (copying default-src)
  * instead of widening default-src for every resource type.
  */
@@ -40,8 +40,8 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
   const perPolicy = new Map<number, Map<string, Pending>>();
 
   for (const r of results) {
-    if (r.verdict !== 'blocked') continue;
-    for (const check of r.checks) {
+    // Report-only policies too: left alone, they would keep reporting the tool once it is allowed.
+    for (const check of allChecks(r)) {
       if (check.match.verdict !== 'blocked' || !check.match.directive) continue;
       const policy = parsed.policies[check.policyIndex]!;
       const governing = check.match.directive;

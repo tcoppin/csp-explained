@@ -66,9 +66,41 @@ describe('checkRequirements + buildPatches', () => {
     expect(buildPatches(parsed, results)).toEqual([]);
   });
 
-  it('only reports when every policy is report-only', () => {
+  it('only reports when every policy is report-only, and patches the report-only policy', () => {
     const parsed = parse("Content-Security-Policy-Report-Only: default-src 'self'");
-    expect(checkRequirements(parsed, [vendor[0]!], SELF)[0]!.verdict).toBe('reported');
+    const results = checkRequirements(parsed, [vendor[0]!], SELF);
+    expect(results[0]).toMatchObject({ verdict: 'reported', reported: true, checks: [] });
+    expect(buildPatches(parsed, results).map((p) => p.after)).toEqual(["default-src 'self'; script-src 'self' https://*.vendor.test"]);
+  });
+
+  it('checks report-only policies even when an enforced policy allows the load', () => {
+    const parsed = parse(
+      "Content-Security-Policy: script-src https://*.vendor.test\nContent-Security-Policy-Report-Only: script-src 'self'",
+    );
+    const results = checkRequirements(parsed, [vendor[0]!], SELF);
+    expect(results[0]).toMatchObject({ verdict: 'allowed', reported: true });
+    expect(results[0]!.checks.map((c) => [c.policyIndex, c.match.verdict])).toEqual([[0, 'allowed']]);
+    expect(results[0]!.reportOnly.map((c) => [c.policyIndex, c.match.verdict])).toEqual([[1, 'blocked']]);
+
+    // The patch stops the reports: only the report-only policy changes.
+    const patches = buildPatches(parsed, results);
+    expect(patches.map((p) => [p.policyIndex, p.after])).toEqual([[1, "script-src 'self' https://*.vendor.test"]]);
+  });
+
+  it('keeps the enforced verdict and patches both policies when both object', () => {
+    const parsed = parse("Content-Security-Policy: script-src 'self'\nContent-Security-Policy-Report-Only: script-src 'self'");
+    const results = checkRequirements(parsed, [vendor[0]!], SELF);
+    expect(results[0]).toMatchObject({ verdict: 'blocked', reported: true });
+    expect(buildPatches(parsed, results).map((p) => p.policyIndex)).toEqual([0, 1]);
+  });
+
+  it('does not flag a load every report-only policy allows', () => {
+    const parsed = parse(
+      "Content-Security-Policy: script-src 'self'\nContent-Security-Policy-Report-Only: script-src https://*.vendor.test",
+    );
+    const results = checkRequirements(parsed, [vendor[0]!], SELF);
+    expect(results[0]).toMatchObject({ verdict: 'blocked', reported: false });
+    expect(buildPatches(parsed, results).map((p) => p.policyIndex)).toEqual([0]);
   });
 
   it('requires every enforced policy to allow the load', () => {

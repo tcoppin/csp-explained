@@ -48,7 +48,7 @@ function vendorLine(v: VendorCheck, t: Translate): string {
   const name = v.vendor.name;
   switch (v.verdict) {
     case 'allowed':
-      return t('report.simple.okLine', { vendor: name });
+      return v.reported ? t('report.simple.okReportedLine', { vendor: name }) : t('report.simple.okLine', { vendor: name });
     case 'reported':
       return t('report.simple.reportedLine', { vendor: name });
     case 'needs-nonce':
@@ -95,7 +95,7 @@ function risks(a: Analysis, t: Translate): string[] {
 function sections(a: Analysis, t: Translate, opts: ItRequestOptions): Sections {
   const vendors = list(t, a.vendors.map((v) => v.vendor.name));
   const site = opts.site || t('report.simple.ourSite');
-  const needsAction = a.vendors.some((v) => v.verdict !== 'allowed');
+  const needsAction = a.vendors.some((v) => v.verdict !== 'allowed' || v.reported);
   return {
     subject: t('report.simple.subject', { vendors }),
     intro: needsAction ? t('report.simple.intro', { vendors, site }) : t('report.simple.introOk', { vendors, site }),
@@ -103,7 +103,7 @@ function sections(a: Analysis, t: Translate, opts: ItRequestOptions): Sections {
     changes: a.patches.flatMap((p) => p.changes.map((c) => changeLine(c, t))),
     policies: a.patches.length > 0 ? patchedPolicies(a).map((p) => p.text) : [],
     risks: risks(a, t),
-    sources: [...new Set(a.vendors.filter((v) => v.verdict !== 'allowed').flatMap((v) => v.vendor.sources.map((s) => `${v.vendor.name}: ${s}`)))],
+    sources: [...new Set(a.vendors.filter((v) => v.verdict !== 'allowed' || v.reported).flatMap((v) => v.vendor.sources.map((s) => `${v.vendor.name}: ${s}`)))],
   };
 }
 

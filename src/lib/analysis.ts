@@ -17,6 +17,8 @@ export interface VendorSelection {
 export interface VendorCheck extends VendorSelection {
   results: RequirementResult[];
   verdict: RequirementVerdict;
+  /** A report-only policy would report something the tool loads, whatever the verdict. */
+  reported: boolean;
 }
 
 export interface Analysis {
@@ -42,7 +44,7 @@ export function analyze(input: string, selections: VendorSelection[], origin = D
   const parsed = parse(input);
   const vendors = selections.map((s) => {
     const results = checkRequirements(parsed, s.features.flatMap(requirementsOf), origin);
-    return { ...s, results, verdict: overallVerdict(results) };
+    return { ...s, results, verdict: overallVerdict(results), reported: results.some((r) => r.reported) };
   });
   const patches = buildPatches(parsed, vendors.flatMap((v) => v.results));
   const findings = evaluateSecurity(parsed);
