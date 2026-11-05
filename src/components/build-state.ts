@@ -1,4 +1,4 @@
-import { SITE_NEEDS, type BaselineMode, type CustomTool, type SiteNeed } from '../lib/build';
+import { SITE_NEEDS, type BaselineMode, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../lib/build';
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
 import type { Audience } from '../lib/csp/model';
 import { decodeVendors, encodeVendors, fromBase64Url, isAudience, toBase64Url } from './state';
@@ -19,6 +19,8 @@ export interface BuildState {
   policy: string;
   site: string;
   needs: SiteNeed[];
+  /** Inline code listed by hash rather than allowed with 'unsafe-inline'. */
+  hashes: SiteHashes;
   vendors: Record<string, string[]>;
   tools: CustomTool[];
   step?: Step;
@@ -30,6 +32,10 @@ const isStep = (v: string | null): v is Step => (STEPS as readonly (string | nul
 const isNeed = (v: string): v is SiteNeed => v in SITE_NEEDS;
 const isType = (v: unknown): v is ResourceType => typeof v === 'string' && v in EFFECTIVE_DIRECTIVE;
 const isText = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
+
+/** Hashes travel without their quotes: `hi` for inline scripts, `hc` for inline styles. */
+const HASH_PARAMS: Record<HashableNeed, string> = { 'inline-scripts': 'hi', 'inline-styles': 'hc' };
+const HASH = /^sha(256|384|512)-[A-Za-z0-9+/_-]+={0,2}$/;
 
 /** Compact form: `[name, [[type, [sources]], …]]`. The id is rebuilt from the position. */
 type PackedTool = [string, [string, string[]][]];
@@ -54,6 +60,10 @@ export function encodeBuildState(s: BuildState): string {
   if (s.start === 'policy' && s.policy) params.set('p', toBase64Url(s.policy));
   if (s.site) params.set('s', s.site);
   if (s.needs.length > 0) params.set('n', s.needs.join(','));
+  for (const [need, key] of Object.entries(HASH_PARAMS) as [HashableNeed, string][]) {
+    const listed = s.hashes[need];
+    if (listed && s.needs.includes(need)) params.set(key, listed.map((h) => h.slice(1, -1)).join(','));
+  }
   const vendors = encodeVendors(s.vendors);
   if (vendors) params.set('v', vendors);
   if (s.tools.length > 0) params.set('c', toBase64Url(JSON.stringify(pack(s.tools))));
@@ -79,6 +89,11 @@ export function decodeBuildState(hash: string): Partial<BuildState> {
   if (s) out.site = s;
   const n = params.get('n');
   if (n) out.needs = n.split(',').filter(isNeed);
+  for (const [need, key] of Object.entries(HASH_PARAMS) as [HashableNeed, string][]) {
+    const listed = params.get(key);
+    if (listed === null) continue;
+    out.hashes = { ...out.hashes, [need]: listed.split(',').filter((h) => HASH.test(h)).map((h) => `'${h}'`) };
+  }
   const v = params.get('v');
   if (v) out.vendors = decodeVendors(v);
   const c = params.get('c');

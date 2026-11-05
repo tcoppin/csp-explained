@@ -301,6 +301,43 @@
     },
     "caption": "Simplified drawing of the Network tab in {browser}. The numbers match the steps."
   },
+  "hashes": {
+    "paste": {
+      "script": "Paste an inline script, with or without its <script> tags",
+      "style": "Paste an inline style, with or without its <style> tags",
+      "any": "Paste inline code, with or without its <script> or <style> tags"
+    },
+    "exact": "Copy it exactly as it is in the page: one space more or less changes the hash. Several blocks at once work too, with their tags. When Chrome blocks a block, its console shows the hash it expects.",
+    "untagged": "Code without tags is",
+    "kind": { "script": "a script", "style": "a style" },
+    "add": "Get the hash",
+    "listLabel": "Hashes",
+    "remove": "Remove",
+    "skipped": {
+      "external": "A <script src=…> loads a file: it's allowed by the file's address, not by a hash.",
+      "data": "A <script> holding data, such as JSON-LD, doesn't run and needs no hash.",
+      "empty": "An empty block was left out.",
+      "known": "A block already in the list was left out.",
+      "other": {
+        "script": "A <script> block was left out: this list is for styles.",
+        "style": "A <style> block was left out: this list is for scripts."
+      }
+    },
+    "fix": {
+      "title": "Replace it with hashes",
+      "intro": {
+        "simple": "If the code written in your pages rarely changes, each block can be approved one by one instead of all at once. Paste them here to get the policy to use.",
+        "technical": "List each inline block by its `'sha256-…'` hash. Once a hash is in the directive, browsers ignore `'unsafe-inline'` there: it stays only for very old browsers."
+      },
+      "fromFinding": "Replace it with hashes",
+      "caption": "Your policy with the hashes",
+      "warning": {
+        "script": "Every other inline script on your pages stops running until its hash is listed, and so do `onclick=\"…\"` attributes. Test with `Content-Security-Policy-Report-Only` first.",
+        "style": "Every other `<style>` block on your pages then needs its hash too. Test with `Content-Security-Policy-Report-Only` first.",
+        "styleAttr": "`style=\"…\"` attributes keep working: `style-src-attr 'unsafe-inline'` is added for them."
+      }
+    }
+  },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' in {directive} lets any injected inline script or event handler run, which removes most of the protection against XSS. Nonces or hashes allow your own inline code without it.",
     "script-unsafe-hashes": "'unsafe-hashes' in {directive} allows the inline event handlers whose hashes are listed. Safer than 'unsafe-inline', but those handlers remain; moving them into script files removes the need.",
@@ -397,6 +434,26 @@
       "you": "Your site",
       "unsure": "Not sure? Leave it unticked: the browser console will name what's blocked when you test the policy.",
       "addressHint": "Used to check what 'self' covers. Leave it empty if you prefer.",
+      "inline": {
+        "question": "Which ones should run?",
+        "all": "Any code in the page",
+        "nonce": "Those carrying the nonce",
+        "listed": "Only the ones I list",
+        "unrestricted": {
+          "script": "Your policy has no `script-src` or `default-src` yet: nothing restricts scripts, so every inline script already runs and these hashes change nothing. Start from a blank policy, or add one of those lines to your own.",
+          "style": "Your policy has no `style-src` or `default-src` yet: nothing restricts styles, so every inline style already applies and these hashes change nothing. Start from a blank policy, or add one of those lines to your own."
+        },
+        "explain": {
+          "script": {
+            "simple": "Paste each one below. Only these exact blocks will run: when one changes, its hash must be updated in the policy too.",
+            "technical": "Each block is listed by its `'sha256-…'` hash. Once a hash is in `script-src`, browsers ignore `'unsafe-inline'` there: every inline script needs its hash, and `onclick=\"…\"` attributes stop working."
+          },
+          "style": {
+            "simple": "Paste each one below. Only these exact blocks will apply: when one changes, its hash must be updated in the policy too.",
+            "technical": "Each block is listed by its `'sha256-…'` hash. Once a hash is in `style-src`, browsers ignore `'unsafe-inline'` there: every `<style>` block needs its hash, and `style=\"…\"` attributes get `style-src-attr` of their own."
+          }
+        }
+      },
       "needs": {
         "inline-scripts": {
           "label": "Have code written directly in the page",
@@ -469,6 +526,7 @@
       "allowed": "Already allowed by {source}",
       "unrestricted": "Already allowed: nothing restricts it",
       "needs-nonce": "Needs the nonce: add it to this tool's <script> tag on your pages",
+      "needs-hash": "Blocked once hashes are listed: this code needs a hash of its own, or a nonce",
       "blocked": "Can't be allowed by adding a value"
     },
     "preview": {
@@ -487,6 +545,7 @@
       "nonceTitle": "Replace the nonce placeholder",
       "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection.",
       "waitingTitle": "Waiting on the nonce",
+      "useHashes": "List your inline scripts by hash instead",
       "fromTools": "new with your changes",
       "deployTitle": "Put it live",
       "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`.",

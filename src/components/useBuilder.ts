@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Translate } from '../i18n';
 import { DEFAULT_ORIGIN } from '../lib/analysis';
-import { baselinePolicy, buildPolicy, customContribution, siteContribution, type Contribution, type CustomTool, type SiteNeed } from '../lib/build';
+import { baselinePolicy, buildPolicy, customContribution, siteContribution, type Contribution, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../lib/build';
 import { requirementsOf } from '../lib/catalogue/requirements';
 import type { ContentBundle } from '../lib/content';
 import type { Audience } from '../lib/csp/model';
@@ -15,6 +15,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
   const [policyText, setPolicyText] = useState('');
   const [site, setSite] = useState('');
   const [needs, setNeeds] = useState<SiteNeed[]>([]);
+  const [hashes, setHashState] = useState<SiteHashes>({});
   const [vendors, setVendors] = useState<Record<string, string[]>>({});
   const [tools, setTools] = useState<CustomTool[]>([]);
   /** Own tools remembered in this browser. */
@@ -32,6 +33,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
     if (s.policy) setPolicyText(s.policy);
     if (s.site) setSite(s.site);
     if (s.needs) setNeeds(s.needs);
+    if (s.hashes) setHashState(s.hashes);
     if (s.vendors) setVendors(s.vendors);
     if (s.tools) setTools(s.tools);
     if (s.step) setStep(s.step);
@@ -39,9 +41,9 @@ export function useBuilder(content: ContentBundle, t: Translate) {
   }, []);
 
   useEffect(() => {
-    const hash = encodeBuildState({ start, policy: policyText, site, needs, vendors, tools, step, audience });
+    const hash = encodeBuildState({ start, policy: policyText, site, needs, hashes, vendors, tools, step, audience });
     history.replaceState(null, '', hash ? `#${hash}` : location.pathname);
-  }, [start, policyText, site, needs, vendors, tools, step, audience]);
+  }, [start, policyText, site, needs, hashes, vendors, tools, step, audience]);
 
   const origin = toOrigin(site) ?? DEFAULT_ORIGIN;
   const baseText = start === 'policy' ? policyText : baselinePolicy(start ?? 'allowlist');
@@ -50,7 +52,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
 
   const built = useMemo(() => {
     const contributions: Contribution[] = [
-      { ...siteContribution(needs), by: { kind: 'site', id: 'site', label: t('build.site.you') } },
+      { ...siteContribution(needs, hashes), by: { kind: 'site', id: 'site', label: t('build.site.you') } },
       ...picked.map((v) => ({
         by: { kind: 'vendor' as const, id: v.id, label: v.name },
         requirements: v.features.filter((f) => vendors[v.id]?.includes(f.id)).flatMap(requirementsOf),
@@ -58,7 +60,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
       ...tools.map(customContribution),
     ];
     return buildPolicy(baseText, contributions, origin);
-  }, [baseText, needs, vendors, tools, origin, t]);
+  }, [baseText, needs, hashes, vendors, tools, origin, t]);
 
   // Every own tool known here, from this browser and from the link, once per name; ids follow this order.
   const ownTools = [...library, ...tools]
@@ -80,6 +82,14 @@ export function useBuilder(content: ContentBundle, t: Translate) {
     setSite,
     needs,
     toggleNeed: (need: SiteNeed) => setNeeds(needs.includes(need) ? needs.filter((n) => n !== need) : [...needs, need]),
+    hashes,
+    /** Lists a need's inline code by hash (an array, even empty), or allows it all again (undefined). */
+    setHashes: (need: HashableNeed, list: string[] | undefined) => {
+      const next = { ...hashes };
+      if (list) next[need] = list;
+      else delete next[need];
+      setHashState(next);
+    },
     vendors,
     allVendors: content.vendors,
     picked,

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { askedFor, baselinePolicy, buildPolicy, customContribution, isValidSource, siteContribution, type Contribution } from './build';
+import { askedFor, baselinePolicy, buildPolicy, customContribution, isValidSource, siteContribution, withHashes, type Contribution } from './build';
 import { requirementsOf } from './catalogue/requirements';
 import { parseVendor } from './catalogue/schema';
 import { parse } from './csp/parser';
@@ -95,5 +95,66 @@ describe('own tools', () => {
     expect(c.requirements.map((r) => r.source)).toEqual(['cdn.example.org']);
     const built = buildPolicy(baselinePolicy('allowlist'), [c], SELF);
     expect(askedFor(built, 'img-src', 'cdn.example.org').map((r) => r.by.label)).toEqual(['Our CDN']);
+  });
+});
+
+describe('buildPolicy with hashes', () => {
+  const HASH = "'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng='";
+  const STYLE_HASH = "'sha256-47DEQpj8HBSa+/TImW5JCeuQeRkm5NMpJWZG3hSuFU='";
+
+  it('lists each inline block by its hash instead of allowing them all', () => {
+    const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-scripts', 'inline-styles'], { 'inline-scripts': [HASH], 'inline-styles': [STYLE_HASH] })], SELF);
+    expect(built.text).toContain(`script-src 'self' ${HASH}`);
+    expect(built.text).toContain(`style-src 'self' ${STYLE_HASH}`);
+    expect(built.text).not.toContain("'unsafe-inline'");
+    expect(askedFor(built, 'script-src', HASH).map((r) => r.result.requirement.reason)).toEqual(['inline-scripts']);
+  });
+
+  it('asks nothing for a need whose hashes are still to come', () => {
+    const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-scripts'], { 'inline-scripts': [] })], SELF);
+    expect(built.requirements).toEqual([]);
+  });
+
+  it("adds a hash beside an existing 'unsafe-inline', which browsers then ignore", () => {
+    const built = buildPolicy("script-src 'self' 'unsafe-inline'", [siteContribution(['inline-scripts'], { 'inline-scripts': [HASH] })], SELF);
+    expect(built.text).toBe(`script-src 'self' 'unsafe-inline' ${HASH}`);
+    expect(built.findings.some((f) => f.id === 'script-unsafe-inline')).toBe(false);
+  });
+
+  it("doesn't add 'unsafe-inline' for a tool once hashes make browsers ignore it", () => {
+    const tool: Contribution = { by: { kind: 'custom', id: 'own-1', label: 'Tag' }, requirements: [{ type: 'inline-script', source: "'unsafe-inline'", reason: '' }] };
+    const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-scripts'], { 'inline-scripts': [HASH] }), tool], SELF);
+    expect(built.text).not.toContain("'unsafe-inline'");
+    const placed = built.requirements.find((p) => p.by.id === 'own-1')!;
+    expect(placed.result.verdict).toBe('needs-nonce');
+    expect(placed.addedTo).toBeUndefined();
+  });
+
+  it('records changes from both passes on the same directive', () => {
+    const tool: Contribution = { by: { kind: 'custom', id: 'own-1', label: 'CDN' }, requirements: [{ type: 'script', source: 'https://cdn.example.org', reason: '' }] };
+    const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-scripts'], { 'inline-scripts': [HASH] }), tool], SELF);
+    expect(built.text).toContain(`script-src 'self' ${HASH} https://cdn.example.org`);
+    const change = built.changes.find((c) => c.directive === 'script-src')!;
+    expect(change.created).toBe(true);
+    expect(change.added).toEqual([HASH, 'https://cdn.example.org']);
+    expect(change.before).toBeUndefined();
+  });
+});
+
+describe('withHashes', () => {
+  const HASH = "'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng='";
+
+  it("adds the hashes beside 'unsafe-inline'", () => {
+    const fixed = withHashes("default-src 'self' 'unsafe-inline'", [{ kind: 'script', source: HASH }], SELF);
+    expect(fixed).toEqual({ text: `default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' ${HASH}`, styleAttributes: false });
+  });
+
+  it('keeps style attributes working once styles are hashed', () => {
+    const fixed = withHashes("style-src 'self' 'unsafe-inline'", [{ kind: 'style', source: HASH }], SELF);
+    expect(fixed).toEqual({ text: `style-src 'self' 'unsafe-inline' ${HASH}; style-src-attr 'unsafe-inline'`, styleAttributes: true });
+  });
+
+  it("doesn't allow style attributes that were blocked", () => {
+    expect(withHashes("style-src 'self'", [{ kind: 'style', source: HASH }], SELF).styleAttributes).toBe(false);
   });
 });

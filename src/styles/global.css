@@ -194,6 +194,20 @@ button {
   background: transparent;
   color: var(--action);
 }
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* An action that reads like a link, inside running text or a list */
+.link-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--action);
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 .wrap {
   max-width: 76rem;

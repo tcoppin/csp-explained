@@ -330,15 +330,6 @@
   margin: 0;
   padding: 0.5rem 0.75rem;
 }
-.link-button {
-  border: 0;
-  background: none;
-  padding: 0;
-  font: inherit;
-  color: var(--action);
-  text-decoration: underline;
-  cursor: pointer;
-}
 .own-storage {
   margin-top: 1rem;
 }
@@ -352,4 +343,17 @@
 }
 .review > .actions {
   margin-top: 1.5rem;
+}
+
+/* Under a ticked inline-code need: all of it, or only the blocks listed by hash */
+.inline-choice {
+  padding: 0.6rem 0 0.75rem calc(13px + 0.75rem);
+  border-bottom: 1px solid var(--rule);
+}
+.inline-choice .segmented {
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+.inline-choice > p {
+  margin: 0.75rem 0 0;
 }

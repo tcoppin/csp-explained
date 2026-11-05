@@ -45,9 +45,11 @@ interface Props {
   /** Each language's tool texts, so the IT message can be written in another language than the page's. */
   vendorsIn: Partial<Record<Locale, Vendor[]>>;
   onPickTools: () => void;
+  /** Opens the hashes offer for the 'unsafe-inline' a finding is about. */
+  onHashes: (policyIndex: number, directive: string) => void;
 }
 
-export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }: Props) {
+export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, onHashes }: Props) {
   const t = useT();
   const [format, setFormat] = useState<MessageFormat>('email');
   // A French marketer may write to an English-speaking IT team: the message has its own language.
@@ -163,7 +165,17 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools }
           </span>
           <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
           {analysis.parsed.policies.length > 1 && <span class="tag">{t('analyzer.policy', { index: f.policyIndex + 1 })}</span>}
-          <span class="desc">{findingText(t, f)}</span>
+          <span class="desc">
+            {findingText(t, f)}
+            {f.id === 'script-unsafe-inline' && (
+              <>
+                {' '}
+                <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
+                  {t('hashes.fix.fromFinding')}
+                </button>
+              </>
+            )}
+          </span>
         </li>
       ))}
     </ul>

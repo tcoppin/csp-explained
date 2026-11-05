@@ -301,6 +301,43 @@
     },
     "caption": "Dessin simplifié de l'onglet Réseau de {browser}. Les numéros correspondent aux étapes."
   },
+  "hashes": {
+    "paste": {
+      "script": "Collez un script intégré, avec ou sans ses balises <script>",
+      "style": "Collez un style intégré, avec ou sans ses balises <style>",
+      "any": "Collez du code intégré, avec ou sans ses balises <script> ou <style>"
+    },
+    "exact": "Copiez-le exactement tel qu'il est dans la page : une espace de plus ou de moins change l'empreinte. Plusieurs blocs à la fois fonctionnent aussi, avec leurs balises. Quand Chrome bloque un bloc, sa console affiche l'empreinte attendue.",
+    "untagged": "Le code sans balises est",
+    "kind": { "script": "un script", "style": "un style" },
+    "add": "Calculer l'empreinte",
+    "listLabel": "Empreintes",
+    "remove": "Retirer",
+    "skipped": {
+      "external": "Un <script src=…> charge un fichier : il est autorisé par l'adresse du fichier, pas par une empreinte.",
+      "data": "Un <script> contenant des données, comme du JSON-LD, ne s'exécute pas et n'a pas besoin d'empreinte.",
+      "empty": "Un bloc vide a été ignoré.",
+      "known": "Un bloc déjà dans la liste a été ignoré.",
+      "other": {
+        "script": "Un bloc <script> a été ignoré : cette liste est pour les styles.",
+        "style": "Un bloc <style> a été ignoré : cette liste est pour les scripts."
+      }
+    },
+    "fix": {
+      "title": "Le remplacer par des empreintes",
+      "intro": {
+        "simple": "Si le code écrit dans vos pages change rarement, chaque bloc peut être approuvé un par un plutôt que tous à la fois. Collez-les ici pour obtenir la politique à utiliser.",
+        "technical": "Listez chaque bloc intégré par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans la directive, les navigateurs y ignorent `'unsafe-inline'` : il ne reste que pour les très vieux navigateurs."
+      },
+      "fromFinding": "Le remplacer par des empreintes",
+      "caption": "Votre politique avec les empreintes",
+      "warning": {
+        "script": "Tout autre script intégré à vos pages cesse de s'exécuter tant que son empreinte n'est pas listée, de même que les attributs `onclick=\"…\"`. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
+        "style": "Tout autre bloc `<style>` de vos pages a alors aussi besoin de son empreinte. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
+        "styleAttr": "Les attributs `style=\"…\"` continuent de fonctionner : `style-src-attr 'unsafe-inline'` est ajouté pour eux."
+      }
+    }
+  },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' dans {directive} laisse s'exécuter tout script ou gestionnaire d'événement injecté dans la page, ce qui retire l'essentiel de la protection contre le XSS. Les nonces ou les hashes autorisent votre propre code dans la page sans lui.",
     "script-unsafe-hashes": "'unsafe-hashes' dans {directive} autorise les gestionnaires d'événements dont le hash est listé. Plus sûr que 'unsafe-inline', mais ces gestionnaires restent ; les déplacer dans des fichiers de script supprime le besoin.",
@@ -397,6 +434,26 @@
       "you": "Votre site",
       "unsure": "Vous ne savez pas ? Laissez décoché : la console du navigateur nommera ce qui est bloqué quand vous testerez la politique.",
       "addressHint": "Sert à vérifier ce que couvre 'self'. Laissez vide si vous préférez.",
+      "inline": {
+        "question": "Lesquels doivent s'exécuter ?",
+        "all": "Tout code dans la page",
+        "nonce": "Ceux qui portent le nonce",
+        "listed": "Seulement ceux que je liste",
+        "unrestricted": {
+          "script": "Votre politique n'a encore ni `script-src` ni `default-src` : rien ne restreint les scripts, donc tout script intégré s'exécute déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre.",
+          "style": "Votre politique n'a encore ni `style-src` ni `default-src` : rien ne restreint les styles, donc tout style intégré s'applique déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre."
+        },
+        "explain": {
+          "script": {
+            "simple": "Collez chacun ci-dessous. Seuls ces blocs exacts s'exécuteront : quand l'un change, son empreinte doit aussi être mise à jour dans la politique.",
+            "technical": "Chaque bloc est listé par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans `script-src`, les navigateurs y ignorent `'unsafe-inline'` : chaque script intégré a besoin de son empreinte, et les attributs `onclick=\"…\"` cessent de fonctionner."
+          },
+          "style": {
+            "simple": "Collez chacun ci-dessous. Seuls ces blocs exacts s'appliqueront : quand l'un change, son empreinte doit aussi être mise à jour dans la politique.",
+            "technical": "Chaque bloc est listé par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans `style-src`, les navigateurs y ignorent `'unsafe-inline'` : chaque bloc `<style>` a besoin de son empreinte, et les attributs `style=\"…\"` reçoivent leur propre `style-src-attr`."
+          }
+        }
+      },
       "needs": {
         "inline-scripts": {
           "label": "Contiennent du code écrit directement dans la page",
@@ -469,6 +526,7 @@
       "allowed": "Déjà autorisé par {source}",
       "unrestricted": "Déjà autorisé : rien ne le limite",
       "needs-nonce": "Demande le nonce : ajoutez-le à la balise <script> de cet outil sur vos pages",
+      "needs-hash": "Bloqué dès que des empreintes sont listées : ce code a besoin de sa propre empreinte, ou d'un nonce",
       "blocked": "Impossible à autoriser en ajoutant une valeur"
     },
     "preview": {
@@ -487,6 +545,7 @@
       "nonceTitle": "Remplacez le nonce d'exemple",
       "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien.",
       "waitingTitle": "En attente du nonce",
+      "useHashes": "Lister plutôt vos scripts intégrés par empreinte",
       "fromTools": "nouveau avec vos ajouts",
       "deployTitle": "La mettre en ligne",
       "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`.",

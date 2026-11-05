@@ -613,3 +613,53 @@ test('the analyzer opens its policy in the builder, and the builder sends it bac
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
   await expect(page.getByRole('heading', { name: 'Your policy' })).toBeVisible();
 });
+
+// The example from the CSP specification, and its hash.
+const HELLO = "alert('Hello, world.');";
+const HELLO_HASH = "'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng='";
+
+test('the builder lists inline scripts by hash, and keeps them in the link', async ({ page, context }) => {
+  const errors = watchErrors(page);
+  await openBuilder(page, '/build#b=allowlist&step=site');
+  await page.getByRole('checkbox', { name: /Have code written directly in the page/ }).check();
+  await page.getByRole('radio', { name: 'Only the ones I list' }).click();
+  await page.getByRole('textbox', { name: /Paste an inline script/ }).fill(`<script>${HELLO}</script>\n<style>p {}</style>`);
+  await page.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(page.getByRole('list', { name: 'Hashes' })).toContainText(HELLO_HASH);
+  await expect(page.getByText('A <style> block was left out: this list is for scripts.')).toBeVisible();
+  const preview = page.getByRole('complementary', { name: 'Your policy so far' });
+  await expect(preview).toContainText(`script-src 'self' ${HELLO_HASH}`);
+  await expect(preview).not.toContainText("'unsafe-inline'");
+
+  const again = await context.newPage();
+  await openBuilder(again, page.url().replace(/^.*?\/\/[^/]+/, ''));
+  await expect(again.getByRole('list', { name: 'Hashes' })).toContainText(HELLO_HASH);
+  expect(errors).toEqual([]);
+});
+
+test('the builder says when hashes change nothing because no directive restricts scripts', async ({ page }) => {
+  const policy = Buffer.from("object-src 'none'; base-uri 'none'").toString('base64url');
+  await openBuilder(page, `/build#b=policy&p=${policy}&n=inline-scripts&hi=&step=site`);
+  await page.getByRole('textbox', { name: /Paste an inline script/ }).fill(HELLO);
+  await page.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(page.getByRole('note').filter({ hasText: 'nothing restricts scripts' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Your policy so far' })).not.toContainText(HELLO_HASH);
+});
+
+test("the analyzer offers hashes in place of 'unsafe-inline', also from the security report", async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("default-src 'self'; script-src 'self' 'unsafe-inline'");
+  await page.getByRole('radio', { name: 'Security' }).click();
+  await page.getByRole('tab', { name: /Report/ }).click();
+  await page.getByRole('button', { name: 'Replace it with hashes' }).first().click();
+
+  await expect(page.locator('.hash-fix')).toHaveAttribute('open', '');
+  await page.getByRole('textbox', { name: /Paste an inline script/ }).fill(HELLO);
+  await page.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(page.locator('.code-block', { hasText: 'Your policy with the hashes' })).toContainText(
+    `default-src 'self'; script-src 'self' 'unsafe-inline' ${HELLO_HASH}`,
+  );
+  await expect(page.locator('.hash-warning')).toContainText('Every other inline script');
+  expect(errors).toEqual([]);
+});
