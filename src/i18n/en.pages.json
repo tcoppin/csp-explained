@@ -339,6 +339,89 @@
       "button": "Analyze your policy"
     }
   },
+  "trustedTypes": {
+    "title": "Trusted Types",
+    "description": "What Trusted Types change in a page, the two Content-Security-Policy lines that turn them on, how to roll them out safely, and what to check for third-party tools.",
+    "heading": "Trusted Types: only checked code goes into the page",
+    "lead": "A common way in for malicious code is a page's own JavaScript writing text it received, from a link, a form or a server, into the page as HTML or code. With Trusted Types on, the browser refuses plain text in those places: only values that went through a check your site defined are accepted.",
+    "changes": {
+      "title": "What changes in the page",
+      "intro": "These ways of turning text into page content or code stop accepting plain text:",
+      "sinks": [
+        {
+          "term": "Writing HTML",
+          "definition": "`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, an iframe's `srcdoc`, and parsing HTML with `DOMParser`."
+        },
+        {
+          "term": "Running text as code",
+          "definition": "`eval`, `new Function`, and `setTimeout` or `setInterval` given a string."
+        },
+        {
+          "term": "Choosing a script's address",
+          "definition": "A `<script>` element's `src` or text, and the address of a worker."
+        }
+      ],
+      "error": "The browser blocks the call and throws an error, so the rest of that code doesn't run either. Chrome's console shows two messages: the policy's, then the error the code receives."
+    },
+    "directives": {
+      "title": "The two lines",
+      "caption": "Response header",
+      "parts": [
+        {
+          "term": "`require-trusted-types-for 'script'`",
+          "definition": "Turns Trusted Types on. `'script'` is the only value."
+        },
+        {
+          "term": "`trusted-types sanitize`",
+          "definition": "The names of the policies scripts may create, here `sanitize`. Creating one with another name fails. Without this line, any name is allowed; `'none'` allows none, and `'allow-duplicates'` lets two policies share a name, which weakens the list."
+        }
+      ]
+    },
+    "policies": {
+      "title": "Policies: the checks your code goes through",
+      "intro": "A policy is a small named function your site writes once. Code that needs to write HTML asks the policy, which returns a value the browser accepts:",
+      "caption": "JavaScript, in your own code",
+      "explain": "The check itself is up to you: here a sanitizer library such as DOMPurify removes anything that could run. Most of the time the better fix is not to write HTML at all: `textContent` puts text in the page without a policy.",
+      "default": "A policy named `default` is applied automatically to every plain text that reaches those places. It helps while moving old code over, but it hides where the risky calls are: keep it temporary, and as strict as you can."
+    },
+    "rollout": {
+      "title": "Rolling it out",
+      "reports": "Set up [violation reports](/reporting), so you see what the browser would refuse, on every page and in every visitor's browser.",
+      "trial": "Turn Trusted Types on in a **report-only** policy. Nothing breaks: every call that would be refused sends a report, with `trusted-types-sink` as what was blocked and a sample naming the call, such as `Element innerHTML`, followed by the start of the text.",
+      "trialCaption": "Response header, added beside your current policy",
+      "fix": "Fix each place the reports name:",
+      "fixes": [
+        "Use `textContent` instead of `innerHTML` where the content is plain text.",
+        "Pass HTML that must stay HTML through a named policy that sanitizes it.",
+        "Replace `eval` and string timers with real functions.",
+        "Keep a `default` policy only for code you can't change yet."
+      ],
+      "enforce": "When the reports stop, move both lines into your `Content-Security-Policy`, with `trusted-types` listing the policy names your pages create."
+    },
+    "tools": {
+      "title": "Third-party tools",
+      "intro": "Tag managers, analytics, chat widgets and consent banners write HTML and load scripts. Under Trusted Types, a tool that doesn't create its own policy is refused, or goes through your `default` policy if you have one. A tool that does create one needs its name listed in `trusted-types`.",
+      "catalogue": "None of the [tools in our catalogue](/vendors) say in their official documentation whether they work with Trusted Types, or which policy names they use. Test each one in report-only mode first, and ask the vendor: when one documents it, the catalogue will say so."
+    },
+    "support": {
+      "title": "Good to know",
+      "items": [
+        {
+          "term": "Browser support",
+          "definition": "Chrome and Edge since version 83, Firefox since 148, Safari since 26. Older browsers ignore both lines: nothing breaks, and nothing is protected there."
+        },
+        {
+          "term": "Secure pages only",
+          "definition": "Trusted Types only work on https pages (and on `localhost` while developing)."
+        },
+        {
+          "term": "Not a replacement",
+          "definition": "Trusted Types stop text being turned into code inside the page. Keep a strict `script-src` too: it decides which scripts load at all."
+        }
+      ],
+      "button": "Analyze your policy"
+    }
+  },
   "directives": {
     "title": "All CSP directives",
     "description": "Every Content-Security-Policy directive explained in plain language, for developers and for security teams.",
@@ -361,7 +444,8 @@
     "ignoredInMeta": "Ignored when the policy is delivered in a `<meta>` tag.",
     "reference": "Reference: [MDN]({url})",
     "mdnLocale": "en-US",
-    "reportingGuide": "Setting it up, and what reports look like: [see what your policy blocks](/reporting)."
+    "reportingGuide": "Setting it up, and what reports look like: [see what your policy blocks](/reporting).",
+    "trustedTypesGuide": "What they change, and how to roll them out: [Trusted Types](/trusted-types)."
   },
   "vendors": {
     "title": "Tools",

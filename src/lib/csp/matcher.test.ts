@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { resolve } from './fallback';
+import { requiresTrustedTypes, resolve } from './fallback';
 import { checkResource, expressionMatchesUrl, ignoredSources } from './matcher';
-import { classify, parseSinglePolicy } from './parser';
+import { classify, parse, parseSinglePolicy } from './parser';
 
 const SELF = 'https://shop.example.com';
 const expr = (raw: string) => classify(raw, { start: 0, end: raw.length });
@@ -107,5 +107,15 @@ describe('ignoredSources', () => {
 
   it("keeps everything for types 'strict-dynamic' doesn't apply to", () => {
     expect(raws("default-src 'self' 'strict-dynamic' 'nonce-abc'", 'img')).toEqual([]);
+  });
+});
+
+describe('requiresTrustedTypes', () => {
+  const policy = (text: string) => parse(text).policies[0]!;
+  it("is on with require-trusted-types-for 'script' only", () => {
+    expect(requiresTrustedTypes(policy("default-src 'self'; require-trusted-types-for 'script'"))).toBe(true);
+    expect(requiresTrustedTypes(policy("require-trusted-types-for 'SCRIPT'"))).toBe(true);
+    expect(requiresTrustedTypes(policy('trusted-types default'))).toBe(false);
+    expect(requiresTrustedTypes(policy("default-src 'self'"))).toBe(false);
   });
 });
