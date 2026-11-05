@@ -484,7 +484,6 @@
       "nonceTitle": "Remplacez le nonce d'exemple",
       "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien.",
       "waitingTitle": "En attente du nonce",
-      "findingsTitle": "Bon à savoir",
       "fromTools": "nouveau avec vos ajouts",
       "deployTitle": "La mettre en ligne",
       "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`.",

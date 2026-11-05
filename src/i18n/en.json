@@ -484,7 +484,6 @@
       "nonceTitle": "Replace the nonce placeholder",
       "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection.",
       "waitingTitle": "Waiting on the nonce",
-      "findingsTitle": "Things to know",
       "fromTools": "new with your changes",
       "deployTitle": "Put it live",
       "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`.",
