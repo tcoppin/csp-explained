@@ -101,8 +101,8 @@ Enter a site address instead of copying and pasting the policy.
 - [ ] Detect which known tools the page loads (script and network requests) and pre-select them in
       "Will my tools work?".
 - [ ] Let people pick the page to check (homepage, product page, checkout), since policies can differ per page.
-- [ ] Paste a console error or a violation report: "which tool is this, and what's the fix?" (works without
-      the server).
+- [ ] Paste a console error: "which tool is this, and what's the fix?" (works without the server). Violation
+      reports moved to their own section below.
 
 How it would run and what to watch:
 
@@ -115,6 +115,35 @@ How it would run and what to watch:
   some sites block automated browsers.
 - The live check runs our browser on someone else's site, so keep it to one page load per request, with a
   clear user agent.
+
+## Violation reports
+
+Added 2026-11-05. Reports (`/reporting`) tell site owners what their policy blocks, but raw reports are noisy
+and can hold personal data (page addresses with query strings, referrers, code samples). The value is telling
+real problems from noise, in plain language, with the fix. Personal data never reaches our servers until a
+hosted service has the legal groundwork.
+
+- [ ] **1. Read reports in the browser**: paste or drop a batch of reports (`report-to` or `report-uri` format,
+      or a log export). Group them by blocked address, directive and page; set noise apart (browser extensions,
+      code injected on the visitor's device, the same visitor's repeats); name the catalogue tool behind each
+      group and build the fix with the patch engine. Runs on the visitor's device only, like the analyzer.
+- [ ] **2. A collector site owners host themselves**: an open-source endpoint as templates (Cloudflare Worker,
+      AWS Lambda, Express/Node middleware). It shrinks each report as it arrives (the blocked address's origin,
+      the page path without its query string; no sample, no IP address, no full user agent), keeps counts
+      rather than raw reports, and alerts by email or webhook. Stage 1 reads its export. The site owner keeps
+      control of the data.
+- [ ] **3. A hosted service** (pairs with Monitoring in Phase 3, maybe paid): only after a data processing
+      agreement, EU hosting and short retention, with stage 2's shrinking at intake.
+- [ ] Use it on our own site first: our policy sends no reports today.
+
+What makes an alert worth sending:
+
+- a blocked origin that belongs to a tool the site uses;
+- a blocked origin first seen after a deploy;
+- a spike across many pages and many browsers, rather than one browser (usually an extension).
+
+Report collectors and error-tracking tools already accept CSP reports. Our angle is the plain-language
+explanation, the link to the catalogue and the ready fix, not storage.
 
 ## Name and wider scope
 
