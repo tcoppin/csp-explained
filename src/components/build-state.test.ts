@@ -10,7 +10,8 @@ describe('build state', () => {
       start: 'policy',
       policy: "default-src 'self'",
       site: 'shop.example.com',
-      needs: ['inline-styles', 'data-images'],
+      needs: ['inline-scripts', 'inline-styles', 'data-images'],
+      hashes: { 'inline-scripts': [], 'inline-styles': ["'sha256-47DEQpj8HBSa+/TImW5JCeuQeRkm5NMpJWZG3hSuFU='"] },
       vendors: { hotjar: ['tracking'] },
       tools,
       step: 'review',
@@ -20,8 +21,13 @@ describe('build state', () => {
   });
 
   it('only carries the policy when building on one', () => {
-    const hash = encodeBuildState({ start: 'nonce', policy: "img-src 'self'", site: '', needs: [], vendors: {}, tools: [] });
+    const hash = encodeBuildState({ start: 'nonce', policy: "img-src 'self'", site: '', needs: [], hashes: {}, vendors: {}, tools: [] });
     expect(decodeBuildState(hash)).toEqual({ start: 'nonce' });
+  });
+
+  it('only carries hashes for the needs that are ticked', () => {
+    const hash = encodeBuildState({ policy: '', site: '', needs: [], hashes: { 'inline-scripts': ["'sha256-abc='"] }, vendors: {}, tools: [] });
+    expect(decodeBuildState(hash).hashes).toBeUndefined();
   });
 
   it('builds on a policy sent by the analyzer', () => {
@@ -31,6 +37,7 @@ describe('build state', () => {
 
   it('drops what it does not understand', () => {
     expect(decodeBuildState('#b=nope&n=eval,nope&step=nope&c=%%%')).toEqual({ needs: ['eval'] });
+    expect(decodeBuildState('#hi=sha256-abc%3D,nope,md5-abc').hashes).toEqual({ 'inline-scripts': ["'sha256-abc='"] });
     expect(unpackTools([['', []], ['A', [['nope', ['x']], ['img', ['a.example', 3]]]], 'x'])).toEqual([
       { id: 'own-2', name: 'A', needs: [{ type: 'img', sources: ['a.example'] }] },
     ]);

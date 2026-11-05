@@ -157,9 +157,10 @@ export function ignoredSources(governing: Directive, type: ResourceType): Source
 
 /**
  * Would a single policy let the page load `url` as `type`?
- * For inline/eval types the URL is ignored.
+ * For inline/eval types the URL is ignored. `hash` names one inline block by its hash (`'sha256-…'`): it is allowed
+ * when the directive lists that hash, and adding it is the fix otherwise.
  */
-export function checkResource(policy: Policy, type: ResourceType, url: string | undefined, selfOrigin: string): MatchResult {
+export function checkResource(policy: Policy, type: ResourceType, url: string | undefined, selfOrigin: string, hash?: string): MatchResult {
   const requested = EFFECTIVE_DIRECTIVE[type];
   const { governing } = resolve(policy, requested);
   if (!governing) return { verdict: 'allowed', requested, ignored: [] };
@@ -171,6 +172,12 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
   if (type === 'eval') {
     const kw = governing.values.find((v) => v.kind === 'keyword' && v.value === "'unsafe-eval'");
     return kw ? { ...base, verdict: 'allowed', matchedBy: kw, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
+  }
+
+  if (hash && (type === 'inline-script' || type === 'inline-style')) {
+    // Asked for by its hash: only the listed hash counts, even where 'unsafe-inline' would allow the block today.
+    const listed = governing.values.find((v) => v.kind === 'hash' && v.raw === hash);
+    return listed ? { ...base, verdict: 'allowed', matchedBy: listed, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
   }
 
   if (type === 'inline-script' || type === 'inline-handler' || type === 'inline-style' || type === 'style-attr') {

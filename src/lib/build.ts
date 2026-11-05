@@ -1,9 +1,10 @@
 import { DEFAULT_ORIGIN, sameFinding } from './analysis';
-import { checkRequirements, type Requirement, type RequirementResult } from './csp/compat';
+import { checkRequirement, checkRequirements, type Requirement, type RequirementResult } from './csp/compat';
 import { KEYWORDS, type ResourceType } from './csp/directives';
 import type { Policy } from './csp/model';
 import { classify, parse, parseSinglePolicy } from './csp/parser';
 import { buildPatches, type DirectiveChange } from './csp/patch';
+import { INLINE_TYPE, type InlineHash } from './csp/hash';
 import { evaluateSecurity, type SecurityFinding } from './csp/security';
 
 /**
@@ -50,10 +51,22 @@ export const SITE_NEEDS = {
 
 export type SiteNeed = keyof typeof SITE_NEEDS;
 
-export function siteContribution(needs: SiteNeed[]): Contribution {
+/** Needs that can name each inline block by its hash instead of allowing them all with 'unsafe-inline'. */
+export const HASHABLE = { 'inline-scripts': 'inline-script', 'inline-styles': 'inline-style' } as const satisfies Partial<Record<SiteNeed, ResourceType>>;
+export type HashableNeed = keyof typeof HASHABLE;
+export const isHashable = (need: SiteNeed): need is HashableNeed => need in HASHABLE;
+
+/** The hashes listed for a need; a need present here (even with no hash yet) is allowed by hash only. */
+export type SiteHashes = Partial<Record<HashableNeed, string[]>>;
+
+export function siteContribution(needs: SiteNeed[], hashes: SiteHashes = {}): Contribution {
   return {
     by: { kind: 'site', id: 'site', label: 'site' },
-    requirements: needs.flatMap((id) => SITE_NEEDS[id].map((r) => ({ ...r, reason: id }))),
+    requirements: needs.flatMap((id) => {
+      const listed = isHashable(id) ? hashes[id] : undefined;
+      if (listed) return listed.map((source) => ({ type: HASHABLE[id as HashableNeed], source, reason: id }));
+      return SITE_NEEDS[id].map((r) => ({ ...r, reason: id }));
+    }),
   };
 }
 
@@ -110,28 +123,51 @@ function pickBase(text: string): { base?: Policy; others: number } {
   return { base, others: policies.length - (base ? 1 : 0) };
 }
 
+const isHash = (r: Requirement) => classify(r.source, { start: 0, end: r.source.length }).kind === 'hash';
+
+/** One patch after the other: the second one's `before` is the first one's `after`. */
+function mergeChanges(first: DirectiveChange[], second: DirectiveChange[]): DirectiveChange[] {
+  const merged = first.map((a) => {
+    const b = second.find((c) => c.directive === a.directive);
+    if (!b) return a;
+    return { ...a, added: [...a.added, ...b.added], requestedBy: { ...a.requestedBy, ...b.requestedBy }, removedNone: a.removedNone || b.removedNone, after: b.after };
+  });
+  return [...merged, ...second.filter((b) => !first.some((a) => a.directive === b.directive))];
+}
+
 export function buildPolicy(baseText: string, contributions: Contribution[], origin = DEFAULT_ORIGIN): BuiltPolicy {
   const { base, others } = pickBase(baseText);
   if (!base) return { otherPolicies: 0, text: '', changes: [], requirements: [], findings: [], introducedFindings: [] };
 
-  // What this policy would do once it decides: a Report-Only one would only get 'reported' verdicts otherwise.
-  const parsed = { input: base.text, policies: [{ ...base, reportOnly: false }], issues: [] };
   const owner = new Map<Requirement, Contributor>();
   for (const c of contributions) for (const r of c.requirements) owner.set(r, c.by);
 
-  const results = checkRequirements(parsed, [...owner.keys()], origin);
-  const patch = buildPatches(parsed, results)[0];
-  const changes = patch?.changes ?? [];
-  const text = patch?.after ?? base.text;
-  const policy = patch ? parseSinglePolicy(text, base.origin, base.reportOnly) : base;
+  // Hashes first: once listed, the browser ignores 'unsafe-inline' in that directive, which the other
+  // requirements must be checked against (a tool asking for it then needs a hash or the nonce instead).
+  const all = [...owner.keys()];
+  let text = base.text;
+  let changes: DirectiveChange[] = [];
+  const results: RequirementResult[] = [];
+  for (const group of [all.filter(isHash), all.filter((r) => !isHash(r))]) {
+    if (group.length === 0) continue;
+    // What this policy would do once it decides: a Report-Only one would only get 'reported' verdicts otherwise.
+    const current = parseSinglePolicy(text, base.origin, false);
+    const groupResults = checkRequirements({ input: text, policies: [current], issues: [] }, group, origin);
+    const patch = buildPatches({ input: text, policies: [current], issues: [] }, groupResults)[0];
+    results.push(...groupResults);
+    if (!patch) continue;
+    changes = mergeChanges(changes, patch.changes);
+    text = patch.after;
+  }
+  const policy = text === base.text ? base : parseSinglePolicy(text, base.origin, base.reportOnly);
 
   const addedTo = (r: Requirement) =>
     changes.find((c) => Object.values(c.requestedBy).some((reqs) => reqs.includes(r)))?.directive;
-  const requirements = results.map((result) => ({
-    by: owner.get(result.requirement)!,
-    result,
-    addedTo: addedTo(result.requirement),
-  }));
+  // In the order the contributions came.
+  const requirements = all.map((r) => {
+    const result = results.find((x) => x.requirement === r)!;
+    return { by: owner.get(r)!, result, addedTo: addedTo(r) };
+  });
 
   const before = new Set(evaluateSecurity({ policies: [base] }).map(sameFinding));
   const findings = evaluateSecurity({ policies: [policy] });
@@ -153,4 +189,21 @@ export function askedFor(built: BuiltPolicy, directive: string, value: string): 
   const reqs = change?.requestedBy[value];
   if (!reqs) return [];
   return built.requirements.filter((p) => reqs.includes(p.result.requirement));
+}
+
+export interface HashedPolicy {
+  text: string;
+  /** `style-src-attr 'unsafe-inline'` was added, so style attributes keep working beside the style hashes. */
+  styleAttributes: boolean;
+}
+
+/** A policy with inline blocks listed by hash, as the analyzer offers in place of 'unsafe-inline'. */
+export function withHashes(policyText: string, hashes: InlineHash[], origin = DEFAULT_ORIGIN): HashedPolicy {
+  const requirements: Requirement[] = hashes.map((h) => ({ type: INLINE_TYPE[h.kind], source: h.source, reason: '' }));
+  // Style attributes allowed today would stop working once style-src lists a hash.
+  const styleAttr: Requirement = { type: 'style-attr', source: "'unsafe-inline'", reason: '' };
+  const allowedToday = checkRequirement(parse(policyText), styleAttr, origin).checks.every((c) => c.match.matchedBy !== undefined);
+  if (allowedToday && hashes.some((h) => h.kind === 'style')) requirements.push(styleAttr);
+  const built = buildPolicy(policyText, [{ by: { kind: 'site', id: 'site', label: 'site' }, requirements }], origin);
+  return { text: built.text, styleAttributes: built.changes.some((c) => c.directive === 'style-src-attr') };
 }

@@ -144,9 +144,11 @@ the plain-language voice better than "CSP Explainer".
       it stays on the device, and that anyone using the same browser can see it. Pairs with comparing two
       policies.
 - [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
-- [ ] **Hashes for inline scripts and styles** (reworded 2026-11-05): paste the code, get its `'sha256-…'`, as an
-      alternative to `'unsafe-inline'` when a nonce isn't possible. One generator, used in two places: the
-      builder adds the hash to the policy, and the analyzer suggests it wherever it flags `'unsafe-inline'`.
+- [x] **Hashes for inline scripts and styles** (2026-11-05): paste the code (with or without its tags), get its
+      `'sha256-…'`, as an alternative to `'unsafe-inline'` when a nonce isn't possible. One generator
+      (`HashTool.tsx`), used in two places: the builder lists inline code by hash, and the analyzer offers it
+      under `'unsafe-inline'` and from the `script-unsafe-inline` finding.
+  - [ ] Inline event handlers by hash (`'unsafe-hashes'`), and hashes of external scripts (CSP3, Chromium only).
 - [x] **Policy builder** (`/build`, 2026-10-30): start from nothing (a tight allowlist, or a nonce with
       `'strict-dynamic'` when the site can add one) or from an existing policy, answer a few questions about the
       site's own pages, pick catalogue tools or describe your own. Every added value says who asked for it.

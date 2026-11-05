@@ -5,10 +5,12 @@ import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
+import { resolve } from '../lib/csp/fallback';
 import { distinctIssues } from '../lib/csp/parser';
 import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
+import { HashFix, offersHashes } from './HashTool';
 import { I18n, useT } from './i18n';
 import { PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from './PolicyView';
@@ -56,6 +58,8 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const [selectedVendors, setSelectedVendors] = useState<Record<string, string[]>>({});
   const [selection, setSelection] = useState<Selection | undefined>();
   const [policyIndex, setPolicyIndex] = useState(0);
+  // The hashes offer under 'unsafe-inline' starts open when a security finding led there.
+  const [hashesOpen, setHashesOpen] = useState(false);
   // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
@@ -136,11 +140,28 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     }
   };
 
+  /** From a security finding: select 'unsafe-inline' in the directive that decides, with the hashes offer open. */
+  const showHashes = (index: number, directive: string) => {
+    const p = parsed.policies[index];
+    const governing = p && resolve(p, directive).governing;
+    if (!p || !governing) return;
+    const valueIndex = governing.values.findIndex((v) => v.raw.toLowerCase() === "'unsafe-inline'");
+    setPolicyIndex(index);
+    setSelection({ policyIndex: index, directiveIndex: p.directives.indexOf(governing), valueIndex: valueIndex < 0 ? undefined : valueIndex });
+    setHashesOpen(true);
+    goTo('read');
+  };
+
   const chooseAudience = (a: Audience) => {
     setAudience(a);
     saveAudience(a);
   };
 
+
+  // 'unsafe-inline' selected where hashes could replace it.
+  const selectedDirective = activeSelection && policy?.directives[activeSelection.directiveIndex];
+  const selectedValue = selectedDirective && activeSelection?.valueIndex !== undefined ? selectedDirective.values[activeSelection.valueIndex] : undefined;
+  const hashOffer = selectedDirective && selectedValue?.raw.toLowerCase() === "'unsafe-inline'" && offersHashes(selectedDirective.name) ? selectedDirective.name : undefined;
 
   const issues = distinctIssues(parsed.issues.filter((i) => i.code !== 'empty-input'));
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
@@ -240,6 +261,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   {activeSelection && (
                     <div class="explanation-slot">
                       <Explanation policy={policy} selection={activeSelection} issues={parsed.issues} audience={audience} content={content} />
+                      {hashOffer && <HashFix key={`${currentIndex}|${hashOffer}`} policyText={policy.text} directive={hashOffer} origin={origin} audience={audience} open={hashesOpen} />}
                     </div>
                   )}
                 </div>
@@ -294,6 +316,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   site={site}
                   vendorsIn={{ ...otherVendors, [locale]: content.vendors }}
                   onPickTools={() => goTo('tools')}
+                  onHashes={showHashes}
                 />
               </div>
             )}

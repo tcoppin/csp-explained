@@ -75,11 +75,12 @@ function worst(checks: PolicyCheck[]): Verdict {
  */
 export function checkRequirement(parsed: ParseResult, req: Requirement, selfOrigin: string): RequirementResult {
   const url = probeFor(req, selfOrigin);
+  const hash = classify(req.source, { start: 0, end: req.source.length }).kind === 'hash' ? req.source : undefined;
   const run = (reportOnly: boolean) =>
     parsed.policies
       .map((policy, policyIndex) => ({ policy, policyIndex }))
       .filter(({ policy }) => policy.reportOnly === reportOnly && policy.directives.length > 0)
-      .map(({ policy, policyIndex }) => ({ policyIndex, match: checkResource(policy, req.type, url, selfOrigin) }));
+      .map(({ policy, policyIndex }) => ({ policyIndex, match: checkResource(policy, req.type, url, selfOrigin, hash) }));
 
   const enforced = run(false);
   const reportOnly = run(true);

@@ -2,7 +2,7 @@ import { Fragment, type ComponentChildren } from 'preact';
 import { useMemo, useState } from 'preact/hooks';
 import { localePath, type Translate } from '../i18n';
 import { analyze } from '../lib/analysis';
-import { askedFor, NONCE_PLACEHOLDER, SITE_NEEDS, type BuiltPolicy, type CustomTool, type PlacedRequirement, type SiteNeed } from '../lib/build';
+import { askedFor, HASHABLE, isHashable, NONCE_PLACEHOLDER, SITE_NEEDS, type BuiltPolicy, type CustomTool, type HashableNeed, type PlacedRequirement, type SiteNeed } from '../lib/build';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, Policy } from '../lib/csp/model';
 import { deploySnippet, headersBesideMeta, TARGETS, type Target } from '../lib/reports/developer';
@@ -10,6 +10,7 @@ import { findingText } from '../lib/reports/security';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 import { Explanation } from './Explanation';
+import { HashTool } from './HashTool';
 import { useT } from './i18n';
 import { OwnToolEditor } from './OwnTools';
 import { highlightClass, PolicyView, type Selection } from './PolicyView';
@@ -35,7 +36,11 @@ function outcomeText(t: Translate, p: PlacedRequirement): string {
   const v = p.result.verdict;
   const match = p.result.checks[0]?.match;
   if (v === 'allowed') return match?.matchedBy ? t('build.outcome.allowed', { source: match.matchedBy.raw }) : t('build.outcome.unrestricted');
-  if (v === 'needs-nonce') return t('build.outcome.needs-nonce');
+  if (v === 'needs-nonce') {
+    // Hashes alone (no nonce) make 'unsafe-inline' ignored too: this code then needs a hash of its own.
+    const noNonce = match?.directive && !match.directive.values.some((x) => x.kind === 'nonce');
+    return t(noNonce ? 'build.outcome.needs-hash' : 'build.outcome.needs-nonce');
+  }
   return t('build.outcome.blocked');
 }
 
@@ -231,6 +236,51 @@ export function StartPanel({ b }: { b: BuilderModel }) {
   );
 }
 
+/** For inline code the visitor ticked: allow all of it, or only the blocks listed by hash. */
+function InlineChoice({ b, need }: { b: BuilderModel; need: HashableNeed }) {
+  const t = useT();
+  const listed = b.hashes[need];
+  const kind = HASHABLE[need] === 'inline-script' ? 'script' : 'style';
+  // Hashes only limit inline code when a directive restricts it: without one, everything already runs.
+  const unrestricted = b
+    .placedBy('site', 'site')
+    .some((p) => p.result.requirement.reason === need && p.result.checks.length > 0 && p.result.checks.every((c) => !c.match.directive));
+  return (
+    <div class="inline-choice">
+      <Segmented
+        class="segmented"
+        label={t('build.site.inline.question')}
+        items={[
+          { id: 'all', label: t(b.start === 'nonce' ? 'build.site.inline.nonce' : 'build.site.inline.all') },
+          { id: 'listed', label: t('build.site.inline.listed') },
+        ]}
+        value={listed ? 'listed' : 'all'}
+        onChange={(v) => b.setHashes(need, v === 'listed' ? (listed ?? []) : undefined)}
+      >
+        <span class="muted" aria-hidden="true">{t('build.site.inline.question')}</span>
+      </Segmented>
+      {listed && (
+        <>
+          <p class="muted">
+            <Rich msg={`build.site.inline.explain.${kind}.${b.audience === 'simple' ? 'simple' : 'technical'}`} />
+          </p>
+          <HashTool
+            id={`hash-${need}`}
+            kind={kind}
+            hashes={listed.map((source) => ({ kind, source }))}
+            onChange={(hashes) => b.setHashes(need, hashes.map((h) => h.source))}
+          />
+          {unrestricted && (
+            <p class="hash-note" role="note">
+              <Rich msg={`build.site.inline.unrestricted.${kind}`} />
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function SitePanel({ b }: { b: BuilderModel }) {
   const t = useT();
   const placed = b.placedBy('site', 'site');
@@ -239,13 +289,16 @@ export function SitePanel({ b }: { b: BuilderModel }) {
       <fieldset class="choices">
         <legend>{t('build.site.question')}</legend>
         {NEEDS.map((need) => (
-          <label key={need} class="choice">
-            <input type="checkbox" checked={b.needs.includes(need)} onChange={() => b.toggleNeed(need)} />
-            <span>
-              <strong>{t(`build.site.needs.${need}.label`)}</strong>
-              <span class="muted">{t(`build.site.needs.${need}.${b.audience === 'simple' ? 'hint' : 'detail'}`)}</span>
-            </span>
-          </label>
+          <Fragment key={need}>
+            <label class="choice">
+              <input type="checkbox" checked={b.needs.includes(need)} onChange={() => b.toggleNeed(need)} />
+              <span>
+                <strong>{t(`build.site.needs.${need}.label`)}</strong>
+                <span class="muted">{t(`build.site.needs.${need}.${b.audience === 'simple' ? 'hint' : 'detail'}`)}</span>
+              </span>
+            </label>
+            {isHashable(need) && b.needs.includes(need) && <InlineChoice b={b} need={need} />}
+          </Fragment>
         ))}
       </fieldset>
       <p class="muted">{t('build.site.unsure')}</p>
@@ -429,7 +482,24 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
                   </span>
                   <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
                   {built.introducedFindings.includes(f) && <span class="tag">{t('build.review.fromTools')}</span>}
-                  <span class="desc">{findingText(t, f)}</span>
+                  <span class="desc">
+                    {findingText(t, f)}
+                    {f.id === 'script-unsafe-inline' && b.needs.includes('inline-scripts') && !b.hashes['inline-scripts'] && (
+                      <>
+                        {' '}
+                        <button
+                          type="button"
+                          class="link-button"
+                          onClick={() => {
+                            b.setHashes('inline-scripts', []);
+                            b.setStep('site');
+                          }}
+                        >
+                          {t('build.review.useHashes')}
+                        </button>
+                      </>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>

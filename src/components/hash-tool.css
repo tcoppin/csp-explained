@@ -1,0 +1,78 @@
+.hash-tool {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+.hash-tool > label {
+  font-weight: 700;
+}
+.hash-tool textarea {
+  resize: vertical;
+  padding: 0.5rem 0.65rem;
+}
+.hash-tool p {
+  margin: 0;
+}
+.hash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+.hash-list {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+.hash-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.75rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.hash-value {
+  overflow-wrap: anywhere;
+  background: var(--hl-nonce);
+  padding: 0 0.2rem;
+}
+.hash-preview {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  overflow-wrap: anywhere;
+}
+.hash-list .tag {
+  font-size: var(--step--1);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--ink-soft);
+}
+.hash-list .link-button {
+  margin-left: auto;
+}
+
+/* The analyzer's offer under 'unsafe-inline' */
+.hash-fix {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.75rem;
+}
+.hash-fix summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--action);
+}
+.hash-fix[open] summary {
+  margin-bottom: 0.5rem;
+}
+.hash-warning {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+}
+.hash-note {
+  border-left: 4px solid var(--rule);
+  padding-left: 0.75rem;
+  color: var(--ink-soft);
+}
