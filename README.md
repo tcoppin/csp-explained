@@ -5,7 +5,7 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 - **An annotated policy**: every directive and value is highlighted and explained, for three audiences (everyone, developers, security teams).
 - **What it allows**: for each type of content, where the browser accepts it from.
 - **Tool compatibility**: "Will Google Tag Manager / AB Tasty / Intercom… work with this policy? If not, which line is missing?"
-- **A policy builder**: start from nothing or from your policy, add the tools you use (or describe your own), and get a policy where every value says who asked for it.
+- **A policy builder**: start from a blank policy or your current one, add the tools your site should allow (or describe your own), and get a policy where every value says who asked for it.
 - **A report per audience**: a message for IT that people can send as is (email, chat, ticket), a diff plus server snippets for developers, and a security review for security teams.
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).
