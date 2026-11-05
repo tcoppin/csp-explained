@@ -44,7 +44,9 @@
     "askTitle": "How to ask for a change",
     "ask1": "[Find your site's current policy](/find-my-csp).",
     "ask2": "[Paste it into the analyzer](/) and pick the tools you want to use.",
-    "ask3": "Copy the message it writes for your IT or security team. It lists exactly what to add, why, and the risks to weigh."
+    "ask3": "Copy the message it writes for your IT or security team. It lists exactly what to add, why, and the risks to weigh.",
+    "noneTitle": "No policy yet?",
+    "none": "Many sites don't send one. [Build a policy](/build): start from a blank policy, add the tools your site should allow, and every line says who asked for it."
   },
   "about": {
     "title": "About",

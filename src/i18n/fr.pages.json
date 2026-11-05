@@ -44,7 +44,9 @@
     "askTitle": "Comment demander un changement",
     "ask1": "[Trouvez la politique actuelle de votre site](/find-my-csp).",
     "ask2": "[Collez-la dans l'analyseur](/) et choisissez les outils que vous voulez utiliser.",
-    "ask3": "Copiez le message qu'il rédige pour votre équipe informatique ou sécurité. Il liste exactement quoi ajouter, pourquoi, et les risques à peser."
+    "ask3": "Copiez le message qu'il rédige pour votre équipe informatique ou sécurité. Il liste exactement quoi ajouter, pourquoi, et les risques à peser.",
+    "noneTitle": "Pas encore de politique ?",
+    "none": "Beaucoup de sites n'en envoient pas. [Construisez une politique](/build) : partez d'une politique vierge, ajoutez les outils que votre site doit autoriser, et chaque ligne dit qui l'a demandée."
   },
   "about": {
     "title": "À propos",
