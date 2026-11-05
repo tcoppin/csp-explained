@@ -53,6 +53,8 @@
     "shareHint": "The policy is stored after the # in the link, which is never sent to any server.",
     "noPolicy": "Don't have your policy at hand?",
     "findLink": "Here's how to find it",
+    "noPolicyYet": "No policy yet?",
+    "buildLink": "Build one",
     "noPolicyFound": "This site doesn't send a policy yet, so there's nothing to explain. [Build one from a blank policy](/build), with the tools your site should allow.",
     "siteLabel": "Your site address (optional)",
     "siteHint": "Used to understand 'self'. Never sent anywhere.",

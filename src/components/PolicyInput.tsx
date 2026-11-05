@@ -66,6 +66,8 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
         )}
         <p class="find-hint">
           {t('analyzer.noPolicy')} <a href={localePath(t.locale, '/find-my-csp')}>{t('analyzer.findLink')}</a>
+          <br />
+          {t('analyzer.noPolicyYet')} <a href={localePath(t.locale, '/build')}>{t('analyzer.buildLink')}</a>
         </p>
       </div>
       <details class="site-field">
