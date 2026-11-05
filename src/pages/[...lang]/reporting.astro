@@ -1,0 +1,220 @@
+---
+import CodeBlock from '../../components/CodeBlock.astro';
+import { Rich } from '../../components/Rich';
+import Base from '../../layouts/Base.astro';
+import { localeParams, localePath, translatorFor } from '../../i18n';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const t = translatorFor(Astro);
+const m = (key: string) => `pages.reporting.${key}`;
+
+const ENDPOINT = 'https://reports.example.com/csp';
+const HEADERS = [
+  `Reporting-Endpoints: csp="${ENDPOINT}"`,
+  `Content-Security-Policy: default-src 'self'; script-src 'self'; report-to csp; report-uri ${ENDPOINT}`,
+].join('\n');
+
+// What browsers send, as documented by MDN. JSON field names are never translated.
+const CURRENT = `[
+  {
+    "type": "csp-violation",
+    "age": 53531,
+    "url": "https://www.example.com/checkout",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) …",
+    "body": {
+      "documentURL": "https://www.example.com/checkout",
+      "referrer": "https://www.example.com/cart",
+      "blockedURL": "inline",
+      "effectiveDirective": "script-src-elem",
+      "originalPolicy": "default-src 'self'; script-src 'self' 'report-sample'; report-to csp",
+      "disposition": "enforce",
+      "sourceFile": "https://www.example.com/checkout",
+      "lineNumber": 121,
+      "columnNumber": 39,
+      "sample": "console.log(\\"lo\\")",
+      "statusCode": 200
+    }
+  }
+]`;
+
+const LEGACY = `{
+  "csp-report": {
+    "document-uri": "https://www.example.com/checkout",
+    "referrer": "https://www.example.com/cart",
+    "blocked-uri": "https://cdn.vendor.example",
+    "violated-directive": "script-src-elem",
+    "effective-directive": "script-src-elem",
+    "original-policy": "default-src 'self'; script-src 'self'; report-uri ${ENDPOINT}",
+    "disposition": "enforce",
+    "status-code": 200
+  }
+}`;
+
+const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 'sample', 'policy', 'context'];
+---
+
+<Base title={t(m('title'))} description={t(m('description'))}>
+  <article class="wrap prose guide">
+    <h1>{t(m('heading'))}</h1>
+    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+
+    <h2>{t(m('setup.title'))}</h2>
+    <p><Rich t={t} msg={m('setup.intro')} /></p>
+    <CodeBlock caption={t(m('setup.caption'))} code={HEADERS} />
+    <dl class="reading">
+      {
+        t.keys(m('setup.parts')).map((part) => (
+          <>
+            <dt><Rich t={t} msg={`${part}.term`} /></dt>
+            <dd><Rich t={t} msg={`${part}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
+    <p class="note"><Rich t={t} msg={m('setup.meta')} /></p>
+    <p><Rich t={t} msg={m('setup.reportOnly')} /></p>
+
+    <h2>{t(m('format.title'))}</h2>
+    <p><Rich t={t} msg={m('format.intro')} /></p>
+    <div class="formats" data-tabs>
+      <div role="tablist" aria-label={t(m('format.label'))} class="segmented" hidden>
+        <button type="button" role="tab" id="tab-current" aria-controls="current" aria-selected="true">{t(m('format.current.tab'))}</button>
+        <button type="button" role="tab" id="tab-legacy" aria-controls="legacy" aria-selected="false">{t(m('format.legacy.tab'))}</button>
+      </div>
+      <section id="current" class="format">
+        <h3>{t(m('format.current.tab'))}</h3>
+        <p><Rich t={t} msg={m('format.current.intro')} /></p>
+        <pre class="report-sample"><code>{CURRENT}</code></pre>
+        <dl class="reading">
+          {
+            fields.map((field) => (
+              <>
+                <dt><Rich t={t} msg={m(`format.fields.${field}.term`)} /></dt>
+                <dd><Rich t={t} msg={m(`format.fields.${field}.definition`)} /></dd>
+              </>
+            ))
+          }
+        </dl>
+      </section>
+      <section id="legacy" class="format">
+        <h3>{t(m('format.legacy.tab'))}</h3>
+        <p><Rich t={t} msg={m('format.legacy.intro')} /></p>
+        <pre class="report-sample"><code>{LEGACY}</code></pre>
+        <p><Rich t={t} msg={m('format.legacy.names')} /></p>
+      </section>
+    </div>
+
+    <h2>{t(m('reading.title'))}</h2>
+    <dl class="reading">
+      {
+        t.keys(m('reading.items')).map((item) => (
+          <>
+            <dt><Rich t={t} msg={`${item}.term`} /></dt>
+            <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
+
+    <section class="pitfalls" aria-labelledby="pitfalls-title">
+      <h2 id="pitfalls-title">{t(m('pitfalls.title'))}</h2>
+      <dl class="reading">
+        {
+          t.keys(m('pitfalls.items')).map((item) => (
+            <>
+              <dt>{t(`${item}.term`)}</dt>
+              <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+            </>
+          ))
+        }
+      </dl>
+      <p><a class="button" href={localePath(t.locale, '/')}>{t(m('pitfalls.button'))}</a></p>
+    </section>
+  </article>
+</Base>
+
+<script>
+  import '../../scripts/tabs';
+</script>
+
+<style>
+  .guide {
+    max-width: 56rem;
+  }
+  .guide h2 {
+    margin-top: 2.75rem;
+  }
+  .lead {
+    font-size: var(--step-1);
+  }
+  .note {
+    border-left: 4px solid var(--hl-nonce);
+    padding-left: 0.75rem;
+  }
+
+  .reading {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) 1fr;
+    gap: 0.6rem 1.5rem;
+    max-width: 52rem;
+  }
+  .reading dt {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .reading dd {
+    margin: 0;
+  }
+  @media (max-width: 40rem) {
+    .reading {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+    .reading dd {
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  /* Report formats: one at a time once the tabs work */
+  .segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 1rem 0 0;
+  }
+  .segmented [role='tab'] {
+    border: 2px solid var(--rule);
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 0.2rem 0.7rem;
+    font-weight: 700;
+  }
+  .segmented [role='tab'][aria-selected='true'] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .tabs-ready > .format {
+    padding-top: 0.75rem;
+  }
+  .tabs-ready > .format > h3 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .report-sample {
+    border-left: 4px solid var(--warn);
+    overflow-x: auto;
+    font-size: var(--step--1);
+  }
+
+  .pitfalls .button {
+    margin-top: 1rem;
+  }
+</style>

@@ -38,7 +38,7 @@
       },
       "reportOnly": {
         "term": "Report-only",
-        "definition": "A trial mode: the browser reports what it would block, but blocks nothing. Teams use it to test a policy safely."
+        "definition": "A trial mode: the browser reports what it would block, but blocks nothing. Teams use it to test a policy safely. To receive those reports, [see what your policy blocks](/reporting)."
       }
     },
     "askTitle": "How to ask for a change",
@@ -213,6 +213,132 @@
       "button": "Analyse my policy"
     }
   },
+  "reporting": {
+    "title": "CSP violation reports",
+    "description": "Get a report each time your Content-Security-Policy blocks something: the two headers to add, what a report looks like, and how to read it.",
+    "heading": "See what your policy blocks",
+    "lead": "Browsers can send you a short report each time your policy blocks something, from every visitor's browser. It's how you find what a new policy breaks before your visitors tell you, and how you see attacks being stopped.",
+    "setup": {
+      "title": "Set it up",
+      "intro": "Two headers: one names the address that receives the reports, the other tells the policy to use it.",
+      "caption": "Response headers, sent with every page",
+      "parts": [
+        {
+          "term": "`Reporting-Endpoints`",
+          "definition": "Gives an address a name, here `csp`. It must use https: browsers ignore any other address."
+        },
+        {
+          "term": "`report-to csp`",
+          "definition": "Sends this policy's reports to the address named `csp`. Chrome and Edge, Firefox (since version 149) and Safari (since 16.4) support it."
+        },
+        {
+          "term": "`report-uri`",
+          "definition": "The older way, with the address written in the policy. Browsers that understand `report-to` ignore it, so it only matters for older browsers. Keeping both costs nothing."
+        }
+      ],
+      "meta": "Reporting only works in headers: a policy written in a `<meta>` tag can't send reports.",
+      "reportOnly": "Trying out a new policy? Send it as `Content-Security-Policy-Report-Only` with the same reporting lines. Nothing is blocked, and you get a report for everything that would be. When the reports stop, switch to `Content-Security-Policy`."
+    },
+    "format": {
+      "title": "What a report looks like",
+      "intro": "The browser sends it to your address as a `POST` request with a small JSON document. Your server doesn't need to answer anything: the browser ignores the reply.",
+      "label": "Report format",
+      "current": {
+        "tab": "report-to",
+        "intro": "Sent with `Content-Type: application/reports+json`. Each report has a `type` and a `body`:"
+      },
+      "legacy": {
+        "tab": "report-uri (older)",
+        "intro": "Sent with `Content-Type: application/csp-report`, one report per request:",
+        "names": "The same facts with older names: `document-uri` is the page, `blocked-uri` what was blocked, `effective-directive` the line that applied. A blocked address from another site is shortened to its origin (scheme, host and port)."
+      },
+      "fields": {
+        "type": {
+          "term": "`type`",
+          "definition": "`csp-violation` for policy reports. The same address can receive other kinds of browser reports, so check it first."
+        },
+        "page": {
+          "term": "`documentURL`",
+          "definition": "The page where it happened, also in `url`. `referrer` is the page the visitor came from."
+        },
+        "blocked": {
+          "term": "`blockedURL`",
+          "definition": "What was blocked: an address, or `inline` for code written in the page, or `eval` for code built from text."
+        },
+        "directive": {
+          "term": "`effectiveDirective`",
+          "definition": "The kind of resource, as the line of the policy that applied: `script-src-elem` is a `<script>` tag, `img-src` an image. The analyzer explains each one."
+        },
+        "disposition": {
+          "term": "`disposition`",
+          "definition": "`enforce` when the browser blocked it. Reports from a `Content-Security-Policy-Report-Only` policy carry another value: nothing was blocked."
+        },
+        "where": {
+          "term": "`sourceFile`, `lineNumber`, `columnNumber`",
+          "definition": "Where the code that triggered it is, when the browser knows."
+        },
+        "sample": {
+          "term": "`sample`",
+          "definition": "The first 40 characters of the blocked inline code. Only sent when the line has `'report-sample'`."
+        },
+        "policy": {
+          "term": "`originalPolicy`",
+          "definition": "The whole policy the page was sent. Useful when pages have different ones."
+        },
+        "context": {
+          "term": "`age`, `user_agent`",
+          "definition": "How long ago it happened, in milliseconds, and which browser sent it."
+        }
+      }
+    },
+    "reading": {
+      "title": "Reading them",
+      "items": [
+        {
+          "term": "An address of a tool you use",
+          "definition": "The policy is missing it. Add it to the line named in `effectiveDirective`, or let [Will my tools work?](/) find what the tool needs."
+        },
+        {
+          "term": "`inline`",
+          "definition": "Code written in the page. Give your own `<script>` and `<style>` blocks a nonce or a hash: the [builder](/build) and the analyzer compute hashes."
+        },
+        {
+          "term": "`eval`",
+          "definition": "Code built from text, usually by a library or a tool. It needs `'unsafe-eval'`, or a newer version of the library that doesn't."
+        },
+        {
+          "term": "Addresses you don't recognise",
+          "definition": "Often browser extensions, or software on the visitor's device adding code to every page. Group them and look for patterns before changing the policy."
+        },
+        {
+          "term": "A wave after a release",
+          "definition": "Something new in the pages, or a tool that changed what it loads. Compare with what was published that day."
+        }
+      ]
+    },
+    "pitfalls": {
+      "title": "Before you collect them",
+      "items": [
+        {
+          "term": "Anyone can send a report",
+          "definition": "The address is public, so treat reports as untrusted data: never show their content as HTML, and limit how many you accept."
+        },
+        {
+          "term": "Reports can hold personal data",
+          "definition": "Page addresses with their query strings, the previous page, code samples. Keep them like logs: only what you need, not for long."
+        },
+        {
+          "term": "They add up fast",
+          "definition": "One broken line on a busy page sends a report from every visit. Count them by blocked address and directive rather than reading them one by one."
+        },
+        {
+          "term": "Where to send them",
+          "definition": "A small endpoint of your own is enough to start. Error tracking services and dedicated report collectors also accept these formats."
+        }
+      ],
+      "button": "Analyze your policy"
+    }
+  },
   "directives": {
     "title": "All CSP directives",
     "description": "Every Content-Security-Policy directive explained in plain language, for developers and for security teams.",
@@ -234,7 +360,8 @@
     "usedInPlaceOf": "Used in place of {directives} when those are absent.",
     "ignoredInMeta": "Ignored when the policy is delivered in a `<meta>` tag.",
     "reference": "Reference: [MDN]({url})",
-    "mdnLocale": "en-US"
+    "mdnLocale": "en-US",
+    "reportingGuide": "Setting it up, and what reports look like: [see what your policy blocks](/reporting)."
   },
   "vendors": {
     "title": "Tools",

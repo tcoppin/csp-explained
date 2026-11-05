@@ -155,8 +155,13 @@ the plain-language voice better than "CSP Explainer".
       Own tools stay in the link and in the browser's storage. Hand-offs both ways with the analyzer.
   - [ ] Directives beyond fetch: `report-to` with a `Reporting-Endpoints` header, `frame-ancestors` choices,
         Trusted Types (pairs with the reporting and Trusted Types items below).
-- [ ] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like.
+- [x] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like (`/reporting`,
+      2026-11-05): the two headers, both report formats annotated, how to read them, what to watch before
+      collecting. Linked from the reporting directives, the glossary and the builder's "Put it live" tab.
 - [ ] Trusted Types explainer and compatibility notes per tool.
+- [ ] **Review the navigation** (added 2026-11-05): the top menu holds six items and is tight on phones, so the
+      guides that came later (`/reporting`, and Trusted Types next) are only linked from related pages. Find
+      them a place: a guides section, a grouped menu, or a page listing them.
 - [ ] Print-friendly / PDF export of the reports.
 - [x] Privacy-friendly usage counts: one anonymous log line per event through our own `/e` endpoint, counted on a
       CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
