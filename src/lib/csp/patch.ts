@@ -1,7 +1,9 @@
 import { allChecks, type Requirement, type RequirementResult } from './compat';
 import { CANONICAL_DIRECTIVE } from './directives';
 import { findDirective } from './fallback';
+import { ignoredSources } from './matcher';
 import type { Directive, ParseResult, Policy } from './model';
+import { classify } from './parser';
 
 export interface DirectiveChange {
   directive: string;
@@ -34,6 +36,12 @@ interface Pending {
 
 const valuesOf = (d: Directive) => d.values.map((v) => v.raw);
 
+/** Would the browser skip `source` in this directive (e.g. 'unsafe-inline' next to a nonce or a hash)? */
+function ignoredIn(governing: Directive, source: string, type: Requirement['type']): boolean {
+  const expr = classify(source, { start: 0, end: source.length });
+  return ignoredSources({ ...governing, values: [...governing.values, expr] }, type).includes(expr);
+}
+
 /**
  * Computes the smallest edit that makes every blocked requirement pass, in enforced and report-only policies.
  * When only default-src applies, a dedicated directive is created (copying default-src)
@@ -54,7 +62,14 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
       let pending: Pending;
       const changes = perPolicy.get(check.policyIndex) ?? new Map<string, Pending>();
 
-      if (governing.name === 'default-src' && canonical !== 'default-src') {
+      if (ignoredIn(governing, r.requirement.source, r.requirement.type)) {
+        // Style attributes can get their own directive, which nonces and hashes don't reach. Inline event
+        // handlers could too, but script-src-attr 'unsafe-inline' would undo the protection the nonce gives:
+        // they stay blocked, and the UI says so.
+        if (r.requirement.type !== 'style-attr' || governing.name === 'style-src-attr') continue;
+        target = 'style-src-attr';
+        pending = changes.get(target) ?? { created: findDirective(policy, target) === undefined, base: [], added: [], requestedBy: {} };
+      } else if (governing.name === 'default-src' && canonical !== 'default-src') {
         target = canonical;
         pending = changes.get(target) ?? {
           created: findDirective(policy, target) === undefined,

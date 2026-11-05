@@ -51,6 +51,18 @@ describe('checkRequirements + buildPatches', () => {
     expect(checkRequirements(parsed, [vendor[0]!], SELF)[0]!.verdict).toBe('blocked');
   });
 
+  it("doesn't add 'unsafe-inline' where a nonce makes browsers ignore it", () => {
+    const parsed = parse("script-src 'nonce-abc'; style-src 'nonce-abc'");
+    const reqs: Requirement[] = [
+      { type: 'inline-handler', source: "'unsafe-inline'", reason: '' },
+      { type: 'style-attr', source: "'unsafe-inline'", reason: '' },
+    ];
+    const [patch] = buildPatches(parsed, checkRequirements(parsed, reqs, SELF));
+    // Style attributes get their own directive; inline handlers stay blocked rather than undo the nonce.
+    expect(patch!.after).toBe("script-src 'nonce-abc'; style-src 'nonce-abc'; style-src-attr 'unsafe-inline'");
+    expect(checkRequirements(parse(patch!.after), reqs, SELF).map((r) => r.verdict)).toEqual(['blocked', 'allowed']);
+  });
+
   it('does not patch when a nonce is required', () => {
     const parsed = parse("script-src 'nonce-abc' 'strict-dynamic'");
     const results = checkRequirements(parsed, [vendor[0]!], SELF);
