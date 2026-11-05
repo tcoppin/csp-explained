@@ -53,6 +53,10 @@
   border: 1px solid currentColor;
   border-radius: 50%;
   font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  /* Centre the digit's ink, not the line box: Atkinson's descender space pushes digits low. */
+  text-box: trim-both cap alphabetic;
 }
 
 .builder-grid {
