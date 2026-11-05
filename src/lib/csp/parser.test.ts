@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { FIND_CSP_SNIPPET } from '../snippets/find-csp-console';
 import { distinctIssues, issuesAt, parse } from './parser';
 
 const codes = (input: string) => parse(input).issues.map((i) => i.code);
@@ -85,6 +86,13 @@ describe('parse', () => {
       expect(result.policies, browser).toEqual([]);
       expect(result.issues.find((i) => i.code === 'violation-message')?.directive, browser).toMatch(/^script-src/);
     }
+  });
+
+  it("recognises the find-my-csp snippet's answer when a page has no policy", () => {
+    expect(FIND_CSP_SNIPPET).toContain("'No Content-Security-Policy found on '");
+    const result = parse('No Content-Security-Policy found on https://www.example.com/');
+    expect(result.policies).toEqual([]);
+    expect(result.issues.map((i) => i.code)).toEqual(['empty-input', 'no-policy-found']);
   });
 
   it('still reads a policy pasted together with an error message', () => {

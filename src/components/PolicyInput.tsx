@@ -2,6 +2,7 @@ import { localePath, type Translate } from '../i18n';
 import type { ParseResult, Policy } from '../lib/csp/model';
 import { track } from '../scripts/track';
 import { useT } from './i18n';
+import { Rich } from './Rich';
 import { useCopy } from './useCopy';
 
 /** Why nothing could be analysed: a pasted console error gets its own explanation. */
@@ -74,7 +75,11 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
       </details>
       {!hasPolicy &&
         (input.trim() !== '' ? (
-          <p class="issue">{emptyMessage(t, parsed.issues)}</p>
+          parsed.issues.some((i) => i.code === 'no-policy-found') ? (
+            <p class="issue"><Rich msg="analyzer.noPolicyFound" /></p>
+          ) : (
+            <p class="issue">{emptyMessage(t, parsed.issues)}</p>
+          )
         ) : (
           <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
         ))}
