@@ -137,6 +137,15 @@ test('a pasted console error is explained, not analysed', async ({ page }) => {
   await expect(page.locator('.policy')).toHaveCount(0);
 });
 
+test("the find-my-csp snippet's \"no policy\" answer points to the builder", async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill('No Content-Security-Policy found on https://www.example.com/');
+  await expect(page.locator('.issue')).toContainText("This site doesn't send a policy yet");
+  await expect(page.locator('.policy')).toHaveCount(0);
+  await page.locator('.issue').getByRole('link', { name: 'Build one from a blank policy' }).click();
+  await expect(page).toHaveURL(/\/build$/);
+});
+
 test('restores the analysis from a share link', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

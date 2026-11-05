@@ -21,6 +21,8 @@ const META_TAG = /<meta\b[^>]*>/gi;
 // Console messages for a blocked resource (Chrome, Firefox, Safari). They name one rule, not the policy.
 const VIOLATION =
   /violates\s+the\s+following\s+(?:content\s+security\s+policy\s+)?directive|directive\s+of\s+the\s+content\s+security\s+policy|content[- ]security[- ]policy:\s+the\s+page.s\s+settings\s+blocked/i;
+// What the Find my CSP console snippet copies when the page has no policy.
+const NO_POLICY = /^\s*No Content-Security-Policy found\b/i;
 const VIOLATED_DIRECTIVE = /directive:?\s*["“]([a-z-]+)|in\s+the\s+([a-z-]+)\s+directive|\(“?([a-z-]+)”?\)/i;
 
 /**
@@ -32,6 +34,9 @@ export function parse(input: string): ParseResult {
   const issues: ParseIssue[] = [];
   const raws = extractPolicies(input);
 
+  if (NO_POLICY.test(input)) {
+    return { input, policies: [], issues: [{ code: 'empty-input', policyIndex: 0 }, { code: 'no-policy-found', policyIndex: 0 }] };
+  }
   if (raws.every((r) => r.origin === 'raw') && VIOLATION.test(input)) {
     const m = VIOLATED_DIRECTIVE.exec(input);
     const directive = (m?.[1] ?? m?.[2] ?? m?.[3])?.toLowerCase();
