@@ -548,7 +548,7 @@
       "useHashes": "List your inline scripts by hash instead",
       "fromTools": "new with your changes",
       "deployTitle": "Put it live",
-      "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`.",
+      "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`. To have them sent to you instead of reading the console, [set up reporting](/reporting).",
       "policyCaption": "The policy on its own",
       "analyze": "Analyze this policy",
       "tabs": {

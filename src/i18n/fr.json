@@ -548,7 +548,7 @@
       "useHashes": "Lister plutôt vos scripts intégrés par empreinte",
       "fromTools": "nouveau avec vos ajouts",
       "deployTitle": "La mettre en ligne",
-      "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`.",
+      "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`. Pour les recevoir plutôt que lire la console, [mettez en place les rapports](/reporting).",
       "policyCaption": "La politique seule",
       "analyze": "Analyser cette politique",
       "tabs": {

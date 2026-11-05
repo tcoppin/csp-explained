@@ -38,7 +38,7 @@
       },
       "reportOnly": {
         "term": "Mode rapport seul",
-        "definition": "Un mode d'essai : le navigateur signale ce qu'il bloquerait, mais ne bloque rien. Les équipes s'en servent pour tester une politique sans risque."
+        "definition": "Un mode d'essai : le navigateur signale ce qu'il bloquerait, mais ne bloque rien. Les équipes s'en servent pour tester une politique sans risque. Pour recevoir ces rapports, [voyez ce que bloque votre politique](/reporting)."
       }
     },
     "askTitle": "Comment demander un changement",
@@ -213,6 +213,132 @@
       "button": "Analyser ma politique"
     }
   },
+  "reporting": {
+    "title": "Rapports de violation CSP",
+    "description": "Recevez un rapport chaque fois que votre Content-Security-Policy bloque quelque chose : les deux en-têtes à ajouter, à quoi ressemble un rapport et comment le lire.",
+    "heading": "Voir ce que bloque votre politique",
+    "lead": "Les navigateurs peuvent vous envoyer un court rapport chaque fois que votre politique bloque quelque chose, depuis le navigateur de chaque visiteur. C'est ainsi qu'on découvre ce qu'une nouvelle politique casse avant que les visiteurs ne le signalent, et qu'on voit les attaques arrêtées.",
+    "setup": {
+      "title": "La mise en place",
+      "intro": "Deux en-têtes : l'un nomme l'adresse qui reçoit les rapports, l'autre demande à la politique de l'utiliser.",
+      "caption": "En-têtes de réponse, envoyés avec chaque page",
+      "parts": [
+        {
+          "term": "`Reporting-Endpoints`",
+          "definition": "Donne un nom à une adresse, ici `csp`. Elle doit utiliser https : les navigateurs ignorent toute autre adresse."
+        },
+        {
+          "term": "`report-to csp`",
+          "definition": "Envoie les rapports de cette politique à l'adresse nommée `csp`. Chrome et Edge, Firefox (depuis la version 149) et Safari (depuis la 16.4) le prennent en charge."
+        },
+        {
+          "term": "`report-uri`",
+          "definition": "L'ancienne méthode, avec l'adresse écrite dans la politique. Les navigateurs qui comprennent `report-to` l'ignorent : elle ne sert que pour les anciens navigateurs. Garder les deux ne coûte rien."
+        }
+      ],
+      "meta": "Les rapports ne fonctionnent que dans les en-têtes : une politique écrite dans une balise `<meta>` ne peut pas en envoyer.",
+      "reportOnly": "Vous testez une nouvelle politique ? Envoyez-la en `Content-Security-Policy-Report-Only` avec les mêmes lignes de rapport. Rien n'est bloqué, et vous recevez un rapport pour tout ce qui le serait. Quand les rapports cessent, passez à `Content-Security-Policy`."
+    },
+    "format": {
+      "title": "À quoi ressemble un rapport",
+      "intro": "Le navigateur l'envoie à votre adresse dans une requête `POST` contenant un petit document JSON. Votre serveur n'a rien à répondre : le navigateur ignore la réponse.",
+      "label": "Format du rapport",
+      "current": {
+        "tab": "report-to",
+        "intro": "Envoyé avec `Content-Type: application/reports+json`. Chaque rapport a un `type` et un `body` :"
+      },
+      "legacy": {
+        "tab": "report-uri (ancien)",
+        "intro": "Envoyé avec `Content-Type: application/csp-report`, un rapport par requête :",
+        "names": "Les mêmes informations sous d'anciens noms : `document-uri` est la page, `blocked-uri` ce qui a été bloqué, `effective-directive` la ligne appliquée. Une adresse bloquée d'un autre site est réduite à son origine (schéma, hôte et port)."
+      },
+      "fields": {
+        "type": {
+          "term": "`type`",
+          "definition": "`csp-violation` pour les rapports de politique. La même adresse peut recevoir d'autres sortes de rapports du navigateur : vérifiez-le d'abord."
+        },
+        "page": {
+          "term": "`documentURL`",
+          "definition": "La page où c'est arrivé, aussi dans `url`. `referrer` est la page d'où venait le visiteur."
+        },
+        "blocked": {
+          "term": "`blockedURL`",
+          "definition": "Ce qui a été bloqué : une adresse, ou `inline` pour du code écrit dans la page, ou `eval` pour du code construit à partir de texte."
+        },
+        "directive": {
+          "term": "`effectiveDirective`",
+          "definition": "Le type de ressource, sous la forme de la ligne de la politique appliquée : `script-src-elem` est une balise `<script>`, `img-src` une image. L'analyseur explique chacune."
+        },
+        "disposition": {
+          "term": "`disposition`",
+          "definition": "`enforce` quand le navigateur a bloqué. Les rapports d'une politique `Content-Security-Policy-Report-Only` portent une autre valeur : rien n'a été bloqué."
+        },
+        "where": {
+          "term": "`sourceFile`, `lineNumber`, `columnNumber`",
+          "definition": "Où se trouve le code qui l'a déclenché, quand le navigateur le sait."
+        },
+        "sample": {
+          "term": "`sample`",
+          "definition": "Les 40 premiers caractères du code intégré bloqué. Envoyé seulement quand la ligne contient `'report-sample'`."
+        },
+        "policy": {
+          "term": "`originalPolicy`",
+          "definition": "La politique complète envoyée à la page. Utile quand les pages en ont des différentes."
+        },
+        "context": {
+          "term": "`age`, `user_agent`",
+          "definition": "Il y a combien de temps c'est arrivé, en millisecondes, et quel navigateur l'a envoyé."
+        }
+      }
+    },
+    "reading": {
+      "title": "Les lire",
+      "items": [
+        {
+          "term": "L'adresse d'un outil que vous utilisez",
+          "definition": "Il manque à la politique. Ajoutez-la à la ligne nommée dans `effectiveDirective`, ou laissez [Mes outils fonctionneront-ils ?](/) trouver ce dont l'outil a besoin."
+        },
+        {
+          "term": "`inline`",
+          "definition": "Du code écrit dans la page. Donnez un nonce ou une empreinte à vos propres blocs `<script>` et `<style>` : le [constructeur](/build) et l'analyseur calculent les empreintes."
+        },
+        {
+          "term": "`eval`",
+          "definition": "Du code construit à partir de texte, en général par une bibliothèque ou un outil. Il demande `'unsafe-eval'`, ou une version plus récente de la bibliothèque qui s'en passe."
+        },
+        {
+          "term": "Des adresses inconnues",
+          "definition": "Souvent des extensions de navigateur, ou un logiciel de l'appareil du visiteur qui ajoute du code à chaque page. Regroupez-les et cherchez des tendances avant de changer la politique."
+        },
+        {
+          "term": "Une vague après une mise en ligne",
+          "definition": "Quelque chose de nouveau dans les pages, ou un outil qui a changé ce qu'il charge. Comparez avec ce qui a été publié ce jour-là."
+        }
+      ]
+    },
+    "pitfalls": {
+      "title": "Avant de les collecter",
+      "items": [
+        {
+          "term": "N'importe qui peut envoyer un rapport",
+          "definition": "L'adresse est publique : traitez les rapports comme des données non fiables. N'affichez jamais leur contenu en HTML, et limitez combien vous en acceptez."
+        },
+        {
+          "term": "Les rapports peuvent contenir des données personnelles",
+          "definition": "Adresses de pages avec leurs paramètres, page précédente, extraits de code. Gardez-les comme des journaux : seulement le nécessaire, pas longtemps."
+        },
+        {
+          "term": "Ils s'accumulent vite",
+          "definition": "Une ligne cassée sur une page très visitée envoie un rapport à chaque visite. Comptez-les par adresse bloquée et par directive plutôt que de les lire un par un."
+        },
+        {
+          "term": "Où les envoyer",
+          "definition": "Une petite adresse à vous suffit pour commencer. Les services de suivi d'erreurs et les collecteurs de rapports dédiés acceptent aussi ces formats."
+        }
+      ],
+      "button": "Analyser votre politique"
+    }
+  },
   "directives": {
     "title": "Toutes les directives CSP",
     "description": "Chaque directive de Content-Security-Policy expliquée en termes simples, pour les développeurs et pour les équipes sécurité.",
@@ -234,7 +360,8 @@
     "usedInPlaceOf": "Utilisée à la place de {directives} quand celles-ci sont absentes.",
     "ignoredInMeta": "Ignorée quand la politique est fournie par une balise `<meta>`.",
     "reference": "Référence : [MDN]({url})",
-    "mdnLocale": "fr"
+    "mdnLocale": "fr",
+    "reportingGuide": "Mise en place, et à quoi ressemblent les rapports : [voir ce que bloque votre politique](/reporting)."
   },
   "vendors": {
     "title": "Outils",

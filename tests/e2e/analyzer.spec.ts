@@ -262,7 +262,7 @@ test('no word is glued to a link or inline code on any page', async ({ page }) =
   const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   await page.goto('/directives');
   const directivePages = await page.locator('main a[href^="/directives/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
-  const paths = ['/404', ...inEveryLanguage(['/', '/build', '/find-my-csp', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
+  const paths = ['/404', ...inEveryLanguage(['/', '/build', '/find-my-csp', '/reporting', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
 
   const glued: string[] = [];
   for (const path of paths) {
@@ -439,7 +439,7 @@ test('the analyzer speaks French, and the IT message can be written in English',
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
-  for (const path of inEveryLanguage(['/', '/build', '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
     expect(res?.ok(), path).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
@@ -450,7 +450,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
 test('text fits a 360px phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
-  for (const path of inEveryLanguage(['/', '/build', '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
     // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
     const overflowing = await page.evaluate(() => {
@@ -471,7 +471,7 @@ test('text fits a 360px phone screen', async ({ page }) => {
 
 test('links to other websites open in a new tab and say so', async ({ page }) => {
   let checked = 0;
-  for (const path of inEveryLanguage(['/', '/build', '/find-my-csp', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/find-my-csp', '/reporting', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
     await page.goto(path);
     const links = page.locator('a[href^="http"]:not([href^="http://localhost"])');
     for (const link of await links.all()) {
@@ -662,4 +662,21 @@ test("the analyzer offers hashes in place of 'unsafe-inline', also from the secu
   );
   await expect(page.locator('.hash-warning')).toContainText('Every other inline script');
   expect(errors).toEqual([]);
+});
+
+test('the reporting guide shows one report format at a time', async ({ page }) => {
+  await page.goto('/reporting');
+  await expect(page.locator('.code-block')).toContainText('Reporting-Endpoints: csp="https://reports.example.com/csp"');
+  await expect(page.locator('#current')).toContainText('"type": "csp-violation"');
+  await expect(page.locator('#legacy')).toBeHidden();
+  await page.getByRole('tab', { name: 'report-uri (older)' }).click();
+  await expect(page.locator('#legacy')).toContainText('"csp-report"');
+  await expect(page.locator('#current')).toBeHidden();
+});
+
+test('the reporting directives point to the reporting guide', async ({ page }) => {
+  for (const name of ['report-to', 'report-uri']) {
+    await page.goto(`/fr/directives/${name}`);
+    await expect(page.getByRole('link', { name: 'voir ce que bloque votre politique' })).toHaveAttribute('href', '/fr/reporting');
+  }
 });
