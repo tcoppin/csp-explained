@@ -532,7 +532,7 @@ async function openBuilder(page: Page, path = '/build') {
 test('builds a policy from nothing, with a catalogue tool and one of our own', async ({ page, context }) => {
   const errors = watchErrors(page);
   await openBuilder(page);
-  await page.getByRole('radio', { name: /^Nothing/ }).check();
+  await page.getByRole('radio', { name: /^A blank policy/ }).check();
   await page.getByRole('radio', { name: /^No, or not sure/ }).check();
   await page.getByRole('button', { name: 'Next: your site' }).click();
 
@@ -596,8 +596,8 @@ test('the analyzer opens its policy in the builder, and the builder sends it bac
   await page.getByRole('link', { name: 'Open in the builder' }).click();
   await expect(page).toHaveURL(/\/build#/);
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
-  await expect(page.getByRole('radio', { name: /^The policy I have/ })).toBeChecked();
-  await expect(page.getByRole('textbox', { name: 'Your current policy' })).toHaveValue(/default-src/);
+  await expect(page.getByRole('radio', { name: /^Your current policy/ })).toBeChecked();
+  await expect(page.getByRole('textbox', { name: 'Paste your policy' })).toHaveValue(/default-src/);
 
   await page.getByRole('button', { name: /Your policy$/ }).click();
   await page.getByRole('link', { name: 'Analyze this policy' }).click();
