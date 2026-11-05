@@ -350,14 +350,14 @@
       "site": "Your site",
       "tools": "Your tools",
       "review": "Your policy",
-      "startTitle": "Where do you start?",
-      "siteTitle": "What do your own pages do?",
-      "toolsTitle": "Which tools do you use?",
+      "startTitle": "What do you start from?",
+      "siteTitle": "How are your own pages written?",
+      "toolsTitle": "Which tools should your site allow?",
       "reviewTitle": "Your policy, line by line"
     },
     "intro": {
-      "start": "Build a policy from nothing, or improve the one you have. Nothing you type leaves your browser.",
-      "site": "Some habits of your own pages need an exception in the policy. Tick what applies; leave the rest if you're not sure.",
+      "start": "Nothing you type leaves your browser.",
+      "site": "Some ways of writing pages need an exception in the policy. Tick the ones your site uses.",
       "tools": "Pick the tools on your site. Each one adds only what its official documentation asks for. Missing one? Describe it yourself.",
       "review": "Click any part of the policy to see what it does and **who asked for it**. Then test it before you enforce it."
     },
@@ -369,11 +369,11 @@
     "back": "Back",
     "start": {
       "question": "Start from",
-      "scratch": "Nothing",
+      "scratch": "A blank policy",
       "scratchHint": "A strict starting point that only trusts your own site, opened up for what you need.",
-      "policy": "The policy I have",
+      "policy": "Your current policy",
       "policyHint": "Paste it; everything it already allows is kept.",
-      "paste": "Your current policy",
+      "paste": "Paste your policy",
       "otherPolicies": {
         "one": "Another policy found: {count}. The builder works on the first enforced one.",
         "other": "Other policies found: {count}. The builder works on the first enforced one."
@@ -390,7 +390,7 @@
       "allowlistHint": "Scripts are trusted by where they come from. Simpler to run, easier to bypass."
     },
     "site": {
-      "question": "My pages",
+      "question": "Your pages",
       "you": "Your site",
       "unsure": "Not sure? Leave it unticked: the browser console will name what's blocked when you test the policy.",
       "addressHint": "Used to check what 'self' covers. Leave it empty if you prefer.",
@@ -401,7 +401,7 @@
           "detail": "Inline <script> elements. Allowed with 'unsafe-inline', or with the nonce."
         },
         "inline-handlers": {
-          "label": "Use onclick=\"…\" style attributes",
+          "label": "Use onclick=\"…\" attributes",
           "hint": "Buttons or links with code in an attribute. Common in older sites and some themes.",
           "detail": "Inline event handlers (script-src-attr). A nonce can't cover them: only 'unsafe-inline' or 'unsafe-hashes'."
         },
@@ -428,10 +428,10 @@
       }
     },
     "tools": {
-      "none": "Add the tools your site uses. Their needs appear here, with what each one changes in the policy.",
+      "none": "Add the tools your site should allow. Their needs appear here, with what each one changes in the policy.",
       "status": {
         "added": { "one": "{count} added", "other": "{count} added" },
-        "nonce": { "one": "Waiting on the nonce: {count}", "other": "Waiting on the nonce: {count}" },
+        "nonce": { "one": "Need the nonce: {count}", "other": "Need the nonce: {count}" },
         "blocked": { "one": "Can't be allowed: {count}", "other": "Can't be allowed: {count}" },
         "allowed": "Nothing to add"
       }
@@ -465,7 +465,7 @@
       "added": "Added to {directive}",
       "allowed": "Already allowed by {source}",
       "unrestricted": "Already allowed: nothing restricts it",
-      "needs-nonce": "Needs the nonce: add it to the tag on your pages",
+      "needs-nonce": "Needs the nonce: add it to this tool's <script> tag on your pages",
       "blocked": "Can't be allowed by adding a value"
     },
     "preview": {

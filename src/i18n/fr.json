@@ -350,14 +350,14 @@
       "site": "Votre site",
       "tools": "Vos outils",
       "review": "Votre politique",
-      "startTitle": "D'où partez-vous ?",
-      "siteTitle": "Que font vos propres pages ?",
-      "toolsTitle": "Quels outils utilisez-vous ?",
+      "startTitle": "De quoi partez-vous ?",
+      "siteTitle": "Comment vos propres pages sont-elles écrites ?",
+      "toolsTitle": "Quels outils votre site doit-il autoriser ?",
       "reviewTitle": "Votre politique, ligne par ligne"
     },
     "intro": {
-      "start": "Construisez une politique à partir de rien, ou améliorez celle que vous avez. Rien de ce que vous tapez ne quitte votre navigateur.",
-      "site": "Certaines habitudes de vos pages demandent une exception dans la politique. Cochez ce qui s'applique ; laissez le reste en cas de doute.",
+      "start": "Rien de ce que vous tapez ne quitte votre navigateur.",
+      "site": "Certaines façons d'écrire les pages demandent une exception dans la politique. Cochez celles que votre site utilise.",
       "tools": "Choisissez les outils de votre site. Chacun n'ajoute que ce que sa documentation officielle demande. Il en manque un ? Décrivez-le vous-même.",
       "review": "Cliquez sur une partie de la politique pour voir ce qu'elle fait et **qui l'a demandée**. Puis testez-la avant de l'appliquer."
     },
@@ -369,11 +369,11 @@
     "back": "Retour",
     "start": {
       "question": "Partir de",
-      "scratch": "Rien",
+      "scratch": "Une politique vierge",
       "scratchHint": "Un point de départ strict qui ne fait confiance qu'à votre site, ouvert pour ce dont vous avez besoin.",
-      "policy": "La politique que j'ai",
+      "policy": "Votre politique actuelle",
       "policyHint": "Collez-la ; tout ce qu'elle autorise déjà est conservé.",
-      "paste": "Votre politique actuelle",
+      "paste": "Collez votre politique",
       "otherPolicies": {
         "one": "Autre politique trouvée : {count}. Le constructeur travaille sur la première appliquée.",
         "other": "Autres politiques trouvées : {count}. Le constructeur travaille sur la première appliquée."
@@ -390,7 +390,7 @@
       "allowlistHint": "Les scripts sont acceptés selon leur provenance. Plus simple à gérer, plus facile à contourner."
     },
     "site": {
-      "question": "Mes pages",
+      "question": "Vos pages",
       "you": "Votre site",
       "unsure": "Vous ne savez pas ? Laissez décoché : la console du navigateur nommera ce qui est bloqué quand vous testerez la politique.",
       "addressHint": "Sert à vérifier ce que couvre 'self'. Laissez vide si vous préférez.",
@@ -428,10 +428,10 @@
       }
     },
     "tools": {
-      "none": "Ajoutez les outils de votre site. Leurs besoins s'affichent ici, avec ce que chacun change dans la politique.",
+      "none": "Ajoutez les outils que votre site doit autoriser. Leurs besoins s'affichent ici, avec ce que chacun change dans la politique.",
       "status": {
         "added": { "one": "{count} ajoutée", "other": "{count} ajoutées" },
-        "nonce": { "one": "En attente du nonce : {count}", "other": "En attente du nonce : {count}" },
+        "nonce": { "one": "Demande le nonce : {count}", "other": "Demandent le nonce : {count}" },
         "blocked": { "one": "Impossible à autoriser : {count}", "other": "Impossibles à autoriser : {count}" },
         "allowed": "Rien à ajouter"
       }
@@ -465,7 +465,7 @@
       "added": "Ajouté à {directive}",
       "allowed": "Déjà autorisé par {source}",
       "unrestricted": "Déjà autorisé : rien ne le limite",
-      "needs-nonce": "Demande le nonce : ajoutez-le à la balise sur vos pages",
+      "needs-nonce": "Demande le nonce : ajoutez-le à la balise <script> de cet outil sur vos pages",
       "blocked": "Impossible à autoriser en ajoutant une valeur"
     },
     "preview": {
