@@ -158,7 +158,10 @@ the plain-language voice better than "CSP Explainer".
 - [x] Explain reporting setups (`report-to`, `Reporting-Endpoints`) and what reports look like (`/reporting`,
       2026-11-05): the two headers, both report formats annotated, how to read them, what to watch before
       collecting. Linked from the reporting directives, the glossary and the builder's "Put it live" tab.
-- [ ] Trusted Types explainer and compatibility notes per tool.
+- [x] Trusted Types explainer (`/trusted-types`, 2026-11-05), with a note beside the tools in the analyzer and the
+      builder when the policy enforces them.
+  - [ ] Compatibility per tool: none of the catalogue's vendors document Trusted Types publicly (checked
+        2026-11-05). Add an optional `trustedTypes` field (policy names, source, date) once one does.
 - [ ] **Review the navigation** (added 2026-11-05): the top menu holds six items and is tight on phones, so the
       guides that came later (`/reporting`, and Trusted Types next) are only linked from related pages. Find
       them a place: a guides section, a grouped menu, or a page listing them.

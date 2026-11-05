@@ -338,6 +338,9 @@
       }
     }
   },
+  "trustedTypes": {
+    "toolsNote": "This policy turns on Trusted Types, and the tools picked don't say in their documentation whether they work with it. Where a tool writes HTML or loads scripts, the browser may stop it. Test with `Content-Security-Policy-Report-Only` first. [What Trusted Types change](/trusted-types)"
+  },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' in {directive} lets any injected inline script or event handler run, which removes most of the protection against XSS. Nonces or hashes allow your own inline code without it.",
     "script-unsafe-hashes": "'unsafe-hashes' in {directive} allows the inline event handlers whose hashes are listed. Safer than 'unsafe-inline', but those handlers remain; moving them into script files removes the need.",

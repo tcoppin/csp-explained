@@ -4,12 +4,14 @@ import { localePath, type Translate } from '../i18n';
 import { analyze } from '../lib/analysis';
 import { askedFor, HASHABLE, isHashable, NONCE_PLACEHOLDER, SITE_NEEDS, type BuiltPolicy, type CustomTool, type HashableNeed, type PlacedRequirement, type SiteNeed } from '../lib/build';
 import type { ContentBundle } from '../lib/content';
+import { requiresTrustedTypes } from '../lib/csp/fallback';
 import type { Audience, Policy } from '../lib/csp/model';
 import { deploySnippet, headersBesideMeta, TARGETS, type Target } from '../lib/reports/developer';
 import { findingText } from '../lib/reports/security';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
 import { Explanation } from './Explanation';
+import { TrustedTypesNote } from './TrustedTypesNote';
 import { HashTool } from './HashTool';
 import { useT } from './i18n';
 import { OwnToolEditor } from './OwnTools';
@@ -340,6 +342,7 @@ export function ToolsPanel({ b }: { b: BuilderModel }) {
       />
       {editing?.previous === undefined && editor}
       {b.picked.length === 0 && b.tools.length === 0 && !editing && <p class="muted">{t('build.tools.none')}</p>}
+      {(b.picked.length > 0 || b.tools.length > 0) && b.built.policy && !b.built.policy.reportOnly && requiresTrustedTypes(b.built.policy) && <TrustedTypesNote />}
       <div class="tool-list">
         {b.picked.map((vendor) => {
           const placed = b.placedBy('vendor', vendor.id);

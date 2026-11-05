@@ -339,6 +339,89 @@
       "button": "Analyser votre politique"
     }
   },
+  "trustedTypes": {
+    "title": "Trusted Types",
+    "description": "Ce que les Trusted Types changent dans une page, les deux lignes de Content-Security-Policy qui les activent, comment les déployer sans risque, et quoi vérifier pour les outils tiers.",
+    "heading": "Trusted Types : seul le code vérifié entre dans la page",
+    "lead": "Une porte d'entrée courante pour du code malveillant est le JavaScript de la page lui-même, qui écrit dans la page, en HTML ou en code, un texte reçu d'un lien, d'un formulaire ou d'un serveur. Avec les Trusted Types, le navigateur refuse le texte brut à ces endroits : seules les valeurs passées par une vérification définie par votre site sont acceptées.",
+    "changes": {
+      "title": "Ce qui change dans la page",
+      "intro": "Ces façons de transformer du texte en contenu ou en code n'acceptent plus le texte brut :",
+      "sinks": [
+        {
+          "term": "Écrire du HTML",
+          "definition": "`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, le `srcdoc` d'une iframe, et l'analyse de HTML avec `DOMParser`."
+        },
+        {
+          "term": "Exécuter du texte comme du code",
+          "definition": "`eval`, `new Function`, et `setTimeout` ou `setInterval` avec une chaîne."
+        },
+        {
+          "term": "Choisir l'adresse d'un script",
+          "definition": "Le `src` ou le texte d'un élément `<script>`, et l'adresse d'un worker."
+        }
+      ],
+      "error": "Le navigateur bloque l'appel et lève une erreur : la suite de ce code ne s'exécute pas non plus. La console de Chrome affiche deux messages : celui de la politique, puis l'erreur que reçoit le code."
+    },
+    "directives": {
+      "title": "Les deux lignes",
+      "caption": "En-tête de réponse",
+      "parts": [
+        {
+          "term": "`require-trusted-types-for 'script'`",
+          "definition": "Active les Trusted Types. `'script'` est la seule valeur."
+        },
+        {
+          "term": "`trusted-types sanitize`",
+          "definition": "Les noms des politiques que les scripts peuvent créer, ici `sanitize`. En créer une sous un autre nom échoue. Sans cette ligne, tout nom est permis ; `'none'` n'en permet aucun, et `'allow-duplicates'` laisse deux politiques partager un nom, ce qui affaiblit la liste."
+        }
+      ]
+    },
+    "policies": {
+      "title": "Les politiques : les vérifications par lesquelles passe votre code",
+      "intro": "Une politique est une petite fonction nommée que votre site écrit une fois. Le code qui doit écrire du HTML la sollicite, et elle renvoie une valeur que le navigateur accepte :",
+      "caption": "JavaScript, dans votre propre code",
+      "explain": "La vérification vous appartient : ici une bibliothèque de nettoyage comme DOMPurify retire tout ce qui pourrait s'exécuter. Le plus souvent, la meilleure correction est de ne pas écrire de HTML du tout : `textContent` met du texte dans la page sans politique.",
+      "default": "Une politique nommée `default` s'applique automatiquement à tout texte brut qui atteint ces endroits. Elle aide pendant la migration d'ancien code, mais elle cache où sont les appels risqués : gardez-la temporaire, et aussi stricte que possible."
+    },
+    "rollout": {
+      "title": "Le déploiement",
+      "reports": "Mettez en place les [rapports de violation](/reporting), pour voir ce que le navigateur refuserait, sur chaque page et dans le navigateur de chaque visiteur.",
+      "trial": "Activez les Trusted Types dans une politique **report-only**. Rien ne casse : chaque appel qui serait refusé envoie un rapport, avec `trusted-types-sink` comme élément bloqué et un extrait qui nomme l'appel, comme `Element innerHTML`, suivi du début du texte.",
+      "trialCaption": "En-tête de réponse, ajouté à côté de votre politique actuelle",
+      "fix": "Corrigez chaque endroit que les rapports signalent :",
+      "fixes": [
+        "Utilisez `textContent` plutôt que `innerHTML` quand le contenu est du simple texte.",
+        "Faites passer le HTML qui doit rester du HTML par une politique nommée qui le nettoie.",
+        "Remplacez `eval` et les minuteries à chaîne par de vraies fonctions.",
+        "Ne gardez une politique `default` que pour le code que vous ne pouvez pas encore modifier."
+      ],
+      "enforce": "Quand les rapports cessent, passez les deux lignes dans votre `Content-Security-Policy`, avec `trusted-types` listant les noms de politiques que créent vos pages."
+    },
+    "tools": {
+      "title": "Les outils tiers",
+      "intro": "Gestionnaires de balises, outils d'analyse, widgets de chat et bandeaux de consentement écrivent du HTML et chargent des scripts. Avec les Trusted Types, un outil qui ne crée pas sa propre politique est refusé, ou passe par votre politique `default` si vous en avez une. Un outil qui en crée une a besoin que son nom figure dans `trusted-types`.",
+      "catalogue": "Aucun des [outils de notre catalogue](/vendors) n'indique dans sa documentation officielle s'il fonctionne avec les Trusted Types, ni quels noms de politique il utilise. Testez chacun d'abord en mode report-only, et interrogez l'éditeur : quand l'un le documentera, le catalogue l'indiquera."
+    },
+    "support": {
+      "title": "Bon à savoir",
+      "items": [
+        {
+          "term": "Navigateurs",
+          "definition": "Chrome et Edge depuis la version 83, Firefox depuis la 148, Safari depuis la 26. Les navigateurs plus anciens ignorent les deux lignes : rien ne casse, et rien n'y est protégé."
+        },
+        {
+          "term": "Pages sécurisées uniquement",
+          "definition": "Les Trusted Types ne fonctionnent que sur les pages en https (et sur `localhost` pendant le développement)."
+        },
+        {
+          "term": "Pas un remplacement",
+          "definition": "Les Trusted Types empêchent de transformer du texte en code dans la page. Gardez aussi un `script-src` strict : il décide quels scripts se chargent."
+        }
+      ],
+      "button": "Analyser votre politique"
+    }
+  },
   "directives": {
     "title": "Toutes les directives CSP",
     "description": "Chaque directive de Content-Security-Policy expliquée en termes simples, pour les développeurs et pour les équipes sécurité.",
@@ -361,7 +444,8 @@
     "ignoredInMeta": "Ignorée quand la politique est fournie par une balise `<meta>`.",
     "reference": "Référence : [MDN]({url})",
     "mdnLocale": "fr",
-    "reportingGuide": "Mise en place, et à quoi ressemblent les rapports : [voir ce que bloque votre politique](/reporting)."
+    "reportingGuide": "Mise en place, et à quoi ressemblent les rapports : [voir ce que bloque votre politique](/reporting).",
+    "trustedTypesGuide": "Ce qu'ils changent, et comment les déployer : [Trusted Types](/trusted-types)."
   },
   "vendors": {
     "title": "Outils",

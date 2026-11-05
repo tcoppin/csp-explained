@@ -1,0 +1,158 @@
+---
+import CodeBlock from '../../components/CodeBlock.astro';
+import { Rich } from '../../components/Rich';
+import Base from '../../layouts/Base.astro';
+import { localeParams, localePath, translatorFor } from '../../i18n';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const t = translatorFor(Astro);
+const m = (key: string) => `pages.trustedTypes.${key}`;
+
+const HEADER = "Content-Security-Policy: require-trusted-types-for 'script'; trusted-types sanitize";
+const POLICY = `const sanitize = trustedTypes.createPolicy('sanitize', {
+  createHTML: (html) => DOMPurify.sanitize(html),
+});
+
+comment.innerHTML = sanitize.createHTML(text);`;
+const TRIAL = "Content-Security-Policy-Report-Only: require-trusted-types-for 'script'; report-to csp";
+// Chrome's wording; browsers write it in English whatever their language.
+const ERROR = [
+  "This document requires 'TrustedHTML' assignment. The action has been blocked.",
+  "Uncaught TypeError: Failed to set the 'innerHTML' property on 'Element': This document requires 'TrustedHTML' assignment.",
+].join('\n\n');
+---
+
+<Base title={t(m('title'))} description={t(m('description'))}>
+  <article class="wrap prose guide">
+    <h1>{t(m('heading'))}</h1>
+    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+
+    <h2>{t(m('changes.title'))}</h2>
+    <p><Rich t={t} msg={m('changes.intro')} /></p>
+    <dl class="reading">
+      {
+        t.keys(m('changes.sinks')).map((item) => (
+          <>
+            <dt>{t(`${item}.term`)}</dt>
+            <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
+    <p><Rich t={t} msg={m('changes.error')} /></p>
+    <pre class="error-sample"><code>{ERROR}</code></pre>
+
+    <h2>{t(m('directives.title'))}</h2>
+    <CodeBlock caption={t(m('directives.caption'))} code={HEADER} />
+    <dl class="reading">
+      {
+        t.keys(m('directives.parts')).map((part) => (
+          <>
+            <dt><Rich t={t} msg={`${part}.term`} /></dt>
+            <dd><Rich t={t} msg={`${part}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
+
+    <h2>{t(m('policies.title'))}</h2>
+    <p><Rich t={t} msg={m('policies.intro')} /></p>
+    <CodeBlock caption={t(m('policies.caption'))} code={POLICY} />
+    <p><Rich t={t} msg={m('policies.explain')} /></p>
+    <p class="note"><Rich t={t} msg={m('policies.default')} /></p>
+
+    <h2>{t(m('rollout.title'))}</h2>
+    <ol class="steps">
+      <li><Rich t={t} msg={m('rollout.reports')} /></li>
+      <li>
+        <Rich t={t} msg={m('rollout.trial')} />
+        <CodeBlock caption={t(m('rollout.trialCaption'))} code={TRIAL} />
+      </li>
+      <li>
+        <Rich t={t} msg={m('rollout.fix')} />
+        <ul>
+          {t.keys(m('rollout.fixes')).map((fix) => (
+            <li><Rich t={t} msg={fix} /></li>
+          ))}
+        </ul>
+      </li>
+      <li><Rich t={t} msg={m('rollout.enforce')} /></li>
+    </ol>
+
+    <h2>{t(m('tools.title'))}</h2>
+    <p><Rich t={t} msg={m('tools.intro')} /></p>
+    <p><Rich t={t} msg={m('tools.catalogue')} /></p>
+
+    <section class="pitfalls" aria-labelledby="support-title">
+      <h2 id="support-title">{t(m('support.title'))}</h2>
+      <dl class="reading">
+        {
+          t.keys(m('support.items')).map((item) => (
+            <>
+              <dt>{t(`${item}.term`)}</dt>
+              <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+            </>
+          ))
+        }
+      </dl>
+      <p><a class="button" href={localePath(t.locale, '/')}>{t(m('support.button'))}</a></p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .guide {
+    max-width: 56rem;
+  }
+  .guide h2 {
+    margin-top: 2.75rem;
+  }
+  .lead {
+    font-size: var(--step-1);
+  }
+  .note {
+    border-left: 4px solid var(--warn);
+    padding-left: 0.75rem;
+  }
+  .error-sample {
+    border-left: 4px solid var(--bad);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .steps {
+    padding-left: 1.4rem;
+    max-width: var(--measure);
+  }
+  .steps > li {
+    margin-bottom: 1rem;
+    padding-left: 0.25rem;
+  }
+  .reading {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) 1fr;
+    gap: 0.6rem 1.5rem;
+    max-width: 52rem;
+  }
+  .reading dt {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .reading dd {
+    margin: 0;
+  }
+  @media (max-width: 40rem) {
+    .reading {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+    .reading dd {
+      margin-bottom: 0.75rem;
+    }
+  }
+  .pitfalls .button {
+    margin-top: 1rem;
+  }
+</style>

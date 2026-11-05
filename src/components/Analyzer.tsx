@@ -5,7 +5,7 @@ import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../lib/analysis';
 import type { Vendor } from '../lib/catalogue/schema';
 import type { ContentBundle } from '../lib/content';
 import type { Audience, ParseResult } from '../lib/csp/model';
-import { resolve } from '../lib/csp/fallback';
+import { requiresTrustedTypes, resolve } from '../lib/csp/fallback';
 import { distinctIssues } from '../lib/csp/parser';
 import { track } from '../scripts/track';
 import { AllowMap } from './AllowMap';
@@ -18,6 +18,7 @@ import { ReportPanel } from './ReportPanel';
 import { Segmented } from './Segmented';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
 import { TabList, tabPanelProps } from './Tabs';
+import { TrustedTypesNote } from './TrustedTypesNote';
 import { VendorChecker } from './VendorChecker';
 import './analyzer.css';
 
@@ -298,6 +299,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   audience={audience}
                   onChange={setSelectedVendors}
                 />
+                {analysis.vendors.length > 0 && parsed.policies.some((p) => !p.reportOnly && requiresTrustedTypes(p)) && <TrustedTypesNote />}
                 {analysis.vendors.length > 0 && (
                   <p class="next-step">
                     <button type="button" class="button" onClick={() => goTo('report')}>

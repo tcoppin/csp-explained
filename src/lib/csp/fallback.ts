@@ -29,3 +29,8 @@ export function resolve(policy: Policy, requested: string): Resolution {
   }
   return { requested, skipped };
 }
+
+/** Does this policy make the browser enforce Trusted Types (`require-trusted-types-for 'script'`)? */
+export function requiresTrustedTypes(policy: Policy): boolean {
+  return findDirective(policy, 'require-trusted-types-for')?.values.some((v) => v.raw.toLowerCase() === "'script'") ?? false;
+}

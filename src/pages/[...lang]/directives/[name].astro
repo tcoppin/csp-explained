@@ -51,6 +51,7 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
         {fallsBackHere.length > 0 && <li>{usedBefore}{fallsBackHere.map((n, i) => <>{i > 0 && ', '}<a href={localePath(t.locale, `/directives/${n}`)}><code>{n}</code></a></>)}{usedAfter}</li>}
         {info.ignoredInMeta && <li><Rich t={t} msg={m('ignoredInMeta')} /></li>}
         {(info.name === 'report-to' || info.name === 'report-uri') && <li><Rich t={t} msg={m('reportingGuide')} /></li>}
+        {(info.name === 'require-trusted-types-for' || info.name === 'trusted-types') && <li><Rich t={t} msg={m('trustedTypesGuide')} /></li>}
       </ul>
     </section>
     <section>
