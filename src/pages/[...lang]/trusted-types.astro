@@ -1,7 +1,7 @@
 ---
 import CodeBlock from '../../components/CodeBlock.astro';
 import { Rich } from '../../components/Rich';
-import Base from '../../layouts/Base.astro';
+import GuideLayout from '../../layouts/GuideLayout.astro';
 import { localeParams, localePath, translatorFor } from '../../i18n';
 
 export function getStaticPaths() {
@@ -25,10 +25,7 @@ const ERROR = [
 ].join('\n\n');
 ---
 
-<Base title={t(m('title'))} description={t(m('description'))}>
-  <article class="wrap prose guide">
-    <h1>{t(m('heading'))}</h1>
-    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+<GuideLayout title={t(m('title'))} description={t(m('description'))} heading={t(m('heading'))} lead={m('lead')} next={{ key: 'analyzer', href: '/' }}>
 
     <h2>{t(m('changes.title'))}</h2>
     <p><Rich t={t} msg={m('changes.intro')} /></p>
@@ -100,19 +97,9 @@ const ERROR = [
       </dl>
       <p><a class="button" href={localePath(t.locale, '/')}>{t(m('support.button'))}</a></p>
     </section>
-  </article>
-</Base>
+</GuideLayout>
 
 <style>
-  .guide {
-    max-width: 56rem;
-  }
-  .guide h2 {
-    margin-top: 2.75rem;
-  }
-  .lead {
-    font-size: var(--step-1);
-  }
   .note {
     border-left: 4px solid var(--warn);
     padding-left: 0.75rem;

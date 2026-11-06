@@ -1,7 +1,7 @@
 ---
 import CodeBlock from '../../components/CodeBlock.astro';
 import { Rich } from '../../components/Rich';
-import Base from '../../layouts/Base.astro';
+import GuideLayout from '../../layouts/GuideLayout.astro';
 import { localeParams, localePath, translatorFor } from '../../i18n';
 import { NONCE_PLACEHOLDER } from '../../lib/build';
 
@@ -133,10 +133,7 @@ end`,
 ];
 ---
 
-<Base title={t(m('title'))} description={t(m('description'))}>
-  <article class="wrap prose guide">
-    <h1>{t(m('heading'))}</h1>
-    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+<GuideLayout title={t(m('title'))} description={t(m('description'))} heading={t(m('heading'))} lead={m('lead')} next={{ key: 'reporting', href: '/reporting' }}>
 
     <h2>{t(m('target.title'))}</h2>
     <p><Rich t={t} msg={m('target.intro')} /></p>
@@ -229,23 +226,13 @@ end`,
         <a class="button quiet" href={localePath(t.locale, '/')}>{t(m('support.analyze'))}</a>
       </p>
     </section>
-  </article>
-</Base>
+</GuideLayout>
 
 <script>
   import '../../scripts/tabs';
 </script>
 
 <style>
-  .guide {
-    max-width: 56rem;
-  }
-  .guide > h2 {
-    margin-top: 2.75rem;
-  }
-  .lead {
-    font-size: var(--step-1);
-  }
   .note {
     border-left: 4px solid var(--hl-nonce);
     padding-left: 0.75rem;

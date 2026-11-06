@@ -1,5 +1,5 @@
 ---
-import Base from '../../../layouts/Base.astro';
+import GuideLayout from '../../../layouts/GuideLayout.astro';
 import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
 import { DIRECTIVES, type DirectiveCategory } from '../../../lib/csp/directives';
 import { contentFor } from '../../../lib/site-content';
@@ -18,9 +18,7 @@ const groups = CATEGORIES.map((c) => ({
 }));
 ---
 
-<Base title={t('pages.directives.title')} description={t('pages.directives.description')}>
-  <div class="wrap prose">
-    <h1>{t('pages.directives.heading')}</h1>
+<GuideLayout title={t('pages.directives.title')} description={t('pages.directives.description')} heading={t('pages.directives.heading')} next={{ key: 'nonces', href: '/nonces' }}>
     {
       groups.map((g) => (
         <section>
@@ -41,13 +39,9 @@ const groups = CATEGORIES.map((c) => ({
         </section>
       ))
     }
-  </div>
-</Base>
+</GuideLayout>
 
 <style>
-  section {
-    margin-top: 2.5rem;
-  }
   dl > div {
     padding: 0.6rem 0;
     border-bottom: 1px solid var(--rule);
