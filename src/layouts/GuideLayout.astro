@@ -247,6 +247,17 @@ const onThisPage = t('pages.guide.onThisPage');
     background: linear-gradient(transparent 60%, var(--hl-keyword) 60%);
   }
 
+  /* Touch screens: each section in the bar's list takes a 44px tap */
+  @media (pointer: coarse) {
+    .toc-bar li {
+      padding-block: 0;
+    }
+    .toc-bar a {
+      display: block;
+      padding-block: 0.6rem;
+    }
+  }
+
   /* Wide screens: the contents stay in view in the margin, right of the guide */
   .toc-side {
     display: none;

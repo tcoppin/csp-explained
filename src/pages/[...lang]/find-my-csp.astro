@@ -290,6 +290,11 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
     gap: 0.25rem;
     margin-bottom: 1rem;
   }
+  @media (pointer: coarse) {
+    .segmented [role='tab'] {
+      min-height: 2.75rem;
+    }
+  }
   .segmented [role='tab'] {
     border: 2px solid var(--rule);
     background: var(--surface);

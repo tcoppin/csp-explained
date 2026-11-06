@@ -368,6 +368,26 @@ textarea.code:focus,
 .site-field input {
   margin-top: 0.5rem;
 }
+@media (pointer: coarse) {
+  .site-field summary {
+    padding-block: 0.6rem;
+  }
+  .audience button,
+  .segmented button {
+    min-height: 2.75rem;
+  }
+  /* The status pill keeps its look; an invisible margin around it takes the tap */
+  .view-status button.count {
+    position: relative;
+  }
+  .view-status button.count::after {
+    content: '';
+    position: absolute;
+    inset: -0.8rem -0.25rem;
+    /* Above the panel that follows */
+    z-index: 1;
+  }
+}
 
 /* Decoded policy: the annotated document */
 .badge {

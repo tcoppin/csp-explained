@@ -303,6 +303,17 @@ const inLearn = learn.some((i) => i.current);
     box-shadow: inset 3px 0 var(--hl-keyword);
   }
 
+  /* Touch screens: the home link takes a 44px tap without changing how the highlighted name looks */
+  @media (pointer: coarse) {
+    .brand {
+      position: relative;
+    }
+    .brand::after {
+      content: '';
+      position: absolute;
+      inset: -0.35rem -0.25rem;
+    }
+  }
   @media (max-width: 56rem) {
     .tasks {
       display: none;
