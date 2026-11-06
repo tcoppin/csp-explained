@@ -12,7 +12,7 @@ import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from './Explanation';
 import { HashFix, offersHashes } from './HashTool';
 import { I18n, useT } from './i18n';
-import { PolicyEditor, PolicySummary } from './PolicyInput';
+import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from './PolicyView';
 import { loadRecent, loadRecentOff, keepsRecent, newRecentId, saveRecent, saveRecentOff, upsertRecent, type RecentAnalysis } from './recent';
 import { RecentAnalyses } from './RecentAnalyses';
@@ -278,6 +278,8 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
             onSwitch={switchRecent}
           />
         )}
+
+        {showEditor && !hasPolicy && <OtherStarts />}
 
         {hasPolicy && policy && (
           <section class="workspace" aria-label={t('views.label')}>
