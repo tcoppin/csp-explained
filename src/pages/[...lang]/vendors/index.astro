@@ -3,6 +3,9 @@ import Base from '../../../layouts/Base.astro';
 import { Rich } from '../../../components/Rich';
 import { REPO_URL } from '../../../config';
 import { groupByCategory } from '../../../lib/catalogue/categories';
+import { requirementsOf } from '../../../lib/catalogue/requirements';
+import type { Vendor } from '../../../lib/catalogue/schema';
+import { CANONICAL_DIRECTIVE } from '../../../lib/csp/directives';
 import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
 import { contentFor } from '../../../lib/site-content';
 
@@ -11,56 +14,185 @@ export function getStaticPaths() {
 }
 
 const t = translatorFor(Astro);
+const m = (key: string) => `pages.vendors.${key}`;
 const groups = groupByCategory(contentFor(localeOf(Astro.currentLocale)).vendors, t);
+const date = (d: string) =>
+  new Intl.DateTimeFormat(t.locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${d}T00:00:00Z`));
+
+/** What a tool's default setup needs: its directives, and the 'unsafe-…' keywords it asks for. */
+function needs(v: Vendor) {
+  const defaults = v.features.filter((f) => f.default);
+  const requirements = (defaults.length > 0 ? defaults : v.features.slice(0, 1)).flatMap((f) => requirementsOf(f));
+  return {
+    directives: [...new Set(requirements.map((r) => CANONICAL_DIRECTIVE[r.type]))],
+    unsafe: [...new Set(requirements.map((r) => r.source).filter((s) => s.startsWith("'unsafe-")))],
+  };
+}
+const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20`;
 ---
 
-<Base title={t('pages.vendors.title')} description={t('pages.vendors.description')}>
-  <div class="wrap prose">
-    <h1>{t('pages.vendors.heading')}</h1>
-    <p class="lead"><Rich t={t} msg="pages.vendors.lead" /></p>
+<Base title={t(m('title'))} description={t(m('description'))}>
+  <div class="wrap prose catalogue">
+    <h1>{t(m('heading'))}</h1>
+    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+    <p class="finder" data-finder hidden>
+      <label for="find-tool">{t(m('find'))}</label>
+      <input id="find-tool" type="search" autocomplete="off" placeholder={t(m('findPlaceholder'))} />
+    </p>
     {
       groups.map((g) => (
-        <section>
+        <section data-group>
           <h2>{g.label}</h2>
-          <ul class="vendor-index">
-            {g.vendors.map((v) => (
-              <li>
-                <a href={localePath(t.locale, `/vendors/${v.id}`)}>{v.name}</a>
-                <span class="muted">
-                  {v.confidence === 'verified' ? t('pages.vendors.checked', { date: v.lastVerified }) : t('pages.vendors.partial')}
-                </span>
-              </li>
-            ))}
+          <ul class="tools">
+            {g.vendors.map((v) => {
+              const n = needs(v);
+              return (
+                <li data-name={v.name.toLowerCase()}>
+                  <div class="tool-head">
+                    <a href={localePath(t.locale, `/vendors/${v.id}`)}>{v.name}</a>
+                    <span class={v.confidence === 'verified' ? 'status' : 'status partial'}>
+                      {t(m(v.confidence === 'verified' ? 'checked' : 'partial'), { date: date(v.lastVerified) })}
+                    </span>
+                  </div>
+                  <p class="needs">
+                    {n.directives.map((d) => (
+                      <code class="chip">{d}</code>
+                    ))}
+                    {n.unsafe.map((u) => (
+                      <code class="chip unsafe">{u}</code>
+                    ))}
+                    {v.nonce?.supported && <span class="nonce">{t(m('nonce'))}</span>}
+                  </p>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ))
     }
-    <h2>{t('pages.vendors.missingTitle')}</h2>
-    <p><Rich t={t} msg="pages.vendors.missing" vars={{ url: `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20` }} /></p>
+    <p class="muted" data-no-match hidden>{t(m('noMatch'))}</p>
+    <section class="missing">
+      <h2>{t(m('missingTitle'))}</h2>
+      <p><Rich t={t} msg={m('missing')} vars={{ url: missingUrl }} /></p>
+    </section>
   </div>
 </Base>
 
+<script>
+  // Find a tool: hides the tools whose name doesn't match, and the groups left empty. Without JavaScript the
+  // field stays hidden and every tool shows.
+  const finder = document.querySelector<HTMLElement>('[data-finder]');
+  const input = finder?.querySelector('input');
+  const tools = [...document.querySelectorAll<HTMLElement>('[data-name]')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
+  const none = document.querySelector<HTMLElement>('[data-no-match]');
+  if (finder && input) {
+    finder.hidden = false;
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      for (const tool of tools) tool.hidden = q !== '' && !tool.dataset.name!.includes(q);
+      for (const g of groups) g.hidden = !g.querySelector('[data-name]:not([hidden])');
+      if (none) none.hidden = tools.some((tool) => !tool.hidden);
+    });
+  }
+</script>
+
 <style>
+  /* One reading width, starting where the header does */
+  .catalogue > * {
+    max-width: 56rem;
+  }
   .lead {
     font-size: var(--step-1);
   }
-  section {
-    margin-top: 2rem;
-  }
-  .vendor-index {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-width: 40rem;
-  }
-  .vendor-index li {
+  .finder {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.5rem 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 1.5rem 0 0;
+  }
+  .finder label {
+    font-weight: 700;
+  }
+  .finder input {
+    flex: 1;
+    min-width: 12rem;
+    max-width: 24rem;
+    border: 2px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+  }
+  .finder input:focus {
+    border-color: var(--action);
+    outline: none;
+  }
+  section {
+    margin-top: 2.25rem;
+  }
+
+  /* One row per tool: its name and when it was checked, then what it needs */
+  .tools {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .tools li {
+    max-width: none;
+    padding: 0.75rem 0;
     border-bottom: 1px solid var(--rule);
   }
-  .vendor-index a {
+  .tool-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+  }
+  .tool-head a {
     font-weight: 700;
+    font-size: var(--step-1);
+  }
+  .status {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    white-space: nowrap;
+  }
+  .status.partial {
+    color: var(--warn);
+    font-weight: 700;
+  }
+  .needs {
+    margin: 0.35rem 0 0;
+  }
+  .chip {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: var(--step--1);
+    padding: 0 0.35em;
+    margin: 0.1rem 0.35rem 0.1rem 0;
+    border-radius: 3px;
+    background: var(--hl-invalid);
+  }
+  .chip.unsafe {
+    background: var(--hl-unsafe);
+  }
+  .nonce {
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--ok);
+    white-space: nowrap;
+  }
+
+  .missing {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .missing h2 {
+    font-size: var(--step-1);
   }
 </style>

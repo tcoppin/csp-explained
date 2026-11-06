@@ -3,6 +3,7 @@
  * A block of code with a slim bar saying where to use it and a "Copy this" control.
  * The copy control needs JavaScript, so it stays hidden until the script below enables it.
  * Styles live in global.css (.code-block), shared with the CodeBox island component.
+ * Content in the slot replaces the visible code (an annotated view, say); `code` is still what gets copied.
  */
 import { translatorFor } from '../i18n';
 
@@ -33,7 +34,16 @@ const t = translatorFor(Astro);
       <span class="copy-label" aria-live="polite">{t('report.copyThis')}</span>
     </button>
   </figcaption>
-  <pre id={id}><code>{code}</code></pre>
+  {
+    Astro.slots.has('default') ? (
+      <>
+        <slot />
+        <pre hidden id={id}><code>{code}</code></pre>
+      </>
+    ) : (
+      <pre id={id}><code>{code}</code></pre>
+    )
+  }
 </figure>
 
 <script>
