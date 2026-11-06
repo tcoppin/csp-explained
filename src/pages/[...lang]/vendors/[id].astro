@@ -41,7 +41,7 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
 ---
 
 <Base title={t(m('vendorTitle'), { name: vendor.name })} description={t(m('vendorDescription'), { name: vendor.name })}>
-  <article class="wrap prose vendor-page">
+  <article class="wrap prose page-column vendor-page">
     <p class="crumb"><a href={localePath(t.locale, '/vendors')}>{t('site.nav.vendors')}</a></p>
     <h1>{vendor.name}</h1>
     <p class="provenance">
