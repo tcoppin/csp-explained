@@ -811,3 +811,70 @@ textarea.message {
   padding-left: 0.75rem;
   margin: 1.25rem 0;
 }
+
+/* Recent analyses, under the empty editor */
+.recent {
+  margin-top: 2.5rem;
+}
+.recent h2 {
+  font-size: var(--step-1);
+  margin: 0 0 0.5rem;
+}
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.recent-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  padding: 0.7rem 0;
+  cursor: pointer;
+}
+.recent-policy {
+  font-family: var(--mono);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.recent-open:hover .recent-policy {
+  background: linear-gradient(transparent 58%, var(--hl-keyword) 58%, var(--hl-keyword) 92%, transparent 92%);
+}
+.recent-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+.recent-delete {
+  flex: none;
+}
+.recent-note {
+  margin: 0.75rem 0 0;
+}
+.recent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-top: 0.4rem;
+}
+.analyzer > .recent-note {
+  margin-top: 2rem;
+}

@@ -75,6 +75,17 @@
     "yourPolicy": "Votre politique",
     "reportOnlyShort": "rapport seul"
   },
+  "recent": {
+    "title": "Analyses récentes",
+    "tools": "Outils : {names}",
+    "delete": "Supprimer",
+    "deleteLabel": "Supprimer l'analyse du {date}",
+    "note": "Gardées dans ce navigateur uniquement, jamais envoyées. Toute personne qui utilise ce navigateur peut les voir.",
+    "clearAll": "Toutes les supprimer",
+    "turnOff": "Ne plus garder d'historique",
+    "offNote": "Les analyses ne sont pas gardées dans ce navigateur.",
+    "turnOn": "Garder un historique"
+  },
   "issues": {
     "title": "Points à vérifier",
     "empty-input": "Nous n'avons trouvé aucune directive dans ce texte.",

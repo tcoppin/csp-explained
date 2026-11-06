@@ -693,3 +693,53 @@ test('tools picked under a policy that enforces Trusted Types come with a note',
   await openBuilder(page, `/build#b=policy&p=${Buffer.from("default-src 'self'; require-trusted-types-for 'script'").toString('base64url')}&v=hotjar:tracking&step=tools`);
   await expect(page.locator('.trusted-types-note')).toBeVisible();
 });
+
+test('recent analyses stay in this browser, reopen where they were left, and can be turned off', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  // Nothing listed before a first analysis, nor for the example.
+  await expect(page.locator('.recent')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await page.waitForTimeout(1300);
+  await page.getByRole('button', { name: 'Clear' }).click();
+  await expect(page.locator('.recent')).toHaveCount(0);
+
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Hotjar');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('csp-explained:recent') ?? '')).toContain('hotjar');
+
+  // Survives a reload; reopening brings back the tools and the view.
+  await openAnalyzer(page);
+  const item = page.locator('.recent-item');
+  await expect(item).toHaveCount(1);
+  await expect(item).toContainText("default-src 'self'; script-src");
+  await expect(item).toContainText('Tools: Hotjar');
+  await item.locator('.recent-open').click();
+  await expect(page.getByRole('tab', { name: /Will my tools work/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.vendor-result')).toContainText('Hotjar');
+
+  // A second analysis comes first; deleting one leaves the other.
+  await page.getByRole('button', { name: 'Clear' }).click();
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("img-src 'self'");
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.waitForTimeout(1300);
+  await page.getByRole('button', { name: 'Clear' }).click();
+  await expect(item).toHaveCount(2);
+  await expect(item.first()).toContainText("img-src 'self'");
+  await item.first().getByRole('button', { name: /Delete the analysis from/ }).click();
+  await expect(item).toHaveCount(1);
+
+  // Turning the history off forgets it, and is remembered.
+  await page.getByRole('button', { name: 'Stop keeping a history' }).click();
+  await expect(page.locator('.recent')).toHaveCount(0);
+  await openAnalyzer(page);
+  await expect(page.getByText("Analyses aren't kept in this browser.")).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('csp-explained:recent'))).toBeNull();
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('button', { name: 'Done' }).click();
+  await page.waitForTimeout(1300);
+  expect(await page.evaluate(() => localStorage.getItem('csp-explained:recent'))).toBeNull();
+  expect(errors).toEqual([]);
+});

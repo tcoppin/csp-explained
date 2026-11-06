@@ -167,11 +167,10 @@ the plain-language voice better than "CSP Explainer".
 ## Ideas backlog
 
 - [ ] Compare two policies (before/after, staging vs production) with a plain-language diff.
-- [ ] **Recent analyses** (added 2026-10-30): keep the last policies analysed, with the tools picked and the
-      audience, in the browser's own storage only, never sent anywhere. A history list to reopen one where it
-      was left, delete one, or clear them all. Off switch remembered on the device; say on the About page that
-      it stays on the device, and that anyone using the same browser can see it. Pairs with comparing two
-      policies.
+- [x] **Recent analyses** (2026-11-06): the last 10 policies analysed, with the site, tools, view and audience,
+      in the browser's own storage only. Listed under the empty editor to reopen one where it was left, delete
+      one or all; an off switch remembered on the device also forgets them. The example isn't kept. The About
+      page and the README say it stays on the device. Pairs with comparing two policies.
 - [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
 - [x] **Hashes for inline scripts and styles** (2026-11-05): paste the code (with or without its tags), get its
       `'sha256-…'`, as an alternative to `'unsafe-inline'` when a nonce isn't possible. One generator

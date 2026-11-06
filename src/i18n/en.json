@@ -75,6 +75,17 @@
     "yourPolicy": "Your policy",
     "reportOnlyShort": "report-only"
   },
+  "recent": {
+    "title": "Recent analyses",
+    "tools": "Tools: {names}",
+    "delete": "Delete",
+    "deleteLabel": "Delete the analysis from {date}",
+    "note": "Kept in this browser only, never sent anywhere. Anyone using this browser can see them.",
+    "clearAll": "Delete them all",
+    "turnOff": "Stop keeping a history",
+    "offNote": "Analyses aren't kept in this browser.",
+    "turnOn": "Keep a history"
+  },
   "issues": {
     "title": "Things to check",
     "empty-input": "We couldn't find any directive in this text.",

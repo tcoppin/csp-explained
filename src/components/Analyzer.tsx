@@ -14,6 +14,8 @@ import { HashFix, offersHashes } from './HashTool';
 import { I18n, useT } from './i18n';
 import { PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from './PolicyView';
+import { loadRecent, loadRecentOff, keepsRecent, newRecentId, saveRecent, saveRecentOff, upsertRecent, type RecentAnalysis } from './recent';
+import { RecentAnalyses } from './RecentAnalyses';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from './Segmented';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from './state';
@@ -64,11 +66,17 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
+  // Recent analyses kept in this browser; the entry the current analysis updates, once it has one.
+  const [recent, setRecent] = useState<RecentAnalysis[]>([]);
+  const [recentOff, setRecentOff] = useState(false);
+  const recentId = useRef<string | undefined>(undefined);
 
   // Restore from the link and from the remembered audience once, in the browser.
   useEffect(() => {
     const s = decodeState(location.hash);
     setAudience(s.audience ?? loadAudience());
+    setRecent(loadRecent());
+    setRecentOff(loadRecentOff());
     // Text typed or pasted before hydration would otherwise be wiped.
     const early = (document.getElementById('policy-input') as HTMLTextAreaElement | null)?.value;
     if (s.policy) {
@@ -123,6 +131,48 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     }, 1500);
     return () => clearTimeout(timer);
   }, [input, hasPolicy]);
+
+  // Keep this analysis in the history once it settles: one entry per analysis, updated as it changes.
+  useEffect(() => {
+    if (recentOff || !hasPolicy || input === EXAMPLE_POLICY || !keepsRecent(input)) return;
+    const timer = setTimeout(() => {
+      recentId.current ??= newRecentId();
+      const entry = { id: recentId.current, policy: input, site, vendors: selectedVendors, view, audience, savedAt: Date.now() };
+      // Read storage again: another tab may have changed it.
+      const next = upsertRecent(loadRecent(), entry);
+      saveRecent(next);
+      setRecent(next);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [input, site, selectedVendors, view, audience, hasPolicy, recentOff]);
+
+  const reopen = (e: RecentAnalysis) => {
+    recentId.current = e.id;
+    setInput(e.policy);
+    setSite(e.site);
+    setSelectedVendors(e.vendors);
+    setView(e.view);
+    setAudience(e.audience);
+    setSelection(undefined);
+    setPolicyIndex(0);
+    setEditing(false);
+  };
+
+  const forget = (id?: string) => {
+    const next = id ? loadRecent().filter((e) => e.id !== id) : [];
+    saveRecent(next);
+    setRecent(next);
+    if (!id || recentId.current === id) recentId.current = undefined;
+  };
+
+  const switchRecent = (off: boolean) => {
+    saveRecentOff(off);
+    setRecentOff(off);
+    if (off) {
+      setRecent([]);
+      recentId.current = undefined;
+    }
+  };
 
   const setPolicy = (text: string, collapse: boolean) => {
     setInput(text);
@@ -194,7 +244,10 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 typed.current = true;
                 setPolicy(text, collapse);
               }}
-              onExample={() => setPolicy(EXAMPLE_POLICY, true)}
+              onExample={() => {
+                recentId.current = undefined;
+                setPolicy(EXAMPLE_POLICY, true);
+              }}
               onSite={setSite}
               onDone={() => setEditing(false)}
             />
@@ -205,6 +258,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
               onEdit={() => setEditing(true)}
               buildHref={localePath(locale, `/build#${encodeState({ policy: input, site, vendors: selectedVendors })}`)}
               onClear={() => {
+                recentId.current = undefined;
                 setPolicy('', false);
                 setEditing(true);
                 setView('read');
@@ -212,6 +266,18 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
             />
           )}
         </section>
+
+        {showEditor && input.trim() === '' && (
+          <RecentAnalyses
+            entries={recent}
+            off={recentOff}
+            vendors={content.vendors}
+            onOpen={reopen}
+            onDelete={forget}
+            onClearAll={() => forget()}
+            onSwitch={switchRecent}
+          />
+        )}
 
         {hasPolicy && policy && (
           <section class="workspace" aria-label={t('views.label')}>
