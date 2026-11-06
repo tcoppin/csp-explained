@@ -34,6 +34,7 @@
       }
     },
     "footer": "Indépendant et gratuit. Votre politique ne quitte jamais votre navigateur.",
+    "source": "Code source",
     "issue": {
       "link": "Signaler un problème",
       "body": "Page : {page}\n\nQu'est-ce qui ne va pas ? Un bug, une erreur ou un texte peu clair :\n\n\n\nLes tickets sont publics : merci de ne pas coller de politique ni d'information privée."

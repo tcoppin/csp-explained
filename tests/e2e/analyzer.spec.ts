@@ -630,6 +630,10 @@ test('the footer reports an issue about the page, never about a shared policy', 
   expect(url.origin + url.pathname).toBe('https://github.com/tcoppin/csp-explained/issues/new');
   expect(url.searchParams.get('body')).toContain('Page : https://csp-explained.com/fr/learn\n');
   expect(url.href).not.toContain('secret-policy');
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: "Code source (s'ouvre dans un nouvel onglet)" })).toHaveAttribute(
+    'href',
+    'https://github.com/tcoppin/csp-explained',
+  );
 });
 
 test('the find-my-csp snippet works in the DevTools console, copy() included', async ({ page }) => {
