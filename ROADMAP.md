@@ -194,9 +194,9 @@ the plain-language voice better than "CSP Explainer".
       builder when the policy enforces them.
   - [ ] Compatibility per tool: none of the catalogue's vendors document Trusted Types publicly (checked
         2026-11-05). Add an optional `trustedTypes` field (policy names, source, date) once one does.
-- [ ] **Review the navigation** (added 2026-11-05): the top menu holds six items and is tight on phones, so the
-      guides that came later (`/reporting`, and Trusted Types next) are only linked from related pages. Find
-      them a place: a guides section, a grouped menu, or a page listing them.
+- [x] **Review the navigation** (added 2026-11-05, done 2026-11-06): the header shows the three tasks and a Learn
+      dropdown on desktop, and a Menu with the whole site, each page with a line saying what it's for. Phones get
+      the brand and Menu; the header stays at the top. The colour theme moved to the footer.
 - [ ] Print-friendly / PDF export of the reports.
 - [x] Privacy-friendly usage counts: one anonymous log line per event through our own `/e` endpoint, counted on a
       CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.

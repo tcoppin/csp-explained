@@ -1,0 +1,318 @@
+---
+/*
+ * The site header. Desktop: the three tasks, a Learn dropdown and a Menu button. Phones: the brand and Menu.
+ * Menu opens the whole site map, each link with a line saying what the page is for. The header stays at the top.
+ */
+import { localePath, type Locale, type Translate } from '../i18n';
+
+interface Props {
+  t: Translate;
+  locale: Locale;
+  /** The page's path without its language (`/fr/learn` → `/learn`). */
+  page: string;
+}
+const { t, locale, page } = Astro.props;
+
+const item = (key: string, href: string) => ({
+  label: t(`site.nav.${key}`),
+  desc: t(`site.nav.desc.${key}`),
+  href: localePath(locale, href),
+  // Current for its own page and the pages under it (a directive, a tool).
+  current: href === '/' ? page === '/' : page === href || page.startsWith(`${href}/`),
+});
+const tasks = [item('analyzer', '/'), item('build', '/build'), item('find', '/find-my-csp')];
+const learn = [
+  item('whatIs', '/learn'),
+  item('directives', '/directives'),
+  item('nonces', '/nonces'),
+  item('reporting', '/reporting'),
+  item('trustedTypes', '/trusted-types'),
+];
+const reference = [item('vendors', '/vendors'), item('about', '/about')];
+const groups = [
+  { title: t('site.nav.groups.policy'), items: tasks },
+  { title: t('site.nav.learn'), items: learn },
+  { title: t('site.nav.groups.reference'), items: reference },
+];
+const inLearn = learn.some((i) => i.current);
+---
+
+<header class="site-header" data-nav>
+  <div class="wrap row">
+    <a class="brand" href={localePath(locale, '/')}>{t('site.name')}</a>
+    <nav class="tasks" aria-label={t('site.navLabel')}>
+      <ul>
+        {
+          tasks.map((i) => (
+            <li>
+              <a href={i.href} aria-current={i.current ? 'page' : undefined}>
+                {i.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="learn">
+          <button
+            type="button"
+            class="learn-button"
+            aria-expanded="false"
+            aria-controls="nav-learn"
+            data-toggle
+            data-current={inLearn ? '' : undefined}
+          >
+            {t('site.nav.learn')}
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>
+          </button>
+          <ul id="nav-learn" class="drop">
+            {
+              learn.map((i) => (
+                <li>
+                  <a href={i.href} aria-current={i.current ? 'page' : undefined}>
+                    <span class="label">{i.label}</span>
+                    <span class="desc">{i.desc}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="menu-button" aria-expanded="false" aria-controls="nav-menu" data-toggle>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"></path></svg>
+      {t('site.nav.menu')}
+    </button>
+  </div>
+  <nav id="nav-menu" class="panel" aria-label={t('site.nav.menu')}>
+    <div class="wrap columns">
+      {
+        groups.map((group) => (
+          <section>
+            <h2>{group.title}</h2>
+            <ul>
+              {group.items.map((i) => (
+                <li>
+                  <a href={i.href} aria-current={i.current ? 'page' : undefined}>
+                    <span class="label">{i.label}</span>
+                    <span class="desc">{i.desc}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </nav>
+</header>
+
+<script>
+  // Disclosure buttons: each opens the element named by its aria-controls, one at a time.
+  // Escape closes them and gives the focus back; so does a click outside the header.
+  const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-nav] [data-toggle]')];
+  const target = (b: HTMLButtonElement) => document.getElementById(b.getAttribute('aria-controls') ?? '');
+  const set = (b: HTMLButtonElement, open: boolean) => {
+    b.setAttribute('aria-expanded', String(open));
+    target(b)?.classList.toggle('open', open);
+  };
+  const isOpen = (b: HTMLButtonElement) => b.getAttribute('aria-expanded') === 'true';
+  for (const b of toggles) {
+    b.addEventListener('click', () => {
+      const open = !isOpen(b);
+      for (const other of toggles) if (other !== b) set(other, false);
+      set(b, open);
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = toggles.find(isOpen);
+    if (!open) return;
+    set(open, false);
+    open.focus();
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target instanceof Element) || !e.target.closest('[data-nav]')) toggles.forEach((b) => set(b, false));
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    min-height: 3.75rem;
+  }
+  .brand {
+    flex: none;
+    font-weight: 800;
+    font-size: var(--step-1);
+    color: var(--ink);
+    text-decoration: none;
+    /* The brand is written like a highlighted token */
+    background: linear-gradient(transparent 55%, var(--hl-keyword) 55%);
+    padding-inline: 0.1em;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  a {
+    color: var(--ink-soft);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--ink);
+  }
+
+  /* The row: tasks and Learn. The current page gets the highlighter, like a selected tab. */
+  .tasks {
+    margin-left: auto;
+  }
+  .tasks > ul {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .tasks > ul > li > a[aria-current='page'],
+  .learn-button[data-current] {
+    color: var(--ink);
+    background: linear-gradient(transparent 60%, var(--hl-keyword) 60%);
+  }
+  .learn-button,
+  .menu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .learn-button:hover,
+  .learn-button[aria-expanded='true'] {
+    color: var(--ink);
+  }
+  .learn-button[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+  .menu-button {
+    min-height: 2.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0 1rem;
+    color: var(--ink);
+  }
+  .menu-button:hover,
+  .menu-button[aria-expanded='true'] {
+    border-color: var(--ink-soft);
+  }
+
+  /* Learn: the menu's Learn column as a dropdown, aligned on the button's right so it stays on screen */
+  .learn {
+    position: relative;
+  }
+  .drop {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.9rem);
+    right: -1rem;
+    width: 22rem;
+    padding: 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  .drop.open {
+    display: block;
+  }
+
+  /* Menu: the whole site, in three groups */
+  .panel {
+    display: none;
+    position: absolute;
+    inset: 100% 0 auto;
+    max-height: calc(100dvh - 3.75rem);
+    overflow-y: auto;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .panel.open {
+    display: block;
+  }
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem 2.5rem;
+    padding-block: 1.5rem 2rem;
+  }
+  h2 {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  /* A link with its description, in the dropdown and the menu */
+  .drop a,
+  .panel a {
+    display: block;
+    padding: 0.5rem 0.6rem;
+    border-radius: 4px;
+  }
+  .panel a {
+    margin-inline: -0.6rem;
+  }
+  .drop a:hover {
+    background: var(--paper);
+  }
+  .panel a:hover {
+    background: var(--surface);
+  }
+  .label {
+    display: block;
+    color: var(--ink);
+  }
+  .desc {
+    display: block;
+    font-weight: 400;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .drop a[aria-current='page'],
+  .panel a[aria-current='page'] {
+    box-shadow: inset 3px 0 var(--hl-keyword);
+  }
+
+  @media (max-width: 56rem) {
+    .tasks {
+      display: none;
+    }
+    .menu-button {
+      margin-left: auto;
+    }
+    .columns {
+      grid-template-columns: 1fr;
+      padding-block: 1rem 1.5rem;
+    }
+  }
+</style>
