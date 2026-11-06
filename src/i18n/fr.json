@@ -73,6 +73,7 @@
     "more": "Plus",
     "closeExplanation": "Fermer l'explication",
     "share": "Copier le lien de partage",
+    "shareShort": "Copier le lien",
     "shared": "Lien copié",
     "shareHint": "La politique est stockée après le # du lien, une partie qui n'est jamais envoyée à un serveur.",
     "noPolicy": "Vous n'avez pas votre politique sous la main ?",
