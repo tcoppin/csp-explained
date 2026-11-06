@@ -46,7 +46,7 @@ const onThisPage = t('pages.guide.onThisPage');
 ---
 
 <Base title={title} description={description}>
-  <div class="wrap guide-layout">
+  <div class="wrap page-column guide-layout">
     <article class="prose guide">
       <h1>{heading}</h1>
       {lead && <p class="lead"><Rich t={t} msg={lead} /></p>}
@@ -156,9 +156,6 @@ const onThisPage = t('pages.guide.onThisPage');
   /* The page starts where the header does, like every other page; the contents use the space on the right */
   .guide-layout {
     position: relative;
-  }
-  .guide {
-    max-width: 56rem;
   }
   .lead {
     font-size: var(--step-1);

@@ -151,6 +151,11 @@ p {
   margin: 0 0 1em;
 }
 
+/* Pages you read: one width for every page, starting where the header does (the .wrap itself stays full width) */
+.page-column > * {
+  max-width: 56rem;
+}
+
 /* Long-form pages keep a comfortable reading width; interface text uses its column's width */
 .prose :is(p, li, dd) {
   max-width: var(--measure);

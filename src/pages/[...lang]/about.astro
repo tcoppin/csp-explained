@@ -17,7 +17,7 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
 ---
 
 <Base title={t('pages.about.title')} description={t('pages.about.description')}>
-  <article class="wrap prose about">
+  <article class="wrap prose page-column about">
     <h1>{t('pages.about.title')}</h1>
     <p class="lead"><Rich t={t} msg="pages.about.lead" /></p>
 
@@ -45,9 +45,6 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
 </Base>
 
 <style>
-  .about {
-    max-width: 52rem;
-  }
   .about h2 {
     margin-top: 2.5rem;
   }

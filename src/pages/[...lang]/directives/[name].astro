@@ -25,7 +25,7 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
 ---
 
 <Base title={`${info.name}: ${doc.title}`} description={doc.simple}>
-  <article class="wrap prose directive-page">
+  <article class="wrap prose page-column directive-page">
     <p class="crumb"><a href={localePath(t.locale, '/directives')}>{t(m('all'))}</a></p>
     <h1><code>{info.name}</code></h1>
     <p class="title">{doc.title}</p>
@@ -66,9 +66,6 @@ const fallsBackHere = [...DIRECTIVES.values()].filter((d) => d.fallback[0] === i
 </Base>
 
 <style>
-  .directive-page {
-    max-width: 52rem;
-  }
   .directive-page section {
     margin-top: 2rem;
   }

@@ -31,7 +31,7 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
 ---
 
 <Base title={t(m('title'))} description={t(m('description'))}>
-  <div class="wrap prose guide">
+  <div class="wrap prose page-column guide">
     <h1>{t(m('title'))}</h1>
     <p class="lead"><Rich t={t} msg={m('lead')} /></p>
 
@@ -177,9 +177,6 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
 </script>
 
 <style>
-  .guide {
-    max-width: 56rem;
-  }
   .lead {
     font-size: var(--step-1);
   }

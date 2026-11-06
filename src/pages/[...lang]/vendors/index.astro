@@ -32,7 +32,7 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
 ---
 
 <Base title={t(m('title'))} description={t(m('description'))}>
-  <div class="wrap prose catalogue">
+  <div class="wrap prose page-column catalogue">
     <h1>{t(m('heading'))}</h1>
     <p class="lead"><Rich t={t} msg={m('lead')} /></p>
     <p class="finder" data-finder hidden>
@@ -98,10 +98,6 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
 </script>
 
 <style>
-  /* One reading width, starting where the header does */
-  .catalogue > * {
-    max-width: 56rem;
-  }
   .lead {
     font-size: var(--step-1);
   }
