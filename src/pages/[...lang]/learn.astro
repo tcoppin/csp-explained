@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import GuideLayout from '../../layouts/GuideLayout.astro';
 import { Rich } from '../../components/Rich';
 import { localeParams, translatorFor } from '../../i18n';
 
@@ -11,10 +11,7 @@ const t = translatorFor(Astro);
 const words = t.keys('pages.learn.words');
 ---
 
-<Base title={t('pages.learn.title')} description={t('pages.learn.description')}>
-  <article class="wrap prose learn">
-    <h1>{t('pages.learn.heading')}</h1>
-    <p class="lead"><Rich t={t} msg="pages.learn.lead" /></p>
+<GuideLayout title={t('pages.learn.title')} description={t('pages.learn.description')} heading={t('pages.learn.heading')} lead="pages.learn.lead" next={{ key: 'directives', href: '/directives' }}>
 
     <figure class="example">
       <div class="example-policy">
@@ -55,19 +52,9 @@ const words = t.keys('pages.learn.words');
 
     <h2>{t('pages.learn.noneTitle')}</h2>
     <p><Rich t={t} msg="pages.learn.none" /></p>
-  </article>
-</Base>
+</GuideLayout>
 
 <style>
-  .learn {
-    max-width: 52rem;
-  }
-  .learn h2 {
-    margin-top: 2.5rem;
-  }
-  .lead {
-    font-size: var(--step-1);
-  }
   .example {
     margin: 2rem 0;
   }

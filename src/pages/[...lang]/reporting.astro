@@ -1,7 +1,7 @@
 ---
 import CodeBlock from '../../components/CodeBlock.astro';
 import { Rich } from '../../components/Rich';
-import Base from '../../layouts/Base.astro';
+import GuideLayout from '../../layouts/GuideLayout.astro';
 import { localeParams, localePath, translatorFor } from '../../i18n';
 
 export function getStaticPaths() {
@@ -56,10 +56,7 @@ const LEGACY = `{
 const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 'sample', 'policy', 'context'];
 ---
 
-<Base title={t(m('title'))} description={t(m('description'))}>
-  <article class="wrap prose guide">
-    <h1>{t(m('heading'))}</h1>
-    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+<GuideLayout title={t(m('title'))} description={t(m('description'))} heading={t(m('heading'))} lead={m('lead')} next={{ key: 'trustedTypes', href: '/trusted-types' }}>
 
     <h2>{t(m('setup.title'))}</h2>
     <p><Rich t={t} msg={m('setup.intro')} /></p>
@@ -133,23 +130,13 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
       </dl>
       <p><a class="button" href={localePath(t.locale, '/')}>{t(m('pitfalls.button'))}</a></p>
     </section>
-  </article>
-</Base>
+</GuideLayout>
 
 <script>
   import '../../scripts/tabs';
 </script>
 
 <style>
-  .guide {
-    max-width: 56rem;
-  }
-  .guide h2 {
-    margin-top: 2.75rem;
-  }
-  .lead {
-    font-size: var(--step-1);
-  }
   .note {
     border-left: 4px solid var(--hl-nonce);
     padding-left: 0.75rem;

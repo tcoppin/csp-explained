@@ -1,0 +1,323 @@
+---
+/*
+ * A long page you read (a guide, the directives list): heading, lead, the contents, the page, and what to read next.
+ * The contents list the page's <h2>s, so they follow the page as it changes; a heading without an id gets one.
+ * Wide screens keep the contents in the margin on the right; narrower ones get a bar that sticks under the header,
+ * naming the section being read.
+ */
+import { Rich } from '../components/Rich';
+import { localePath, translatorFor } from '../i18n';
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+  /** Message key of the lead paragraph, if the page has one. */
+  lead?: string;
+  /** What to read next: a page of the menu (`site.nav.<key>` and its description) and its path. */
+  next: { key: string; href: string };
+}
+const { title, description, heading, lead, next } = Astro.props;
+const t = translatorFor(Astro);
+
+/** `Rolling it out` → `rolling-it-out`; accents dropped, so French ids stay readable. */
+const slug = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/&[a-z#0-9]+;/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+const sections: { id: string; html: string }[] = [];
+const body = (await Astro.slots.render('default')).replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (_all, attrs: string, inner: string) => {
+  let id = /\sid="([^"]+)"/.exec(attrs)?.[1];
+  if (!id) {
+    id = slug(inner.replace(/<[^>]+>/g, ''));
+    attrs += ` id="${id}"`;
+  }
+  // The heading's own markup (already escaped), without links or ids that would nest or repeat.
+  sections.push({ id, html: inner.replace(/<\/?a\b[^>]*>/g, '').replace(/\sid="[^"]*"/g, '') });
+  return `<h2${attrs}>${inner}</h2>`;
+});
+const onThisPage = t('pages.guide.onThisPage');
+---
+
+<Base title={title} description={description}>
+  <div class="wrap guide-layout">
+    <article class="prose guide">
+      <h1>{heading}</h1>
+      {lead && <p class="lead"><Rich t={t} msg={lead} /></p>}
+      {
+        sections.length > 1 && (
+          <details class="toc-bar" data-toc-bar>
+            <summary>
+              <span class="toc-bar-label">{onThisPage}</span>
+              <span class="toc-current" data-toc-current aria-hidden="true" />
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" />
+              </svg>
+            </summary>
+            <nav aria-label={onThisPage}>
+              <ol>
+                {sections.map((s) => (
+                  <li>
+                    <a href={`#${s.id}`} data-toc-link={s.id} set:html={s.html} />
+                  </li>
+                ))}
+              </ol>
+            </nav>
+            <span class="toc-progress" data-toc-progress aria-hidden="true" />
+          </details>
+        )
+      }
+      <Fragment set:html={body} />
+      <aside class="read-next" aria-labelledby="read-next-title">
+        <h2 id="read-next-title">{t('pages.guide.readNext')}</h2>
+        <a class="next" href={localePath(t.locale, next.href)}>
+          <span class="next-label">{t(`site.nav.${next.key}`)}</span>
+          <span class="next-desc">{t(`site.nav.desc.${next.key}`)}</span>
+        </a>
+        <p><a class="top-link" href="#main">{t('pages.guide.backToTop')}</a></p>
+      </aside>
+    </article>
+    {
+      sections.length > 1 && (
+        <aside class="toc-side" aria-labelledby="toc-side-title">
+          <div class="toc-side-inner">
+            <p id="toc-side-title" class="toc-title">
+              {onThisPage}
+            </p>
+            <ol>
+              {sections.map((s) => (
+                <li>
+                  <a href={`#${s.id}`} data-toc-link={s.id} set:html={s.html} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        </aside>
+      )
+    }
+  </div>
+</Base>
+
+<script>
+  // The section being read: the last heading above a line a third down the screen. Its links are marked in both
+  // contents, the bar names it, and the bar's line shows how far down the page the reader is.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  const heads = [...new Set(links.map((a) => a.dataset.tocLink!))]
+    .map((id) => document.getElementById(id))
+    .filter((h): h is HTMLElement => h !== null);
+  const current = document.querySelector<HTMLElement>('[data-toc-current]');
+  const progress = document.querySelector<HTMLElement>('[data-toc-progress]');
+  const bar = document.querySelector<HTMLDetailsElement>('[data-toc-bar]');
+
+  let scheduled = false;
+  const update = () => {
+    scheduled = false;
+    const line = innerHeight / 3;
+    const active = heads.filter((h) => h.getBoundingClientRect().top < line).at(-1);
+    for (const a of links) {
+      if (a.dataset.tocLink === active?.id) a.setAttribute('aria-current', 'location');
+      else a.removeAttribute('aria-current');
+    }
+    if (current) current.textContent = active?.textContent ?? '';
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress?.style.setProperty('--read', String(max > 0 ? Math.min(scrollY / max, 1) : 0));
+  };
+  const schedule = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(update);
+  };
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  update();
+
+  // The bar's list closes once a section is chosen, on Escape, or on a click elsewhere.
+  bar?.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) bar.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && bar?.open) {
+      bar.open = false;
+      bar.querySelector('summary')?.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (bar?.open && !bar.contains(e.target as Node)) bar.open = false;
+  });
+</script>
+
+<style>
+  /* The page starts where the header does, like every other page; the contents use the space on the right */
+  .guide-layout {
+    position: relative;
+  }
+  .guide {
+    max-width: 56rem;
+  }
+  .lead {
+    font-size: var(--step-1);
+  }
+  .guide :global(h2) {
+    margin-top: 2.75rem;
+    /* Room for the header, and the contents bar on narrower screens */
+    scroll-margin-top: 3.5rem;
+  }
+
+  /* Narrower screens: the contents in a bar that sticks under the header */
+  .toc-bar {
+    position: sticky;
+    top: calc(3.75rem + 1px);
+    z-index: 5;
+    margin: 1.5rem 0 0.5rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .toc-bar summary {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.75rem;
+    list-style: none;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .toc-bar summary::-webkit-details-marker {
+    display: none;
+  }
+  .toc-bar-label {
+    flex: none;
+    color: var(--ink-soft);
+  }
+  .toc-current {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .toc-bar svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    margin-left: auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .toc-bar[open] svg {
+    transform: rotate(180deg);
+  }
+  .toc-bar nav {
+    max-height: 60dvh;
+    overflow-y: auto;
+    padding: 0.25rem 0 1rem;
+  }
+  /* How far down the page: a highlighter stroke along the bar's bottom edge */
+  .toc-progress {
+    display: block;
+    height: 3px;
+    margin-bottom: -1px;
+    background: linear-gradient(to right, var(--hl-keyword) calc(var(--read, 0) * 100%), transparent 0);
+  }
+  ol {
+    margin: 0;
+    padding-left: 1.4rem;
+  }
+  li {
+    padding-block: 0.2rem;
+  }
+  .toc-bar a,
+  .toc-side a {
+    color: var(--ink-soft);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .toc-bar a:hover,
+  .toc-side a:hover {
+    color: var(--ink);
+  }
+  .toc-bar a[aria-current],
+  .toc-side a[aria-current] {
+    color: var(--ink);
+    background: linear-gradient(transparent 60%, var(--hl-keyword) 60%);
+  }
+
+  /* Wide screens: the contents stay in view in the margin, right of the guide */
+  .toc-side {
+    display: none;
+  }
+  @media (min-width: 80rem) {
+    .toc-bar {
+      display: none;
+    }
+    .guide :global(h2) {
+      scroll-margin-top: 1rem;
+    }
+    .toc-side {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(var(--gutter) + 56rem + 3rem);
+      right: var(--gutter);
+    }
+    .toc-side-inner {
+      position: sticky;
+      top: 5.5rem;
+    }
+    .toc-title {
+      font-size: var(--step--1);
+      font-weight: 700;
+      color: var(--ink-soft);
+      margin: 0 0 0.5rem;
+    }
+    .toc-side ol {
+      list-style: none;
+      padding: 0 0 0 1rem;
+      border-left: 2px solid var(--rule);
+    }
+    .toc-side li {
+      padding-block: 0.3rem;
+      font-size: var(--step--1);
+    }
+  }
+
+  /* Read next */
+  .read-next {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .read-next h2 {
+    font-size: var(--step-0);
+    color: var(--ink-soft);
+    margin: 0 0 0.25rem;
+  }
+  .next {
+    display: block;
+    text-decoration: none;
+    padding-block: 0.25rem;
+  }
+  .next-label {
+    font-size: var(--step-2);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .next-desc {
+    display: block;
+    color: var(--ink-soft);
+  }
+  .top-link {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+</style>

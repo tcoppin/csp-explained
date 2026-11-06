@@ -372,6 +372,40 @@ test('the header leads to every page, Learn and Menu opening one at a time', asy
   expect(errors).toEqual([]);
 });
 
+test('guides list their sections, jump to them, and say what to read next', async ({ page, isMobile }) => {
+  const errors = watchErrors(page);
+  await page.setViewportSize(isMobile ? { width: 390, height: 844 } : { width: 1440, height: 900 });
+  await page.goto('/nonces');
+  const section = page.getByRole('heading', { name: 'Rolling it out' });
+
+  if (isMobile) {
+    // Phones and narrower screens: a bar under the header, its list opened on demand.
+    await expect(page.locator('.toc-side')).toBeHidden();
+    const bar = page.locator('.toc-bar');
+    await bar.locator('summary').click();
+    await bar.getByRole('link', { name: 'Rolling it out' }).click();
+    await expect(bar).not.toHaveAttribute('open');
+    await expect(section).toBeInViewport();
+    await expect(bar.locator('[data-toc-current]')).toHaveText('Rolling it out');
+  } else {
+    // Wide screens: the contents stay in the margin and mark the section being read.
+    await expect(page.locator('.toc-bar')).toBeHidden();
+    const side = page.getByRole('complementary', { name: 'On this page' });
+    await side.getByRole('link', { name: 'Rolling it out' }).click();
+    await expect(section).toBeInViewport();
+    await expect(side.getByRole('link', { name: 'Rolling it out' })).toHaveAttribute('aria-current', 'location');
+  }
+
+  const next = page.getByRole('complementary', { name: 'Read next' });
+  await expect(next.getByRole('link', { name: /^Violation reports/ })).toHaveAttribute('href', '/reporting');
+  await page.goto('/fr/nonces');
+  await expect(page.getByRole('complementary', { name: 'À lire ensuite' }).getByRole('link', { name: /^Rapports de violation/ })).toHaveAttribute(
+    'href',
+    '/fr/reporting',
+  );
+  expect(errors).toEqual([]);
+});
+
 test('find my CSP shows one method at a time', async ({ page }) => {
   await page.goto('/find-my-csp');
   await expect(page.locator('#console')).toBeVisible();

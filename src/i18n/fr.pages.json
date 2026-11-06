@@ -601,5 +601,10 @@
     "title": "Construire une politique",
     "description": "Construisez une Content-Security-Policy à partir d'une politique vierge ou de la vôtre, pour les outils que votre site doit autoriser, chaque ligne expliquée.",
     "lead": "Partez d'une politique vierge ou de votre politique actuelle, ajoutez les outils que votre site doit autoriser, et obtenez une politique où chaque ligne dit qui l'a demandée."
+  },
+  "guide": {
+    "onThisPage": "Sur cette page",
+    "readNext": "À lire ensuite",
+    "backToTop": "Retour en haut"
   }
 }

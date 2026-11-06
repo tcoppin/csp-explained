@@ -601,5 +601,10 @@
     "title": "Build a policy",
     "description": "Build a Content-Security-Policy from a blank policy or your current one, for the tools your site should allow, with every line explained.",
     "lead": "Start from a blank policy or your current one, add the tools your site should allow, and get a policy where every line says who asked for it."
+  },
+  "guide": {
+    "onThisPage": "On this page",
+    "readNext": "Read next",
+    "backToTop": "Back to top"
   }
 }
