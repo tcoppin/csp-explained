@@ -70,6 +70,8 @@
     "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
     "example": "Try an example",
     "clear": "Clear",
+    "more": "More",
+    "closeExplanation": "Close the explanation",
     "share": "Copy share link",
     "shared": "Link copied",
     "shareHint": "The policy is stored after the # in the link, which is never sent to any server.",
@@ -295,6 +297,12 @@
   },
   "views": {
     "label": "Analysis",
+    "short": {
+      "read": "Read it",
+      "allows": "Allowed",
+      "tools": "My tools",
+      "report": "Report"
+    },
     "read": "Read it",
     "allows": "What it allows",
     "tools": "Will my tools work?",

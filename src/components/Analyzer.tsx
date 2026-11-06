@@ -25,6 +25,8 @@ import { VendorChecker } from './VendorChecker';
 import './analyzer.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
+/** Phone-sized screens, as in analyzer.css. */
+const NARROW = '(max-width: 40rem)';
 
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
@@ -58,6 +60,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const [site, setSite] = useState('');
   const [audience, setAudience] = useState<Audience>('simple');
   const [view, setView] = useState<View>('read');
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedVendors, setSelectedVendors] = useState<Record<string, string[]>>({});
   const [selection, setSelection] = useState<Selection | undefined>();
   const [policyIndex, setPolicyIndex] = useState(0);
@@ -184,6 +187,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   /** Switches view from a button inside a panel, bringing the tabs back into sight. */
   const goTo = (v: View) => {
     setView(v);
+    setSheetOpen(false);
     const toolbar = document.querySelector('.workspace');
     if (toolbar && toolbar.getBoundingClientRect().top < 0) {
       const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -201,6 +205,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     setSelection({ policyIndex: index, directiveIndex: p.directives.indexOf(governing), valueIndex: valueIndex < 0 ? undefined : valueIndex });
     setHashesOpen(true);
     goTo('read');
+    setSheetOpen(true);
   };
 
   const chooseAudience = (a: Audience) => {
@@ -219,16 +224,44 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
   const reported = analysis.vendors.filter((v) => v.reported).length;
 
-  const badge = (v: View) => {
-    if (v === 'read' && issues.length > 0) return <span class="count count-warn">{t('views.issues', { count: issues.length })}</span>;
+  /** A view's status: the full text, and the short form shown in the row of views on phones. */
+  const status = (v: View): { tone: 'ok' | 'warn' | 'bad'; text: string; short: string } | null => {
+    if (v === 'read' && issues.length > 0) return { tone: 'warn', text: t('views.issues', { count: issues.length }), short: String(issues.length) };
     if (v === 'tools' && analysis.vendors.length > 0) {
-      if (blocked > 0) return <span class="count count-bad">{t('views.blocked', { count: blocked })}</span>;
-      if (nonce > 0) return <span class="count count-warn">{t('views.nonce', { count: nonce })}</span>;
-      if (reported > 0) return <span class="count count-warn">{t('views.reported', { count: reported })}</span>;
-      return <span class="count count-ok">{t('views.allOk')}</span>;
+      if (blocked > 0) return { tone: 'bad', text: t('views.blocked', { count: blocked }), short: String(blocked) };
+      if (nonce > 0) return { tone: 'warn', text: t('views.nonce', { count: nonce }), short: String(nonce) };
+      if (reported > 0) return { tone: 'warn', text: t('views.reported', { count: reported }), short: String(reported) };
+      return { tone: 'ok', text: t('views.allOk'), short: '✓' };
     }
     return null;
   };
+  const badge = (v: View) => {
+    const s = status(v);
+    return (
+      s && (
+        <span class={`count count-${s.tone}`}>
+          <span class="view-full">{s.text}</span>
+          <span class="view-short" aria-hidden="true">
+            {s.short}
+          </span>
+        </span>
+      )
+    );
+  };
+  // On phones the row of views shows numbers only: the open view's full status goes under it.
+  const current = status(view);
+
+  // On phones the explanation is a sheet over the bottom of the screen, opened by a tap and closed by its button,
+  // by Escape, or by moving to another view, editing or clearing. On wider screens it's always beside the policy.
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSheetOpen(false);
+    document.addEventListener('keydown', onKey);
+    // Keep the tapped part in sight, above the sheet.
+    const tok = document.querySelector('.policy .tok.selected');
+    if (tok && matchMedia(NARROW).matches) window.scrollBy({ top: tok.getBoundingClientRect().top - innerHeight * 0.25, behavior: 'smooth' });
+    return () => document.removeEventListener('keydown', onKey);
+  }, [sheetOpen, selection]);
 
   return (
     <I18n.Provider value={t}>
@@ -255,9 +288,13 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
             <PolicySummary
               parsed={parsed}
               policy={policy}
-              onEdit={() => setEditing(true)}
+              onEdit={() => {
+                setEditing(true);
+                setSheetOpen(false);
+              }}
               buildHref={localePath(locale, `/build#${encodeState({ policy: input, site, vendors: selectedVendors })}`)}
               onClear={() => {
+                setSheetOpen(false);
                 recentId.current = undefined;
                 setPolicy('', false);
                 setEditing(true);
@@ -288,12 +325,20 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 id="view"
                 label={t('views.label')}
                 value={view}
-                onChange={setView}
+                onChange={(v) => {
+                  setView(v);
+                  setSheetOpen(false);
+                }}
                 items={VIEWS.map((v) => ({
                   id: v,
                   label: (
                     <>
-                      <span class="tab-label">{t(`views.${v}`)}</span>
+                      <span class="tab-label">
+                        <span class="view-full">{t(`views.${v}`)}</span>
+                        <span class="view-short" aria-hidden="true">
+                          {t(`views.short.${v}`)}
+                        </span>
+                      </span>
                       {badge(v)}
                     </>
                   ),
@@ -312,6 +357,18 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
               </Segmented>
             </div>
 
+            {current && (
+              <p class="view-status">
+                {view === 'read' ? (
+                  <button type="button" class={`count count-${current.tone}`} onClick={() => document.getElementById('things-to-check')?.scrollIntoView({ behavior: 'smooth' })}>
+                    {current.text}
+                  </button>
+                ) : (
+                  <span class={`count count-${current.tone}`}>{current.text}</span>
+                )}
+              </p>
+            )}
+
             {view === 'read' && (
               <div {...tabPanelProps('view', 'read')} class="panel">
                 <div class="panel-head">
@@ -325,10 +382,18 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     issues={parsed.issues}
                     docs={content.directives}
                     selection={activeSelection}
-                    onSelect={setSelection}
+                    onSelect={(sel) => {
+                      setSelection(sel);
+                      setSheetOpen(true);
+                    }}
                   />
                   {activeSelection && (
-                    <div class="explanation-slot">
+                    <div class={`explanation-slot sheet${sheetOpen ? ' open' : ''}`}>
+                      <button type="button" class="sheet-close" aria-label={t('analyzer.closeExplanation')} onClick={() => setSheetOpen(false)}>
+                        <svg viewBox="0 0 16 16" aria-hidden="true">
+                          <path d="M4 4l8 8M12 4l-8 8" />
+                        </svg>
+                      </button>
                       <Explanation policy={policy} selection={activeSelection} issues={parsed.issues} audience={audience} content={content} />
                       {hashOffer && <HashFix key={`${currentIndex}|${hashOffer}`} policyText={policy.text} directive={hashOffer} origin={origin} audience={audience} open={hashesOpen} />}
                     </div>
@@ -336,7 +401,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 </div>
                 {issues.length > 0 && (
                   <div class="issues">
-                    <h2>{t('issues.title')}</h2>
+                    <h2 id="things-to-check">{t('issues.title')}</h2>
                     <ul class="issue-list">
                       {issues.map((i, n) => (
                         <li key={n}>{issueText(t, i)}</li>

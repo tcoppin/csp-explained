@@ -70,6 +70,8 @@
     "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
     "example": "Essayer un exemple",
     "clear": "Effacer",
+    "more": "Plus",
+    "closeExplanation": "Fermer l'explication",
     "share": "Copier le lien de partage",
     "shared": "Lien copié",
     "shareHint": "La politique est stockée après le # du lien, une partie qui n'est jamais envoyée à un serveur.",
@@ -295,6 +297,12 @@
   },
   "views": {
     "label": "Analyse",
+    "short": {
+      "read": "Lire",
+      "allows": "Autorisé",
+      "tools": "Mes outils",
+      "report": "Rapport"
+    },
     "read": "La lire",
     "allows": "Ce qu'elle autorise",
     "tools": "Mes outils fonctionneront-ils ?",
