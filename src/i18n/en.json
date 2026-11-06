@@ -73,6 +73,7 @@
     "more": "More",
     "closeExplanation": "Close the explanation",
     "share": "Copy share link",
+    "shareShort": "Copy link",
     "shared": "Link copied",
     "shareHint": "The policy is stored after the # in the link, which is never sent to any server.",
     "noPolicy": "Don't have your policy at hand?",

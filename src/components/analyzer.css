@@ -67,9 +67,28 @@
 .more-menu button:hover {
   background: var(--paper);
 }
+/* Phones: a shorter label where the full one would push a button onto its own line; screen readers keep the full one */
+.short-label {
+  display: none;
+}
 @media (max-width: 40rem) {
   .summary-actions .wide-only {
     display: none;
+  }
+  .summary-actions .long-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .summary-actions .short-label {
+    display: inline;
+  }
+  /* Three buttons on one row, in French too */
+  .summary-actions .button {
+    padding-inline: 0.65em;
   }
   .more {
     display: block;

@@ -158,7 +158,16 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: Su
             {t('analyzer.edit')}
           </button>
           <button type="button" class="button quiet" onClick={() => copy(location.href)} title={t('analyzer.shareHint')}>
-            {shared ? t('analyzer.shared') : t('analyzer.share')}
+            {shared ? (
+              t('analyzer.shared')
+            ) : (
+              <>
+                <span class="long-label">{t('analyzer.share')}</span>
+                <span class="short-label" aria-hidden="true">
+                  {t('analyzer.shareShort')}
+                </span>
+              </>
+            )}
           </button>
           <a class="button quiet wide-only" href={buildHref}>
             {t('analyzer.build')}
