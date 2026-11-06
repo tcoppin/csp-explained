@@ -7,9 +7,31 @@
       "analyzer": "Analyseur",
       "build": "Construire",
       "find": "Trouver ma CSP",
-      "learn": "C'est quoi une CSP ?",
-      "vendors": "Outils",
-      "about": "À propos"
+      "learn": "Comprendre",
+      "vendors": "Catalogue des outils",
+      "about": "À propos",
+      "whatIs": "C'est quoi une CSP ?",
+      "directives": "Toutes les directives",
+      "nonces": "Passer aux nonces",
+      "reporting": "Rapports de violation",
+      "trustedTypes": "Trusted Types",
+      "menu": "Menu",
+      "groups": {
+        "policy": "Votre politique",
+        "reference": "Référence"
+      },
+      "desc": {
+        "analyzer": "Collez une politique et voyez ce qu'elle autorise, en termes simples.",
+        "build": "Partez de zéro ou de votre politique, et ajoutez vos outils.",
+        "find": "Récupérez la politique de votre site, pas à pas.",
+        "whatIs": "Les bases, et les mots que vous entendrez.",
+        "directives": "Chaque règle d'une politique, expliquée.",
+        "nonces": "Remplacez 'unsafe-inline' par une solution plus sûre.",
+        "reporting": "Voyez ce que bloque votre politique, avant que ça casse.",
+        "trustedTypes": "Une protection de plus contre le code injecté.",
+        "vendors": "Ce dont chaque outil d'analyse, de publicité ou de chat a besoin.",
+        "about": "Qui fait ce site, et ce qu'il mesure."
+      }
     },
     "footer": "Indépendant et gratuit. Votre politique ne quitte jamais votre navigateur.",
     "issue": {

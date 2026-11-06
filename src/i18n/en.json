@@ -7,9 +7,31 @@
       "analyzer": "Analyzer",
       "build": "Build a policy",
       "find": "Find my CSP",
-      "learn": "What is a CSP?",
-      "vendors": "Tools",
-      "about": "About"
+      "learn": "Learn",
+      "vendors": "Tool catalogue",
+      "about": "About",
+      "whatIs": "What is a CSP?",
+      "directives": "Every directive",
+      "nonces": "Moving to nonces",
+      "reporting": "Violation reports",
+      "trustedTypes": "Trusted Types",
+      "menu": "Menu",
+      "groups": {
+        "policy": "Your policy",
+        "reference": "Reference"
+      },
+      "desc": {
+        "analyzer": "Paste a policy and see what it allows, in plain language.",
+        "build": "Start from nothing or from your policy, and add your tools.",
+        "find": "Get a copy of your website's policy, step by step.",
+        "whatIs": "The basics, and the words you'll hear.",
+        "directives": "Each rule of a policy, explained.",
+        "nonces": "Replace 'unsafe-inline' with something safer.",
+        "reporting": "See what your policy blocks, before it breaks things.",
+        "trustedTypes": "An extra protection against injected code.",
+        "vendors": "What each analytics, ads or chat tool needs.",
+        "about": "Who makes this, and what it counts."
+      }
     },
     "footer": "Independent and free. Your policy never leaves your browser.",
     "issue": {

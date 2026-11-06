@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { NewTabLink } from '../components/NewTabLink';
+import SiteHeader from '../components/SiteHeader.astro';
 import { REPO_URL, SITE_URL } from '../config';
 import { DEFAULT_LOCALE, LOCALE_NAMES, LOCALES, localeOf, localePath, stripLocale, translator } from '../i18n';
 
@@ -25,15 +26,6 @@ const others = translated ? LOCALES.filter((l) => l !== locale) : [];
 const alternates = translated ? LOCALES.map((l) => ({ hreflang: l, href: new URL(localePath(l, page), SITE_URL).href })) : [];
 // Link previews (Open Graph, X): one image per language, made by scripts/og-image.ts.
 const image = new URL(locale === DEFAULT_LOCALE ? '/og-image.png' : `/og-image-${locale}.png`, SITE_URL).href;
-
-const nav = [
-  { href: '/', label: t('site.nav.analyzer') },
-  { href: '/build', label: t('site.nav.build') },
-  { href: '/find-my-csp', label: t('site.nav.find') },
-  { href: '/learn', label: t('site.nav.learn') },
-  { href: '/vendors', label: t('site.nav.vendors') },
-  { href: '/about', label: t('site.nav.about') },
-].map((item) => ({ ...item, current: page === item.href, href: localePath(locale, item.href) }));
 
 const themes = [
   { id: 'system', label: t('site.theme.system'), icon: '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11a5.5 5.5 0 0 0 0-11z" class="filled"/>' },
@@ -93,36 +85,7 @@ const themes = [
         </div>
       ))
     }
-    <header class="site-header">
-      <div class="wrap bar">
-        <a class="brand" href={localePath(locale, '/')}>{t('site.name')}</a>
-        <nav aria-label={t('site.navLabel')}>
-          <ul>
-            {
-              nav.map((item) => (
-                <li>
-                  <a href={item.href} aria-current={item.current ? 'page' : undefined}>
-                    {item.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
-        <div class="theme-switch" role="radiogroup" aria-label={t('site.theme.label')} data-theme-switch hidden>
-          {
-            themes.map((theme) => (
-              <button type="button" role="radio" aria-checked="false" data-value={theme.id} title={theme.label}>
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                  <Fragment set:html={theme.icon} />
-                </svg>
-                <span class="visually-hidden">{theme.label}</span>
-              </button>
-            ))
-          }
-        </div>
-      </div>
-    </header>
+    <SiteHeader t={t} locale={locale} page={page} />
     <main id="main">
       <slot />
     </main>
@@ -146,6 +109,18 @@ const themes = [
               </nav>
             )
           }
+          <div class="theme-switch" role="radiogroup" aria-label={t('site.theme.label')} data-theme-switch hidden>
+            {
+              themes.map((theme) => (
+                <button type="button" role="radio" aria-checked="false" data-value={theme.id} title={theme.label}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <Fragment set:html={theme.icon} />
+                  </svg>
+                  <span class="visually-hidden">{theme.label}</span>
+                </button>
+              ))
+            }
+          </div>
         </div>
       </div>
     </footer>
@@ -276,20 +251,6 @@ const themes = [
     stroke-width: 1.75;
     stroke-linecap: round;
   }
-  .site-header {
-    border-bottom: 1px solid var(--rule);
-    background: var(--paper);
-  }
-  .bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 2rem;
-    padding-block: 1rem;
-  }
-  .bar nav {
-    margin-left: auto;
-  }
   .lang-switch a {
     display: inline-flex;
     align-items: center;
@@ -350,34 +311,6 @@ const themes = [
   .theme-switch :global(.filled) {
     fill: currentColor;
     stroke: none;
-  }
-  .brand {
-    font-weight: 800;
-    font-size: var(--step-1);
-    color: var(--ink);
-    text-decoration: none;
-    /* The brand is written like a highlighted token */
-    background: linear-gradient(transparent 55%, var(--hl-keyword) 55%);
-    padding-inline: 0.1em;
-  }
-  nav ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  nav a {
-    color: var(--ink-soft);
-    text-decoration: none;
-    font-weight: 700;
-  }
-  nav a:hover,
-  nav a[aria-current='page'] {
-    color: var(--ink);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
   }
   main {
     padding-block: 2rem 4rem;

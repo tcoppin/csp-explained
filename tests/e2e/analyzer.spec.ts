@@ -300,6 +300,43 @@ test('the colour theme can be chosen and is remembered', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('the header leads to every page, Learn and Menu opening one at a time', async ({ page, isMobile }) => {
+  const errors = watchErrors(page);
+  await page.goto('/nonces');
+  const banner = page.getByRole('banner');
+  const learn = banner.getByRole('button', { name: 'Learn' });
+  const menu = banner.getByRole('button', { name: 'Menu' });
+  const panel = page.getByRole('navigation', { name: 'Menu' });
+
+  if (isMobile) {
+    // Phones get the brand and Menu only.
+    await expect(learn).toBeHidden();
+  } else {
+    await learn.click();
+    await expect(learn).toHaveAttribute('aria-expanded', 'true');
+    await expect(banner.locator('#nav-learn').getByRole('link', { name: /^Moving to nonces/ })).toHaveAttribute('aria-current', 'page');
+    await menu.click();
+    await expect(learn).toHaveAttribute('aria-expanded', 'false');
+    await expect(banner.locator('#nav-learn')).toBeHidden();
+  }
+  if (isMobile) await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  const pages = ['Analyzer', 'Build a policy', 'Find my CSP', 'What is a CSP?', 'Every directive', 'Moving to nonces', 'Violation reports', 'Trusted Types', 'Tool catalogue', 'About'];
+  for (const name of pages) await expect(panel.getByRole('link', { name: new RegExp(`^${name.replace('?', '\\?')} `) })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(panel).toBeHidden();
+  await expect(menu).toBeFocused();
+
+  // In French, the page under a guide marks it current, and links stay in French.
+  await page.goto('/fr/directives/script-src');
+  await page.getByRole('banner').getByRole('button', { name: 'Menu' }).click();
+  await expect(panel.getByRole('link', { name: /^Toutes les directives / })).toHaveAttribute('aria-current', 'page');
+  await expect(panel.getByRole('link', { name: /^Catalogue des outils / })).toHaveAttribute('href', '/fr/vendors');
+  await panel.getByRole('link', { name: /^Passer aux nonces / }).click();
+  await expect(page).toHaveURL(/\/fr\/nonces$/);
+  expect(errors).toEqual([]);
+});
+
 test('find my CSP shows one method at a time', async ({ page }) => {
   await page.goto('/find-my-csp');
   await expect(page.locator('#console')).toBeVisible();

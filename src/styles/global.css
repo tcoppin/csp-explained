@@ -104,6 +104,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* The header stays at the top: a jump to #section lands below it */
+  scroll-padding-top: 4.5rem;
 }
 
 /* Component display rules must never override the hidden attribute */
