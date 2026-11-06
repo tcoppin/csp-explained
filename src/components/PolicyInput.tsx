@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'preact/hooks';
 import { localePath, type Translate } from '../i18n';
 import type { ParseResult, Policy } from '../lib/csp/model';
 import { track } from '../scripts/track';
@@ -121,6 +122,21 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: Su
   const t = useT();
   const { copied: shared, copy } = useCopy();
   const ruleCount = parsed.policies.reduce((n, p) => n + p.directives.length, 0);
+  // Phones: the builder and Clear go in a More menu, closed by a click elsewhere or Escape.
+  const more = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const close = (e: Event) => {
+      const el = more.current;
+      if (!el?.open) return;
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !el.contains(e.target as Node)) el.open = false;
+    };
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('click', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, []);
   return (
     <>
       <h1 id="input-title">{t('analyzer.yourPolicy')}</h1>
@@ -144,12 +160,21 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: Su
           <button type="button" class="button quiet" onClick={() => copy(location.href)} title={t('analyzer.shareHint')}>
             {shared ? t('analyzer.shared') : t('analyzer.share')}
           </button>
-          <a class="button quiet" href={buildHref}>
+          <a class="button quiet wide-only" href={buildHref}>
             {t('analyzer.build')}
           </a>
-          <button type="button" class="button quiet" onClick={onClear}>
+          <button type="button" class="button quiet wide-only" onClick={onClear}>
             {t('analyzer.clear')}
           </button>
+          <details class="more" ref={more}>
+            <summary class="button quiet">{t('analyzer.more')}</summary>
+            <div class="more-menu">
+              <a href={buildHref}>{t('analyzer.build')}</a>
+              <button type="button" onClick={onClear}>
+                {t('analyzer.clear')}
+              </button>
+            </div>
+          </details>
         </div>
       </div>
     </>

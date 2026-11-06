@@ -33,6 +33,13 @@ async function pickTool(page: Page, name: string) {
   await page.getByRole('option', { name }).click();
 }
 
+/** An action on the analysed policy: on phones, Open in the builder and Clear are under More. */
+async function policyAction(page: Page, role: 'button' | 'link', name: string) {
+  const more = page.locator('.summary-actions .more summary');
+  if (await more.isVisible()) await more.click();
+  await page.locator('.summary-actions').getByRole(role, { name }).click();
+}
+
 /** Each path in English and in French (`/learn` → `/learn`, `/fr/learn`). */
 const inEveryLanguage = (paths: string[]) => paths.flatMap((p) => [p, p === '/' ? '/fr' : `/fr${p}`]);
 
@@ -118,7 +125,7 @@ test('counts usage without ever sending the policy', async ({ page, context }) =
   const other = await context.newPage();
   await openAnalyzer(other, page.url().replace(/^.*?\/\/[^/]+/, ''));
   await expect.poll(sent).toContain('n=shared');
-  await other.getByRole('button', { name: 'Clear' }).click();
+  await policyAction(other, 'button', 'Clear');
   await other.getByRole('region', { name: 'Other ways to start' }).getByRole('link', { name: 'Find my CSP' }).click();
   await other.locator('.code-block', { has: other.locator('#snippet') }).getByRole('button', { name: 'Copy this' }).click();
   await expect.poll(sent).toContain('n=copy-snippet');
@@ -244,6 +251,34 @@ test('switching policy on another view still explains the policy shown', async (
   await page.getByRole('radio', { name: 'Policy 2' }).click();
   await page.getByRole('tab', { name: /Read it/ }).click();
   await expect(page.locator('.explanation')).toContainText('img-src');
+});
+
+test('on phones, the views show numbers, and the explanation opens as a sheet', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'phone layout');
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+
+  // The row shows "1"; screen readers and the line under the row get the full badge.
+  const read = page.getByRole('tab', { name: /Read it/ });
+  await expect(read).toHaveAccessibleName(/^Read it\s*1 to check$/);
+  await expect(read.locator('.count .view-short')).toHaveText('1');
+  const status = page.locator('.view-status');
+  await expect(status).toHaveText('1 to check');
+
+  const sheet = page.locator('.sheet');
+  await expect(sheet).toBeHidden();
+  await page.locator('.tok', { hasText: "'unsafe-inline'" }).first().click();
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toContainText('Inline code');
+  await page.getByRole('button', { name: 'Close the explanation' }).click();
+  await expect(sheet).toBeHidden();
+
+  await status.getByRole('button', { name: '1 to check' }).click();
+  await expect(page.getByRole('heading', { name: 'Things to check' })).toBeInViewport();
+  await page.getByRole('tab', { name: 'What it allows' }).click();
+  await expect(status).toBeHidden();
+  expect(errors).toEqual([]);
 });
 
 test("the allow map shows the sources 'strict-dynamic' makes the browser ignore", async ({ page }) => {
@@ -639,7 +674,7 @@ test('with a nonce, the builder explains the placeholder and what waits on it', 
 test('the analyzer opens its policy in the builder, and the builder sends it back', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
-  await page.getByRole('link', { name: 'Open in the builder' }).click();
+  await policyAction(page, 'link', 'Open in the builder');
   await expect(page).toHaveURL(/\/build#/);
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
   await expect(page.getByRole('radio', { name: /^Your current policy/ })).toBeChecked();
@@ -738,7 +773,7 @@ test('recent analyses stay in this browser, reopen where they were left, and can
   await expect(page.locator('.recent')).toHaveCount(0);
   await page.getByRole('button', { name: 'Try an example' }).click();
   await page.waitForTimeout(1300);
-  await page.getByRole('button', { name: 'Clear' }).click();
+  await policyAction(page, 'button', 'Clear');
   await expect(page.locator('.recent')).toHaveCount(0);
 
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
@@ -758,11 +793,11 @@ test('recent analyses stay in this browser, reopen where they were left, and can
   await expect(page.locator('.vendor-result')).toContainText('Hotjar');
 
   // A second analysis comes first; deleting one leaves the other.
-  await page.getByRole('button', { name: 'Clear' }).click();
+  await policyAction(page, 'button', 'Clear');
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("img-src 'self'");
   await page.getByRole('button', { name: 'Done' }).click();
   await page.waitForTimeout(1300);
-  await page.getByRole('button', { name: 'Clear' }).click();
+  await policyAction(page, 'button', 'Clear');
   await expect(item).toHaveCount(2);
   await expect(item.first()).toContainText("img-src 'self'");
   await item.first().getByRole('button', { name: /Delete the analysis from/ }).click();

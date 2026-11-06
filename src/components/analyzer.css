@@ -27,6 +27,54 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+/* Phones: the builder and Clear move into a More menu */
+.more {
+  display: none;
+  position: relative;
+}
+.more summary {
+  list-style: none;
+  cursor: pointer;
+}
+.more summary::-webkit-details-marker {
+  display: none;
+}
+.more-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 5;
+  min-width: 13rem;
+  padding: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.more-menu a,
+.more-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+.more-menu a:hover,
+.more-menu button:hover {
+  background: var(--paper);
+}
+@media (max-width: 40rem) {
+  .summary-actions .wide-only {
+    display: none;
+  }
+  .more {
+    display: block;
+  }
+}
 /* What the analysis gives, under the heading, before a policy is in */
 .promise {
   font-size: var(--step-1);
@@ -115,25 +163,60 @@
 .tablist [aria-selected='true'] .tab-label {
   background: linear-gradient(transparent 58%, var(--hl-keyword) 58%, var(--hl-keyword) 92%, transparent 92%);
 }
+/* Short view names and numbers-only badges are for phones; the open view's full status shows there only */
+.view-short,
+.view-status {
+  display: none;
+}
 @media (max-width: 40rem) {
-  /* Every view stays visible: a 2×2 grid instead of a row that scrolls out of sight */
-  .tablist {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 1rem;
+  /* Every view stays visible: one row of short names, the badges as numbers. Screen readers get the full
+     names and badges, kept in the page but hidden. */
+  .workspace .tablist {
+    justify-content: space-between;
+    gap: 0.75rem;
     width: 100%;
   }
-  .tablist [role='tab'] {
+  .workspace .tablist [role='tab'] {
     font-size: var(--step-0);
-    flex-wrap: wrap;
-    gap: 0.15rem 0.4rem;
+    gap: 0.3rem;
     align-items: center;
   }
-  .audience {
+  .workspace .tablist .view-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .workspace .tablist .view-short {
+    display: inline;
+  }
+  .workspace .tablist .count {
+    padding: 0 0.4rem;
+  }
+  .view-status {
+    display: block;
+    margin: 0.75rem 0 0;
+  }
+  button.count {
+    background: none;
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+  /* Explain it for: the label, then the three choices on one row */
+  .toolbar .audience {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
     margin-left: 0;
   }
-  .audience-label {
-    flex-basis: 100%;
+  .toolbar .audience-label {
+    grid-column: 1 / -1;
+  }
+  .toolbar .audience button {
+    padding-inline: 0.3rem;
   }
 }
 .count {
@@ -290,7 +373,60 @@ textarea.code:focus,
   }
   .explanation-slot {
     position: sticky;
-    top: 1rem;
+    /* Below the site header, which stays at the top */
+    top: 4.75rem;
+  }
+}
+.sheet-close {
+  display: none;
+}
+/* Phones: the explanation is a sheet over the bottom of the screen, opened by tapping part of the policy */
+@media (max-width: 40rem) {
+  .sheet {
+    display: none;
+  }
+  .sheet.open {
+    display: block;
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 20;
+    max-height: 55dvh;
+    overflow-y: auto;
+    padding: 1.25rem var(--gutter) 1.5rem;
+    background: var(--surface);
+    border-top: 2px solid var(--ink);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 0.18);
+  }
+  .sheet .explanation {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .sheet .explanation h3 {
+    font-size: var(--step-1);
+    padding-right: 2.5rem;
+  }
+  .sheet-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: -0.5rem -0.5rem 0 0;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .sheet-close svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
   }
 }
 
