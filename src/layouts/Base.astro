@@ -308,6 +308,14 @@ const themes = [
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  /* Touch screens: buttons big enough for a finger */
+  @media (pointer: coarse) {
+    .theme-switch button,
+    .language-note button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
   .theme-switch :global(.filled) {
     fill: currentColor;
     stroke: none;
