@@ -59,7 +59,10 @@ const groups = CATEGORIES.map((c) => ({
   dd {
     margin: 0.25rem 0 0;
   }
-  .deprecated {
-    opacity: 0.7;
+  /* Deprecated rules read quieter, without going below AA contrast (opacity did) */
+  .deprecated dt a,
+  .deprecated dd,
+  .deprecated .muted {
+    color: var(--ink-soft);
   }
 </style>
