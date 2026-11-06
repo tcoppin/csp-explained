@@ -34,7 +34,7 @@
       },
       "nonce": {
         "term": "Nonce",
-        "definition": "A secret one-time code the site puts on the scripts it trusts. It's the modern, safer alternative to `'unsafe-inline'`, and most tag managers support it."
+        "definition": "A secret one-time code the site puts on the scripts it trusts. It's the modern, safer alternative to `'unsafe-inline'`, and most tag managers support it. [How to move to nonces](/nonces)."
       },
       "reportOnly": {
         "term": "Report-only",
@@ -445,7 +445,8 @@
     "reference": "Reference: [MDN]({url})",
     "mdnLocale": "en-US",
     "reportingGuide": "Setting it up, and what reports look like: [see what your policy blocks](/reporting).",
-    "trustedTypesGuide": "What they change, and how to roll them out: [Trusted Types](/trusted-types)."
+    "trustedTypesGuide": "What they change, and how to roll them out: [Trusted Types](/trusted-types).",
+    "nonceGuide": "Replacing `'unsafe-inline'` with a nonce, stack by stack: [move to nonces](/nonces)."
   },
   "vendors": {
     "title": "Tools",
@@ -464,6 +465,137 @@
     "allowedSource": "Allowed source",
     "why": "Why",
     "outdated": "Something changed? [Report an outdated entry]({url})."
+  },
+  "nonces": {
+    "title": "Move to nonces",
+    "description": "How to replace 'unsafe-inline' with a nonce and 'strict-dynamic' in your Content-Security-Policy: the policy to aim for, the code for Node.js, Next.js, PHP, Django and Rails, and a rollout that breaks nothing.",
+    "heading": "From 'unsafe-inline' to nonces",
+    "lead": "With `'unsafe-inline'` in `script-src`, any script written into your page runs, including one an attacker managed to slip in. A nonce changes the question the browser asks: not “is this script inline?” but “did the page vouch for it?”. Your server writes a new random value into the policy and into each of its own `<script>` tags, and only scripts carrying it run.",
+    "target": {
+      "title": "The policy to aim for",
+      "intro": "This policy replaces `'unsafe-inline'` and your list of script hosts:",
+      "caption": "Response header",
+      "parts": [
+        {
+          "term": "`'nonce-…'`",
+          "definition": "The value your server generates. `REPLACE_PER_PAGE` stands for it: a new random one for every response."
+        },
+        {
+          "term": "`'strict-dynamic'`",
+          "definition": "Scripts loaded by a script that carries the nonce are trusted too, so tag managers and loaders keep working without listing their hosts. Browsers then ignore host addresses, `'self'` and `'unsafe-inline'` in `script-src`."
+        },
+        {
+          "term": "`object-src 'none'`",
+          "definition": "Plugins could run code outside `script-src`. Nothing modern needs them."
+        },
+        {
+          "term": "`base-uri 'none'`",
+          "definition": "Stops an injected `<base>` tag from sending your relative script addresses to another site. Use `'self'` if your pages set a `<base>`."
+        }
+      ],
+      "html": "Every `<script>` your pages write gets the same value, inline or not:",
+      "htmlCaption": "HTML, in every page",
+      "others": "This only changes `script-src`. Keep your other rules (`img-src`, `connect-src`…) as they are: a nonce doesn't help there."
+    },
+    "rules": {
+      "title": "Three rules for the nonce",
+      "items": [
+        "**A new value for every response**, from a secure random source: 16 bytes, written in base64. A value that never changes protects nothing.",
+        "**The same value** in the policy and in every `<script>` tag of that response.",
+        "**Never in a page shared from a cache.** A CDN or a full-page cache would serve one visitor's nonce to everyone. Pages with a nonce are rendered for each request; your scripts, styles and images can still be cached."
+      ]
+    },
+    "stacks": {
+      "title": "Adding it, stack by stack",
+      "intro": "The idea is the same everywhere: generate the value once per request, put it in the header, and hand it to your templates.",
+      "node": {
+        "label": "Node.js",
+        "intro": "With Express, a middleware placed before your routes generates the value and makes it available to every template:",
+        "notes": [
+          "With Helmet, give `script-src` a function that returns the nonce source built from `res.locals.nonce`, and keep the middleware above to set it."
+        ]
+      },
+      "nextjs": {
+        "label": "Next.js",
+        "intro": "In the App Router, the proxy generates the value for every request. Next.js reads it from the policy and adds it to its own scripts; pass it to your own `<Script>` components.",
+        "notes": [
+          "The file is `proxy.ts` since Next.js 16, `middleware.ts` (with a function named `middleware`) before.",
+          "Pages with a nonce must be rendered for each request, so static generation, incremental regeneration and partial prerendering are off for them. In development, Next.js also needs `'unsafe-eval'`: add it only there."
+        ]
+      },
+      "php": {
+        "label": "PHP",
+        "intro": "Generate the value at the top of the page, before anything is written out, and reuse it in every tag:",
+        "notes": [
+          "In a framework, do the same in a middleware that runs once per request and shares the value with your templates."
+        ]
+      },
+      "django": {
+        "label": "Django",
+        "intro": "Since Django 6.0, the policy is built in. `CSP.NONCE` is replaced with a new value for each request, and templates read it as `csp_nonce`:",
+        "notes": [
+          "On older versions, the `django-csp` package does the same.",
+          "Django warns against caching whole responses that use `csp_nonce`."
+        ]
+      },
+      "rails": {
+        "label": "Rails",
+        "intro": "Rails adds the nonce to `script-src` and to the tags you mark with `nonce: true`:",
+        "notes": [
+          "Some examples generate the nonce from the session id: it then stays the same for a visitor's whole session. `SecureRandom.base64(16)` gives a new one for every response.",
+          "`csp_meta_tag` lets Rails' own JavaScript reuse the value for the scripts it adds."
+        ]
+      },
+      "static": {
+        "label": "Static site",
+        "intro": "A site served as plain files has no server to write a new value into each page. Use **hashes** instead: one fingerprint per inline script, listed in the policy. The [builder](/build) computes them for you.",
+        "notes": [
+          "An edge function can replace a placeholder with a new value for each response, but anything an attacker manages to write into the HTML gets the nonce too. Hashes don't have that weakness."
+        ]
+      }
+    },
+    "rollout": {
+      "title": "Rolling it out",
+      "reports": "Set up [violation reports](/reporting), so you see what the browser would refuse, on every page and in every visitor's browser.",
+      "trial": "Add the nonce to your templates, then send the new policy in **report-only**, beside your current one. Nothing breaks, and every script that would be refused sends a report.",
+      "trialCaption": "Response header, added beside your current policy",
+      "fix": "Fix each place the reports name:",
+      "fixes": [
+        "Inline event handlers, like `onclick=\"…\"`, can't carry a nonce: attach them with `addEventListener` in a script.",
+        "`javascript:` links don't run either: make them buttons with a listener.",
+        "Scripts pasted into templates by hand, often a tool's snippet, need the `nonce` attribute too.",
+        "Code that builds an inline script as text and inserts it is refused: load a file instead, or create the element from a script that carries the nonce."
+      ],
+      "enforce": "When the reports stop, move the new rules into `Content-Security-Policy`, without `'unsafe-inline'` or the old host list in `script-src`."
+    },
+    "tools": {
+      "title": "Third-party tools",
+      "intro": "Thanks to `'strict-dynamic'`, a tool you load with the nonce can load its own scripts. Tools that write inline code, like a tag manager's custom HTML tags, need the nonce passed on, each in its own way.",
+      "catalogue": "The [tools catalogue](/vendors) says, for each tool, what its official documentation says about nonces. In the [analyzer](/), pick your tools under **Will my tools work?** to see which ones need it."
+    },
+    "support": {
+      "title": "Good to know",
+      "items": [
+        {
+          "term": "Styles",
+          "definition": "`style-src` takes a nonce too, for `<style>` and `<link>` tags, but not for `style=\"…\"` attributes. Many sites keep `'unsafe-inline'` for styles for a while: the risk is much lower than for scripts."
+        },
+        {
+          "term": "Browser support",
+          "definition": "Every current browser supports nonces and `'strict-dynamic'` (Safari since 15.4, in 2022)."
+        },
+        {
+          "term": "In a meta tag",
+          "definition": "A nonce works there too, as long as the tag is written with a new value for each page, like the header."
+        },
+        {
+          "term": "Running text as code",
+          "definition": "A nonce doesn't allow `eval` or `new Function`. Code that needs them still needs `'unsafe-eval'`."
+        }
+      ],
+      "build": "Build a nonce-based policy",
+      "analyze": "Analyze your policy"
+    }
   },
   "build": {
     "title": "Build a policy",

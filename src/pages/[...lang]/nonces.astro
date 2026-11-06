@@ -1,0 +1,347 @@
+---
+import CodeBlock from '../../components/CodeBlock.astro';
+import { Rich } from '../../components/Rich';
+import Base from '../../layouts/Base.astro';
+import { localeParams, localePath, translatorFor } from '../../i18n';
+import { NONCE_PLACEHOLDER } from '../../lib/build';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const t = translatorFor(Astro);
+const m = (key: string) => `pages.nonces.${key}`;
+
+const STRICT = `script-src ${NONCE_PLACEHOLDER} 'strict-dynamic'; object-src 'none'; base-uri 'none'`;
+const HEADER = `Content-Security-Policy: ${STRICT}`;
+const HTML = `<script nonce="REPLACE_PER_PAGE" src="/app.js"></script>
+<script nonce="REPLACE_PER_PAGE">
+  startCheckout();
+</script>`;
+const TRIAL = `Content-Security-Policy-Report-Only: ${STRICT}; report-to csp`;
+
+// Each stack's code follows its official documentation, trimmed to the nonce.
+const stacks: { id: string; code: { caption: string; code: string }[] }[] = [
+  {
+    id: 'node',
+    code: [
+      {
+        caption: 'server.js',
+        code: `import crypto from 'node:crypto';
+
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
+  res.setHeader(
+    'Content-Security-Policy',
+    \`script-src 'nonce-\${res.locals.nonce}' 'strict-dynamic'; object-src 'none'; base-uri 'none'\`,
+  );
+  next();
+});`,
+      },
+      { caption: 'views/layout.ejs', code: `<script nonce="<%= nonce %>" src="/app.js"></script>` },
+    ],
+  },
+  {
+    id: 'nextjs',
+    code: [
+      {
+        caption: 'proxy.ts',
+        code: `import { NextResponse, type NextRequest } from 'next/server';
+
+export function proxy(request: NextRequest) {
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const csp = \`script-src 'self' 'nonce-\${nonce}' 'strict-dynamic'; object-src 'none'; base-uri 'none'\`;
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', csp);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set('Content-Security-Policy', csp);
+  return response;
+}`,
+      },
+      {
+        caption: 'app/layout.tsx',
+        code: `const nonce = (await headers()).get('x-nonce') ?? undefined;
+
+<Script src="https://www.googletagmanager.com/gtag/js" nonce={nonce} />`,
+      },
+    ],
+  },
+  {
+    id: 'php',
+    code: [
+      {
+        caption: 'index.php',
+        code: `<?php
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: script-src 'nonce-$nonce' 'strict-dynamic'; object-src 'none'; base-uri 'none'");
+?>
+<script nonce="<?= $nonce ?>" src="/app.js"></script>`,
+      },
+    ],
+  },
+  {
+    id: 'django',
+    code: [
+      {
+        caption: 'settings.py',
+        code: `from django.utils.csp import CSP
+
+MIDDLEWARE = [
+    # …
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
+]
+
+SECURE_CSP = {
+    "script-src": [CSP.NONCE, CSP.STRICT_DYNAMIC],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.NONE],
+}
+
+# In TEMPLATES, under OPTIONS › context_processors:
+#     "django.template.context_processors.csp",`,
+      },
+      { caption: 'templates/base.html', code: `<script nonce="{{ csp_nonce }}" src="{% static 'app.js' %}"></script>` },
+    ],
+  },
+  {
+    id: 'rails',
+    code: [
+      {
+        caption: 'config/initializers/content_security_policy.rb',
+        code: `Rails.application.configure do
+  config.content_security_policy do |policy|
+    policy.script_src :strict_dynamic
+    policy.object_src :none
+    policy.base_uri   :none
+  end
+
+  config.content_security_policy_nonce_generator = ->(request) { SecureRandom.base64(16) }
+  config.content_security_policy_nonce_directives = %w(script-src)
+end`,
+      },
+      {
+        caption: 'app/views/layouts/application.html.erb',
+        code: `<%= csp_meta_tag %>
+<%= javascript_include_tag "application", nonce: true %>`,
+      },
+    ],
+  },
+  { id: 'static', code: [] },
+];
+---
+
+<Base title={t(m('title'))} description={t(m('description'))}>
+  <article class="wrap prose guide">
+    <h1>{t(m('heading'))}</h1>
+    <p class="lead"><Rich t={t} msg={m('lead')} /></p>
+
+    <h2>{t(m('target.title'))}</h2>
+    <p><Rich t={t} msg={m('target.intro')} /></p>
+    <CodeBlock caption={t(m('target.caption'))} code={HEADER} />
+    <dl class="reading">
+      {
+        t.keys(m('target.parts')).map((part) => (
+          <>
+            <dt><Rich t={t} msg={`${part}.term`} /></dt>
+            <dd><Rich t={t} msg={`${part}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
+    <p><Rich t={t} msg={m('target.html')} /></p>
+    <CodeBlock caption={t(m('target.htmlCaption'))} code={HTML} />
+    <p class="note"><Rich t={t} msg={m('target.others')} /></p>
+
+    <h2>{t(m('rules.title'))}</h2>
+    <ul>
+      {t.keys(m('rules.items')).map((rule) => (
+        <li><Rich t={t} msg={rule} /></li>
+      ))}
+    </ul>
+
+    <h2 id="stacks-title">{t(m('stacks.title'))}</h2>
+    <p><Rich t={t} msg={m('stacks.intro')} /></p>
+    <div class="stacks" data-tabs data-tabs-hash>
+      <div role="tablist" aria-labelledby="stacks-title" class="tablist" hidden>
+        {
+          stacks.map((stack, i) => (
+            <button type="button" role="tab" id={`tab-${stack.id}`} aria-controls={stack.id} aria-selected={i === 0 ? 'true' : 'false'}>
+              <span class="tab-label">{t(m(`stacks.${stack.id}.label`))}</span>
+            </button>
+          ))
+        }
+      </div>
+      {
+        stacks.map((stack) => (
+          <section id={stack.id} class="stack">
+            <h3>{t(m(`stacks.${stack.id}.label`))}</h3>
+            <p><Rich t={t} msg={m(`stacks.${stack.id}.intro`)} /></p>
+            {stack.code.map((block) => (
+              <CodeBlock caption={block.caption} code={block.code} />
+            ))}
+            {t.keys(m(`stacks.${stack.id}.notes`)).map((note) => (
+              <p><Rich t={t} msg={note} /></p>
+            ))}
+          </section>
+        ))
+      }
+    </div>
+
+    <h2>{t(m('rollout.title'))}</h2>
+    <ol class="steps">
+      <li><Rich t={t} msg={m('rollout.reports')} /></li>
+      <li>
+        <Rich t={t} msg={m('rollout.trial')} />
+        <CodeBlock caption={t(m('rollout.trialCaption'))} code={TRIAL} />
+      </li>
+      <li>
+        <Rich t={t} msg={m('rollout.fix')} />
+        <ul>
+          {t.keys(m('rollout.fixes')).map((fix) => (
+            <li><Rich t={t} msg={fix} /></li>
+          ))}
+        </ul>
+      </li>
+      <li><Rich t={t} msg={m('rollout.enforce')} /></li>
+    </ol>
+
+    <h2>{t(m('tools.title'))}</h2>
+    <p><Rich t={t} msg={m('tools.intro')} /></p>
+    <p><Rich t={t} msg={m('tools.catalogue')} /></p>
+
+    <section class="pitfalls" aria-labelledby="support-title">
+      <h2 id="support-title">{t(m('support.title'))}</h2>
+      <dl class="reading">
+        {
+          t.keys(m('support.items')).map((item) => (
+            <>
+              <dt>{t(`${item}.term`)}</dt>
+              <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+            </>
+          ))
+        }
+      </dl>
+      <p class="actions">
+        <a class="button" href={localePath(t.locale, '/build#b=nonce')}>{t(m('support.build'))}</a>
+        <a class="button quiet" href={localePath(t.locale, '/')}>{t(m('support.analyze'))}</a>
+      </p>
+    </section>
+  </article>
+</Base>
+
+<script>
+  import '../../scripts/tabs';
+</script>
+
+<style>
+  .guide {
+    max-width: 56rem;
+  }
+  .guide > h2 {
+    margin-top: 2.75rem;
+  }
+  .lead {
+    font-size: var(--step-1);
+  }
+  .note {
+    border-left: 4px solid var(--hl-nonce);
+    padding-left: 0.75rem;
+  }
+  .steps {
+    padding-left: 1.4rem;
+    max-width: var(--measure);
+  }
+  .steps > li {
+    margin-bottom: 1rem;
+    padding-left: 0.25rem;
+  }
+  .reading {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) 1fr;
+    gap: 0.6rem 1.5rem;
+    max-width: 52rem;
+  }
+  .reading dt {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .reading dd {
+    margin: 0;
+  }
+  @media (max-width: 40rem) {
+    .reading {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+    .reading dd {
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  /* Stack tabs, as on the Find my CSP page */
+  .tablist {
+    display: flex;
+    gap: 0 1.5rem;
+    border-bottom: 2px solid var(--rule);
+    margin-top: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tablist [role='tab'] {
+    flex: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    background: none;
+    padding: 0.6rem 0 0.55rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .tablist [role='tab']:hover {
+    color: var(--ink);
+  }
+  .tablist [role='tab'][aria-selected='true'] {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .tablist [aria-selected='true'] .tab-label {
+    background: linear-gradient(transparent 58%, var(--hl-keyword) 58%, var(--hl-keyword) 92%, transparent 92%);
+  }
+  @media (max-width: 40rem) {
+    .tablist {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 1rem;
+    }
+    .tablist [role='tab'] {
+      font-size: var(--step-0);
+      text-align: left;
+    }
+  }
+  .stack {
+    margin-top: 2rem;
+  }
+  .tabs-ready > .stack {
+    margin-top: 0;
+    padding-top: 1.25rem;
+  }
+  /* With tabs, the tab already names the stack */
+  .tabs-ready > .stack > h3 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+</style>

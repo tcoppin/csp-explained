@@ -9,6 +9,7 @@ import { countByLevel, findingText, securityReport } from '../lib/reports/securi
 import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/simple';
 import { track } from '../scripts/track';
 import { CodeBox } from './CodeBox';
+import { Rich } from './Rich';
 import { Segmented } from './Segmented';
 import { useT } from './i18n';
 import { useCopy } from './useCopy';
@@ -172,7 +173,8 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
                 {' '}
                 <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
                   {t('hashes.fix.fromFinding')}
-                </button>
+                </button>{' '}
+                <Rich msg="hashes.fix.orNonces" />
               </>
             )}
           </span>

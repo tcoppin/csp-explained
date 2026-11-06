@@ -341,6 +341,7 @@
         "technical": "List each inline block by its `'sha256-…'` hash. Once a hash is in the directive, browsers ignore `'unsafe-inline'` there: it stays only for very old browsers."
       },
       "fromFinding": "Replace it with hashes",
+      "orNonces": "or [move to nonces](/nonces).",
       "caption": "Your policy with the hashes",
       "warning": {
         "script": "Every other inline script on your pages stops running until its hash is listed, and so do `onclick=\"…\"` attributes. Test with `Content-Security-Policy-Report-Only` first.",
@@ -557,7 +558,7 @@
       "fromStart": "It was in your starting point.",
       "copied": "Copied from {directive} when this line was created, so nothing that worked before stops working.",
       "nonceTitle": "Replace the nonce placeholder",
-      "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection.",
+      "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection. [How to add it on your stack](/nonces#stacks-title).",
       "waitingTitle": "Waiting on the nonce",
       "useHashes": "List your inline scripts by hash instead",
       "fromTools": "new with your changes",

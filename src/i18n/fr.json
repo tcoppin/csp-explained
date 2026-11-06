@@ -341,6 +341,7 @@
         "technical": "Listez chaque bloc intégré par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans la directive, les navigateurs y ignorent `'unsafe-inline'` : il ne reste que pour les très vieux navigateurs."
       },
       "fromFinding": "Le remplacer par des empreintes",
+      "orNonces": "ou [passer aux nonces](/nonces).",
       "caption": "Votre politique avec les empreintes",
       "warning": {
         "script": "Tout autre script intégré à vos pages cesse de s'exécuter tant que son empreinte n'est pas listée, de même que les attributs `onclick=\"…\"`. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
@@ -557,7 +558,7 @@
       "fromStart": "Elle était dans votre point de départ.",
       "copied": "Copiée depuis {directive} à la création de cette ligne, pour que rien de ce qui marchait ne cesse de marcher.",
       "nonceTitle": "Remplacez le nonce d'exemple",
-      "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien.",
+      "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien. [Comment l'ajouter selon votre technologie](/nonces#stacks-title).",
       "waitingTitle": "En attente du nonce",
       "useHashes": "Lister plutôt vos scripts intégrés par empreinte",
       "fromTools": "nouveau avec vos ajouts",

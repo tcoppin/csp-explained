@@ -34,7 +34,7 @@
       },
       "nonce": {
         "term": "Nonce",
-        "definition": "Un code secret à usage unique que le site met sur les scripts auxquels il fait confiance. C'est l'alternative moderne et plus sûre à `'unsafe-inline'`, et la plupart des gestionnaires de balises la gèrent."
+        "definition": "Un code secret à usage unique que le site met sur les scripts auxquels il fait confiance. C'est l'alternative moderne et plus sûre à `'unsafe-inline'`, et la plupart des gestionnaires de balises la gèrent. [Comment passer aux nonces](/nonces)."
       },
       "reportOnly": {
         "term": "Mode rapport seul",
@@ -445,7 +445,8 @@
     "reference": "Référence : [MDN]({url})",
     "mdnLocale": "fr",
     "reportingGuide": "Mise en place, et à quoi ressemblent les rapports : [voir ce que bloque votre politique](/reporting).",
-    "trustedTypesGuide": "Ce qu'ils changent, et comment les déployer : [Trusted Types](/trusted-types)."
+    "trustedTypesGuide": "Ce qu'ils changent, et comment les déployer : [Trusted Types](/trusted-types).",
+    "nonceGuide": "Remplacer `'unsafe-inline'` par un nonce, technologie par technologie : [passer aux nonces](/nonces)."
   },
   "vendors": {
     "title": "Outils",
@@ -464,6 +465,137 @@
     "allowedSource": "Source autorisée",
     "why": "Pourquoi",
     "outdated": "Quelque chose a changé ? [Signaler une fiche obsolète]({url})."
+  },
+  "nonces": {
+    "title": "Passer aux nonces",
+    "description": "Comment remplacer 'unsafe-inline' par un nonce et 'strict-dynamic' dans votre Content-Security-Policy : la politique à viser, le code pour Node.js, Next.js, PHP, Django et Rails, et un déploiement qui ne casse rien.",
+    "heading": "De 'unsafe-inline' aux nonces",
+    "lead": "Avec `'unsafe-inline'` dans `script-src`, tout script écrit dans votre page s'exécute, y compris celui qu'un attaquant aurait réussi à y glisser. Un nonce change la question que se pose le navigateur : non plus « ce script est-il dans la page ? » mais « la page s'en porte-t-elle garante ? ». Votre serveur écrit une nouvelle valeur aléatoire dans la politique et dans chacune de ses propres balises `<script>`, et seuls les scripts qui la portent s'exécutent.",
+    "target": {
+      "title": "La politique à viser",
+      "intro": "Cette politique remplace `'unsafe-inline'` et votre liste d'hôtes de scripts :",
+      "caption": "En-tête de réponse",
+      "parts": [
+        {
+          "term": "`'nonce-…'`",
+          "definition": "La valeur générée par votre serveur. `REPLACE_PER_PAGE` la représente : une nouvelle valeur aléatoire pour chaque réponse."
+        },
+        {
+          "term": "`'strict-dynamic'`",
+          "definition": "Les scripts chargés par un script qui porte le nonce sont aussi acceptés : les gestionnaires de balises et les chargeurs continuent de fonctionner sans lister leurs hôtes. Les navigateurs ignorent alors les adresses, `'self'` et `'unsafe-inline'` dans `script-src`."
+        },
+        {
+          "term": "`object-src 'none'`",
+          "definition": "Les plugins pourraient exécuter du code en dehors de `script-src`. Rien de moderne n'en a besoin."
+        },
+        {
+          "term": "`base-uri 'none'`",
+          "definition": "Empêche une balise `<base>` injectée d'envoyer les adresses relatives de vos scripts vers un autre site. Mettez `'self'` si vos pages utilisent une balise `<base>`."
+        }
+      ],
+      "html": "Chaque `<script>` écrit par vos pages reçoit la même valeur, en ligne ou non :",
+      "htmlCaption": "HTML, dans chaque page",
+      "others": "Seul `script-src` change. Gardez vos autres règles (`img-src`, `connect-src`…) telles quelles : un nonce n'y sert à rien."
+    },
+    "rules": {
+      "title": "Trois règles pour le nonce",
+      "items": [
+        "**Une nouvelle valeur pour chaque réponse**, tirée d'une source aléatoire sûre : 16 octets, écrits en base64. Une valeur qui ne change jamais ne protège rien.",
+        "**La même valeur** dans la politique et dans chaque balise `<script>` de cette réponse.",
+        "**Jamais dans une page servie depuis un cache.** Un CDN ou un cache de pages enverrait le nonce d'un visiteur à tout le monde. Les pages avec un nonce sont générées à chaque requête ; vos scripts, styles et images peuvent toujours être mis en cache."
+      ]
+    },
+    "stacks": {
+      "title": "L'ajouter, technologie par technologie",
+      "intro": "Le principe est partout le même : générer la valeur une fois par requête, la mettre dans l'en-tête, et la transmettre à vos gabarits.",
+      "node": {
+        "label": "Node.js",
+        "intro": "Avec Express, un middleware placé avant vos routes génère la valeur et la rend disponible dans chaque gabarit :",
+        "notes": [
+          "Avec Helmet, donnez à `script-src` une fonction qui renvoie la source du nonce construite à partir de `res.locals.nonce`, et gardez le middleware ci-dessus pour la définir."
+        ]
+      },
+      "nextjs": {
+        "label": "Next.js",
+        "intro": "Avec l'App Router, le proxy génère la valeur à chaque requête. Next.js la lit dans la politique et l'ajoute à ses propres scripts ; passez-la à vos propres composants `<Script>`.",
+        "notes": [
+          "Le fichier s'appelle `proxy.ts` depuis Next.js 16, `middleware.ts` (avec une fonction nommée `middleware`) avant.",
+          "Les pages avec un nonce doivent être générées à chaque requête : la génération statique, la régénération incrémentale et le prérendu partiel sont désactivés pour elles. En développement, Next.js a aussi besoin de `'unsafe-eval'` : ajoutez-le seulement là."
+        ]
+      },
+      "php": {
+        "label": "PHP",
+        "intro": "Générez la valeur en haut de la page, avant tout affichage, et réutilisez-la dans chaque balise :",
+        "notes": [
+          "Dans un framework, faites de même dans un middleware exécuté une fois par requête, qui partage la valeur avec vos gabarits."
+        ]
+      },
+      "django": {
+        "label": "Django",
+        "intro": "Depuis Django 6.0, la politique est intégrée. `CSP.NONCE` est remplacé par une nouvelle valeur à chaque requête, et les gabarits la lisent dans `csp_nonce` :",
+        "notes": [
+          "Sur les versions plus anciennes, le paquet `django-csp` fait la même chose.",
+          "Django déconseille de mettre en cache des réponses entières qui utilisent `csp_nonce`."
+        ]
+      },
+      "rails": {
+        "label": "Rails",
+        "intro": "Rails ajoute le nonce à `script-src` et aux balises marquées `nonce: true` :",
+        "notes": [
+          "Certains exemples génèrent le nonce à partir de l'identifiant de session : il reste alors le même pendant toute la session d'un visiteur. `SecureRandom.base64(16)` en donne un nouveau à chaque réponse.",
+          "`csp_meta_tag` permet au JavaScript de Rails de réutiliser la valeur pour les scripts qu'il ajoute."
+        ]
+      },
+      "static": {
+        "label": "Site statique",
+        "intro": "Un site servi sous forme de fichiers n'a pas de serveur pour écrire une nouvelle valeur dans chaque page. Utilisez plutôt des **empreintes** : une par script en ligne, listée dans la politique. Le [constructeur](/build) les calcule pour vous.",
+        "notes": [
+          "Une fonction en périphérie (edge) peut remplacer un marqueur par une nouvelle valeur à chaque réponse, mais tout ce qu'un attaquant réussit à écrire dans le HTML reçoit aussi le nonce. Les empreintes n'ont pas cette faiblesse."
+        ]
+      }
+    },
+    "rollout": {
+      "title": "Le déployer",
+      "reports": "Mettez en place les [rapports de violation](/reporting), pour voir ce que le navigateur refuserait, sur chaque page et dans le navigateur de chaque visiteur.",
+      "trial": "Ajoutez le nonce à vos gabarits, puis envoyez la nouvelle politique en **report-only**, à côté de l'actuelle. Rien ne casse, et chaque script qui serait refusé envoie un rapport.",
+      "trialCaption": "En-tête de réponse, ajouté à côté de votre politique actuelle",
+      "fix": "Corrigez chaque endroit que les rapports signalent :",
+      "fixes": [
+        "Les gestionnaires d'événements en ligne, comme `onclick=\"…\"`, ne peuvent pas porter de nonce : attachez-les avec `addEventListener` dans un script.",
+        "Les liens `javascript:` ne s'exécutent plus non plus : remplacez-les par des boutons avec un écouteur.",
+        "Les scripts collés à la main dans les gabarits, souvent l'extrait d'un outil, ont aussi besoin de l'attribut `nonce`.",
+        "Le code qui construit un script en ligne sous forme de texte puis l'insère est refusé : chargez plutôt un fichier, ou créez l'élément depuis un script qui porte le nonce."
+      ],
+      "enforce": "Quand les rapports s'arrêtent, passez les nouvelles règles dans `Content-Security-Policy`, sans `'unsafe-inline'` ni l'ancienne liste d'hôtes dans `script-src`."
+    },
+    "tools": {
+      "title": "Outils tiers",
+      "intro": "Grâce à `'strict-dynamic'`, un outil chargé avec le nonce peut charger ses propres scripts. Les outils qui écrivent du code en ligne, comme les balises HTML personnalisées d'un gestionnaire de balises, ont besoin qu'on leur transmette le nonce, chacun à sa façon.",
+      "catalogue": "Le [catalogue d'outils](/vendors) indique, pour chaque outil, ce que dit sa documentation officielle sur les nonces. Dans l'[analyseur](/), choisissez vos outils sous **Mes outils fonctionneront-ils ?** pour voir lesquels en ont besoin."
+    },
+    "support": {
+      "title": "Bon à savoir",
+      "items": [
+        {
+          "term": "Styles",
+          "definition": "`style-src` accepte aussi un nonce, pour les balises `<style>` et `<link>`, mais pas pour les attributs `style=\"…\"`. Beaucoup de sites gardent `'unsafe-inline'` pour les styles un temps : le risque est bien moindre que pour les scripts."
+        },
+        {
+          "term": "Navigateurs",
+          "definition": "Tous les navigateurs actuels gèrent les nonces et `'strict-dynamic'` (Safari depuis la version 15.4, en 2022)."
+        },
+        {
+          "term": "Dans une balise meta",
+          "definition": "Un nonce y fonctionne aussi, à condition que la balise soit écrite avec une nouvelle valeur pour chaque page, comme l'en-tête."
+        },
+        {
+          "term": "Exécuter du texte comme du code",
+          "definition": "Un nonce n'autorise ni `eval` ni `new Function`. Le code qui en a besoin nécessite toujours `'unsafe-eval'`."
+        }
+      ],
+      "build": "Construire une politique à base de nonce",
+      "analyze": "Analyser votre politique"
+    }
   },
   "build": {
     "title": "Construire une politique",

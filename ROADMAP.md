@@ -171,7 +171,11 @@ the plain-language voice better than "CSP Explainer".
       in the browser's own storage only. Listed under the empty editor to reopen one where it was left, delete
       one or all; an off switch remembered on the device also forgets them. The example isn't kept. The About
       page and the README say it stays on the device. Pairs with comparing two policies.
-- [ ] Nonce migration guide: from `'unsafe-inline'` to a nonce-based policy with `'strict-dynamic'`, per stack.
+- [x] **Nonce migration guide** (`/nonces`, 2026-11-06): from `'unsafe-inline'` to a nonce with `'strict-dynamic'`:
+      the policy to aim for, the rules for the value, code for Node.js (Express), Next.js, PHP, Django and Rails
+      checked against their official docs, hashes for static sites, a report-only rollout and third-party tools.
+      Linked from `script-src`, the glossary, the builder's nonce note and the `script-unsafe-inline` finding.
+  - [ ] More stacks if asked: ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app.
 - [x] **Hashes for inline scripts and styles** (2026-11-05): paste the code (with or without its tags), get its
       `'sha256-…'`, as an alternative to `'unsafe-inline'` when a nonce isn't possible. One generator
       (`HashTool.tsx`), used in two places: the builder lists inline code by hash, and the analyzer offers it
