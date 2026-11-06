@@ -279,6 +279,11 @@ pre {
   color: var(--ink-soft);
   font-size: var(--step--1);
 }
+/* A long file name wraps instead of pushing the copy control out of the box */
+.code-block figcaption > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .code-block pre {
   margin: 0;
   border: 0;
@@ -289,6 +294,7 @@ pre {
   overflow-wrap: anywhere;
 }
 .code-block .copy {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
