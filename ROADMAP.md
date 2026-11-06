@@ -201,6 +201,11 @@ the plain-language voice better than "CSP Explainer".
 - [x] Privacy-friendly usage counts: one anonymous log line per event through our own `/e` endpoint, counted on a
       CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
 - [ ] Accessibility audit with a screen reader user.
+  - [x] Automated WCAG 2.2 AA checks (axe) on every page, both languages and themes, the analysis views, the
+        builder and the open menu, in the e2e suite (2026-11-06). They can't tell whether the explanations make
+        sense when heard, or whether the sheet and tabs are easy to use with a screen reader: that still needs
+        the audit.
+  - [x] Controls take a 44px tap on touch screens (2026-11-06), except the policy's tappable parts (36px).
 - [x] **Release management** (added 2026-10-29): semantic versioning with `vMAJOR.MINOR.PATCH` tags and a GitHub
       release for each, with notes for developers and contributors (rules in README › Releases). v1.0.0 tags the
       site as it was before versioning started, v1.1.0 the six new tools. A tag marks what is already live;

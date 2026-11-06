@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 /** Fails the test on any console error, including CSP violations of our own policy. */
@@ -894,4 +895,37 @@ test('the nonce guide shows one stack at a time, and the analyzer points to it',
   await page.getByRole('tab', { name: /Report/ }).click();
   await page.getByRole('radio', { name: 'Security' }).click();
   await expect(page.getByRole('link', { name: 'move to nonces' }).first()).toHaveAttribute('href', '/nonces');
+});
+
+/** WCAG 2.2 A and AA problems axe finds on the page as it is now, one line each. */
+async function accessibilityProblems(page: Page, where: string): Promise<string[]> {
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+  return violations.flatMap((v) => v.nodes.map((n) => `${where}: ${v.id} (${v.impact}) ${n.target.join(' ')}`));
+}
+
+test('pages pass the automated WCAG 2.2 AA checks, in both themes', async ({ page }) => {
+  test.setTimeout(120_000);
+  const problems: string[] = [];
+  const pages = inEveryLanguage(['/', '/build', '/find-my-csp', '/learn', '/directives', '/directives/script-src', '/nonces', '/reporting', '/trusted-types', '/vendors', '/vendors/hotjar', '/about']);
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: theme });
+    for (const path of pages) {
+      await page.goto(path);
+      problems.push(...(await accessibilityProblems(page, `${theme} ${path}`)));
+    }
+
+    // The analysis, each view, the builder's last step and the open menu.
+    await openAnalyzer(page);
+    await page.getByRole('button', { name: 'Try an example' }).click();
+    for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {
+      await page.getByRole('tab', { name: new RegExp(tab.replace('?', '\\?')) }).click();
+      problems.push(...(await accessibilityProblems(page, `${theme} analysis ${tab}`)));
+    }
+    await page.goto('/build#b=allowlist&v=hotjar:tracking&step=review');
+    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+    problems.push(...(await accessibilityProblems(page, `${theme} builder review`)));
+    await page.getByRole('banner').getByRole('button', { name: 'Menu' }).click();
+    problems.push(...(await accessibilityProblems(page, `${theme} menu`)));
+  }
+  expect(problems).toEqual([]);
 });
