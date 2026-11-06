@@ -93,6 +93,7 @@ const themes = [
       <div class="wrap footer-bar">
         <p class="muted">{t('site.footer')}</p>
         <div class="footer-links">
+          <NewTabLink t={t} href={REPO_URL} label={t('site.source')} />
           <NewTabLink t={t} href={issueUrl} label={t('site.issue.link')} />
           {
             others.length > 0 && (
