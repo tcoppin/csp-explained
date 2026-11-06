@@ -118,8 +118,8 @@ test('counts usage without ever sending the policy', async ({ page, context }) =
   const other = await context.newPage();
   await openAnalyzer(other, page.url().replace(/^.*?\/\/[^/]+/, ''));
   await expect.poll(sent).toContain('n=shared');
-  await other.getByRole('button', { name: 'Edit' }).click();
-  await other.getByRole('link', { name: "Here's how to find it" }).click();
+  await other.getByRole('button', { name: 'Clear' }).click();
+  await other.getByRole('region', { name: 'Other ways to start' }).getByRole('link', { name: 'Find my CSP' }).click();
   await other.locator('.code-block', { has: other.locator('#snippet') }).getByRole('button', { name: 'Copy this' }).click();
   await expect.poll(sent).toContain('n=copy-snippet');
 

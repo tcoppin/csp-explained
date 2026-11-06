@@ -27,9 +27,47 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
-.what-you-get {
-  margin-top: 2rem;
+/* What the analysis gives, under the heading, before a policy is in */
+.promise {
+  font-size: var(--step-1);
+  max-width: 48rem;
+  margin: 0 0 1.25rem;
+}
+/* The formats the box accepts, under it */
+.format-hint {
+  font-size: var(--step--1);
+  margin: 0.4rem 0 0;
+}
+
+/* Other ways to start: three quiet columns under the editor, stacked on narrow screens */
+.other-starts {
+  margin-top: 3rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 1.5rem;
+}
+.other-starts h2 {
+  font-size: var(--step-0);
   color: var(--ink-soft);
+}
+.other-starts ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem 2.5rem;
+}
+.other-starts li p {
+  margin: 0;
+}
+.other-starts a {
+  font-weight: 700;
+  font-size: var(--step-1);
+}
+@media (max-width: 48rem) {
+  .other-starts ul {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Workspace: view tabs + audience switch */

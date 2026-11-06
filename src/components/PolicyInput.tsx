@@ -32,7 +32,7 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
       <h1 id="input-title">
         <label for="policy-input">{t('analyzer.inputLabel')}</label>
       </h1>
-      <p class="muted">{t('analyzer.inputHint')}</p>
+      {!hasPolicy && <p class="promise">{t('analyzer.whatYouGet')}</p>}
       <textarea
         id="policy-input"
         class="code"
@@ -51,6 +51,7 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
           }
         }}
       />
+      <p class="muted format-hint">{t('analyzer.inputHint')}</p>
       <div class="input-actions">
         {hasPolicy ? (
           <button type="button" class="button" onClick={onDone}>
@@ -64,11 +65,6 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
             {t('analyzer.example')}
           </button>
         )}
-        <p class="find-hint">
-          {t('analyzer.noPolicy')} <a href={localePath(t.locale, '/find-my-csp')}>{t('analyzer.findLink')}</a>
-          <br />
-          {t('analyzer.noPolicyYet')} <a href={localePath(t.locale, '/build')}>{t('analyzer.buildLink')}</a>
-        </p>
       </div>
       <details class="site-field">
         <summary>{t('analyzer.siteLabel')}</summary>
@@ -76,16 +72,37 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
         <p class="muted">{t('analyzer.siteHint')}</p>
       </details>
       {!hasPolicy &&
-        (input.trim() !== '' ? (
-          parsed.issues.some((i) => i.code === 'no-policy-found') ? (
-            <p class="issue"><Rich msg="analyzer.noPolicyFound" /></p>
-          ) : (
-            <p class="issue">{emptyMessage(t, parsed.issues)}</p>
-          )
+        input.trim() !== '' &&
+        (parsed.issues.some((i) => i.code === 'no-policy-found') ? (
+          <p class="issue"><Rich msg="analyzer.noPolicyFound" /></p>
         ) : (
-          <p class="what-you-get">{t('analyzer.whatYouGet')}</p>
+          <p class="issue">{emptyMessage(t, parsed.issues)}</p>
         ))}
     </>
+  );
+}
+
+/** Before a policy is in: the other ways to start, for visitors who don't have one to paste. */
+export function OtherStarts() {
+  const t = useT();
+  const starts = [
+    { lead: t('analyzer.noPolicy'), key: 'find', href: '/find-my-csp' },
+    { lead: t('analyzer.noPolicyYet'), key: 'build', href: '/build' },
+    { lead: t('analyzer.newHere'), key: 'whatIs', href: '/learn' },
+  ];
+  return (
+    <section class="other-starts" aria-labelledby="other-starts-title">
+      <h2 id="other-starts-title">{t('analyzer.otherStarts')}</h2>
+      <ul>
+        {starts.map((s) => (
+          <li key={s.key}>
+            <p class="muted">{s.lead}</p>
+            <a href={localePath(t.locale, s.href)}>{t(`site.nav.${s.key}`)}</a>
+            <p>{t(`site.nav.desc.${s.key}`)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
