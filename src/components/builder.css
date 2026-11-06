@@ -33,6 +33,11 @@
   color: var(--ink-soft);
   font: inherit;
 }
+@media (pointer: coarse) {
+  .step {
+    min-height: 2.75rem;
+  }
+}
 .step:not(:disabled):hover {
   color: var(--ink);
 }

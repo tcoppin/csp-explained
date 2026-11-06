@@ -50,6 +50,12 @@ const groups = CATEGORIES.map((c) => ({
   dt a {
     font-weight: 700;
   }
+  /* Touch screens: the directive's name takes a 44px tap, without changing the row */
+  @media (pointer: coarse) {
+    dt a {
+      padding-block: 0.7rem;
+    }
+  }
   dd {
     margin: 0.25rem 0 0;
   }

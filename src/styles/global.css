@@ -317,6 +317,17 @@ pre {
 .code-block .copy:hover {
   background: var(--paper);
 }
+/* Touch screens: controls at least 44px tall, big enough for a finger. Links inside sentences keep their size;
+   each component adds its own rules in the same media query. */
+@media (pointer: coarse) {
+  .code-block .copy {
+    min-height: 2.75rem;
+  }
+  /* Questions that open an answer, in pages you read */
+  :where(.prose) details:not(.toc-bar) > summary {
+    padding-block: 0.6rem;
+  }
+}
 .code-block .icon {
   width: 1rem;
   height: 1rem;

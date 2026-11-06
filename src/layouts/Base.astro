@@ -350,4 +350,14 @@ const themes = [
   .footer-links > :global(.new-tab):hover {
     color: var(--ink);
   }
+  /* Touch screens: the footer links take a 44px tap; rows spread out so the taps don't overlap */
+  @media (pointer: coarse) {
+    .footer-links {
+      row-gap: 1.25rem;
+    }
+    .footer-links > :global(.new-tab),
+    .lang-switch a {
+      padding-block: 0.6rem;
+    }
+  }
 </style>
