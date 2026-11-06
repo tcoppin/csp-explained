@@ -406,6 +406,29 @@ test('guides list their sections, jump to them, and say what to read next', asyn
   expect(errors).toEqual([]);
 });
 
+test('the catalogue finds a tool, and a tool page shows each line once with what it is for', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/vendors');
+  const hotjar = page.locator('[data-name="hotjar"]');
+  await expect(hotjar).toContainText('Checked Oct 29, 2026');
+  await expect(hotjar.locator('.chip.unsafe')).toHaveText("'unsafe-inline'");
+
+  await page.getByRole('searchbox', { name: 'Find a tool' }).fill('goo');
+  await expect(hotjar).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Session replay & heatmaps' })).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Google Tag Manager' })).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Find a tool' }).fill('nothing like this');
+  await expect(page.getByText('No tool matches.')).toBeVisible();
+
+  await page.goto('/vendors/hotjar');
+  const box = page.locator('.code-block', { hasText: 'Add to your policy' });
+  await expect(box.locator('.annotated li').first()).toContainText('Loads the tracking script.');
+  await box.getByRole('button', { name: 'Copy this' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/^script-src https:\/\/static\.hotjar\.com https:\/\/script\.hotjar\.com 'unsafe-inline';\n/);
+  await expect(page.locator('table')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('find my CSP shows one method at a time', async ({ page }) => {
   await page.goto('/find-my-csp');
   await expect(page.locator('#console')).toBeVisible();

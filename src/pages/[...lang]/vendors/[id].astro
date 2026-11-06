@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
 import { NewTabLink } from '../../../components/NewTabLink';
 import { Rich } from '../../../components/Rich';
 import { outdatedIssueUrl } from '../../../config';
@@ -30,6 +31,12 @@ function linesFor(feature: Feature): string[] {
   return [...byDirective].map(([d, values]) => `${d} ${values.join(' ')};`);
 }
 
+/** The highlighter colour of a source, as in the analyzer. */
+const hl = (src: string) =>
+  src.startsWith("'unsafe-") || src === '*' ? 'hl-unsafe' : src.startsWith("'") ? 'hl-keyword' : /^[a-z]+:$/.test(src) ? 'hl-scheme' : 'hl-host';
+
+const date = new Intl.DateTimeFormat(t.locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${vendor.lastVerified}T00:00:00Z`));
+
 const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filter((f) => f.default).map((f) => f.id).join('+')}`);
 ---
 
@@ -38,7 +45,7 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
     <p class="crumb"><a href={localePath(t.locale, '/vendors')}>{t('site.nav.vendors')}</a></p>
     <h1>{vendor.name}</h1>
     <p class="provenance">
-      {vendor.confidence === 'verified' ? t('vendors.verified', { date: vendor.lastVerified }) : t('vendors.partial')}.
+      {vendor.confidence === 'verified' ? t('vendors.verified', { date }) : t('vendors.partial')}.
       {' '}
       {vendor.sources.map((s, i) => (
         <>
@@ -65,29 +72,27 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
         <section>
           <h2>{f.label}</h2>
           {f.description && <p>{f.description}</p>}
-          <pre><code>{linesFor(f).join('\n')}</code></pre>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t(m('content'))}</th>
-                <th scope="col">{t(m('allowedSource'))}</th>
-                <th scope="col">{t(m('why'))}</th>
-              </tr>
-            </thead>
-            <tbody>
+          <CodeBlock code={linesFor(f).join('\n')} caption={t(m('addToPolicy'))}>
+            <ol class="annotated">
               {f.requirements.map((r) => (
-                <tr>
-                  <td>{t(`resources.${r.type}`)}</td>
-                  <td>
-                    {r.sources.map((s) => (
-                      <code class="src">{s}</code>
-                    ))}
-                  </td>
-                  <td>{r.reason}</td>
-                </tr>
+                <li>
+                  <span class="note">{t(`resources.${r.type}`)}</span>
+                  <div>
+                    <code class="tokens">
+                      <span class="tok tok-directive">{CANONICAL_DIRECTIVE[r.type]}</span>
+                      {r.sources.map((src) => (
+                        <>
+                          {' '}
+                          <span class={`tok ${hl(src)}`}>{src}</span>
+                        </>
+                      ))}
+                    </code>
+                    <p class="why">{r.reason}</p>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ol>
+          </CodeBlock>
         </section>
       ))
     }
@@ -112,43 +117,71 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
     border-left: 4px solid var(--hl-nonce);
     padding-left: 1rem;
   }
-  pre {
-    white-space: pre-wrap;
+  /* The highlighters, as in the analyzer */
+  .tok {
+    font-family: var(--mono);
+    border-radius: 3px;
+    padding: 0.05em 0.25em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .tok-directive {
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+  }
+  .hl-keyword {
+    background: var(--hl-keyword);
+  }
+  .hl-host {
+    background: var(--hl-host);
+  }
+  .hl-scheme {
+    background: var(--hl-scheme);
+  }
+  .hl-unsafe {
+    background: var(--hl-unsafe);
+  }
+  /* Each line of the policy with what it's for, like the analyzer's annotated policy */
+  .annotated {
+    list-style: none;
+    margin: 0;
+    padding: 0.75rem 0;
+  }
+  .annotated li {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.4rem 1rem;
+    align-items: baseline;
+  }
+  .annotated .note {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+    text-align: right;
+    border-right: 2px solid var(--rule);
+    padding-right: 1rem;
+  }
+  .annotated .tokens {
+    line-height: 2;
     overflow-wrap: anywhere;
+    font-size: var(--step-0);
   }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 1rem;
-  }
-  th,
-  td {
-    text-align: left;
-    vertical-align: top;
-    padding: 0.5rem 0.75rem 0.5rem 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .src {
-    display: block;
-    overflow-wrap: anywhere;
+  .annotated .why {
+    margin: 0.1rem 0 0;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
   }
   @media (max-width: 40rem) {
-    table,
-    tbody,
-    tr,
-    td {
-      display: block;
+    .annotated li {
+      grid-template-columns: 1fr;
+      gap: 0;
     }
-    thead {
-      display: none;
-    }
-    tr {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--rule);
-    }
-    td {
+    .annotated .note {
+      text-align: left;
       border: 0;
-      padding: 0.1rem 0;
+      padding: 0;
     }
   }
 </style>
