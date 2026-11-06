@@ -82,9 +82,10 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
         <button type="button" role="tab" id="tab-legacy" aria-controls="legacy" aria-selected="false">{t(m('format.legacy.tab'))}</button>
       </div>
       <section id="current" class="format">
-        <h3>{t(m('format.current.tab'))}</h3>
+        <h3 id="current-title">{t(m('format.current.tab'))}</h3>
         <p><Rich t={t} msg={m('format.current.intro')} /></p>
-        <pre class="report-sample"><code>{CURRENT}</code></pre>
+        {/* Wider than the screen on phones: focusable so it can be scrolled with the keyboard */}
+        <pre class="report-sample" tabindex="0" role="region" aria-labelledby="current-title"><code>{CURRENT}</code></pre>
         <dl class="reading">
           {
             fields.map((field) => (
@@ -97,9 +98,9 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
         </dl>
       </section>
       <section id="legacy" class="format">
-        <h3>{t(m('format.legacy.tab'))}</h3>
+        <h3 id="legacy-title">{t(m('format.legacy.tab'))}</h3>
         <p><Rich t={t} msg={m('format.legacy.intro')} /></p>
-        <pre class="report-sample"><code>{LEGACY}</code></pre>
+        <pre class="report-sample" tabindex="0" role="region" aria-labelledby="legacy-title"><code>{LEGACY}</code></pre>
         <p><Rich t={t} msg={m('format.legacy.names')} /></p>
       </section>
     </div>
