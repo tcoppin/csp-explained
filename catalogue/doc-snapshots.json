@@ -16,6 +16,7 @@
     "try.abtasty.com"
   ],
   "https://docs.contentsquare.com/en/web/content-security-policy/": [
+    "'self'",
     "'unsafe-eval'",
     "'unsafe-inline'",
     "*.contentsquare.com",
