@@ -1,5 +1,5 @@
 # Explanations for source expressions. `id` is either a keyword ('self') or a kind
-# (host, wildcard-host, scheme:https:, scheme, nonce, hash, all).
+# (host, wildcard-host, scheme:https:, scheme, nonce, hash, report-hash, all).
 
 - id: "'self'"
   title: Your own site
@@ -93,6 +93,26 @@
     server's certificate against a hash instead of a certificate authority.
   security: >-
     Skips the usual certificate checks for those connections. Add it only if the page uses this WebTransport option.
+
+- id: report-hash
+  title: Report script fingerprints
+  simple: >-
+    Asks the browser to report a fingerprint of each script the page loads, so the technical team can check that
+    nothing has changed. It doesn't allow or block anything.
+  developer: >-
+    'report-sha256' (or 'report-sha384', 'report-sha512') in script-src sends a csp-hash report with the hash of each
+    script the page loads from its own site or with CORS, to the report-to endpoint. It needs report-to.
+  security: >-
+    Helps notice tampered or unexpected scripts, for example to meet payment-page script inventory requirements.
+    Reports go only to your report-to endpoint.
+
+- id: "'unsafe-allow-redirects'"
+  title: Allow redirects (unused)
+  simple: An old proposal that browsers never used. It has no effect.
+  developer: >-
+    Was proposed with navigate-to, which browsers never shipped. It stays in the CSP grammar but changes nothing
+    today; safe to delete.
+  security: No effect.
 
 - id: nonce
   title: One-time code

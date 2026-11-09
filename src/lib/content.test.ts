@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { explainSource } from './content';
-import { DIRECTIVES } from './csp/directives';
+import { DIRECTIVES, KEYWORDS } from './csp/directives';
 import { classify } from './csp/parser';
 import { contentFor } from './site-content';
 
@@ -16,6 +16,11 @@ describe('content', () => {
     for (const raw of ["'self'", "'unsafe-inline'", "'nonce-abc'", "'sha256-abc'", '*', '*.example.com', 'https:', 'data:', 'wss:', 'cdn.example.com']) {
       expect(explainSource(content, classify(raw, { start: 0, end: raw.length })), raw).toBeDefined();
     }
+  });
+
+  it('explains every keyword', () => {
+    const missing = [...KEYWORDS].filter((raw) => !explainSource(content, classify(raw, { start: 0, end: raw.length })));
+    expect(missing).toEqual([]);
   });
 
   it('loads the vendor catalogue', () => {

@@ -261,3 +261,29 @@ scheme:
   security:
     # Much narrower than 'unsafe-eval': injected strings are refused unless a Trusted Types policy lets them through.
     { en: b3cd600b, text: "Bien plus restreint que 'unsafe-eval' : les chaînes injectées sont refusées, sauf si une politique Trusted Types les laisse passer." }
+report-hash:
+  title:
+    # Report script fingerprints
+    { en: 0084b368, text: "Signaler l'empreinte des scripts" }
+  simple:
+    # Asks the browser to report a fingerprint of each script the page loads, so the technical team can check that nothing has changed. It doesn't allow or block anything.
+    { en: dad5689f, text: "Demande au navigateur de signaler une empreinte de chaque script chargé par la page, pour que l'équipe technique vérifie que rien n'a changé. N'autorise ni ne bloque rien." }
+  developer:
+    # 'report-sha256' (or 'report-sha384', 'report-sha512') in script-src sends a csp-hash report with the hash of each script the page loads from its own site or with CORS, to the report-to endpoint. It needs report-to.
+    { en: de5033fe, text: "'report-sha256' (ou 'report-sha384', 'report-sha512') dans script-src envoie un rapport csp-hash avec l'empreinte de chaque script que la page charge depuis son propre site ou avec CORS, vers le point de collecte report-to. Nécessite report-to." }
+  security:
+    # Helps notice tampered or unexpected scripts, for example to meet payment-page script inventory requirements. Reports go only to your report-to endpoint.
+    { en: b749327b, text: "Aide à repérer des scripts modifiés ou inattendus, par exemple pour tenir l'inventaire des scripts exigé sur les pages de paiement. Les rapports ne partent que vers votre point de collecte report-to." }
+"'unsafe-allow-redirects'":
+  title:
+    # Allow redirects (unused)
+    { en: c6608244, text: "Autoriser les redirections (inutilisé)" }
+  simple:
+    # An old proposal that browsers never used. It has no effect.
+    { en: ee1753b9, text: "Une ancienne proposition que les navigateurs n'ont jamais utilisée. Elle n'a aucun effet." }
+  developer:
+    # Was proposed with navigate-to, which browsers never shipped. It stays in the CSP grammar but changes nothing today; safe to delete.
+    { en: 8180ec59, text: "Proposé avec navigate-to, que les navigateurs n'ont jamais livré. Il reste dans la grammaire CSP mais ne change rien aujourd'hui ; vous pouvez le supprimer." }
+  security:
+    # No effect.
+    { en: 7324f89d, text: "Aucun effet." }
