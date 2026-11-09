@@ -196,8 +196,9 @@ function tokenize(s: string, base: number): Token[] {
 const NONCE = /^'nonce-[A-Za-z0-9+/\-_]+={0,2}'$/;
 const HASH = /^'(sha256|sha384|sha512)-[A-Za-z0-9+/\-_]+={0,2}'$/i;
 const SCHEME = /^[a-z][a-z0-9+.-]*:$/i;
+// host-part allows a trailing dot (a fully qualified name): `example.com.`.
 const HOST_SOURCE =
-  /^(?:([a-z][a-z0-9+.-]*):\/\/)?(\*|(?:\*\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*)(?::(\d+|\*))?(\/[^?#]*)?$/i;
+  /^(?:([a-z][a-z0-9+.-]*):\/\/)?(\*|(?:\*\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.?)(?::(\d+|\*))?(\/[^?#]*)?$/i;
 
 export function classify(
   raw: string,
