@@ -4,7 +4,7 @@ category: session-replay
 website: https://contentsquare.com
 sources:
   - https://docs.contentsquare.com/en/web/content-security-policy/
-lastVerified: 2026-10-28
+lastVerified: 2026-11-09
 confidence: partial
 notes: >-
   The official page also documents img-src tracking subdomains, blob: workers (child-src / worker-src)
@@ -32,3 +32,6 @@ features:
       - type: inline-style
         sources: ["'unsafe-inline'"]
         reason: Survey widgets inject their styles.
+      - type: font
+        sources: ["*.contentsquare.net"]
+        reason: Loads the survey fonts. Without it, surveys fall back to default fonts.
