@@ -31,7 +31,8 @@ export interface ContentBundle {
 export function sourceDocId(expr: SourceExpression): string | undefined {
   switch (expr.kind) {
     case 'keyword':
-      return expr.value;
+      // 'report-sha256', 'report-sha384' and 'report-sha512' differ only by the hash they report.
+      return expr.value.startsWith("'report-sha") ? 'report-hash' : expr.value;
     case 'nonce':
       return 'nonce';
     case 'hash':
