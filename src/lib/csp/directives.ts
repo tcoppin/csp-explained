@@ -37,6 +37,8 @@ const LIST: DirectiveInfo[] = [
   D('connect-src', 'fetch', 'source-list', ['default-src']),
   D('font-src', 'fetch', 'source-list', ['default-src']),
   D('frame-src', 'fetch', 'source-list', ['child-src', 'default-src']),
+  // Defined by the Fenced Frames draft (WICG), which patches CSP3's fallback list.
+  D('fenced-frame-src', 'fetch', 'source-list', ['frame-src', 'child-src', 'default-src']),
   D('img-src', 'fetch', 'source-list', ['default-src']),
   D('manifest-src', 'fetch', 'source-list', ['default-src']),
   D('media-src', 'fetch', 'source-list', ['default-src']),

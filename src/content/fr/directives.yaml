@@ -404,3 +404,16 @@ require-sri-for:
   security:
     # No effect. Use the integrity attribute on script and link tags instead.
     { en: 4cf0e20e, text: "Aucun effet. Utilisez plutôt l'attribut integrity sur les balises script et link." }
+fenced-frame-src:
+  title:
+    # Fenced frames
+    { en: babb6fd7, text: "Cadres isolés" }
+  simple:
+    # Controls fenced frames, a sealed kind of embedded frame that some advertising tools use. Most sites don't need it.
+    { en: 7f1d74a0, text: "Contrôle les cadres isolés (fenced frames), un type de cadre intégré cloisonné qu'utilisent certains outils publicitaires. La plupart des sites n'en ont pas besoin." }
+  developer:
+    # Governs <fencedframe>. Falls back to frame-src, child-src, then default-src. Only https:, https://*:* or * allow a fenced frame: a list of specific hosts blocks them all. Defined by the Fenced Frames draft, not by CSP itself.
+    { en: 61b93b4d, text: "Concerne <fencedframe>. Se replie sur frame-src, child-src, puis default-src. Seuls https:, https://*:* ou * autorisent un cadre isolé : une liste d'hôtes précis les bloque tous. Définie par le brouillon Fenced Frames, pas par CSP elle-même." }
+  security:
+    # A fenced frame can't read or talk to the page around it, which limits what it can do. Allowing them means allowing any https: site, since browsers don't check specific hosts here.
+    { en: 035d6f49, text: "Un cadre isolé ne peut ni lire la page qui l'entoure ni communiquer avec elle, ce qui limite ce qu'il peut faire. Les autoriser revient à autoriser n'importe quel site en https:, car les navigateurs ne vérifient pas les hôtes précis ici." }

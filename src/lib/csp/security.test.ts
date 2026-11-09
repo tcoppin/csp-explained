@@ -26,6 +26,11 @@ describe('evaluateSecurity', () => {
     expect(findings.filter((f) => f.id === 'invalid-keyword')).toEqual([]);
   });
 
+  it("doesn't call directives the evaluator doesn't know yet unknown", () => {
+    const findings = evaluateSecurity(parse("script-src 'self'; object-src 'none'; base-uri 'none'; fenced-frame-src https:"));
+    expect(findings.filter((f) => f.id === 'unknown-directive')).toEqual([]);
+  });
+
   it('still flags keywords written without quotes', () => {
     const findings = evaluateSecurity(parse("script-src self; object-src 'none'; base-uri 'none'"));
     expect(findings.some((f) => f.id === 'invalid-keyword')).toBe(true);
