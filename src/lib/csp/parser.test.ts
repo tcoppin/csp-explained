@@ -135,6 +135,12 @@ describe('parse', () => {
     ]);
   });
 
+  it('accepts a host written with a trailing dot', () => {
+    const d = parse('img-src example.com. https://*.cdn.example.net.:443/').policies[0]!.directives[0]!;
+    expect(d.values.map((v) => v.kind)).toEqual(['host', 'host']);
+    expect(d.values[1]!.host).toEqual({ scheme: 'https', host: '*.cdn.example.net.', port: '443', path: '/' });
+  });
+
   it('treats values of non source-list directives as tokens', () => {
     const d = parse('sandbox allow-scripts allow-forms').policies[0]!.directives[0]!;
     expect(d.values.every((v) => v.kind === 'token')).toBe(true);
