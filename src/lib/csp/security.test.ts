@@ -19,6 +19,18 @@ describe('evaluateSecurity', () => {
     expect(findings.some((f) => f.value === "'sha256-…'")).toBe(false);
   });
 
+  it("doesn't flag CSP Level 3 keywords the evaluator doesn't know yet", () => {
+    const findings = evaluateSecurity(
+      parse("script-src 'nonce-r4nd0mR4nd0mR4nd0m' 'strict-dynamic' 'trusted-types-eval' 'report-sha256'; object-src 'none'; base-uri 'none'"),
+    );
+    expect(findings.filter((f) => f.id === 'invalid-keyword')).toEqual([]);
+  });
+
+  it('still flags keywords written without quotes', () => {
+    const findings = evaluateSecurity(parse("script-src self; object-src 'none'; base-uri 'none'"));
+    expect(findings.some((f) => f.id === 'invalid-keyword')).toBe(true);
+  });
+
   it('sorts by level', () => {
     const findings = evaluateSecurity(parse("script-src 'unsafe-inline' https:"));
     const order = { high: 0, medium: 1, low: 2, info: 3 };

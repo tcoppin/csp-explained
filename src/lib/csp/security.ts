@@ -2,6 +2,7 @@ import type { Csp } from 'csp_evaluator/dist/csp.js';
 import { CspEvaluator, DEFAULT_CHECKS } from 'csp_evaluator/dist/evaluator.js';
 import { Finding, Severity, Type } from 'csp_evaluator/dist/finding.js';
 import { CspParser } from 'csp_evaluator/dist/parser.js';
+import { directiveInfo, KEYWORDS } from './directives';
 import type { ParseResult, Policy } from './model';
 
 /**
@@ -94,12 +95,23 @@ export function findingKey(f: Pick<SecurityFinding, 'id' | 'directive' | 'value'
   }
 }
 
+/**
+ * The evaluator's lists of keywords and directives stop before some CSP Level 3 additions ('trusted-types-eval',
+ * 'report-sha256', fenced-frame-src…). Our parser knows them, so the evaluator's findings about them are outdated.
+ */
+function outdated(f: Finding): boolean {
+  const id = idOf(f.type);
+  if (id === 'invalid-keyword') return f.value !== undefined && KEYWORDS.has(f.value.toLowerCase());
+  if (id === 'unknown-directive') return directiveInfo(f.directive) !== undefined;
+  return false;
+}
+
 export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
   parsed.policies.forEach((policy, policyIndex) => {
     if (policy.directives.length === 0) return;
     const csp = new CspParser(sanitized(policy)).csp;
-    for (const f of runChecks(csp)) {
+    for (const f of runChecks(csp).filter((f) => !outdated(f))) {
       findings.push({
         id: idOf(f.type),
         level: LEVELS[f.severity] ?? 'info',
