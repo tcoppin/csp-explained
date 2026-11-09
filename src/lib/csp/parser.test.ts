@@ -32,6 +32,16 @@ describe('parse', () => {
     expect(d.values[0]!.value).toBe("'self'");
   });
 
+  it('knows every keyword of the CSP Level 3 grammar', () => {
+    const keywords = [
+      "'self'", "'unsafe-inline'", "'unsafe-eval'", "'strict-dynamic'", "'unsafe-hashes'", "'report-sample'",
+      "'unsafe-allow-redirects'", "'wasm-unsafe-eval'", "'trusted-types-eval'", "'report-sha256'", "'report-sha384'",
+      "'report-sha512'", "'unsafe-webtransport-hashes'",
+    ];
+    const d = parse(`connect-src ${keywords.join(' ')}`).policies[0]!.directives[0]!;
+    expect(d.values.map((v) => v.kind)).toEqual(keywords.map(() => 'keyword'));
+  });
+
   it('reads header lines and report-only policies from curl output', () => {
     const { policies } = parse(
       [

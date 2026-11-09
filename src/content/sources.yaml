@@ -72,6 +72,16 @@
   developer: Allows inline <script type="speculationrules"> blocks.
   security: Low risk.
 
+- id: "'unsafe-webtransport-hashes'"
+  title: WebTransport with certificate hashes
+  simple: >-
+    Lets the page open real-time connections to servers that use their own security certificate. Few sites need it.
+  developer: >-
+    Goes in connect-src. Allows new WebTransport(url, { serverCertificateHashes }) connections, which check the
+    server's certificate against a hash instead of a certificate authority.
+  security: >-
+    Skips the usual certificate checks for those connections. Add it only if the page uses this WebTransport option.
+
 - id: nonce
   title: One-time code
   simple: >-

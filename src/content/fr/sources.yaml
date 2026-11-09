@@ -235,3 +235,16 @@ scheme:
   security:
     # Very broad; consider listing specific hosts instead.
     { en: e219409e, text: "Très large ; envisagez plutôt de lister des hôtes précis." }
+"'unsafe-webtransport-hashes'":
+  title:
+    # WebTransport with certificate hashes
+    { en: deaaf797, text: "WebTransport avec empreintes de certificat" }
+  simple:
+    # Lets the page open real-time connections to servers that use their own security certificate. Few sites need it.
+    { en: 3db70091, text: "Permet à la page d'ouvrir des connexions en temps réel vers des serveurs qui utilisent leur propre certificat de sécurité. Peu de sites en ont besoin." }
+  developer:
+    # Goes in connect-src. Allows new WebTransport(url, { serverCertificateHashes }) connections, which check the server's certificate against a hash instead of a certificate authority.
+    { en: "96871268", text: "Se place dans connect-src. Autorise les connexions new WebTransport(url, { serverCertificateHashes }), qui vérifient le certificat du serveur avec une empreinte plutôt qu'avec une autorité de certification." }
+  security:
+    # Skips the usual certificate checks for those connections. Add it only if the page uses this WebTransport option.
+    { en: e9999c9a, text: "Contourne les vérifications habituelles du certificat pour ces connexions. Ajoutez-le seulement si la page utilise cette option de WebTransport." }
