@@ -107,6 +107,17 @@
   developer: Governs <iframe> and <frame> sources. Falls back to child-src, then default-src.
   security: Limits which third parties can be embedded and receive navigation into a frame from your page.
 
+- name: fenced-frame-src
+  title: Fenced frames
+  simple: >-
+    Controls fenced frames, a sealed kind of embedded frame that some advertising tools use. Most sites don't need it.
+  developer: >-
+    Governs <fencedframe>. Falls back to frame-src, child-src, then default-src. Only https:, https://*:* or * allow a
+    fenced frame: a list of specific hosts blocks them all. Defined by the Fenced Frames draft, not by CSP itself.
+  security: >-
+    A fenced frame can't read or talk to the page around it, which limits what it can do. Allowing them means allowing
+    any https: site, since browsers don't check specific hosts here.
+
 - name: child-src
   title: Frames and workers (legacy)
   simple: An older rule covering embedded frames and background workers.

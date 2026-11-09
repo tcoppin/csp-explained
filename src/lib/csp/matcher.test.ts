@@ -62,6 +62,7 @@ describe('resolve', () => {
   it('walks the fallback chain', () => {
     const p = parseSinglePolicy("default-src 'self'; child-src https://a.test");
     expect(resolve(p, 'frame-src').governing?.name).toBe('child-src');
+    expect(resolve(p, 'fenced-frame-src')).toMatchObject({ governing: { name: 'child-src' }, skipped: ['fenced-frame-src', 'frame-src'] });
     expect(resolve(p, 'script-src-elem').governing?.name).toBe('default-src');
     expect(resolve(p, 'form-action').governing).toBeUndefined();
   });
