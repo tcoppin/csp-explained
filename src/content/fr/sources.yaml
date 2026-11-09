@@ -248,3 +248,16 @@ scheme:
   security:
     # Skips the usual certificate checks for those connections. Add it only if the page uses this WebTransport option.
     { en: e9999c9a, text: "Contourne les vérifications habituelles du certificat pour ces connexions. Ajoutez-le seulement si la page utilise cette option de WebTransport." }
+"'trusted-types-eval'":
+  title:
+    # Code from text, through Trusted Types
+    { en: "17107e15", text: "Code depuis du texte, via Trusted Types" }
+  simple:
+    # Allows the page to turn text into running code, but only text that the site's own safety checks (Trusted Types) have approved.
+    { en: 33e1539e, text: "Permet à la page de transformer du texte en code qui s'exécute, mais seulement du texte approuvé par les contrôles de sécurité du site (Trusted Types)." }
+  developer:
+    # Allows eval(), new Function() and string timers when require-trusted-types-for 'script' is enforced, for values that come from a Trusted Types policy. Without Trusted Types it has no effect, and browsers that don't support it keep blocking code from text.
+    { en: 9d793ff3, text: "Autorise eval(), new Function() et les minuteurs avec du texte quand require-trusted-types-for 'script' est appliqué, pour des valeurs issues d'une politique Trusted Types. Sans Trusted Types, il n'a aucun effet, et les navigateurs qui ne le prennent pas en charge continuent de bloquer le code depuis du texte." }
+  security:
+    # Much narrower than 'unsafe-eval': injected strings are refused unless a Trusted Types policy lets them through.
+    { en: b3cd600b, text: "Bien plus restreint que 'unsafe-eval' : les chaînes injectées sont refusées, sauf si une politique Trusted Types les laisse passer." }

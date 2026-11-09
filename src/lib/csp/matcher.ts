@@ -1,5 +1,5 @@
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from './directives';
-import { resolve } from './fallback';
+import { requiresTrustedTypes, resolve } from './fallback';
 import type { Directive, HostParts, Policy, SourceExpression } from './model';
 
 /** Implements the matching algorithms of CSP Level 3 §6.7 for a single URL. */
@@ -170,7 +170,11 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
   const base = { requested, directive: governing };
 
   if (type === 'eval') {
-    const kw = governing.values.find((v) => v.kind === 'keyword' && v.value === "'unsafe-eval'");
+    // 'trusted-types-eval' allows it too, but only where Trusted Types are enforced (CSP3 §4.4.1): the code then has
+    // to come through a Trusted Types policy.
+    const kw =
+      governing.values.find((v) => v.kind === 'keyword' && v.value === "'unsafe-eval'") ??
+      (requiresTrustedTypes(policy) ? governing.values.find((v) => v.kind === 'keyword' && v.value === "'trusted-types-eval'") : undefined);
     return kw ? { ...base, verdict: 'allowed', matchedBy: kw, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
   }
 
