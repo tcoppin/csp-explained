@@ -30,3 +30,6 @@ features:
       inline-style:
         # Survey widgets inject their styles.
         { en: 5bb8d4e3, text: "Les questionnaires injectent leurs styles." }
+      font:
+        # Loads the survey fonts. Without it, surveys fall back to default fonts.
+        { en: d160b3c7, text: "Charge les polices des questionnaires. Sans cette règle, ils s'affichent avec les polices par défaut." }
