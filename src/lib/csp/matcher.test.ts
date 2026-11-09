@@ -44,6 +44,18 @@ describe('expressionMatchesUrl', () => {
     expect(matches("'self'", 'wss://shop.example.com/socket')).toBe(true);
     expect(matches("'self'", 'https://cdn.example.com/a.js')).toBe(false);
   });
+
+  it("matches 'self' on other ports and schemes the way CSP3 does", () => {
+    const self = (url: string, page: string) => expressionMatchesUrl(expr("'self'"), url, page);
+    expect(self('https://site.test/', 'http://site.test/')).toBe(true);
+    expect(self('ws://site.test/', 'http://site.test/')).toBe(true);
+    expect(self('http://site.test/', 'https://site.test/')).toBe(false);
+    expect(self('ws://site.test/', 'https://site.test/')).toBe(false);
+    expect(self('https://site.test:8080/', 'http://site.test:8080/')).toBe(true);
+    // Upgrading to the default https port only works from the default http port.
+    expect(self('https://site.test/', 'http://site.test:8080/')).toBe(false);
+    expect(self('https://site.test:8443/', 'https://site.test/')).toBe(false);
+  });
 });
 
 describe('resolve', () => {

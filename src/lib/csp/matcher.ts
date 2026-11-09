@@ -74,14 +74,17 @@ function hostSourceMatches(h: HostParts, url: ParsedUrl, self: ParsedUrl): boole
   return hostMatches(h.host, url.host) && portMatches(h.port, h.scheme, url) && pathMatches(h.path, url.path);
 }
 
+/**
+ * CSP3 'self': the page's origin, or the same host on a secure scheme (or http/ws from an http page), with the same
+ * port or the default port on both sides. https://site:443 doesn't match a page served from http://site:8080.
+ */
 function selfMatches(url: ParsedUrl, self: ParsedUrl): boolean {
   if (url.host !== self.host) return false;
-  const sameScheme = url.scheme === self.scheme;
-  const upgrade =
-    (self.scheme === 'http' && ['https', 'ws', 'wss'].includes(url.scheme)) ||
-    (self.scheme === 'https' && url.scheme === 'wss');
-  if (!sameScheme && !upgrade) return false;
-  return url.port === self.port || (upgrade && url.port === DEFAULT_PORTS[url.scheme]);
+  if (url.scheme === self.scheme && url.port === self.port) return true;
+  const isDefault = (u: ParsedUrl) => u.port === DEFAULT_PORTS[u.scheme];
+  const ports = url.port === self.port || (isDefault(url) && isDefault(self));
+  const scheme = url.scheme === 'https' || url.scheme === 'wss' || (self.scheme === 'http' && (url.scheme === 'http' || url.scheme === 'ws'));
+  return ports && scheme;
 }
 
 /** Does `url` match one source expression, for a page served from `selfOrigin`? */
