@@ -96,6 +96,15 @@ describe('checkResource', () => {
     expect(checkResource(p, 'eval', undefined, SELF).verdict).toBe('blocked');
   });
 
+  it("allows code from text with 'trusted-types-eval' only when Trusted Types are enforced", () => {
+    const enforced = parseSinglePolicy("script-src 'self' 'trusted-types-eval'; require-trusted-types-for 'script'");
+    const r = checkResource(enforced, 'eval', undefined, SELF);
+    expect(r.verdict).toBe('allowed');
+    expect(r.matchedBy?.raw).toBe("'trusted-types-eval'");
+    const alone = parseSinglePolicy("script-src 'self' 'trusted-types-eval'");
+    expect(checkResource(alone, 'eval', undefined, SELF).verdict).toBe('blocked');
+  });
+
   it('respects script-src-elem over script-src', () => {
     const p = parseSinglePolicy("script-src 'self'; script-src-elem 'self' https://cdn.vendor.test");
     expect(checkResource(p, 'script', 'https://cdn.vendor.test/x.js', SELF).verdict).toBe('allowed');

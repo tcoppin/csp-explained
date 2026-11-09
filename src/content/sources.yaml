@@ -66,6 +66,18 @@
   developer: Allows WebAssembly compilation without allowing JavaScript eval.
   security: Much narrower than 'unsafe-eval'.
 
+- id: "'trusted-types-eval'"
+  title: Code from text, through Trusted Types
+  simple: >-
+    Allows the page to turn text into running code, but only text that the site's own safety checks (Trusted Types)
+    have approved.
+  developer: >-
+    Allows eval(), new Function() and string timers when require-trusted-types-for 'script' is enforced, for values
+    that come from a Trusted Types policy. Without Trusted Types it has no effect, and browsers that don't support it
+    keep blocking code from text.
+  security: >-
+    Much narrower than 'unsafe-eval': injected strings are refused unless a Trusted Types policy lets them through.
+
 - id: "'inline-speculation-rules'"
   title: Speculation rules
   simple: Allows the page to tell the browser which pages to load in advance.
