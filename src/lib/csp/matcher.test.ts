@@ -74,6 +74,16 @@ describe('checkResource', () => {
     expect(r.ignored.map((v) => v.raw)).toContain('https://cdn.vendor.test');
   });
 
+  it("lets scripts start workers with 'strict-dynamic', since a script always creates them", () => {
+    const p = parseSinglePolicy("script-src 'nonce-abc' 'strict-dynamic' https://cdn.vendor.test");
+    const r = checkResource(p, 'worker', 'https://other.test/worker.js', SELF);
+    expect(r.verdict).toBe('allowed');
+    expect(r.matchedBy?.raw).toBe("'strict-dynamic'");
+    // worker-src doesn't know 'strict-dynamic': its own list decides.
+    const own = parseSinglePolicy("script-src 'nonce-abc' 'strict-dynamic'; worker-src 'self'");
+    expect(checkResource(own, 'worker', 'https://other.test/worker.js', SELF).verdict).toBe('blocked');
+  });
+
   it("ignores 'unsafe-inline' when a nonce is present", () => {
     const p = parseSinglePolicy("script-src 'self' 'unsafe-inline' 'nonce-abc'");
     expect(checkResource(p, 'inline-script', undefined, SELF).verdict).toBe('needs-nonce');
