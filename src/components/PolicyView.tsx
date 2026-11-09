@@ -13,7 +13,8 @@ export interface Selection {
 export function highlightClass(v: SourceExpression): string {
   switch (v.kind) {
     case 'keyword':
-      return v.value.startsWith("'unsafe-") ? 'hl-unsafe' : 'hl-keyword';
+      // 'unsafe-allow-redirects' does nothing: its name alone doesn't make it a risk.
+      return v.value.startsWith("'unsafe-") && v.value !== "'unsafe-allow-redirects'" ? 'hl-unsafe' : 'hl-keyword';
     case 'host':
       return v.host?.host === '*' ? 'hl-unsafe' : 'hl-host';
     case 'scheme':
