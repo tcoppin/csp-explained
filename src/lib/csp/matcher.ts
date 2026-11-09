@@ -196,7 +196,16 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
 
   if (!url) return { ...base, verdict: 'blocked', ignored: [] };
 
-  if (strictDynamic) return { ...base, verdict: 'needs-nonce', ignored: ignoredSources(governing, type) };
+  if (strictDynamic) {
+    const ignored = ignoredSources(governing, type);
+    // 'strict-dynamic' allows every script-like request that the HTML parser didn't insert (CSP3 §6.7.1.1).
+    // Workers are always created by a script (new Worker()), so they need no nonce of their own.
+    if (type === 'worker') {
+      const kw = governing.values.find((v) => v.kind === 'keyword' && v.value === "'strict-dynamic'");
+      return { ...base, verdict: 'allowed', matchedBy: kw, ignored };
+    }
+    return { ...base, verdict: 'needs-nonce', ignored };
+  }
 
   const matchedBy = governing.values.find((v) => expressionMatchesUrl(v, url, selfOrigin));
   if (matchedBy) return { ...base, verdict: 'allowed', matchedBy, ignored: [] };
