@@ -144,5 +144,6 @@ export const KEYWORDS = new Set([
   "'report-sha256'",
   "'report-sha384'",
   "'report-sha512'",
+  "'unsafe-webtransport-hashes'",
 ]);
 
