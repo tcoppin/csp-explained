@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { localePath, type Translate } from '../i18n';
-import type { ParseResult, Policy } from '../lib/csp/model';
-import { track } from '../scripts/track';
-import { useT } from './i18n';
-import { Rich } from './Rich';
-import { useCopy } from './useCopy';
+import { localePath, type Translate } from '../../i18n';
+import type { ParseResult, Policy } from '../../lib/csp/model';
+import { track } from '../../scripts/track';
+import { useT } from '../ui/i18n';
+import { Rich } from '../ui/Rich';
+import { useCopy } from '../ui/useCopy';
 
 /** Why nothing could be analysed: a pasted console error gets its own explanation. */
 function emptyMessage(t: Translate, issues: ParseResult['issues']): string {

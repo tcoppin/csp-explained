@@ -1,4 +1,4 @@
-import { Rich } from './Rich';
+import { Rich } from '../ui/Rich';
 
 /**
  * Shown beside the tools when the policy enforces Trusted Types: no tool in the catalogue documents whether it

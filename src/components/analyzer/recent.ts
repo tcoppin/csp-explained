@@ -1,5 +1,5 @@
-import type { Audience } from '../lib/csp/model';
-import { isAudience, VIEWS, type View } from './state';
+import type { Audience } from '../../lib/csp/model';
+import { isAudience, VIEWS, type View } from '../policy/state';
 
 /**
  * The last policies analysed, kept in this browser's own storage only, to reopen one where it was left.

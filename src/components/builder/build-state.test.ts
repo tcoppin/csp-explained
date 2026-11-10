@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { decodeBuildState, encodeBuildState, unpackTools, type BuildState } from './build-state';
-import { encodeState } from './state';
+import { encodeState } from '../policy/state';
 
 const tools = [{ id: 'own-1', name: 'Our CDN', needs: [{ type: 'img' as const, sources: ['cdn.example.org', 'https://é.example'] }] }];
 

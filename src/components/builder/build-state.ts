@@ -1,7 +1,7 @@
-import { SITE_NEEDS, type BaselineMode, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../lib/build';
-import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
-import type { Audience } from '../lib/csp/model';
-import { decodeVendors, encodeVendors, fromBase64Url, isAudience, toBase64Url } from './state';
+import { SITE_NEEDS, type BaselineMode, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../../lib/build';
+import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../../lib/csp/directives';
+import type { Audience } from '../../lib/csp/model';
+import { decodeVendors, encodeVendors, fromBase64Url, isAudience, toBase64Url } from '../policy/state';
 
 /**
  * The builder's link, in the URL fragment like the analyzer's. Shares `p`, `s`, `v` and `a` with it, so a

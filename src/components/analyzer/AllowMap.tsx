@@ -1,10 +1,10 @@
-import { explainSource, type ContentBundle } from '../lib/content';
-import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
-import { resolve } from '../lib/csp/fallback';
-import { checkResource, ignoredSources } from '../lib/csp/matcher';
-import type { Audience, Policy } from '../lib/csp/model';
-import { highlightClass } from './PolicyView';
-import { useT } from './i18n';
+import { explainSource, type ContentBundle } from '../../lib/content';
+import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../../lib/csp/directives';
+import { resolve } from '../../lib/csp/fallback';
+import { checkResource, ignoredSources } from '../../lib/csp/matcher';
+import type { Audience, Policy } from '../../lib/csp/model';
+import { highlightClass } from '../policy/PolicyView';
+import { useT } from '../ui/i18n';
 
 const LOADED: ResourceType[] = ['script', 'style', 'img', 'font', 'connect', 'frame', 'media', 'worker', 'object', 'form', 'base'];
 const BEHAVIOURS: ResourceType[] = ['inline-script', 'inline-handler', 'eval', 'inline-style'];

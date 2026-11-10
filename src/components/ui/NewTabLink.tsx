@@ -1,4 +1,4 @@
-import type { Translate } from '../i18n';
+import type { Translate } from '../../i18n';
 import { useT } from './i18n';
 
 /**

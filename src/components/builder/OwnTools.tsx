@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
-import { isValidSource, type CustomTool } from '../lib/build';
-import { CANONICAL_DIRECTIVE, type ResourceType } from '../lib/csp/directives';
-import { useT } from './i18n';
+import { isValidSource, type CustomTool } from '../../lib/build';
+import { CANONICAL_DIRECTIVE, type ResourceType } from '../../lib/csp/directives';
+import { useT } from '../ui/i18n';
 
 /**
  * What an own tool can load, in the order people think of it. Labels: `resources.*`, followed by the directive

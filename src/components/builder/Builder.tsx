@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef } from 'preact/hooks';
-import { translator, type Locale } from '../i18n';
-import type { ContentBundle } from '../lib/content';
-import type { Audience } from '../lib/csp/model';
+import { translator, type Locale } from '../../i18n';
+import type { ContentBundle } from '../../lib/content';
+import type { Audience } from '../../lib/csp/model';
 import { STEPS, type Step } from './build-state';
 import { PolicyPreview, ReviewPanel, SitePanel, StartPanel, ToolsPanel } from './BuildPanels';
-import { track } from '../scripts/track';
-import { I18n } from './i18n';
-import { Rich } from './Rich';
-import { Segmented } from './Segmented';
+import { track } from '../../scripts/track';
+import { I18n } from '../ui/i18n';
+import { Rich } from '../ui/Rich';
+import { Segmented } from '../ui/Segmented';
 import { useBuilder } from './useBuilder';
-import './analyzer.css';
+import '../analyzer/analyzer.css';
 import './builder.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];

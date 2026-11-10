@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import type { Translate } from '../i18n';
-import { DEFAULT_ORIGIN } from '../lib/analysis';
-import { baselinePolicy, buildPolicy, customContribution, siteContribution, type Contribution, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../lib/build';
-import { requirementsOf } from '../lib/catalogue/requirements';
-import type { ContentBundle } from '../lib/content';
-import type { Audience } from '../lib/csp/model';
-import { track } from '../scripts/track';
+import type { Translate } from '../../i18n';
+import { DEFAULT_ORIGIN } from '../../lib/analysis';
+import { baselinePolicy, buildPolicy, customContribution, siteContribution, type Contribution, type CustomTool, type HashableNeed, type SiteHashes, type SiteNeed } from '../../lib/build';
+import { requirementsOf } from '../../lib/catalogue/requirements';
+import type { ContentBundle } from '../../lib/content';
+import type { Audience } from '../../lib/csp/model';
+import { track } from '../../scripts/track';
 import { decodeBuildState, encodeBuildState, loadTools, saveTools, type Start, type Step } from './build-state';
-import { loadAudience, saveAudience, toOrigin } from './state';
+import { loadAudience, saveAudience, toOrigin } from '../policy/state';
 
 /** The builder's state, kept in the link, and the policy built from it. */
 export function useBuilder(content: ContentBundle, t: Translate) {

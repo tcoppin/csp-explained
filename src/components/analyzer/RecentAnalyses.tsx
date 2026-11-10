@@ -1,6 +1,6 @@
-import type { Vendor } from '../lib/catalogue/schema';
-import { parse } from '../lib/csp/parser';
-import { useT } from './i18n';
+import type { Vendor } from '../../lib/catalogue/schema';
+import { parse } from '../../lib/csp/parser';
+import { useT } from '../ui/i18n';
 import type { RecentAnalysis } from './recent';
 
 interface Props {

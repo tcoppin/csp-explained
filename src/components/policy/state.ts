@@ -1,4 +1,4 @@
-import type { Audience } from '../lib/csp/model';
+import type { Audience } from '../../lib/csp/model';
 
 /**
  * Shareable state lives in the URL fragment (#…), which browsers never send to servers,

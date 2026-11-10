@@ -1,13 +1,13 @@
-import { outdatedIssueUrl } from '../config';
-import type { Translate } from '../i18n';
-import type { VendorCheck } from '../lib/analysis';
-import type { Vendor } from '../lib/catalogue/schema';
-import { allChecks, type RequirementResult, type RequirementVerdict } from '../lib/csp/compat';
-import type { Audience } from '../lib/csp/model';
-import { track } from '../scripts/track';
-import { NewTabLink } from './NewTabLink';
-import { ToolPicker } from './ToolPicker';
-import { useT } from './i18n';
+import { outdatedIssueUrl } from '../../config';
+import type { Translate } from '../../i18n';
+import type { VendorCheck } from '../../lib/analysis';
+import type { Vendor } from '../../lib/catalogue/schema';
+import { allChecks, type RequirementResult, type RequirementVerdict } from '../../lib/csp/compat';
+import type { Audience } from '../../lib/csp/model';
+import { track } from '../../scripts/track';
+import { NewTabLink } from '../ui/NewTabLink';
+import { ToolPicker } from '../policy/ToolPicker';
+import { useT } from '../ui/i18n';
 
 interface Props {
   vendors: Vendor[];

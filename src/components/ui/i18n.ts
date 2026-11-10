@@ -1,6 +1,6 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
-import type { Translate } from '../i18n';
+import type { Translate } from '../../i18n';
 
 /** The island's translator, provided once by the Analyzer from its `locale` prop. */
 export const I18n = createContext<Translate | undefined>(undefined);

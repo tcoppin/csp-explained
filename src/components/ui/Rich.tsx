@@ -1,6 +1,6 @@
 import { Fragment } from 'preact';
-import { localePath, type Translate, type Vars } from '../i18n';
-import { isExternal, parseRich } from '../i18n/rich';
+import { localePath, type Translate, type Vars } from '../../i18n';
+import { isExternal, parseRich } from '../../i18n/rich';
 import { useT } from './i18n';
 import { NewTabLink } from './NewTabLink';
 

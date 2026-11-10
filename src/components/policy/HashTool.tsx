@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'preact/hooks';
-import { withHashes } from '../lib/build';
-import { hashSource, inlineBlocks, type InlineHash, type InlineKind } from '../lib/csp/hash';
-import type { Audience } from '../lib/csp/model';
-import { CodeBox } from './CodeBox';
-import { useT } from './i18n';
-import { Rich } from './Rich';
-import { Segmented } from './Segmented';
+import { withHashes } from '../../lib/build';
+import { hashSource, inlineBlocks, type InlineHash, type InlineKind } from '../../lib/csp/hash';
+import type { Audience } from '../../lib/csp/model';
+import { CodeBox } from '../ui/CodeBox';
+import { useT } from '../ui/i18n';
+import { Rich } from '../ui/Rich';
+import { Segmented } from '../ui/Segmented';
 import './hash-tool.css';
 
 /** The first line of each hashed block, kept for this visit only (the link holds the hashes alone). */

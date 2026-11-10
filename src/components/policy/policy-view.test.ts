@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classify } from '../lib/csp/parser';
+import { classify } from '../../lib/csp/parser';
 import { highlightClass } from './PolicyView';
 
 const tone = (raw: string) => highlightClass(classify(raw, { start: 0, end: raw.length }));

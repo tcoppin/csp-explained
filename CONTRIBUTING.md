@@ -61,7 +61,7 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 | `src/content/` | Plain-language explanations of directives and sources (YAML, validated at build); translations in `src/content/<locale>/`. |
 | `catalogue/vendors/` | One YAML file per tool, built from its official documentation. |
 | `src/i18n/` | All interface and report text (`<locale>.json`) and page copy (`<locale>.pages.json`), in English and French. |
-| `src/components/` | The analyzer (Preact island). |
+| `src/components/` | Preact islands and Astro components, grouped by who uses them: `analyzer/` and `builder/` (one island each), `policy/` (CSP pieces both islands share), `ui/` (generic building blocks), `site/` (Astro-only, static pages). |
 | `src/pages/[...lang]/` | Analyzer, Find my CSP, What is a CSP, tool pages, directive pages, about; built in English (`/`) and French (`/fr`). |
 | `src/site-policy.ts` | This site's own CSP (meta policy + header policy). |
 | `src/usage.ts` | The usage events counted (anonymous, no cookies), shared with the Lambda in `infra/lambda/`. |

@@ -1,18 +1,18 @@
 import { useState } from 'preact/hooks';
-import { SITE_URL } from '../config';
-import { LOCALE_NAMES, LOCALES, localePath, translator, type Locale, type Translate } from '../i18n';
-import { patchedPolicies, type Analysis } from '../lib/analysis';
-import type { Vendor } from '../lib/catalogue/schema';
-import type { Audience } from '../lib/csp/model';
-import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../lib/reports/developer';
-import { countByLevel, findingText, securityReport } from '../lib/reports/security';
-import { itRequest, withVendorText, type MessageFormat } from '../lib/reports/simple';
-import { track } from '../scripts/track';
-import { CodeBox } from './CodeBox';
-import { Rich } from './Rich';
-import { Segmented } from './Segmented';
-import { useT } from './i18n';
-import { useCopy } from './useCopy';
+import { SITE_URL } from '../../config';
+import { LOCALE_NAMES, LOCALES, localePath, translator, type Locale, type Translate } from '../../i18n';
+import { patchedPolicies, type Analysis } from '../../lib/analysis';
+import type { Vendor } from '../../lib/catalogue/schema';
+import type { Audience } from '../../lib/csp/model';
+import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../../lib/reports/developer';
+import { countByLevel, findingText, securityReport } from '../../lib/reports/security';
+import { itRequest, withVendorText, type MessageFormat } from '../../lib/reports/simple';
+import { track } from '../../scripts/track';
+import { CodeBox } from '../ui/CodeBox';
+import { Rich } from '../ui/Rich';
+import { Segmented } from '../ui/Segmented';
+import { useT } from '../ui/i18n';
+import { useCopy } from '../ui/useCopy';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 

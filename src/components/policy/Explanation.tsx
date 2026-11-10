@@ -1,11 +1,11 @@
 import { Fragment } from 'preact';
-import { localePath, type Translate } from '../i18n';
-import { explainSource, type ContentBundle } from '../lib/content';
-import { directiveInfo, DIRECTIVES } from '../lib/csp/directives';
-import { resolve } from '../lib/csp/fallback';
-import { issuesAt } from '../lib/csp/parser';
-import type { Audience, ParseIssue, Policy } from '../lib/csp/model';
-import { useT } from './i18n';
+import { localePath, type Translate } from '../../i18n';
+import { explainSource, type ContentBundle } from '../../lib/content';
+import { directiveInfo, DIRECTIVES } from '../../lib/csp/directives';
+import { resolve } from '../../lib/csp/fallback';
+import { issuesAt } from '../../lib/csp/parser';
+import type { Audience, ParseIssue, Policy } from '../../lib/csp/model';
+import { useT } from '../ui/i18n';
 import { highlightClass, type Selection } from './PolicyView';
 
 interface Props {

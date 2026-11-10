@@ -37,7 +37,21 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/lib/csp/`: pure TypeScript core (parser, fallback, matcher, compat, patch, security). No UI imports.
 - `src/lib/reports/`: one report per audience (simple = IT message, developer, security).
 - `src/lib/analysis.ts`: orchestrates parse → vendor checks → patches → findings.
-- `src/components/`: the analyzer island (Preact, `client:load`) and shared components.
+- `src/components/`: Preact islands (`client:load`) and Astro components, grouped by who uses them. Each test and
+  stylesheet stays next to its code; no folders by file type (`hooks/`, `css/`, `tests/`).
+  - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, recent analyses, `analyzer.css`.
+  - `builder/`: only the builder island (build page): `Builder`, `BuildPanels`, `useBuilder`, `build-state`.
+  - `policy/`: CSP-specific pieces used by both islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`)
+    and the shareable URL state (`state.ts`).
+  - `ui/`: generic building blocks with no CSP knowledge (`Tabs`, `Segmented`, `CodeBox`, `Rich`, `NewTabLink`,
+    `useCopy`, `i18n.ts`). Usable from islands and Astro pages.
+  - `site/`: Astro-only components for the static pages and layouts (`SiteHeader`, `CodeBlock`, `DevtoolsSketch`).
+  - Put new code in the narrowest folder that fits. Imports only go "down": `analyzer/` and `builder/` may import
+    `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component folder. `analyzer/` and
+    `builder/` never import each other. When code in one island becomes needed by the other (or by a page), move
+    it with `git mv` to `policy/` (CSP-specific) or `ui/` (generic) instead of importing across or duplicating it;
+    likewise move code back down when its last other user goes away. Known exception: the builder still
+    imports `analyzer/analyzer.css` for shared styles, pending a split into a shared stylesheet.
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from
@@ -52,7 +66,7 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   kept apart so the island bundle doesn't carry it. `fr.json` and `fr.pages.json` mirror them key for key (tests
   check keys, placeholders and links). No hard-coded copy in pages or components. Astro pages take `t` from
   `translatorFor(Astro)`; island components call `useT()`
-  (`src/components/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through
+  (`src/components/ui/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through
   `<Rich t={t} msg="…" />` with its inline syntax (`code`, **strong**, *em*, [[kbd]], [label](/path)), never HTML.
 - Long pages you read (guides, the directives list) use `src/layouts/GuideLayout.astro`: heading, lead, contents
   built from the page's `<h2>`s (margin list on wide screens, a sticky bar below 80rem) and a "Read next" link.
