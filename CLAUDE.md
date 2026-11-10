@@ -55,6 +55,10 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
     travels with it. Markup both islands write themselves goes in `ui/panels.css` (panels, buttons row, code
     text areas) or `policy/results.css` (tool requirements, findings), imported by both islands before their own
     stylesheet so the island's rules win ties. `analyzer.css` and `builder.css` hold only their island's rules.
+- `tests/e2e/`: one spec per area: `analyzer`, `builder`, `guides` (static pages with behaviour of their own),
+  `i18n` and `site` (checks run over every page). Put a test in the area it exercises; one that crosses islands goes
+  with the island it ends on. Shared steps and the usage fixture (`sent`) live in `helpers.ts`: import `test` and
+  `expect` from there, not from `@playwright/test`, so every test answers the usage events.
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from
