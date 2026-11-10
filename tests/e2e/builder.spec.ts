@@ -109,3 +109,130 @@ test('tools picked under a policy that enforces Trusted Types come with a note',
   await openBuilder(page, `/build#b=policy&p=${Buffer.from("default-src 'self'; require-trusted-types-for 'script'").toString('base64url')}&v=hotjar:tracking&step=tools`);
   await expect(page.locator('.trusted-types-note')).toBeVisible();
 });
+
+test('the steps open in order, can be revisited, and the link keeps the step', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openBuilder(page);
+  const steps = page.getByRole('navigation', { name: 'Steps' });
+  await expect(page.getByRole('button', { name: 'Next: your site' })).toBeDisabled();
+  await expect(steps.getByRole('button', { name: /Your tools$/ })).toBeDisabled();
+
+  await page.getByRole('radio', { name: /^A blank policy/ }).check();
+  await expect(page.getByRole('button', { name: 'Next: your site' })).toBeEnabled();
+  await steps.getByRole('button', { name: /Your tools$/ }).click();
+  await expect(page.getByRole('heading', { name: 'Which tools should your site allow?' })).toBeVisible();
+  await expect(steps.getByRole('button', { name: /Your tools$/ })).toHaveAttribute('aria-current', 'step');
+  await page.getByRole('button', { name: 'Back' }).click();
+  await expect(page.getByRole('heading', { name: 'How are your own pages written?' })).toBeVisible();
+
+  // A reload, or the link sent to someone, opens the same step.
+  await expect(page).toHaveURL(/step=site/);
+  await openBuilder(page, page.url().replace(/^.*?\/\/[^/]+/, ''));
+  await expect(page.getByRole('heading', { name: 'How are your own pages written?' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('hints follow the chosen audience, which the analyzer then keeps', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=site');
+  const evalChoice = page.locator('label.choice', { hasText: 'Run code built from text' });
+  await expect(evalChoice).toContainText('Some older libraries and templates do this.');
+  await page.getByRole('radio', { name: 'Developers' }).click();
+  await expect(evalChoice).toContainText("Needs 'unsafe-eval'.");
+
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await expect(page.getByRole('radio', { name: 'Developers' })).toBeChecked();
+});
+
+test('from the current policy, the builder keeps what it allows and says what each tool changes', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openBuilder(page);
+  await page.getByRole('radio', { name: /^Your current policy/ }).check();
+  await expect(page.getByRole('button', { name: 'Next: your site' })).toBeDisabled();
+  await page.getByRole('textbox', { name: 'Paste your policy' }).fill("default-src 'self'; script-src 'self' https://www.googletagmanager.com");
+  await page.getByRole('button', { name: 'Next: your site' }).click();
+  await page.getByRole('button', { name: 'Next: your tools' }).click();
+  await page.getByRole('radio', { name: 'Developers' }).click();
+
+  await pickTool(page, 'Google Tag Manager');
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  const tool = page.locator('details.tool', { hasText: 'Google Tag Manager' });
+  await expect(tool.locator('summary')).toContainText(/\d+ added/);
+  await expect(tool).toContainText('Already allowed by https://www.googletagmanager.com');
+  await expect(tool).toContainText('Added to connect-src');
+
+  // A feature ticked adds what it needs; unticked, it goes away.
+  const preview = page.getByRole('complementary', { name: 'Your policy so far' });
+  await expect(preview).not.toContainText("'unsafe-eval'");
+  await tool.getByRole('checkbox', { name: 'Custom JavaScript variables' }).check();
+  await expect(preview).toContainText("'unsafe-eval'");
+  await tool.getByRole('checkbox', { name: 'Custom JavaScript variables' }).uncheck();
+  await expect(preview).not.toContainText("'unsafe-eval'");
+
+  // What came from the pasted policy says so.
+  await page.getByRole('button', { name: 'See your policy' }).click();
+  await page.locator('.policy').getByRole('button', { name: "'self'" }).first().click();
+  await expect(page.locator('.who-asked')).toContainText('It was in your starting point.');
+
+  // Removing the tool takes back what it added.
+  await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByRole('list', { name: 'Selected tools' }).getByRole('button', { name: 'Remove Google Tag Manager' }).click();
+  await expect(page.locator('details.tool')).toHaveCount(0);
+  await expect(preview).not.toContainText('connect-src');
+  expect(errors).toEqual([]);
+});
+
+test('a tool of our own can be edited and removed', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await page.getByRole('combobox', { name: 'Add a tool' }).fill('Our CDN');
+  await page.getByRole('button', { name: 'Describe “Our CDN” yourself' }).click();
+  await page.getByRole('combobox', { name: 'Kind of resource' }).selectOption('img');
+  await page.getByRole('textbox', { name: 'Addresses, separated by spaces' }).fill('https://cdn.example.org');
+  await page.getByRole('button', { name: 'Add this tool' }).click();
+  const preview = page.getByRole('complementary', { name: 'Your policy so far' });
+  await expect(preview).toContainText('https://cdn.example.org');
+
+  // Added folded, since its needs were just typed.
+  const tool = page.locator('details.tool', { hasText: 'Our CDN' });
+  await tool.locator('summary').click();
+  await tool.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('textbox', { name: 'Addresses, separated by spaces' }).fill('https://images.example.org');
+  await page.getByRole('button', { name: 'Save changes' }).click();
+  await expect(preview).toContainText('https://images.example.org');
+  await expect(preview).not.toContainText('https://cdn.example.org');
+
+  await tool.locator('summary').click();
+  await tool.getByRole('button', { name: 'Remove Our CDN' }).click();
+  await expect(page.locator('details.tool')).toHaveCount(0);
+  await expect(preview).not.toContainText('example.org');
+});
+
+test('things to know list the findings, and offer hashes for inline scripts', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&n=inline-scripts&step=review');
+  const notes = page.getByRole('tab', { name: /Things to know/ });
+  await notes.click();
+  await expect(notes.locator('.count')).toHaveText(String(await page.locator('.finding').count()));
+  const finding = page.locator('.finding', { hasText: "'unsafe-inline'" });
+  await expect(finding.locator('.level')).toHaveText('High');
+  await finding.getByRole('button', { name: 'List your inline scripts by hash instead' }).click();
+
+  await expect(page.getByRole('heading', { name: 'How are your own pages written?' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'Only the ones I list' })).toBeChecked();
+  await expect(page.getByRole('complementary', { name: 'Your policy so far' })).not.toContainText("'unsafe-inline'");
+});
+
+test('put it live gives the policy for the chosen server, and what a <meta> tag cannot carry', async ({ page, sent }) => {
+  await openBuilder(page, '/build#b=allowlist&step=review');
+  await page.getByRole('tab', { name: /Put it live/ }).click();
+  await expect(page.locator('.code-block', { hasText: 'Add to your nginx server block' })).toContainText('add_header Content-Security-Policy');
+
+  await page.getByRole('radio', { name: 'Apache' }).click();
+  const apache = page.locator('.code-block', { hasText: 'Add to your Apache config or .htaccess' });
+  await expect(apache).toContainText('Header always set Content-Security-Policy');
+  await apache.getByRole('button', { name: 'Copy this' }).click();
+  await expect.poll(sent).toContain('n=copy-build&kind=apache');
+
+  await page.getByRole('radio', { name: '<meta> tag' }).click();
+  await expect(page.locator('.code-block', { hasText: 'Add to the <head> of every page' })).toContainText('<meta http-equiv="Content-Security-Policy"');
+  await expect(page.locator('.code-block', { hasText: 'send them as HTTP headers' })).toContainText("frame-ancestors 'self'");
+});
