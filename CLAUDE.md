@@ -50,8 +50,11 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
     `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component folder. `analyzer/` and
     `builder/` never import each other. When code in one island becomes needed by the other (or by a page), move
     it with `git mv` to `policy/` (CSP-specific) or `ui/` (generic) instead of importing across or duplicating it;
-    likewise move code back down when its last other user goes away. Known exception: the builder still
-    imports `analyzer/analyzer.css` for shared styles, pending a split into a shared stylesheet.
+    likewise move code back down when its last other user goes away.
+  - Styles follow the same rule. A component imports its own stylesheet (`Tabs.tsx` → `tabs.css`), so its look
+    travels with it. Markup both islands write themselves goes in `ui/panels.css` (panels, buttons row, code
+    text areas) or `policy/results.css` (tool requirements, findings), imported by both islands before their own
+    stylesheet so the island's rules win ties. `analyzer.css` and `builder.css` hold only their island's rules.
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from

@@ -1,0 +1,50 @@
+/* A row of tabs: the open one is underlined and marked like a highlighted token */
+.tablist {
+  display: flex;
+  gap: 0 1.5rem;
+  margin-bottom: -2px;
+  /* One row; scrolls sideways on narrow screens instead of wrapping */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tablist [role='tab'] {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0.6rem 0 0.55rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.tablist [role='tab']:hover {
+  color: var(--ink);
+}
+.tablist [role='tab'][aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.tablist [aria-selected='true'] .tab-label {
+  background: linear-gradient(transparent 58%, var(--hl-keyword) 58%, var(--hl-keyword) 92%, transparent 92%);
+}
+/* A count next to a tab's label, coloured by status */
+.count {
+  font-size: var(--step--1);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  border: 2px solid currentColor;
+}
+.count-bad {
+  color: var(--bad);
+}
+.count-warn {
+  color: var(--warn);
+}
+.count-ok {
+  color: var(--ok);
+}

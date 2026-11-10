@@ -9,7 +9,9 @@ import { I18n } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
 import { useBuilder } from './useBuilder';
-import '../analyzer/analyzer.css';
+// Shared view styles first, so the builder's own rules win when they tie
+import '../ui/panels.css';
+import '../policy/results.css';
 import './builder.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];

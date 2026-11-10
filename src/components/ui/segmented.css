@@ -1,0 +1,56 @@
+/* Segmented controls. `.segmented` and `.audience` (the "Explain it for" switch, with its label) fill the
+   chosen option; `.tabs` (report formats and targets) only outlines it. */
+.audience {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding-bottom: 0.6rem;
+  margin-left: auto;
+}
+.audience-label {
+  color: var(--ink-soft);
+  margin-right: 0.35rem;
+}
+.audience button,
+.segmented button {
+  border: 2px solid var(--rule);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.7rem;
+  font-weight: 700;
+}
+.audience button[aria-checked='true'],
+.segmented button[aria-checked='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+@media (pointer: coarse) {
+  .audience button,
+  .segmented button {
+    min-height: 2.75rem;
+  }
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+.tabs button {
+  border: 2px solid var(--rule);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.8rem;
+}
+.tabs button[aria-checked='true'],
+.tabs button[aria-selected='true'] {
+  border-color: var(--ink);
+  font-weight: 700;
+}

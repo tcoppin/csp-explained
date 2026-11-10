@@ -1,0 +1,43 @@
+/* What the picked part of the policy means */
+.explanation {
+  border-left: 4px solid var(--ink);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+}
+.explanation h3 {
+  font-size: var(--step-2);
+  margin-bottom: 0.25rem;
+  overflow-wrap: anywhere;
+}
+.explanation .crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.25rem;
+}
+/* The rule's name, outlined so it reads apart from its plain title without a separator */
+.explanation .crumb code {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0 0.35rem;
+  color: var(--ink);
+}
+.explanation .lead {
+  font-weight: 700;
+  font-size: var(--step-1);
+  margin-bottom: 0.4rem;
+}
+.parts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 1rem;
+  font-family: var(--mono);
+  font-size: var(--step--1);
+}
+.parts dt {
+  color: var(--ink-soft);
+}
+.parts dd {
+  margin: 0;
+}

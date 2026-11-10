@@ -1,0 +1,6 @@
+/* Tools picked under a policy that enforces Trusted Types */
+.trusted-types-note {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+  margin: 1.25rem 0;
+}

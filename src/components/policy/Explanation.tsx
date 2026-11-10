@@ -7,6 +7,7 @@ import { issuesAt } from '../../lib/csp/parser';
 import type { Audience, ParseIssue, Policy } from '../../lib/csp/model';
 import { useT } from '../ui/i18n';
 import { highlightClass, type Selection } from './PolicyView';
+import './explanation.css';
 
 interface Props {
   policy: Policy;

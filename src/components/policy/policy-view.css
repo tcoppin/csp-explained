@@ -1,0 +1,121 @@
+/* The policy as an annotated document: directive names in the margin, values highlighted by kind */
+.policy {
+  list-style: none;
+  margin: 0;
+  padding: 1rem 0;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.line {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.3rem 1rem;
+  align-items: baseline;
+}
+.line-ignored .tokens {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.margin-note {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-align: right;
+  border-right: 2px solid var(--rule);
+  padding-right: 1rem;
+}
+.flag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  width: 1.2em;
+  height: 1.2em;
+  line-height: 1.2em;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--bad);
+  color: var(--surface);
+  font-weight: 800;
+}
+@media (max-width: 40rem) {
+  .line {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .margin-note {
+    text-align: left;
+    border: 0;
+    padding: 0;
+  }
+}
+.tokens {
+  font-family: var(--mono);
+  font-size: var(--step-0);
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+.semi {
+  color: var(--ink-soft);
+}
+
+.tok {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: inherit;
+  border: 0;
+  border-radius: 3px;
+  padding: 0.05em 0.25em;
+  color: var(--ink);
+  background: transparent;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+button.tok:hover {
+  outline: 2px solid var(--ink-soft);
+}
+.tok.selected {
+  outline: 3px solid var(--ink);
+  outline-offset: 1px;
+}
+.tok-directive {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+.hl-keyword {
+  background: var(--hl-keyword);
+}
+.hl-host {
+  background: var(--hl-host);
+}
+.hl-scheme {
+  background: var(--hl-scheme);
+}
+.hl-nonce {
+  background: var(--hl-nonce);
+}
+.hl-unsafe {
+  background: var(--hl-unsafe);
+}
+.hl-invalid {
+  background: var(--hl-invalid);
+  text-decoration: wavy underline var(--bad);
+}
+
+/* The policy next to the explanation of the part picked in it (stacked on narrow screens) */
+.decoded-grid {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (min-width: 60rem) {
+  .decoded-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+  .explanation-slot {
+    position: sticky;
+    /* Below the site header, which stays at the top */
+    top: 4.75rem;
+  }
+}

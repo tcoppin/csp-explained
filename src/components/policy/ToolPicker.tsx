@@ -5,6 +5,7 @@ import type { Vendor } from '../../lib/catalogue/schema';
 import { matchesTool } from '../../lib/catalogue/search';
 import { NewTabLink } from '../ui/NewTabLink';
 import { useT } from '../ui/i18n';
+import './tool-picker.css';
 
 /** A tool the visitor described, listed in its own group before the catalogue. */
 export interface OwnOption {

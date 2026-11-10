@@ -362,3 +362,7 @@
 .inline-choice > p {
   margin: 0.75rem 0 0;
 }
+/* "Find my CSP" link, at the end of the start step's buttons */
+.find-hint {
+  margin: 0 0 0 auto;
+}

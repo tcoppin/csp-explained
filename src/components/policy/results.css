@@ -1,0 +1,98 @@
+/* Results both islands list: what each tool needs, and the security findings */
+.features {
+  border: 0;
+  padding: 0;
+  margin: 0.75rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+.features legend {
+  color: var(--ink-soft);
+  padding: 0;
+  margin-bottom: 0.25rem;
+}
+.requirements {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+}
+.req {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 0.25rem 1rem;
+  padding: 0.35rem 0 0.35rem 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.req::before {
+  position: absolute;
+  left: 0;
+  font-weight: 800;
+}
+.req-allowed::before {
+  content: '✓';
+  color: var(--ok);
+}
+.req-blocked::before {
+  content: '✕';
+  color: var(--bad);
+}
+.req-needs-nonce::before,
+.req-reported::before {
+  content: '!';
+  color: var(--warn);
+}
+.req-what code {
+  overflow-wrap: anywhere;
+}
+.req-why {
+  color: var(--ink-soft);
+}
+@media (max-width: 40rem) {
+  .req {
+    grid-template-columns: 1fr;
+  }
+}
+.nonce-how {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+}
+
+.findings {
+  list-style: none;
+  padding: 0;
+}
+.finding {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.finding .level {
+  font-weight: 700;
+  min-width: 5rem;
+}
+/* Which policy a finding is about: neutral, so it never reads as a status */
+.finding .tag {
+  font-size: var(--step--1);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--ink-soft);
+}
+.finding .desc {
+  flex-basis: 100%;
+  color: var(--ink-soft);
+}
+.level-high .level {
+  color: var(--bad);
+}
+.level-medium .level {
+  color: var(--warn);
+}
+.level-low .level,
+.level-info .level {
+  color: var(--info);
+}

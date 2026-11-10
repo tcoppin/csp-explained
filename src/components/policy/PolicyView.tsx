@@ -2,6 +2,7 @@ import { Fragment } from 'preact';
 import type { ContentBundle } from '../../lib/content';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
 import { useT } from '../ui/i18n';
+import './policy-view.css';
 
 export interface Selection {
   policyIndex: number;

@@ -22,6 +22,9 @@ import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, 
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
 import { VendorChecker } from './VendorChecker';
+// Shared view styles first, so the analyzer's own rules win when they tie
+import '../ui/panels.css';
+import '../policy/results.css';
 import './analyzer.css';
 
 const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];

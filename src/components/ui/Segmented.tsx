@@ -1,4 +1,5 @@
 import type { ComponentChildren } from 'preact';
+import './segmented.css';
 
 export interface SegmentedItem<T extends string | number> {
   id: T;

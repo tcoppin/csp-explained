@@ -1,4 +1,5 @@
 import type { ComponentChildren } from 'preact';
+import './tabs.css';
 
 export interface TabItem<T extends string> {
   id: T;

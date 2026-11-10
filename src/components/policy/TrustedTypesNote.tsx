@@ -1,4 +1,5 @@
 import { Rich } from '../ui/Rich';
+import './trusted-types-note.css';
 
 /**
  * Shown beside the tools when the policy enforces Trusted Types: no tool in the catalogue documents whether it
