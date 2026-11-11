@@ -100,6 +100,7 @@
     "rules": { "one": "{count} règle", "other": "{count} règles" },
     "edit": "Modifier",
     "build": "Ouvrir dans le constructeur",
+    "compare": "Comparer avec une autre politique",
     "hideEditor": "Terminé",
     "policiesShort": "{count} politiques",
     "yourPolicy": "Votre politique",
@@ -442,6 +443,12 @@
     "after": "Après",
     "afterHint": "Celle à laquelle la comparer, par exemple en préproduction.",
     "swap": "Les inverser",
+    "recent": {
+      "label": "Ou reprendre une analyse récente",
+      "labelFor": "{side} : ou reprendre une analyse récente",
+      "choose": "Choisir",
+      "option": "{date} : {what}"
+    },
     "waiting": "Collez une politique de chaque côté pour voir ce qui change.",
     "views": {
       "label": "Comparaison",
@@ -694,6 +701,7 @@
       "reportOnly": "Commencez par `Content-Security-Policy-Report-Only` : rien n'est bloqué, et la console du navigateur liste ce qui le serait. Quand elle reste silencieuse, passez à `Content-Security-Policy`. Pour les recevoir plutôt que lire la console, [mettez en place les rapports](/reporting).",
       "policyCaption": "La politique seule",
       "analyze": "Analyser cette politique",
+      "compare": "Comparer avec votre politique actuelle",
       "tabs": {
         "label": "Votre politique",
         "lines": "Ligne par ligne",

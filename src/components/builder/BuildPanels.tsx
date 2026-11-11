@@ -17,6 +17,7 @@ import { OwnToolEditor } from './OwnTools';
 import { highlightClass, PolicyView, type Selection } from '../policy/PolicyView';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
+import { encodeCompareState } from '../policy/compare-state';
 import { FindingList } from '../policy/FindingList';
 import { encodeState, unreadableSite } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
@@ -427,6 +428,11 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
   const snippet = deploySnippet(deployAnalysis, target);
   const metaHeaders = target === 'meta' ? headersBesideMeta(deployAnalysis) : '';
   const analyzeHref = localePath(t.locale, `/#${encodeState({ policy: built.text, site: b.site, vendors: b.vendors })}`);
+  // Started from a policy: the comparator shows what the builder changed in it.
+  const compareHref =
+    b.start === 'policy' && b.policyText.trim() !== ''
+      ? localePath(t.locale, `/compare#${encodeCompareState({ before: b.policyText, after: built.text, site: b.site, vendors: b.vendors, audience })}`)
+      : undefined;
 
   return (
     <div class="review">
@@ -533,6 +539,11 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
         <a class="button quiet" href={analyzeHref}>
           {t('build.review.analyze')}
         </a>
+        {compareHref && (
+          <a class="button quiet" href={compareHref}>
+            {t('build.review.compare')}
+          </a>
+        )}
       </p>
     </div>
   );

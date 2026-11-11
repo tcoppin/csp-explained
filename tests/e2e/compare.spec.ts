@@ -1,5 +1,5 @@
 /** The comparator (/compare): the two policies, what the change does in each view, the link, and what is counted. */
-import { test, expect, watchErrors, openComparator, pickTool, POLICY } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openBuilder, openComparator, pickTool, policyAction, POLICY } from './helpers';
 
 /** One of the policies kept in a comparator link. */
 const inLink = (url: string, key: 'b' | 'a') => {
@@ -104,6 +104,51 @@ test('says when a policy moves from report-only to enforced', async ({ page }) =
   await page.getByRole('textbox', { name: 'Before' }).fill(`Content-Security-Policy-Report-Only: ${POLICY}`);
   await page.getByRole('textbox', { name: 'After' }).fill(`Content-Security-Policy: ${POLICY}`);
   await expect(page.getByRole('tabpanel')).toContainText('The after policy is enforced: what the before policy only reported will now be blocked.');
+});
+
+test('the analyzer opens the comparator with its policy as the one before', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('button', { name: 'Done' }).click();
+  await policyAction(page, 'link', 'Compare with another policy');
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+  await expect(page).toHaveURL(/\/compare#/);
+  await expect(page.getByRole('textbox', { name: 'Before' })).toHaveValue(POLICY);
+  await expect(page.getByRole('textbox', { name: 'After' })).toBeFocused();
+});
+
+test('either side can come from a recent analysis, once the history is on', async ({ page }) => {
+  // No history kept, nothing to offer.
+  await openComparator(page);
+  await expect(page.locator('.recent-picker')).toHaveCount(0);
+
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Keep a history on this device' }).click();
+  await page.locator('.site-field summary').click();
+  await page.locator('.site-field input').fill('shop.example.com');
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  // The analyzer keeps it once the text settles.
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('csp-explained:recent') ?? '')).toContain('shop.example.com');
+
+  await openComparator(page);
+  const picker = page.getByRole('combobox', { name: 'After: or use a recent analysis' });
+  const entry = await picker.locator('option', { hasText: 'shop.example.com' }).getAttribute('value');
+  await picker.selectOption(entry!);
+  await expect(page.getByRole('textbox', { name: 'After' })).toHaveValue(POLICY);
+  await expect(picker).toHaveValue('');
+  await page.locator('.site-field summary').click();
+  await expect(page.locator('.site-field input')).toHaveValue('shop.example.com');
+});
+
+test('the builder compares what it built with the policy it started from', async ({ page }) => {
+  await openBuilder(page, `/build#b=policy&p=${Buffer.from(POLICY).toString('base64url')}&v=hotjar:tracking&step=review`);
+  await page.getByRole('link', { name: 'Compare with your current policy' }).click();
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+  await expect(page.getByRole('textbox', { name: 'Before' })).toHaveValue(POLICY);
+  await expect(page.getByRole('textbox', { name: 'After' })).toHaveValue(/hotjar\.com/);
+  await expect(page.getByRole('row', { name: /^Data connections/ })).toContainText('https://*.hotjar.com');
+  await page.getByRole('tab', { name: /^Your tools/ }).click();
+  await expect(page.getByRole('region', { name: 'Hotjar' })).toContainText('Before the change: Blocked by this policy');
 });
 
 test('counts a comparison once, never the example or the policies', async ({ page, sent }) => {
