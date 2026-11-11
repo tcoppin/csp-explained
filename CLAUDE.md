@@ -42,8 +42,8 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, recent analyses, `analyzer.css`.
   - `builder/`: only the builder island (build page): `Builder`, `BuildPanels`, `useBuilder`, `build-state`.
   - `compare/`: only the comparator island (compare page): `Compare`, `compare-state`, `compare.css`.
-  - `policy/`: CSP-specific pieces used by several islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`, `SiteField`)
-    and the shareable URL state (`state.ts`).
+  - `policy/`: CSP-specific pieces used by several islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`,
+    `SiteField`, `FindingList`) and the shareable URL state (`state.ts`).
   - `ui/`: generic building blocks with no CSP knowledge (`Tabs`, `Segmented`, `CodeBox`, `Rich`, `NewTabLink`,
     `useCopy`, `i18n.ts`). Usable from islands and Astro pages.
   - `site/`: Astro-only components for the static pages and layouts (`SiteHeader`, `CodeBlock`, `DevtoolsSketch`).
