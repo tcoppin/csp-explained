@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import GuideLayout from '../../layouts/GuideLayout.astro';
 import { Rich } from '../../components/ui/Rich';
 import { encodeState } from '../../components/policy/state';
 import { REPO_URL } from '../../config';
@@ -17,53 +17,48 @@ const ownPolicy = `Content-Security-Policy: ${HEADER_POLICY}\n<meta http-equiv="
 const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, site: '', vendors: {} })}`);
 ---
 
-<Base title={t('pages.about.title')} description={t('pages.about.description')}>
-  <article class="wrap prose page-column about">
-    <h1>{t('pages.about.title')}</h1>
-    <p class="lead"><Rich t={t} msg="pages.about.lead" /></p>
+<GuideLayout
+  title={t('pages.about.title')}
+  description={t('pages.about.description')}
+  heading={t('pages.about.title')}
+  lead="pages.about.lead"
+  next={{ key: 'analyzer', href: '/' }}
+>
+  <h2>{t('pages.about.privacyTitle')}</h2>
+  <p><Rich t={t} msg="pages.about.privacy" /></p>
 
-    <h2>{t('pages.about.privacyTitle')}</h2>
-    <p><Rich t={t} msg="pages.about.privacy" /></p>
+  <h2>{t('pages.about.storedTitle')}</h2>
+  <p>{t('pages.about.storedIntro')}</p>
+  <ul class="stored">
+    {
+      STORED.map((name) => (
+        <li>
+          <Rich t={t} msg={`pages.about.stored.items.${name}`} /> <code>{storageKey(name)}</code>
+        </li>
+      ))
+    }
+  </ul>
 
-    <h2>{t('pages.about.storedTitle')}</h2>
-    <p>{t('pages.about.storedIntro')}</p>
-    <ul class="stored">
-      {
-        STORED.map((name) => (
-          <li>
-            <Rich t={t} msg={`pages.about.stored.items.${name}`} /> <code>{storageKey(name)}</code>
-          </li>
-        ))
-      }
-    </ul>
+  <h2>{t('pages.about.countTitle')}</h2>
+  <p><Rich t={t} msg="pages.about.count" /></p>
 
-    <h2>{t('pages.about.countTitle')}</h2>
-    <p><Rich t={t} msg="pages.about.count" /></p>
+  <h2>{t('pages.about.sourcesTitle')}</h2>
+  <ul>
+    <li><Rich t={t} msg="pages.about.sourceSpec" /></li>
+    <li><Rich t={t} msg="pages.about.sourceEvaluator" /></li>
+    <li><Rich t={t} msg="pages.about.sourceVendors" /></li>
+  </ul>
 
-    <h2>{t('pages.about.sourcesTitle')}</h2>
-    <ul>
-      <li><Rich t={t} msg="pages.about.sourceSpec" /></li>
-      <li><Rich t={t} msg="pages.about.sourceEvaluator" /></li>
-      <li><Rich t={t} msg="pages.about.sourceVendors" /></li>
-    </ul>
+  <h2>{t('pages.about.catalogueTitle')}</h2>
+  <p><Rich t={t} msg="pages.about.catalogue" vars={{ issues: `${REPO_URL}/issues` }} /></p>
 
-    <h2>{t('pages.about.catalogueTitle')}</h2>
-    <p><Rich t={t} msg="pages.about.catalogue" vars={{ issues: `${REPO_URL}/issues` }} /></p>
-
-    <h2>{t('pages.about.ownTitle')}</h2>
-    <p><Rich t={t} msg="pages.about.own" /></p>
-    <pre><code>{ownPolicy}</code></pre>
-    <p><a class="button" href={analyzeOwn}>{t('pages.about.analyseOwn')}</a></p>
-  </article>
-</Base>
+  <h2>{t('pages.about.ownTitle')}</h2>
+  <p><Rich t={t} msg="pages.about.own" /></p>
+  <pre><code>{ownPolicy}</code></pre>
+  <p><a class="button" href={analyzeOwn}>{t('pages.about.analyseOwn')}</a></p>
+</GuideLayout>
 
 <style>
-  .about h2 {
-    margin-top: 2.5rem;
-  }
-  .lead {
-    font-size: var(--step-1);
-  }
   pre {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -71,9 +66,10 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
   li {
     margin-bottom: 0.4rem;
   }
+  /* A key stays on one line: it is a name to search for, not words */
   .stored code {
     font-size: var(--step--1);
     color: var(--ink-soft);
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 </style>
