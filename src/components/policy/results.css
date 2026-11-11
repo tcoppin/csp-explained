@@ -1,4 +1,4 @@
-/* Results both islands list: what each tool needs, and the security findings */
+/* Results several islands list: kinds of content and their verdicts, what each tool needs, and the security findings */
 .features {
   border: 0;
   padding: 0;
@@ -96,3 +96,111 @@
 .level-info .level {
   color: var(--info);
 }
+
+/* A table of kinds of content (what a policy allows, what a change does), with chips for the sources */
+.allow-map {
+  width: 100%;
+  border-collapse: collapse;
+}
+.allow-map th,
+.allow-map td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.allow-map th {
+  width: 13rem;
+  font-weight: 700;
+}
+.allow-map .via {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  white-space: nowrap;
+}
+@media (max-width: 40rem) {
+  .allow-map tr {
+    display: grid;
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem 0;
+  }
+  .allow-map th,
+  .allow-map td {
+    border: 0;
+    padding: 0.1rem 0;
+    width: auto;
+  }
+}
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+}
+.chip-note {
+  margin-left: 0.35rem;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+.chip-ignored code {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.verdict-unrestricted {
+  color: var(--warn);
+}
+.verdict-none {
+  color: var(--ink-soft);
+}
+.verdict {
+  font-weight: 700;
+  margin: 0;
+}
+.verdict-allowed {
+  color: var(--ok);
+}
+.verdict-blocked {
+  color: var(--bad);
+}
+.verdict-needs-nonce,
+.verdict-reported {
+  color: var(--warn);
+}
+
+.vendor-result {
+  border-left: 4px solid var(--rule);
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin-bottom: 2rem;
+}
+.verdict-border-allowed {
+  border-left-color: var(--ok);
+}
+.verdict-border-blocked {
+  border-left-color: var(--bad);
+}
+.verdict-border-needs-nonce,
+.verdict-border-reported {
+  border-left-color: var(--warn);
+}
+.vendor-result header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+}
+.vendor-result h3 {
+  margin: 0;
+}
+.provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  font-size: var(--step--1);
+}
+.provenance-report {
+  margin-left: auto;
+}
+
