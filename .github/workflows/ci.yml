@@ -32,8 +32,29 @@ jobs:
           case "$RANGE" in 0000000000000000000000000000000000000000..*) echo "New branch: nothing to compare"; exit 0;; esac
           yarn tsx scripts/release.ts check "$RANGE"
 
-  site:
+  # The site job runs in Microsoft's Playwright image, which already has Chromium and its system packages:
+  # installing them on the runner needs Ubuntu's mirrors, and an outage there stalled CI. The image must
+  # match the @playwright/test version we install, so its tag is read from the lockfile.
+  playwright-version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: yarn.lock
+          sparse-checkout-cone-mode: false
+      - id: read
+        run: |
+          version=$(awk '/^"@playwright\/test@npm:/ { found = 1 } found && /^  version:/ { print $2; exit }' yarn.lock)
+          test -n "$version" || { echo "::error::@playwright/test not found in yarn.lock"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  site:
+    needs: playwright-version
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-resolute
     # A normal run takes about 3 minutes; a stalled download would otherwise hold the runner for 6 hours.
     timeout-minutes: 20
     steps:
@@ -47,7 +68,6 @@ jobs:
       - run: yarn test
       - run: yarn check
       - run: yarn build
-      - run: yarn playwright install --with-deps chromium
       - run: yarn test:e2e
 
   infra:
