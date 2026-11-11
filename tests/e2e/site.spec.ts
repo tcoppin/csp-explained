@@ -117,13 +117,20 @@ test('text fits a 360px phone screen', async ({ page }) => {
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
   for (const path of inEveryLanguage(['/', '/build', '/compare', COMPARE_EXAMPLE, `${COMPARE_EXAMPLE}&t=tools`, '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
+    // Islands render their results once hydrated: check what the visitor ends up seeing, not the first paint.
+    await page.waitForFunction(() => !document.querySelector('astro-island[ssr]'));
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
     // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
     const overflowing = await page.evaluate(() => {
       const width = document.documentElement.clientWidth;
+      const clipped = (el: Element | null): boolean =>
+        el !== null && (getComputedStyle(el).clipPath === 'inset(50%)' || clipped(el.parentElement));
       const found: string[] = [];
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
         if (!node.textContent?.trim() || node.parentElement?.closest('pre, .visually-hidden, [hidden]')) continue;
+        // Text kept for screen readers only (clipped to nothing, like the views' full names on phones) isn't seen.
+        if (clipped(node.parentElement)) continue;
         const range = document.createRange();
         range.selectNodeContents(node);
         if ([...range.getClientRects()].some((r) => r.right > width + 1)) found.push(node.textContent.trim());
