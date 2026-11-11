@@ -172,8 +172,13 @@ the plain-language voice better than "CSP Explainer".
       analyzer, the recent analyses (once the history is on) and the builder (when it started from a policy).
 - [x] **Recent analyses** (2026-11-06): the last 10 policies analysed, with the site, tools, view and audience,
       in the browser's own storage only. Listed under the empty editor to reopen one where it was left, delete
-      one or all; an off switch remembered on the device also forgets them. The example isn't kept. The About
-      page and the README say it stays on the device. Pairs with comparing two policies.
+      one or all. The example isn't kept. Opt-in since 2026-11-11: nothing is kept until the visitor asks for a
+      history, and turning it off forgets it; a browser that already held one carries on. Pairs with comparing two
+      policies.
+- [x] **Storage only on request** (2026-11-11): everything kept in the browser is written after the visitor does
+      something that needs it (a choice, or a feature turned on), as EU ePrivacy rules expect, without a consent
+      banner. The About page lists each key from `src/stored.ts`, and a test fails on a key it doesn't explain.
+      The rule for new storage is in CLAUDE.md.
 - [x] **Nonce migration guide** (`/nonces`, 2026-11-06): from `'unsafe-inline'` to a nonce with `'strict-dynamic'`:
       the policy to aim for, the rules for the value, code for Node.js (Express), Next.js, PHP, Django and Rails
       checked against their official docs, hashes for static sites, a report-only rollout and third-party tools.
