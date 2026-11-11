@@ -6,6 +6,7 @@
     "nav": {
       "analyzer": "Analyzer",
       "build": "Build a policy",
+      "compare": "Compare",
       "find": "Find my CSP",
       "learn": "Learn",
       "vendors": "Tool catalogue",
@@ -23,6 +24,7 @@
       "desc": {
         "analyzer": "Paste a policy and see what it allows, in plain language.",
         "build": "Start from nothing or from your policy, and add your tools.",
+        "compare": "Two versions of a policy: what the change allows, blocks or fixes.",
         "find": "Get a copy of your website's policy, step by step.",
         "whatIs": "The basics, and the words you'll hear.",
         "directives": "Each rule of a policy, explained.",
@@ -432,6 +434,18 @@
       "unsafe-inline": "'unsafe-inline' in {directive} is ignored because the rule also has a nonce or a hash. It only matters for very old browsers.",
       "strict-dynamic": "{value} in {directive} is ignored because of 'strict-dynamic': only scripts with the nonce or hash, and the scripts they load, run."
     }
+  },
+  "compare": {
+    "inputsLabel": "The two policies",
+    "before": "Before",
+    "beforeHint": "The policy you have now, for example in production.",
+    "after": "After",
+    "afterHint": "The one to compare it with, for example on staging.",
+    "swap": "Swap them",
+    "waiting": "Paste a policy on each side to see what changes.",
+    "results": "What changes",
+    "same": "No difference: browsers read both policies the same way.",
+    "changedRules": { "one": "{count} rule changes.", "other": "{count} rules change." }
   },
   "build": {
     "steps": {

@@ -11,7 +11,7 @@ test('the French site stays in French and links to the same page in English', as
   expect((await request.get('/og-image-fr.png')).headers()['content-type']).toBe('image/png');
 
   // Every link within the site, in the header, the page and the footer, stays on French pages.
-  for (const path of ['/fr', '/fr/build', '/fr/build#b=allowlist&step=review', '/fr/learn', '/fr/find-my-csp', '/fr/vendors', '/fr/vendors/hotjar', '/fr/directives', '/fr/directives/script-src', '/fr/about']) {
+  for (const path of ['/fr', '/fr/build', '/fr/build#b=allowlist&step=review', '/fr/compare', '/fr/learn', '/fr/find-my-csp', '/fr/vendors', '/fr/vendors/hotjar', '/fr/directives', '/fr/directives/script-src', '/fr/about']) {
     await page.goto(path);
     const english = await page
       .locator('a[href^="/"]:not([data-lang-switch])')

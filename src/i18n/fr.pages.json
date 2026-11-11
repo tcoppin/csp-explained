@@ -67,7 +67,7 @@
       }
     },
     "countTitle": "Ce que nous comptons",
-    "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser une politique, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier un rapport ou le snippet, construire une politique et la copier. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique ni l'adresse de votre site.",
+    "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser ou comparer des politiques, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier un rapport ou le snippet, construire une politique et la copier. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique ni l'adresse de votre site.",
     "sourcesTitle": "D'où viennent les informations",
     "sourceSpec": "Le comportement des directives suit la spécification [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/).",
     "sourceEvaluator": "Les constats de sécurité viennent de la bibliothèque [CSP Evaluator](https://github.com/google/csp-evaluator) de Google (Apache-2.0), les mêmes vérifications que csp-evaluator.withgoogle.com.",
@@ -610,6 +610,11 @@
       "build": "Construire une politique à base de nonce",
       "analyze": "Analyser votre politique"
     }
+  },
+  "compare": {
+    "title": "Comparer deux politiques",
+    "description": "Comparez deux versions d'une Content-Security-Policy et voyez, en langage clair, ce que le changement autorise, bloque ou corrige, et quels outils il touche.",
+    "lead": "Collez la politique que vous avez et celle que vous prévoyez. Voyez ce que le changement autorise, bloque ou corrige, en langage clair."
   },
   "build": {
     "title": "Construire une politique",

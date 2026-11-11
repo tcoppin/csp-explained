@@ -1,0 +1,28 @@
+---
+import Compare from '../../components/compare/Compare';
+import Base from '../../layouts/Base.astro';
+import { localeOf, localeParams, translatorFor } from '../../i18n';
+import { contentFor } from '../../lib/site-content';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const t = translatorFor(Astro);
+const locale = localeOf(Astro.currentLocale);
+---
+
+<Base title={t('pages.compare.title')} description={t('pages.compare.description')}>
+  <div class="wrap">
+    <h1>{t('pages.compare.title')}</h1>
+    <p class="lead">{t('pages.compare.lead')}</p>
+    <Compare client:load content={contentFor(locale)} locale={locale} />
+  </div>
+</Base>
+
+<style>
+  .lead {
+    font-size: var(--step-1);
+    max-width: var(--measure);
+  }
+</style>

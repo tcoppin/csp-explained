@@ -41,21 +41,23 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   stylesheet stays next to its code; no folders by file type (`hooks/`, `css/`, `tests/`).
   - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, recent analyses, `analyzer.css`.
   - `builder/`: only the builder island (build page): `Builder`, `BuildPanels`, `useBuilder`, `build-state`.
-  - `policy/`: CSP-specific pieces used by both islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`)
+  - `compare/`: only the comparator island (compare page): `Compare`, `compare-state`, `compare.css`.
+  - `policy/`: CSP-specific pieces used by several islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`, `SiteField`)
     and the shareable URL state (`state.ts`).
   - `ui/`: generic building blocks with no CSP knowledge (`Tabs`, `Segmented`, `CodeBox`, `Rich`, `NewTabLink`,
     `useCopy`, `i18n.ts`). Usable from islands and Astro pages.
   - `site/`: Astro-only components for the static pages and layouts (`SiteHeader`, `CodeBlock`, `DevtoolsSketch`).
-  - Put new code in the narrowest folder that fits. Imports only go "down": `analyzer/` and `builder/` may import
-    `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component folder. `analyzer/` and
-    `builder/` never import each other. When code in one island becomes needed by the other (or by a page), move
+  - Put new code in the narrowest folder that fits. Imports only go "down": `analyzer/`, `builder/` and `compare/` may
+    import `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component folder. The islands
+    never import each other. When code in one island becomes needed by another (or by a page), move
     it with `git mv` to `policy/` (CSP-specific) or `ui/` (generic) instead of importing across or duplicating it;
     likewise move code back down when its last other user goes away.
   - Styles follow the same rule. A component imports its own stylesheet (`Tabs.tsx` → `tabs.css`), so its look
-    travels with it. Markup both islands write themselves goes in `ui/panels.css` (panels, buttons row, code
-    text areas) or `policy/results.css` (tool requirements, findings), imported by both islands before their own
-    stylesheet so the island's rules win ties. `analyzer.css` and `builder.css` hold only their island's rules.
-- `tests/e2e/`: one spec per area: `analyzer`, `builder`, `guides` (static pages with behaviour of their own),
+    travels with it. Markup several islands write themselves goes in `ui/panels.css` (panels, buttons row, code
+    text areas) or `policy/results.css` (tool requirements, findings), imported by the islands before their own
+    stylesheet so the island's rules win ties. `analyzer.css`, `builder.css` and `compare.css` hold only their
+    island's rules.
+- `tests/e2e/`: one spec per area: `analyzer`, `builder`, `compare`, `guides` (static pages with behaviour of their own),
   `i18n` and `site` (checks run over every page). Put a test in the area it exercises; one that crosses islands goes
   with the island it ends on. Shared steps and the usage fixture (`sent`) live in `helpers.ts`: import `test` and
   `expect` from there, not from `@playwright/test`, so every test answers the usage events.
