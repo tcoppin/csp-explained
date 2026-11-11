@@ -75,7 +75,7 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   `translatorFor(Astro)`; island components call `useT()`
   (`src/components/ui/i18n.ts`, provided by the Analyzer from its `locale` prop). Long-form copy goes through
   `<Rich t={t} msg="…" />` with its inline syntax (`code`, **strong**, *em*, [[kbd]], [label](/path)), never HTML.
-- Long pages you read (guides, the directives list) use `src/layouts/GuideLayout.astro`: heading, lead, contents
+- Long pages you read (guides, the directives list, About) use `src/layouts/GuideLayout.astro`: heading, lead, contents
   built from the page's `<h2>`s (margin list on wide screens, a sticky bar below 80rem) and a "Read next" link.
 - Pages live in `src/pages/[...lang]/` and are built once per language (`localeParams()`): English at the root,
   French under `/fr`, same slugs. The 404 is English only (CloudFront serves one error page).
