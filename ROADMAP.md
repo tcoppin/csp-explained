@@ -166,7 +166,10 @@ the plain-language voice better than "CSP Explainer".
 
 ## Ideas backlog
 
-- [ ] Compare two policies (before/after, staging vs production) with a plain-language diff.
+- [x] **Policy comparator** (`/compare`, 2026-11-11): two policies (before/after, staging vs production). What
+      changes per kind of content through the fallback chain, both policies with the edits marked (inline, or side
+      by side on wide screens), findings fixed and introduced, and tools the change breaks or fixes. Opened from the
+      analyzer, the recent analyses (once the history is on) and the builder (when it started from a policy).
 - [x] **Recent analyses** (2026-11-06): the last 10 policies analysed, with the site, tools, view and audience,
       in the browser's own storage only. Listed under the empty editor to reopen one where it was left, delete
       one or all; an off switch remembered on the device also forgets them. The example isn't kept. The About
