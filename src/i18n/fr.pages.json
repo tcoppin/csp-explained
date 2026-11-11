@@ -61,6 +61,7 @@
         "theme": "**Thème de couleurs** : celui choisi en bas d'une page.",
         "language-note": "**Note de langue fermée** : une fois que vous fermez la note proposant une page dans une autre langue, ou changez de langue.",
         "audience": "**À qui s'adressent les explications** (Tout le monde, Développeurs, Sécurité) : une fois votre choix fait.",
+        "diff-layout": "**Présentation des deux politiques dans le comparateur** (Fusionné ou Côte à côte, sur grand écran) : une fois votre choix fait.",
         "tools": "**Outils décrits dans le constructeur**, pour les choisir à nouveau. « Oublier les outils mémorisés dans ce navigateur » les supprime.",
         "recent-on": "**Historique activé** : une fois que vous demandez à l'analyseur de garder un historique. Le désactiver supprime ceci et les analyses.",
         "recent": "**Vos 10 dernières analyses** (politique, adresse du site, outils choisis), seulement tant que l'historique est activé. Supprimez-les sous la liste."

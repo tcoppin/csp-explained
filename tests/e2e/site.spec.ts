@@ -1,5 +1,5 @@
 /** Every page: header, theme, links, metadata, our own CSP, phone widths and accessibility. */
-import { test, expect, watchErrors, openAnalyzer, inEveryLanguage, POLICY, accessibilityProblems } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, POLICY, accessibilityProblems, COMPARE_EXAMPLE } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
   // Astro drops a line break between an inline element and the next word ("<a>…</a>\nlibrary" → "…library").
@@ -104,7 +104,7 @@ test('search engines get a sitemap of the pages, and robots.txt points to it', a
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
-  for (const path of inEveryLanguage(['/', '/build', '/compare', '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
     expect(res?.ok(), path).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
@@ -115,7 +115,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
 test('text fits a 360px phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
-  for (const path of inEveryLanguage(['/', '/build', '/compare', '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', COMPARE_EXAMPLE, `${COMPARE_EXAMPLE}&t=tools`, '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
     // No text may run past the right edge of the screen (code boxes scroll on purpose and are skipped).
     const overflowing = await page.evaluate(() => {
@@ -189,6 +189,18 @@ test('pages pass the automated WCAG 2.2 AA checks, in both themes', async ({ pag
     for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {
       await page.getByRole('tab', { name: new RegExp(tab.replace('?', '\\?')) }).click();
       problems.push(...(await accessibilityProblems(page, `${theme} analysis ${tab}`)));
+    }
+    // Each view of the comparator, and both layouts of the two policies.
+    await openComparator(page, COMPARE_EXAMPLE);
+    for (const tab of ['What changes', 'Both policies', 'Security', 'Your tools']) {
+      await page.getByRole('tab', { name: new RegExp(`^${tab}`) }).click();
+      problems.push(...(await accessibilityProblems(page, `${theme} comparison ${tab}`)));
+    }
+    await page.getByRole('tab', { name: /^Both policies/ }).click();
+    const columns = page.getByRole('radio', { name: 'Side by side' });
+    if (await columns.isVisible()) {
+      await columns.click();
+      problems.push(...(await accessibilityProblems(page, `${theme} comparison in columns`)));
     }
     await page.goto('/build#b=allowlist&v=hotjar:tracking&step=review');
     await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });

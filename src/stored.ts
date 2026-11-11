@@ -6,7 +6,7 @@
  * feature they turn on (the history). Never automatically: EU ePrivacy rules require consent for storage that isn't
  * strictly needed for what the visitor asked. Nothing here is ever sent anywhere.
  */
-export const STORED = ['theme', 'language-note', 'audience', 'tools', 'recent-on', 'recent'] as const;
+export const STORED = ['theme', 'language-note', 'audience', 'diff-layout', 'tools', 'recent-on', 'recent'] as const;
 
 export type Stored = (typeof STORED)[number];
 
