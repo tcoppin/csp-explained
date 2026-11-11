@@ -307,9 +307,17 @@ test('tools picked under a policy that enforces Trusted Types come with a note',
   await expect(page.locator('.trusted-types-note').getByRole('link', { name: 'What Trusted Types change' })).toHaveAttribute('href', '/trusted-types');
 });
 
-test('recent analyses stay in this browser, reopen where they were left, and can be turned off', async ({ page }) => {
+test('recent analyses are kept only once asked for, reopen where they were left, and can be turned off', async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page);
+  // Nothing is stored before the visitor asks for a history.
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.waitForTimeout(1300);
+  expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('csp-explained:recent')))).toEqual([]);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill('');
+  await page.getByRole('button', { name: 'Keep a history on this device' }).click();
+  await expect(page.getByText('History on: your next analyses will be listed here')).toBeVisible();
+
   // Nothing listed before a first analysis, nor for the example.
   await expect(page.locator('.recent')).toHaveCount(0);
   await page.getByRole('button', { name: 'Try an example' }).click();
@@ -348,11 +356,28 @@ test('recent analyses stay in this browser, reopen where they were left, and can
   await page.getByRole('button', { name: 'Stop keeping a history' }).click();
   await expect(page.locator('.recent')).toHaveCount(0);
   await openAnalyzer(page);
-  await expect(page.getByText("Analyses aren't kept in this browser.")).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('csp-explained:recent'))).toBeNull();
+  await expect(page.getByRole('button', { name: 'Keep a history on this device' })).toBeVisible();
+  expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('csp-explained:recent')))).toEqual([]);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
   await page.getByRole('button', { name: 'Done' }).click();
   await page.waitForTimeout(1300);
   expect(await page.evaluate(() => localStorage.getItem('csp-explained:recent'))).toBeNull();
   expect(errors).toEqual([]);
+});
+
+test('a history kept before it became opt-in carries on, unless it was turned off', async ({ page }) => {
+  await openAnalyzer(page);
+  const entry = { id: 'old', policy: POLICY, site: '', vendors: {}, view: 'read', audience: 'simple', savedAt: 1 };
+  await page.evaluate((e) => localStorage.setItem('csp-explained:recent', JSON.stringify([e])), entry);
+  await openAnalyzer(page);
+  await expect(page.locator('.recent-item')).toHaveCount(1);
+  expect(await page.evaluate(() => localStorage.getItem('csp-explained:recent-on'))).toBe('1');
+
+  await page.evaluate(() => {
+    localStorage.clear();
+    localStorage.setItem('csp-explained:recent-off', '1');
+  });
+  await openAnalyzer(page);
+  await expect(page.getByRole('button', { name: 'Keep a history on this device' })).toBeVisible();
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
 });

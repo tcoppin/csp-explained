@@ -2,8 +2,8 @@ import type { Audience } from '../../lib/csp/model';
 import { isAudience, VIEWS, type View } from '../policy/state';
 
 /**
- * The last policies analysed, kept in this browser's own storage only, to reopen one where it was left.
- * Nothing here is ever sent anywhere.
+ * The last policies analysed, kept in this browser's own storage only, to reopen one where it was left, once the
+ * visitor turned the history on. Nothing here is ever sent anywhere.
  */
 export interface RecentAnalysis {
   id: string;
@@ -22,7 +22,9 @@ export const RECENT_LIMIT = 10;
 const MAX_POLICY_LENGTH = 20_000;
 
 const RECENT_KEY = 'csp-explained:recent';
-const OFF_KEY = 'csp-explained:recent-off';
+const ON_KEY = 'csp-explained:recent-on';
+/** Set by older versions, when the history was kept by default and turned off here. */
+const LEGACY_OFF_KEY = 'csp-explained:recent-off';
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -83,22 +85,36 @@ export function saveRecent(list: RecentAnalysis[]): void {
   }
 }
 
-/** Whether the visitor turned the history off on this device. */
-export function loadRecentOff(): boolean {
+/**
+ * Whether the visitor asked for a history on this device. Nothing is kept until they do: storing it is only allowed
+ * once they asked for it (EU ePrivacy rules, see CLAUDE.md). Before the history was opt-in it was kept unless turned
+ * off: a browser that already holds one, and never turned it off, carries on.
+ */
+export function historyOn(get: (key: string) => string | null): { on: boolean; migrate: boolean } {
+  if (get(ON_KEY) === '1') return { on: true, migrate: false };
+  const legacy = get(LEGACY_OFF_KEY) !== '1' && get(RECENT_KEY) !== null;
+  return { on: legacy, migrate: legacy || get(LEGACY_OFF_KEY) !== null };
+}
+
+export function loadRecentOn(): boolean {
   try {
-    return localStorage.getItem(OFF_KEY) === '1';
+    const { on, migrate } = historyOn((key) => localStorage.getItem(key));
+    if (migrate) saveRecentOn(on);
+    return on;
   } catch {
     return false;
   }
 }
 
-/** Turning the history off also forgets what it held. */
-export function saveRecentOff(off: boolean): void {
+/** Turning the history on remembers that choice; turning it off forgets the choice and everything kept. */
+export function saveRecentOn(on: boolean): void {
   try {
-    if (off) {
-      localStorage.setItem(OFF_KEY, '1');
+    localStorage.removeItem(LEGACY_OFF_KEY);
+    if (on) localStorage.setItem(ON_KEY, '1');
+    else {
+      localStorage.removeItem(ON_KEY);
       localStorage.removeItem(RECENT_KEY);
-    } else localStorage.removeItem(OFF_KEY);
+    }
   } catch {
     // Not critical.
   }

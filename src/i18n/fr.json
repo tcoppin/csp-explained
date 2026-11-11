@@ -111,8 +111,9 @@
     "note": "Gardées dans ce navigateur uniquement, jamais envoyées. Toute personne qui utilise ce navigateur peut les voir.",
     "clearAll": "Toutes les supprimer",
     "turnOff": "Ne plus garder d'historique",
-    "offNote": "Les analyses ne sont pas gardées dans ce navigateur.",
-    "turnOn": "Garder un historique"
+    "offNote": "Envie de rouvrir vos analyses plus tard ? Elles peuvent être gardées dans ce navigateur uniquement, jamais envoyées.",
+    "turnOn": "Garder un historique sur cet appareil",
+    "emptyNote": "Historique activé : vos prochaines analyses seront listées ici, dans ce navigateur uniquement."
   },
   "issues": {
     "title": "Points à vérifier",

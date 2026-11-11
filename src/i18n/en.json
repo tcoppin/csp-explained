@@ -111,8 +111,9 @@
     "note": "Kept in this browser only, never sent anywhere. Anyone using this browser can see them.",
     "clearAll": "Delete them all",
     "turnOff": "Stop keeping a history",
-    "offNote": "Analyses aren't kept in this browser.",
-    "turnOn": "Keep a history"
+    "offNote": "Want to reopen your analyses later? They can be kept in this browser only, never sent anywhere.",
+    "turnOn": "Keep a history on this device",
+    "emptyNote": "History on: your next analyses will be listed here, in this browser only."
   },
   "issues": {
     "title": "Things to check",

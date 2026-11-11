@@ -5,13 +5,13 @@ import type { RecentAnalysis } from './recent';
 
 interface Props {
   entries: RecentAnalysis[];
-  /** The visitor turned the history off on this device. */
-  off: boolean;
+  /** The visitor asked for a history on this device. */
+  on: boolean;
   vendors: Vendor[];
   onOpen: (entry: RecentAnalysis) => void;
   onDelete: (id: string) => void;
   onClearAll: () => void;
-  onSwitch: (off: boolean) => void;
+  onSwitch: (on: boolean) => void;
 }
 
 /** What the entry shows of the policy: its directives, without header names or curl output around them. */
@@ -21,19 +21,28 @@ function excerpt(text: string): string {
 }
 
 /** The last policies analysed in this browser, to reopen one where it was left. */
-export function RecentAnalyses({ entries, off, vendors, onOpen, onDelete, onClearAll, onSwitch }: Props) {
+export function RecentAnalyses({ entries, on, vendors, onOpen, onDelete, onClearAll, onSwitch }: Props) {
   const t = useT();
-  if (off) {
+  if (!on) {
     return (
       <p class="recent-note muted">
         {t('recent.offNote')}{' '}
-        <button type="button" class="link-button" onClick={() => onSwitch(false)}>
+        <button type="button" class="link-button" onClick={() => onSwitch(true)}>
           {t('recent.turnOn')}
         </button>
       </p>
     );
   }
-  if (entries.length === 0) return null;
+  if (entries.length === 0) {
+    return (
+      <p class="recent-note muted">
+        {t('recent.emptyNote')}{' '}
+        <button type="button" class="link-button" onClick={() => onSwitch(false)}>
+          {t('recent.turnOff')}
+        </button>
+      </p>
+    );
+  }
 
   const date = new Intl.DateTimeFormat(t.locale, { dateStyle: 'medium', timeStyle: 'short' });
   const names = (e: RecentAnalysis) =>
@@ -70,7 +79,7 @@ export function RecentAnalyses({ entries, off, vendors, onOpen, onDelete, onClea
         <button type="button" class="link-button" onClick={onClearAll}>
           {t('recent.clearAll')}
         </button>
-        <button type="button" class="link-button" onClick={() => onSwitch(true)}>
+        <button type="button" class="link-button" onClick={() => onSwitch(false)}>
           {t('recent.turnOff')}
         </button>
       </div>

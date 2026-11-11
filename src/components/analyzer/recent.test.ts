@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keepsRecent, readRecent, RECENT_LIMIT, upsertRecent, type RecentAnalysis } from './recent';
+import { historyOn, keepsRecent, readRecent, RECENT_LIMIT, upsertRecent, type RecentAnalysis } from './recent';
 
 const entry = (id: string, policy: string, site = ''): RecentAnalysis => ({
   id,
@@ -49,5 +49,19 @@ describe('recent analyses', () => {
     expect(keepsRecent('  ')).toBe(false);
     expect(keepsRecent("img-src 'self'")).toBe(true);
     expect(keepsRecent('x'.repeat(50_000))).toBe(false);
+  });
+});
+
+describe('historyOn', () => {
+  const from = (stored: Record<string, string>) => (key: string) => stored[key] ?? null;
+
+  it('is off until the visitor turns it on', () => {
+    expect(historyOn(from({}))).toEqual({ on: false, migrate: false });
+    expect(historyOn(from({ 'csp-explained:recent-on': '1' }))).toEqual({ on: true, migrate: false });
+  });
+
+  it('keeps a history an older version kept, unless it was turned off', () => {
+    expect(historyOn(from({ 'csp-explained:recent': '[]' }))).toEqual({ on: true, migrate: true });
+    expect(historyOn(from({ 'csp-explained:recent-off': '1' }))).toEqual({ on: false, migrate: true });
   });
 });

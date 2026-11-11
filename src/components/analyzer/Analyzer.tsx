@@ -14,7 +14,7 @@ import { HashFix, offersHashes } from '../policy/HashTool';
 import { I18n, useT } from '../ui/i18n';
 import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from '../policy/PolicyView';
-import { loadRecent, loadRecentOff, keepsRecent, newRecentId, saveRecent, saveRecentOff, upsertRecent, type RecentAnalysis } from './recent';
+import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRecentOn, upsertRecent, type RecentAnalysis } from './recent';
 import { RecentAnalyses } from './RecentAnalyses';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from '../ui/Segmented';
@@ -74,15 +74,17 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const counted = useRef(false);
   // Recent analyses kept in this browser; the entry the current analysis updates, once it has one.
   const [recent, setRecent] = useState<RecentAnalysis[]>([]);
-  const [recentOff, setRecentOff] = useState(false);
+  // Off until the visitor turns it on: nothing is stored before they ask.
+  const [recentOn, setRecentOn] = useState(false);
   const recentId = useRef<string | undefined>(undefined);
 
   // Restore from the link and from the remembered audience once, in the browser.
   useEffect(() => {
     const s = decodeState(location.hash);
     setAudience(s.audience ?? loadAudience());
-    setRecent(loadRecent());
-    setRecentOff(loadRecentOff());
+    const on = loadRecentOn();
+    setRecentOn(on);
+    setRecent(on ? loadRecent() : []);
     // Text typed or pasted before hydration would otherwise be wiped.
     const early = (document.getElementById('policy-input') as HTMLTextAreaElement | null)?.value;
     if (s.policy) {
@@ -140,7 +142,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
 
   // Keep this analysis in the history once it settles: one entry per analysis, updated as it changes.
   useEffect(() => {
-    if (recentOff || !hasPolicy || input === EXAMPLE_POLICY || !keepsRecent(input)) return;
+    if (!recentOn || !hasPolicy || input === EXAMPLE_POLICY || !keepsRecent(input)) return;
     const timer = setTimeout(() => {
       recentId.current ??= newRecentId();
       const entry = { id: recentId.current, policy: input, site, vendors: selectedVendors, view, audience, savedAt: Date.now() };
@@ -150,7 +152,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
       setRecent(next);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [input, site, selectedVendors, view, audience, hasPolicy, recentOff]);
+  }, [input, site, selectedVendors, view, audience, hasPolicy, recentOn]);
 
   const reopen = (e: RecentAnalysis) => {
     recentId.current = e.id;
@@ -171,10 +173,10 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     if (!id || recentId.current === id) recentId.current = undefined;
   };
 
-  const switchRecent = (off: boolean) => {
-    saveRecentOff(off);
-    setRecentOff(off);
-    if (off) {
+  const switchRecent = (on: boolean) => {
+    saveRecentOn(on);
+    setRecentOn(on);
+    if (!on) {
       setRecent([]);
       recentId.current = undefined;
     }
@@ -310,7 +312,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
         {showEditor && input.trim() === '' && (
           <RecentAnalyses
             entries={recent}
-            off={recentOff}
+            on={recentOn}
             vendors={content.vendors}
             onOpen={reopen}
             onDelete={forget}
