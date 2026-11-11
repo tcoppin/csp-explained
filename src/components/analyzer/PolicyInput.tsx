@@ -3,6 +3,7 @@ import { localePath, type Translate } from '../../i18n';
 import type { ParseResult, Policy } from '../../lib/csp/model';
 import { track } from '../../scripts/track';
 import { useT } from '../ui/i18n';
+import { unreadableSite } from '../policy/state';
 import { Rich } from '../ui/Rich';
 import { useCopy } from '../ui/useCopy';
 
@@ -69,7 +70,16 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
       </div>
       <details class="site-field">
         <summary>{t('analyzer.siteLabel')}</summary>
-        <input type="text" inputMode="url" value={site} placeholder="www.example.com" onInput={(e) => onSite(e.currentTarget.value)} />
+        <input
+          type="text"
+          inputMode="url"
+          value={site}
+          placeholder="www.example.com"
+          aria-invalid={unreadableSite(site)}
+          aria-describedby={unreadableSite(site) ? 'site-unreadable' : undefined}
+          onInput={(e) => onSite(e.currentTarget.value)}
+        />
+        {unreadableSite(site) && <p id="site-unreadable" class="issue">{t('analyzer.siteUnreadable')}</p>}
         <p class="muted">{t('analyzer.siteHint')}</p>
       </details>
       {!hasPolicy &&

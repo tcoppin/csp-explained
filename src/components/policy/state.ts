@@ -96,13 +96,22 @@ export function saveAudience(a: Audience): void {
   }
 }
 
-/** Turns "shop.example.com" or "https://shop.example.com/path" into an origin. */
+/**
+ * Turns "shop.example.com" or "https://shop.example.com/path" into an origin. Mistyped schemes ("https:shop…",
+ * "http:/shop…", "http//shop…") are read as meant, so they don't turn "http" into the host.
+ */
 export function toOrigin(site: string): string | undefined {
-  const s = site.trim();
+  const s = site.trim().replace(/^(https?|wss?)(?::\/*|\/{2,})/i, (_, scheme: string) => `${scheme.toLowerCase()}://`);
   if (!s) return undefined;
   try {
-    return new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : `https://${s}`).origin;
+    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : `https://${s}`);
+    // A host name, an IPv4 or an [IPv6] address: Chrome lets "shop example" through as "shop%20example". Opaque
+    // origins (data:, file:, …) have no host and can't stand for a site either.
+    return /^([a-z0-9_-]+\.)*[a-z0-9_-]+$|^\[[0-9a-f:.]+\]$/.test(url.hostname) ? url.origin : undefined;
   } catch {
     return undefined;
   }
 }
+
+/** The visitor typed a site address we can't read: 'self' falls back to the example origin. */
+export const unreadableSite = (site: string): boolean => site.trim() !== '' && toOrigin(site) === undefined;

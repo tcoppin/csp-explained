@@ -119,6 +119,24 @@ test('restores the analysis from a share link', async ({ page }) => {
   await expect(other.getByRole('textbox', { name: 'Paste a Content-Security-Policy' })).toHaveValue(POLICY);
 });
 
+test("a site address we can't read says so, a mistyped scheme doesn't", async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByText('Your site address (optional)').click();
+  const site = page.locator('.site-field input');
+  const warning = page.getByText("We can't read this address");
+
+  await site.fill('shop example');
+  await expect(warning).toBeVisible();
+  await expect(site).toHaveAttribute('aria-invalid', 'true');
+
+  for (const typed of ['http:/shop.example.com', 'https:shop.example.com', 'http://shop.example.com']) {
+    await site.fill(typed);
+    await expect(warning).toBeHidden();
+    await expect(site).toHaveAttribute('aria-invalid', 'false');
+  }
+});
+
 test('tools are picked from a searchable multi-select', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

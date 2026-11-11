@@ -85,6 +85,7 @@
     "noPolicyFound": "This site doesn't send a policy yet, so there's nothing to explain. [Build one from a blank policy](/build), with the tools your site should allow.",
     "siteLabel": "Your site address (optional)",
     "siteHint": "Used to understand 'self'. Never sent anywhere.",
+    "siteUnreadable": "We can't read this address, so 'self' is checked against an example site. Try something like www.example.com.",
     "policies": "{count} policies found",
     "policy": "Policy {index}",
     "enforced": "Enforced",

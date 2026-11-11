@@ -85,6 +85,7 @@
     "noPolicyFound": "Ce site n'envoie pas encore de politique : il n'y a rien à expliquer. [Construisez-en une à partir d'une politique vierge](/build), avec les outils que votre site doit autoriser.",
     "siteLabel": "Adresse de votre site (facultatif)",
     "siteHint": "Sert à comprendre 'self'. N'est envoyée nulle part.",
+    "siteUnreadable": "Cette adresse n'est pas lisible : 'self' est donc vérifié avec un site d'exemple. Essayez par exemple www.example.com.",
     "policies": "{count} politiques trouvées",
     "policy": "Politique {index}",
     "enforced": "Appliquée",

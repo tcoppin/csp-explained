@@ -18,7 +18,7 @@ import { OwnToolEditor } from './OwnTools';
 import { highlightClass, PolicyView, type Selection } from '../policy/PolicyView';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
-import { encodeState } from '../policy/state';
+import { encodeState, unreadableSite } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { ToolPicker } from '../policy/ToolPicker';
 import type { BuilderModel } from './useBuilder';
@@ -307,7 +307,17 @@ export function SitePanel({ b }: { b: BuilderModel }) {
       {placed.length > 0 && <RequirementList placed={placed} audience={b.audience} />}
       <div class="field">
         <label for="build-site">{t('analyzer.siteLabel')}</label>
-        <input id="build-site" type="text" inputMode="url" value={b.site} placeholder="www.example.com" onInput={(e) => b.setSite(e.currentTarget.value)} />
+        <input
+          id="build-site"
+          type="text"
+          inputMode="url"
+          value={b.site}
+          placeholder="www.example.com"
+          aria-invalid={unreadableSite(b.site)}
+          aria-describedby={unreadableSite(b.site) ? 'build-site-unreadable' : undefined}
+          onInput={(e) => b.setSite(e.currentTarget.value)}
+        />
+        {unreadableSite(b.site) && <p id="build-site-unreadable" class="issue">{t('analyzer.siteUnreadable')}</p>}
         <p class="muted">{t('build.site.addressHint')}</p>
       </div>
     </>
