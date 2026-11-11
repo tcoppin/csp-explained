@@ -2,6 +2,8 @@
 import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, POLICY, accessibilityProblems, COMPARE_EXAMPLE } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
+  // About 150 pages: more than the default 30 seconds on CI's two-core runners.
+  test.setTimeout(90_000);
   // Astro drops a line break between an inline element and the next word ("<a>…</a>\nlibrary" → "…library").
   await page.goto('/vendors');
   const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
