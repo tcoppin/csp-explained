@@ -5,9 +5,10 @@ import { patchedPolicies, type Analysis } from '../../lib/analysis';
 import type { Vendor } from '../../lib/catalogue/schema';
 import type { Audience } from '../../lib/csp/model';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../../lib/reports/developer';
-import { countByLevel, findingText, securityReport } from '../../lib/reports/security';
+import { countByLevel, securityReport } from '../../lib/reports/security';
 import { itRequest, withVendorText, type MessageFormat } from '../../lib/reports/simple';
 import { track } from '../../scripts/track';
+import { FindingList } from '../policy/FindingList';
 import { CodeBox } from '../ui/CodeBox';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
@@ -157,30 +158,20 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
   const markdown = securityReport(analysis, t);
   const counts = countByLevel(analysis.findings);
   const findingList = (findings: Analysis['findings']) => (
-    <ul class="findings">
-      {findings.map((f, i) => (
-        <li key={i} class={`finding level-${f.level}`}>
-          <span class="level">
-            {t(`report.security.level.${f.level}`)}
-            {f.maybe && ` (${t('report.security.maybe')})`}
-          </span>
-          <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
-          {analysis.parsed.policies.length > 1 && <span class="tag">{t('analyzer.policy', { index: f.policyIndex + 1 })}</span>}
-          <span class="desc">
-            {findingText(t, f)}
-            {f.id === 'script-unsafe-inline' && (
-              <>
-                {' '}
-                <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
-                  {t('hashes.fix.fromFinding')}
-                </button>{' '}
-                <Rich msg="hashes.fix.orNonces" />
-              </>
-            )}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <FindingList
+      findings={findings}
+      tag={(f) => (analysis.parsed.policies.length > 1 ? t('analyzer.policy', { index: f.policyIndex + 1 }) : undefined)}
+      action={(f) =>
+        f.id === 'script-unsafe-inline' && (
+          <>
+            <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
+              {t('hashes.fix.fromFinding')}
+            </button>{' '}
+            <Rich msg="hashes.fix.orNonces" />
+          </>
+        )
+      }
+    />
   );
 
   return (

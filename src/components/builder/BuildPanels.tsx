@@ -7,7 +7,6 @@ import type { ContentBundle } from '../../lib/content';
 import { requiresTrustedTypes } from '../../lib/csp/fallback';
 import type { Audience, Policy } from '../../lib/csp/model';
 import { deploySnippet, headersBesideMeta, TARGETS, type Target } from '../../lib/reports/developer';
-import { findingText } from '../../lib/reports/security';
 import { track } from '../../scripts/track';
 import { CodeBox } from '../ui/CodeBox';
 import { Explanation } from '../policy/Explanation';
@@ -18,6 +17,7 @@ import { OwnToolEditor } from './OwnTools';
 import { highlightClass, PolicyView, type Selection } from '../policy/PolicyView';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
+import { FindingList } from '../policy/FindingList';
 import { encodeState, unreadableSite } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { ToolPicker } from '../policy/ToolPicker';
@@ -486,36 +486,26 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
           {findings.length === 0 ? (
             <p>{t('report.security.noFindings')}</p>
           ) : (
-            <ul class="findings">
-              {findings.map((f, i) => (
-                <li key={i} class={`finding level-${f.level}`}>
-                  <span class="level">
-                    {t(`report.security.level.${f.level}`)}
-                    {f.maybe && ` (${t('report.security.maybe')})`}
-                  </span>
-                  <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
-                  {built.introducedFindings.includes(f) && <span class="tag">{t('build.review.fromTools')}</span>}
-                  <span class="desc">
-                    {findingText(t, f)}
-                    {f.id === 'script-unsafe-inline' && b.needs.includes('inline-scripts') && !b.hashes['inline-scripts'] && (
-                      <>
-                        {' '}
-                        <button
-                          type="button"
-                          class="link-button"
-                          onClick={() => {
-                            b.setHashes('inline-scripts', []);
-                            b.setStep('site');
-                          }}
-                        >
-                          {t('build.review.useHashes')}
-                        </button>
-                      </>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <FindingList
+              findings={findings}
+              tag={(f) => (built.introducedFindings.includes(f) ? t('build.review.fromTools') : undefined)}
+              action={(f) =>
+                f.id === 'script-unsafe-inline' &&
+                b.needs.includes('inline-scripts') &&
+                !b.hashes['inline-scripts'] && (
+                  <button
+                    type="button"
+                    class="link-button"
+                    onClick={() => {
+                      b.setHashes('inline-scripts', []);
+                      b.setStep('site');
+                    }}
+                  >
+                    {t('build.review.useHashes')}
+                  </button>
+                )
+              }
+            />
           )}
           <p class="muted">{t('report.security.attribution')}</p>
         </div>
