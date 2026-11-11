@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { historyOn, keepsRecent, readRecent, RECENT_LIMIT, upsertRecent, type RecentAnalysis } from './recent';
+import { excerpt, historyOn, keepsRecent, readRecent, RECENT_LIMIT, upsertRecent, type RecentAnalysis } from './recent';
 
 const entry = (id: string, policy: string, site = ''): RecentAnalysis => ({
   id,
@@ -63,5 +63,12 @@ describe('historyOn', () => {
   it('keeps a history an older version kept, unless it was turned off', () => {
     expect(historyOn(from({ 'csp-explained:recent': '[]' }))).toEqual({ on: true, migrate: true });
     expect(historyOn(from({ 'csp-explained:recent-off': '1' }))).toEqual({ on: false, migrate: true });
+  });
+});
+
+describe('excerpt', () => {
+  it('shows the policies without header names, one line', () => {
+    expect(excerpt("Content-Security-Policy: default-src 'self'\nContent-Security-Policy-Report-Only: img-src *")).toBe("default-src 'self' | img-src *");
+    expect(excerpt('not a\n  policy')).toBe('not a policy');
   });
 });

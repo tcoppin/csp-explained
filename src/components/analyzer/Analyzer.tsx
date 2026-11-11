@@ -14,7 +14,7 @@ import { HashFix, offersHashes } from '../policy/HashTool';
 import { I18n, useT } from '../ui/i18n';
 import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyView, type Selection } from '../policy/PolicyView';
-import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRecentOn, upsertRecent, type RecentAnalysis } from './recent';
+import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRecentOn, upsertRecent, type RecentAnalysis } from '../policy/recent';
 import { RecentAnalyses } from './RecentAnalyses';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from '../ui/Segmented';
