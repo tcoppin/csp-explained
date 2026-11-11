@@ -443,9 +443,88 @@
     "afterHint": "The one to compare it with, for example on staging.",
     "swap": "Swap them",
     "waiting": "Paste a policy on each side to see what changes.",
-    "results": "What changes",
-    "same": "No difference: browsers read both policies the same way.",
-    "changedRules": { "one": "{count} rule changes.", "other": "{count} rules change." }
+    "views": {
+      "label": "Comparison",
+      "changes": "What changes",
+      "diff": "Both policies",
+      "security": "Security",
+      "tools": "Your tools",
+      "short": {
+        "changes": "Changes",
+        "diff": "Both",
+        "security": "Risks",
+        "tools": "Tools"
+      },
+      "same": "no difference",
+      "introduced": {
+        "one": "{count} new finding",
+        "other": "{count} new findings"
+      },
+      "fixed": {
+        "one": "{count} fixed",
+        "other": "{count} fixed"
+      },
+      "worse": {
+        "one": "{count} breaks",
+        "other": "{count} break"
+      },
+      "better": {
+        "one": "{count} fixed",
+        "other": "{count} fixed"
+      },
+      "toolsSame": "no change"
+    },
+    "changes": {
+      "loadsTitle": "What browsers accept, before and after",
+      "newlyAllowed": "Now also from",
+      "nowRestricted": "Now only from",
+      "noLongerAllowed": "No longer from",
+      "nowUnrestricted": "No longer restricted: allowed from anywhere",
+      "was": "Before: {verdict}",
+      "decidedBy": "now decided by {after}, no longer by {before}",
+      "decidedByNew": "decided by {after}",
+      "other": "Other rules",
+      "ruleAdded": "New rule",
+      "ruleRemoved": "Rule removed",
+      "valuesAdded": "Added",
+      "valuesRemoved": "Removed",
+      "nothing": "Nothing changes in what browsers allow: only the way the policy is written."
+    },
+    "notice": {
+      "added": "This policy is new: browsers will enforce it.",
+      "addedReportOnly": "This report-only policy is new: browsers will report what it disallows, without blocking anything.",
+      "removed": "This policy is gone: what it restricted isn't restricted by it any more.",
+      "enforcedNow": "The after policy is enforced: what the before policy only reported will now be blocked.",
+      "reportOnlyNow": "The after policy is report-only: what it disallows will only be reported, no longer blocked.",
+      "toMeta": "The after policy is set with a <meta> tag, where browsers ignore frame-ancestors, report-uri, report-to and sandbox.",
+      "toHeader": "The after policy is sent as an HTTP header, so the rules a <meta> tag ignores (frame-ancestors, reporting, sandbox) now apply.",
+      "bothReportOnly": "Both policies are report-only: these changes affect what gets reported. Nothing is blocked."
+    },
+    "diff": {
+      "intro": "What the change adds is highlighted; what it takes away is struck through.",
+      "added": "added:",
+      "removed": "removed:",
+      "absent": "Not in this policy",
+      "layout": "Layout",
+      "tracked": "Inline",
+      "columns": "Side by side"
+    },
+    "security": {
+      "introduced": "New with the after policy",
+      "noneIntroduced": "The after policy adds no findings.",
+      "fixed": "Fixed by the after policy",
+      "noneFixed": "The after policy fixes none of the findings.",
+      "remaining": {
+        "one": "{count} finding in both policies",
+        "other": "{count} findings in both policies"
+      }
+    },
+    "tools": {
+      "intro": "Pick the tools your site uses and see whether the change keeps them working.",
+      "none": "Add the tools you use to see what the change does to them.",
+      "same": "No change",
+      "was": "Before the change: {verdict}"
+    }
   },
   "build": {
     "steps": {

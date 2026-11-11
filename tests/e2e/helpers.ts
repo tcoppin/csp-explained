@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test as base, type Page } from '@playwright/test';
 
 export { expect } from '@playwright/test';
+import { COMPARE_EXAMPLE as EXAMPLE } from '../../src/config';
 
 /**
  * Every test answers the usage events sent to `/e` itself (there is no `/e` in `astro preview`).
@@ -61,6 +62,10 @@ export async function openBuilder(page: Page, path = '/build') {
   await page.goto(path);
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
 }
+
+/** The comparator's example, with Hotjar picked, as a link (the policies base64url-encoded after the #). */
+const b64 = (text: string) => Buffer.from(text, 'utf8').toString('base64url');
+export const COMPARE_EXAMPLE = `/compare#b=${b64(EXAMPLE.before)}&a=${b64(EXAMPLE.after)}&v=hotjar:tracking`;
 
 /** Waits until the comparator island is interactive. */
 export async function openComparator(page: Page, path = '/compare') {

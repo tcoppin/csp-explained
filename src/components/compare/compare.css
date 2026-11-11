@@ -34,9 +34,141 @@
   margin-bottom: 0;
 }
 
-.compare-results {
-  margin-top: 2rem;
-}
 .compare-waiting {
   margin-top: 2rem;
+}
+
+/* What changes: per kind of content, the sources gained (green) and lost (vermilion) */
+.change-map th {
+  width: 13rem;
+}
+.change-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0 0 0.35rem;
+}
+.change-label {
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.change-added .change-label {
+  color: var(--ok);
+}
+.change-removed .change-label {
+  color: var(--bad);
+}
+.change-removed code {
+  text-decoration: line-through;
+  text-decoration-color: var(--bad);
+  text-decoration-thickness: 2px;
+}
+.change-map .via {
+  display: block;
+  white-space: normal;
+}
+.rule-name {
+  display: block;
+  font-weight: 400;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.was {
+  color: var(--ink-soft);
+  margin: 0;
+}
+/* About the policy as a whole (enforced now, a meta tag...): stands out without being a status */
+.notice {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+  font-weight: 700;
+}
+.notice-quiet {
+  border-left-color: var(--rule);
+  font-weight: 400;
+}
+.changes h3 {
+  margin-top: 2rem;
+}
+
+/* Both policies: unchanged text stays plain, the highlighter only marks what the change added */
+.policy-diff ins,
+.diff-columns ins {
+  text-decoration: none;
+  box-shadow: inset 0 -3px var(--ok);
+}
+.policy-diff ins.tok-directive,
+.diff-columns ins.tok-directive {
+  background: var(--hl-keyword);
+}
+.policy-diff del,
+.diff-columns del {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  text-decoration-color: var(--bad);
+  text-decoration-thickness: 2px;
+}
+.policy-diff .tok,
+.diff-columns .tok {
+  display: inline;
+}
+.line-unchanged .margin-note,
+.line-unchanged .tokens {
+  color: var(--ink-soft);
+}
+.diff-columns {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.diff-columns th {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 2px solid var(--rule);
+}
+.diff-columns td {
+  vertical-align: top;
+  padding: 0.35rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.diff-columns td + td,
+.diff-columns th + th {
+  border-left: 1px solid var(--rule);
+}
+.diff-columns .line-unchanged td {
+  color: var(--ink-soft);
+}
+
+.remaining {
+  margin: 1.5rem 0;
+}
+.remaining summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.change-map .was,
+.req-why .was {
+  display: block;
+  font-size: var(--step--1);
+}
+/* The layout switch sits at the end of the panel header, on wide screens only */
+.diff-layout {
+  margin-left: auto;
+}
+@media (min-width: 40.0625rem) {
+  .policy-diff.narrow-only {
+    display: none;
+  }
+}
+@media (max-width: 40rem) {
+  /* Specific enough to beat .segmented, whatever order the stylesheets load in */
+  .panel-head .diff-layout,
+  .diff-columns.wide-only {
+    display: none;
+  }
 }

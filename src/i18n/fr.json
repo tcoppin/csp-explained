@@ -443,9 +443,88 @@
     "afterHint": "Celle à laquelle la comparer, par exemple en préproduction.",
     "swap": "Les inverser",
     "waiting": "Collez une politique de chaque côté pour voir ce qui change.",
-    "results": "Ce qui change",
-    "same": "Aucune différence : les navigateurs lisent les deux politiques de la même façon.",
-    "changedRules": { "one": "{count} règle change.", "other": "{count} règles changent." }
+    "views": {
+      "label": "Comparaison",
+      "changes": "Ce qui change",
+      "diff": "Les deux politiques",
+      "security": "Sécurité",
+      "tools": "Vos outils",
+      "short": {
+        "changes": "Changements",
+        "diff": "Les deux",
+        "security": "Risques",
+        "tools": "Outils"
+      },
+      "same": "aucune différence",
+      "introduced": {
+        "one": "{count} nouveau constat",
+        "other": "{count} nouveaux constats"
+      },
+      "fixed": {
+        "one": "{count} corrigé",
+        "other": "{count} corrigés"
+      },
+      "worse": {
+        "one": "{count} cassé",
+        "other": "{count} cassés"
+      },
+      "better": {
+        "one": "{count} réparé",
+        "other": "{count} réparés"
+      },
+      "toolsSame": "pas de changement"
+    },
+    "changes": {
+      "loadsTitle": "Ce que les navigateurs acceptent, avant et après",
+      "newlyAllowed": "Désormais aussi depuis",
+      "nowRestricted": "Désormais uniquement depuis",
+      "noLongerAllowed": "Plus depuis",
+      "nowUnrestricted": "Plus de restriction : autorisé depuis n'importe où",
+      "was": "Avant : {verdict}",
+      "decidedBy": "désormais décidé par {after}, plus par {before}",
+      "decidedByNew": "décidé par {after}",
+      "other": "Autres règles",
+      "ruleAdded": "Nouvelle règle",
+      "ruleRemoved": "Règle supprimée",
+      "valuesAdded": "Ajouté",
+      "valuesRemoved": "Retiré",
+      "nothing": "Rien ne change dans ce que les navigateurs autorisent : seule l'écriture de la politique change."
+    },
+    "notice": {
+      "added": "Cette politique est nouvelle : les navigateurs l'appliqueront.",
+      "addedReportOnly": "Cette politique en mode rapport est nouvelle : les navigateurs signaleront ce qu'elle interdit, sans rien bloquer.",
+      "removed": "Cette politique disparaît : ce qu'elle restreignait ne l'est plus par elle.",
+      "enforcedNow": "La politique d'après est appliquée : ce que celle d'avant ne faisait que signaler sera désormais bloqué.",
+      "reportOnlyNow": "La politique d'après est en mode rapport : ce qu'elle interdit sera seulement signalé, plus bloqué.",
+      "toMeta": "La politique d'après est définie par une balise <meta>, où les navigateurs ignorent frame-ancestors, report-uri, report-to et sandbox.",
+      "toHeader": "La politique d'après est envoyée dans un en-tête HTTP, donc les règles qu'une balise <meta> ignore (frame-ancestors, rapports, sandbox) s'appliquent désormais.",
+      "bothReportOnly": "Les deux politiques sont en mode rapport : ces changements touchent ce qui est signalé. Rien n'est bloqué."
+    },
+    "diff": {
+      "intro": "Ce que le changement ajoute est surligné ; ce qu'il retire est barré.",
+      "added": "ajouté :",
+      "removed": "retiré :",
+      "absent": "Absent de cette politique",
+      "layout": "Présentation",
+      "tracked": "Fusionné",
+      "columns": "Côte à côte"
+    },
+    "security": {
+      "introduced": "Nouveaux avec la politique d'après",
+      "noneIntroduced": "La politique d'après n'ajoute aucun constat.",
+      "fixed": "Corrigés par la politique d'après",
+      "noneFixed": "La politique d'après ne corrige aucun des constats.",
+      "remaining": {
+        "one": "{count} constat dans les deux politiques",
+        "other": "{count} constats dans les deux politiques"
+      }
+    },
+    "tools": {
+      "intro": "Choisissez les outils de votre site et voyez si le changement les laisse fonctionner.",
+      "none": "Ajoutez vos outils pour voir ce que le changement leur fait.",
+      "same": "Pas de changement",
+      "was": "Avant le changement : {verdict}"
+    }
   },
   "build": {
     "steps": {

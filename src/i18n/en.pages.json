@@ -61,6 +61,7 @@
         "theme": "**Colour theme**: the one you chose at the bottom of a page.",
         "language-note": "**Language note closed**: once you close the note offering a page in another language, or switch language.",
         "audience": "**Who explanations are for** (Everyone, Developers, Security): once you choose.",
+        "diff-layout": "**How the comparator lays out the two policies** (Inline or Side by side, on wide screens): once you choose.",
         "tools": "**Tools you describe in the builder**, to pick them again. “Forget the tools saved in this browser” removes them.",
         "recent-on": "**History turned on**: once you ask the analyzer to keep a history. Turning it off removes this and the analyses.",
         "recent": "**Your last 10 analyses** (policy, site address, tools picked), only while the history is on. Delete them under the list."
