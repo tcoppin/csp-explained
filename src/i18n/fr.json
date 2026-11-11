@@ -6,6 +6,7 @@
     "nav": {
       "analyzer": "Analyseur",
       "build": "Construire",
+      "compare": "Comparer",
       "find": "Trouver ma CSP",
       "learn": "Comprendre",
       "vendors": "Catalogue des outils",
@@ -23,6 +24,7 @@
       "desc": {
         "analyzer": "Collez une politique et voyez ce qu'elle autorise, en termes simples.",
         "build": "Partez de zéro ou de votre politique, et ajoutez vos outils.",
+        "compare": "Deux versions d'une politique : ce que le changement autorise, bloque ou corrige.",
         "find": "Récupérez la politique de votre site, pas à pas.",
         "whatIs": "Les bases, et les mots que vous entendrez.",
         "directives": "Chaque règle d'une politique, expliquée.",
@@ -432,6 +434,18 @@
       "unsafe-inline": "'unsafe-inline' dans {directive} est ignoré parce que la règle a aussi un nonce ou un hash. Il ne compte que pour les très vieux navigateurs.",
       "strict-dynamic": "{value} dans {directive} est ignoré à cause de 'strict-dynamic' : seuls les scripts portant le nonce ou le hash, et les scripts qu'ils chargent, s'exécutent."
     }
+  },
+  "compare": {
+    "inputsLabel": "Les deux politiques",
+    "before": "Avant",
+    "beforeHint": "La politique que vous avez aujourd'hui, par exemple en production.",
+    "after": "Après",
+    "afterHint": "Celle à laquelle la comparer, par exemple en préproduction.",
+    "swap": "Les inverser",
+    "waiting": "Collez une politique de chaque côté pour voir ce qui change.",
+    "results": "Ce qui change",
+    "same": "Aucune différence : les navigateurs lisent les deux politiques de la même façon.",
+    "changedRules": { "one": "{count} règle change.", "other": "{count} règles changent." }
   },
   "build": {
     "steps": {

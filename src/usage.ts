@@ -10,6 +10,8 @@ export const USAGE_EVENTS = {
   visit: ['page'],
   /** A policy pasted or typed by the visitor was analysed (once per page load; not the example). */
   analyze: [],
+  /** Two policies pasted or typed by the visitor were compared (once per page load; not the example). */
+  compare: [],
   /** "Try an example" was clicked. */
   example: [],
   /** A share link was opened. */

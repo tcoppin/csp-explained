@@ -1,0 +1,42 @@
+.comparator {
+  margin-top: 0.5rem;
+}
+
+/* The two policies side by side; stacked on phones, before first */
+.compare-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (max-width: 40rem) {
+  .compare-pair {
+    grid-template-columns: 1fr;
+  }
+}
+.compare-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.compare-label {
+  font-weight: 700;
+  font-size: var(--step-1);
+}
+.compare-hint {
+  margin: 0 0 0.5rem;
+}
+.compare-field textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 8rem;
+}
+.compare-field .issue {
+  margin-bottom: 0;
+}
+
+.compare-results {
+  margin-top: 2rem;
+}
+.compare-waiting {
+  margin-top: 2rem;
+}

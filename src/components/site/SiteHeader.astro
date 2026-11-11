@@ -20,7 +20,7 @@ const item = (key: string, href: string) => ({
   // Current for its own page and the pages under it (a directive, a tool).
   current: href === '/' ? page === '/' : page === href || page.startsWith(`${href}/`),
 });
-const tasks = [item('analyzer', '/'), item('build', '/build'), item('find', '/find-my-csp')];
+const tasks = [item('analyzer', '/'), item('build', '/build'), item('compare', '/compare'), item('find', '/find-my-csp')];
 const learn = [
   item('whatIs', '/learn'),
   item('directives', '/directives'),
@@ -314,7 +314,8 @@ const inLearn = learn.some((i) => i.current);
       inset: -0.35rem -0.25rem;
     }
   }
-  @media (max-width: 56rem) {
+  /* Four tasks and Learn need about 59rem in French */
+  @media (max-width: 60rem) {
     .tasks {
       display: none;
     }

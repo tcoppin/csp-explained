@@ -67,7 +67,7 @@
       }
     },
     "countTitle": "What we count",
-    "count": "To know whether the site is useful, we count visits and a few actions: analysing a policy, trying the example, opening a share link, adding a tool, copying a report or the snippet, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy or your site address.",
+    "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, trying the example, opening a share link, adding a tool, copying a report or the snippet, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy or your site address.",
     "sourcesTitle": "Where the information comes from",
     "sourceSpec": "Directive behaviour follows the [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) specification.",
     "sourceEvaluator": "Security findings come from Google's [CSP Evaluator](https://github.com/google/csp-evaluator) library (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.",
@@ -610,6 +610,11 @@
       "build": "Build a nonce-based policy",
       "analyze": "Analyze your policy"
     }
+  },
+  "compare": {
+    "title": "Compare two policies",
+    "description": "Compare two versions of a Content-Security-Policy and see, in plain language, what the change allows, blocks or fixes, and which of your tools it affects.",
+    "lead": "Paste the policy you have and the one you plan to use. See what the change allows, blocks or fixes, in plain language."
   },
   "build": {
     "title": "Build a policy",

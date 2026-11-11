@@ -62,6 +62,12 @@ export async function openBuilder(page: Page, path = '/build') {
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
 }
 
+/** Waits until the comparator island is interactive. */
+export async function openComparator(page: Page, path = '/compare') {
+  await page.goto(path);
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+}
+
 // The example from the CSP specification, and its hash.
 export const HELLO = "alert('Hello, world.');";
 
