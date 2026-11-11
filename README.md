@@ -9,7 +9,7 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 - **A report per audience**: a message for IT that people can send as is (email, chat, ticket), a diff plus server snippets for developers, and a security review for security teams.
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).
-Tools described in the builder, and the last analyses once you turn the history on (to reopen one), are also remembered in the browser's own storage, never sent anywhere.
+Tools described in the builder, and the last analyses once you turn the history on (to reopen one), are also remembered in the browser's own storage, never sent anywhere. The About page lists everything kept there (`src/stored.ts`); nothing is stored before the visitor does something that needs it.
 
 ## Usage counts
 

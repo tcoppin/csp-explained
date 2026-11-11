@@ -5,6 +5,7 @@ import { encodeState } from '../../components/policy/state';
 import { REPO_URL } from '../../config';
 import { localeParams, localePath, translatorFor } from '../../i18n';
 import { HEADER_POLICY, META_DIRECTIVES } from '../../site-policy';
+import { STORED, storageKey } from '../../stored';
 
 export function getStaticPaths() {
   return localeParams();
@@ -23,6 +24,18 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
 
     <h2>{t('pages.about.privacyTitle')}</h2>
     <p><Rich t={t} msg="pages.about.privacy" /></p>
+
+    <h2>{t('pages.about.storedTitle')}</h2>
+    <p>{t('pages.about.storedIntro')}</p>
+    <ul class="stored">
+      {
+        STORED.map((name) => (
+          <li>
+            <Rich t={t} msg={`pages.about.stored.items.${name}`} /> <code>{storageKey(name)}</code>
+          </li>
+        ))
+      }
+    </ul>
 
     <h2>{t('pages.about.countTitle')}</h2>
     <p><Rich t={t} msg="pages.about.count" /></p>
@@ -57,5 +70,10 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
   }
   li {
     margin-bottom: 0.4rem;
+  }
+  .stored code {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    overflow-wrap: anywhere;
   }
 </style>
