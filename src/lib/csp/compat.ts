@@ -38,7 +38,11 @@ export interface RequirementResult {
 
 const SUBDOMAIN_PLACEHOLDER = 'any-subdomain';
 
-/** Builds a URL that the vendor's source expression is meant to cover. */
+/**
+ * Builds a URL that the vendor's source expression is meant to cover. The probe stands for what the tool loads, not
+ * for everything the expression allows: a source without a scheme ("*.vendor.com") is how docs name a host, and the
+ * tool still loads it over https from an http page, so the probe stays https whatever the page's scheme.
+ */
 export function probeFor(req: Requirement, selfOrigin: string): string | undefined {
   if (req.probe) return req.probe;
   const expr = classify(req.source, { start: 0, end: req.source.length });

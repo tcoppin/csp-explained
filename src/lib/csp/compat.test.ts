@@ -20,6 +20,14 @@ describe('probeFor', () => {
     expect(probeFor({ type: 'inline-script', source: "'unsafe-inline'", reason: '' }, SELF)).toBeUndefined();
     expect(probeFor({ type: 'script', source: 'x.test', probe: 'https://x.test/a.js', reason: '' }, SELF)).toBe('https://x.test/a.js');
   });
+
+  it('tests a host without a scheme over https, also from an http page', () => {
+    const HTTP_SELF = 'http://shop.example.com';
+    const req: Requirement = { type: 'script', source: 'cdn.vendor.test', reason: '' };
+    expect(probeFor(req, HTTP_SELF)).toBe('https://cdn.vendor.test/');
+    // The tool loads https://cdn.vendor.test, which a policy listing only that origin allows.
+    expect(checkRequirements(parse('script-src https://cdn.vendor.test'), [req], HTTP_SELF)[0]?.verdict).toBe('allowed');
+  });
 });
 
 describe('checkRequirements + buildPatches', () => {
