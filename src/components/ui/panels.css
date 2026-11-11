@@ -37,3 +37,83 @@ textarea.code:focus {
   border-color: var(--action);
   outline: none;
 }
+
+/* Workspace: view tabs + audience switch */
+.workspace {
+  margin-top: 2.5rem;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  border-bottom: 2px solid var(--rule);
+}
+/* Short view names and numbers-only badges are for phones; the open view's full status shows there only */
+.view-short,
+.view-status {
+  display: none;
+}
+@media (max-width: 40rem) {
+  /* Every view stays visible: one row of short names, the badges as numbers. Screen readers get the full
+     names and badges, kept in the page but hidden. */
+  .workspace .tablist {
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .workspace .tablist [role='tab'] {
+    font-size: var(--step-0);
+    gap: 0.3rem;
+    align-items: center;
+  }
+  .workspace .tablist .view-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .workspace .tablist .view-short {
+    display: inline;
+  }
+  .workspace .tablist .count {
+    padding: 0 0.4rem;
+  }
+  .view-status {
+    display: block;
+    margin: 0.75rem 0 0;
+  }
+  button.count {
+    background: none;
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+  /* Explain it for: the label, then the three choices on one row */
+  .toolbar .audience {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    margin-left: 0;
+  }
+  .toolbar .audience-label {
+    grid-column: 1 / -1;
+  }
+  .toolbar .audience button {
+    padding-inline: 0.3rem;
+  }
+}
+/* Panel header: the view's verdict and its actions on one line */
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.panel-head p {
+  margin: 0;
+}
