@@ -53,7 +53,19 @@
     "description": "An independent, free tool to understand Content-Security-Policies. Your policy never leaves your browser.",
     "lead": "A free, independent tool to help everyone who works on a website, not only developers, understand its Content-Security-Policy and talk about it with confidence.",
     "privacyTitle": "Your policy stays in your browser",
-    "privacy": "Everything is computed on your device. The policy you paste is never sent to a server. Share links keep the policy after the `#` of the address, a part browsers never send to servers. The tools you describe yourself in the policy builder are also remembered in this browser, so you can pick them again: they stay on this device, anyone using the same browser can see them, and “Forget the tools saved in this browser” removes them. If you ask for a history under the analyzer, it keeps your last 10 analyses there too, with the tools you picked, to reopen one later: the same applies, and you can delete them or stop keeping a history under the list. Nothing is kept until you ask.",
+    "privacy": "Everything is computed on your device. The policy you paste is never sent to a server. Share links keep the policy after the `#` of the address, a part browsers never send to servers.",
+    "storedTitle": "What's kept on your device",
+    "storedIntro": "No cookies. This site keeps only these few things in your browser's own storage, each one after you do something that needs it. They never leave your device, and clearing this site's data in your browser removes them all.",
+    "stored": {
+      "items": {
+        "theme": "**Colour theme**: the one you chose at the bottom of a page.",
+        "language-note": "**Language note closed**: once you close the note offering a page in another language, or switch language.",
+        "audience": "**Who explanations are for** (Everyone, Developers, Security): once you choose.",
+        "tools": "**Tools you describe in the builder**, to pick them again. “Forget the tools saved in this browser” removes them.",
+        "recent-on": "**History turned on**: once you ask the analyzer to keep a history. Turning it off removes this and the analyses.",
+        "recent": "**Your last 10 analyses** (policy, site address, tools picked), only while the history is on. Delete them under the list."
+      }
+    },
     "countTitle": "What we count",
     "count": "To know whether the site is useful, we count visits and a few actions: analysing a policy, trying the example, opening a share link, adding a tool, copying a report or the snippet, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy or your site address.",
     "sourcesTitle": "Where the information comes from",
