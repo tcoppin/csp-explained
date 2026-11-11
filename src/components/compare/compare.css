@@ -172,3 +172,28 @@
     display: none;
   }
 }
+
+/* Under a policy box: fill it from an analysis kept in this browser */
+.recent-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: var(--step--1);
+}
+.recent-picker select {
+  max-width: 100%;
+  min-width: 0;
+  flex: 1 1 12rem;
+  padding: 0.4rem 0.5rem;
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.recent-picker select:focus {
+  border-color: var(--action);
+  outline: none;
+}

@@ -18,6 +18,7 @@ import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRec
 import { RecentAnalyses } from './RecentAnalyses';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from '../ui/Segmented';
+import { encodeCompareState } from '../policy/compare-state';
 import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, type View } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
@@ -298,6 +299,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 setSheetOpen(false);
               }}
               buildHref={localePath(locale, `/build#${encodeState({ policy: input, site, vendors: selectedVendors })}`)}
+              compareHref={localePath(locale, `/compare#${encodeCompareState({ before: input, after: '', site, vendors: selectedVendors, audience })}`)}
               onClear={() => {
                 setSheetOpen(false);
                 recentId.current = undefined;

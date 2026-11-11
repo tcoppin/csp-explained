@@ -7,6 +7,7 @@ import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { track } from '../../scripts/track';
 import { FindingList } from '../policy/FindingList';
+import { excerpt, loadRecent, loadRecentOn, type RecentAnalysis } from '../policy/recent';
 import { SiteField } from '../policy/SiteField';
 import { loadAudience, saveAudience, toOrigin } from '../policy/state';
 import { I18n, useT } from '../ui/i18n';
@@ -28,15 +29,53 @@ const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
 
 const hasDirectives = (parsed: ParseResult) => parsed.policies.some((p) => p.directives.length > 0);
 
+/** Fills one side from an analysis kept in this browser (the select goes back to its prompt after each pick). */
+function RecentPicker({ side, entries, onPick }: { side: Side; entries: RecentAnalysis[]; onPick: (e: RecentAnalysis) => void }) {
+  const t = useT();
+  if (entries.length === 0) return null;
+  const date = new Intl.DateTimeFormat(t.locale, { dateStyle: 'medium', timeStyle: 'short' });
+  const what = (e: RecentAnalysis) => {
+    if (e.site.trim()) return e.site.trim();
+    const text = excerpt(e.policy);
+    return text.length > 48 ? `${text.slice(0, 47)}…` : text;
+  };
+  return (
+    <label class="recent-picker">
+      <span class="muted" aria-hidden="true">
+        {t('compare.recent.label')}
+      </span>
+      <select
+        value=""
+        onChange={(ev) => {
+          const entry = entries.find((x) => x.id === ev.currentTarget.value);
+          ev.currentTarget.value = '';
+          if (entry) onPick(entry);
+        }}
+        aria-label={t('compare.recent.labelFor', { side: t(`compare.${side}`) })}
+        aria-controls={`${side}-input`}
+      >
+        <option value="">{t('compare.recent.choose')}</option>
+        {entries.map((e) => (
+          <option key={e.id} value={e.id}>
+            {t('compare.recent.option', { date: date.format(e.savedAt), what: what(e) })}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 interface FieldProps {
   side: Side;
   value: string;
   parsed: ParseResult;
   onType: (text: string) => void;
+  recent: RecentAnalysis[];
+  onPick: (e: RecentAnalysis) => void;
 }
 
 /** One of the two policies: its label, what it usually is, and a problem with what was pasted. */
-function PolicyField({ side, value, parsed, onType }: FieldProps) {
+function PolicyField({ side, value, parsed, onType, recent, onPick }: FieldProps) {
   const t = useT();
   const id = `${side}-input`;
   const unreadable = value.trim() !== '' && !hasDirectives(parsed);
@@ -60,6 +99,7 @@ function PolicyField({ side, value, parsed, onType }: FieldProps) {
         value={value}
         onInput={(e) => onType(e.currentTarget.value)}
       />
+      <RecentPicker side={side} entries={recent} onPick={onPick} />
       {unreadable && (
         <p class="issue" id={`${id}-issue`}>
           {t('issues.empty-input')}
@@ -84,6 +124,8 @@ export default function Compare({ content, locale }: Props) {
   const [audience, setAudience] = useState<Audience>('simple');
   const [pairIndex, setPairIndex] = useState(0);
   const [diffLayout, setDiffLayout] = useState<DiffLayout>('tracked');
+  // Analyses kept in this browser by the analyzer, to fill either side.
+  const [recent, setRecent] = useState<RecentAnalysis[]>([]);
   // Usage counts: were both policies typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
@@ -103,6 +145,10 @@ export default function Compare({ content, locale }: Props) {
     if (s.vendors) setVendors(s.vendors);
     if (s.view) setView(s.view);
     setDiffLayout(loadDiffLayout());
+    // Only once the visitor asked the analyzer for a history.
+    setRecent(loadRecentOn() ? loadRecent() : []);
+    // Opened from the analyzer with one policy: the other one is next.
+    if (s.before && !s.after) document.getElementById('after-input')?.focus();
   }, []);
 
   // Keep the fragment in sync so the address bar is always a shareable link.
@@ -136,6 +182,12 @@ export default function Compare({ content, locale }: Props) {
   const type = (side: Side) => (text: string) => {
     typed.current = true;
     (side === 'before' ? setBefore : setAfter)(text);
+  };
+  // A recent analysis brings its site and tools when the comparison has none yet.
+  const pick = (side: Side) => (e: RecentAnalysis) => {
+    type(side)(e.policy);
+    if (!site.trim() && e.site.trim()) setSite(e.site);
+    if (Object.keys(vendors).length === 0 && Object.keys(e.vendors).length > 0) setVendors(e.vendors);
   };
 
   // Pairs where something changed come first; a pair the browser reads the same way is still listed.
@@ -201,8 +253,8 @@ export default function Compare({ content, locale }: Props) {
       <div class="comparator">
         <section class="compare-inputs" aria-label={t('compare.inputsLabel')}>
           <div class="compare-pair">
-            <PolicyField side="before" value={before} parsed={comparison.before} onType={type('before')} />
-            <PolicyField side="after" value={after} parsed={comparison.after} onType={type('after')} />
+            <PolicyField side="before" value={before} parsed={comparison.before} onType={type('before')} recent={recent} onPick={pick('before')} />
+            <PolicyField side="after" value={after} parsed={comparison.after} onType={type('after')} recent={recent} onPick={pick('after')} />
           </div>
           <p class="muted format-hint">{t('analyzer.inputHint')}</p>
           <div class="actions">

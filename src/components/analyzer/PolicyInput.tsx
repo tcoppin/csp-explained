@@ -112,10 +112,12 @@ interface SummaryProps {
   onClear: () => void;
   /** The builder, opened on this policy and its tools. */
   buildHref: string;
+  /** The comparator, with this policy as the one before. */
+  compareHref: string;
 }
 
 /** The folded editor: what was found, and the actions on it. */
-export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: SummaryProps) {
+export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref, compareHref }: SummaryProps) {
   const t = useT();
   const { copied: shared, copy } = useCopy();
   const ruleCount = parsed.policies.reduce((n, p) => n + p.directives.length, 0);
@@ -169,6 +171,9 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: Su
           <a class="button quiet wide-only" href={buildHref}>
             {t('analyzer.build')}
           </a>
+          <a class="button quiet wide-only" href={compareHref}>
+            {t('analyzer.compare')}
+          </a>
           <button type="button" class="button quiet wide-only" onClick={onClear}>
             {t('analyzer.clear')}
           </button>
@@ -176,6 +181,7 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref }: Su
             <summary class="button quiet">{t('analyzer.more')}</summary>
             <div class="more-menu">
               <a href={buildHref}>{t('analyzer.build')}</a>
+              <a href={compareHref}>{t('analyzer.compare')}</a>
               <button type="button" onClick={onClear}>
                 {t('analyzer.clear')}
               </button>

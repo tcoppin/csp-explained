@@ -100,6 +100,7 @@
     "rules": { "one": "{count} rule", "other": "{count} rules" },
     "edit": "Edit",
     "build": "Open in the builder",
+    "compare": "Compare with another policy",
     "hideEditor": "Done",
     "policiesShort": "{count} policies",
     "yourPolicy": "Your policy",
@@ -442,6 +443,12 @@
     "after": "After",
     "afterHint": "The one to compare it with, for example on staging.",
     "swap": "Swap them",
+    "recent": {
+      "label": "Or use a recent analysis",
+      "labelFor": "{side}: or use a recent analysis",
+      "choose": "Choose one",
+      "option": "{date}: {what}"
+    },
     "waiting": "Paste a policy on each side to see what changes.",
     "views": {
       "label": "Comparison",
@@ -694,6 +701,7 @@
       "reportOnly": "Start with `Content-Security-Policy-Report-Only`: nothing is blocked, and the browser console lists what would be. When it stays quiet, switch to `Content-Security-Policy`. To have them sent to you instead of reading the console, [set up reporting](/reporting).",
       "policyCaption": "The policy on its own",
       "analyze": "Analyze this policy",
+      "compare": "Compare with your current policy",
       "tabs": {
         "label": "Your policy",
         "lines": "Line by line",
