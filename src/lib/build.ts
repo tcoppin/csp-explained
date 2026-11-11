@@ -200,9 +200,10 @@ export interface HashedPolicy {
 /** A policy with inline blocks listed by hash, as the analyzer offers in place of 'unsafe-inline'. */
 export function withHashes(policyText: string, hashes: InlineHash[], origin = DEFAULT_ORIGIN): HashedPolicy {
   const requirements: Requirement[] = hashes.map((h) => ({ type: INLINE_TYPE[h.kind], source: h.source, reason: '' }));
-  // Style attributes allowed today would stop working once style-src lists a hash.
+  // Style attributes allowed today would stop working once style-src lists a hash. Asked by verdict: a load that no
+  // directive restricts is allowed without a matching source, and a reported one isn't allowed today.
   const styleAttr: Requirement = { type: 'style-attr', source: "'unsafe-inline'", reason: '' };
-  const allowedToday = checkRequirement(parse(policyText), styleAttr, origin).checks.every((c) => c.match.matchedBy !== undefined);
+  const allowedToday = checkRequirement(parse(policyText), styleAttr, origin).verdict === 'allowed';
   if (allowedToday && hashes.some((h) => h.kind === 'style')) requirements.push(styleAttr);
   const built = buildPolicy(policyText, [{ by: { kind: 'site', id: 'site', label: 'site' }, requirements }], origin);
   return { text: built.text, styleAttributes: built.changes.some((c) => c.directive === 'style-src-attr') };

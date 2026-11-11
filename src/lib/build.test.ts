@@ -156,5 +156,22 @@ describe('withHashes', () => {
 
   it("doesn't allow style attributes that were blocked", () => {
     expect(withHashes("style-src 'self'", [{ kind: 'style', source: HASH }], SELF).styleAttributes).toBe(false);
+    expect(withHashes("default-src 'self'", [{ kind: 'style', source: HASH }], SELF).styleAttributes).toBe(false);
+    expect(withHashes("style-src-attr 'none'; style-src 'self' 'unsafe-inline'", [{ kind: 'style', source: HASH }], SELF).styleAttributes).toBe(false);
+  });
+
+  it('keeps style attributes working when default-src allowed them', () => {
+    const fixed = withHashes("default-src 'self' 'unsafe-inline'", [{ kind: 'style', source: HASH }], SELF);
+    expect(fixed.text).toBe(`default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' ${HASH}; style-src-attr 'unsafe-inline'`);
+    expect(fixed.styleAttributes).toBe(true);
+  });
+
+  it('leaves a policy alone when nothing restricts styles', () => {
+    expect(withHashes("script-src 'self'", [{ kind: 'style', source: HASH }], SELF)).toEqual({ text: "script-src 'self'", styleAttributes: false });
+  });
+
+  it("doesn't allow style attributes that a report-only policy reports", () => {
+    const fixed = withHashes("Content-Security-Policy-Report-Only: style-src 'self'", [{ kind: 'style', source: HASH }], SELF);
+    expect(fixed.styleAttributes).toBe(false);
   });
 });
