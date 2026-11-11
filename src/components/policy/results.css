@@ -139,6 +139,10 @@
   flex-wrap: wrap;
   gap: 0.35rem 0.75rem;
 }
+/* A long host wraps rather than running past a phone's edge */
+.chips code {
+  overflow-wrap: anywhere;
+}
 .chip-note {
   margin-left: 0.35rem;
   color: var(--ink-soft);

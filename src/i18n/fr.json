@@ -457,7 +457,7 @@
       "security": "Sécurité",
       "tools": "Vos outils",
       "short": {
-        "changes": "Changements",
+        "changes": "Écarts",
         "diff": "Les deux",
         "security": "Risques",
         "tools": "Outils"

@@ -49,6 +49,9 @@
   gap: 0.25rem 0.75rem;
   margin: 0 0 0.35rem;
 }
+.change-line > .chips {
+  min-width: 0;
+}
 .change-label {
   font-size: var(--step--1);
   font-weight: 700;
