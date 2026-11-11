@@ -36,6 +36,15 @@ describe('compare', () => {
     expect(hotjar!.requirements.every((r) => r.trend === 'worse')).toBe(true);
   });
 
+  it('says a change is worse for a tool when part of it breaks, even if it was already blocked', () => {
+    // Hotjar's script was blocked before and after; its images were allowed (https:) and no longer are.
+    const before = "default-src 'self'; img-src https:; connect-src 'self'";
+    const after = "default-src 'self'; img-src 'self'; connect-src 'self' https://*.hotjar.com https://*.hotjar.io wss://*.hotjar.com";
+    const [hotjar] = compare(before, after, [selection('hotjar')], SELF).vendors;
+    expect(hotjar).toMatchObject({ verdictBefore: 'blocked', verdictAfter: 'blocked', trend: 'worse' });
+    expect(hotjar!.requirements.some((r) => r.trend === 'better')).toBe(true);
+  });
+
   it('ranks verdicts from the site’s point of view', () => {
     expect(trendOf('blocked', 'allowed')).toBe('better');
     expect(trendOf('allowed', 'reported')).toBe('worse');

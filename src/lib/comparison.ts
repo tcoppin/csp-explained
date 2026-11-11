@@ -18,6 +18,7 @@ export interface RequirementChange {
 export interface VendorChange extends VendorSelection {
   verdictBefore: RequirementVerdict;
   verdictAfter: RequirementVerdict;
+  /** Worse when anything the tool needs is newly held back, even if its overall verdict stays the same. */
   trend: Trend;
   requirements: RequirementChange[];
 }
@@ -41,6 +42,16 @@ const RANK: Record<RequirementVerdict, number> = { allowed: 0, reported: 1, 'nee
 
 export function trendOf(before: RequirementVerdict, after: RequirementVerdict): Trend {
   return RANK[after] < RANK[before] ? 'better' : RANK[after] > RANK[before] ? 'worse' : 'same';
+}
+
+/**
+ * A tool's verdict can stay the same while what it needs moves (images newly blocked, connections newly allowed):
+ * anything newly held back makes the change worse for it, whatever its overall verdict.
+ */
+function toolTrend(overall: Trend, requirements: RequirementChange[]): Trend {
+  if (overall !== 'same') return overall;
+  if (requirements.some((r) => r.trend === 'worse')) return 'worse';
+  return requirements.some((r) => r.trend === 'better') ? 'better' : 'same';
 }
 
 export function compare(beforeInput: string, afterInput: string, selections: VendorSelection[], origin = DEFAULT_ORIGIN): Comparison {
@@ -68,7 +79,7 @@ export function compare(beforeInput: string, afterInput: string, selections: Ven
     });
     const verdictBefore = overallVerdict(resultsBefore);
     const verdictAfter = overallVerdict(resultsAfter);
-    return { ...s, verdictBefore, verdictAfter, trend: trendOf(verdictBefore, verdictAfter), requirements };
+    return { ...s, verdictBefore, verdictAfter, trend: toolTrend(trendOf(verdictBefore, verdictAfter), requirements), requirements };
   });
 
   return {
