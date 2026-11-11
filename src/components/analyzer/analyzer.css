@@ -242,20 +242,6 @@
 .input-block h1 label {
   cursor: text;
 }
-/* Same look as the policy box */
-.site-field input {
-  width: 100%;
-  border: 2px solid var(--rule);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
-  padding: 0.75rem;
-  font-size: var(--step-0);
-}
-.site-field input:focus {
-  border-color: var(--action);
-  outline: none;
-}
 #policy-input {
   resize: vertical;
   min-height: 8rem;
@@ -267,21 +253,7 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
-.site-field {
-  margin-top: 1rem;
-  max-width: 32rem;
-}
-.site-field summary {
-  cursor: pointer;
-  color: var(--ink-soft);
-}
-.site-field input {
-  margin-top: 0.5rem;
-}
 @media (pointer: coarse) {
-  .site-field summary {
-    padding-block: 0.6rem;
-  }
   /* The status pill keeps its look; an invisible margin around it takes the tap */
   .view-status button.count {
     position: relative;

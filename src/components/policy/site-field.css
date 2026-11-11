@@ -1,0 +1,28 @@
+.site-field {
+  margin-top: 1rem;
+  max-width: 32rem;
+}
+.site-field summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+/* Same look as the policy box */
+.site-field input {
+  width: 100%;
+  margin-top: 0.5rem;
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.75rem;
+  font-size: var(--step-0);
+}
+.site-field input:focus {
+  border-color: var(--action);
+  outline: none;
+}
+@media (pointer: coarse) {
+  .site-field summary {
+    padding-block: 0.6rem;
+  }
+}
