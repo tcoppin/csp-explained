@@ -83,6 +83,15 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/usage.ts`: the usage events we count, shared by `track()` (`src/scripts/track.ts`) and the Lambda in
   `infra/lambda/`. Never send what the visitor typed. The About page and the README list what we count: keep
   them in sync.
+- `src/stored.ts`: everything kept in the visitor's browser (`csp-explained:<name>` in localStorage; no cookies).
+  Before adding storage:
+  - Write it only after the visitor does something that needs it: a choice they make (theme, audience) or a feature
+    they turn on (the history of analyses, off by default). Never automatically, even if it never leaves the device:
+    EU ePrivacy rules (Article 5(3)) need consent for any storage that isn't strictly needed for what the visitor
+    asked, and a consent banner would go against this site's spirit. An explicit opt-in is that consent.
+  - Add the name to `STORED` and its line to `pages.about.stored.items` (en and fr): `src/stored.test.ts` fails on a
+    key the code uses that isn't listed. Say how to remove it (a button, or clearing the site's data).
+  - Turning a feature off removes what it stored. Keys that are only removed now go in `LEGACY` in the test.
 
 ## Pitfalls we already hit
 
