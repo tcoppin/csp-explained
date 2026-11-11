@@ -39,11 +39,13 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/lib/analysis.ts`: orchestrates parse → vendor checks → patches → findings.
 - `src/components/`: Preact islands (`client:load`) and Astro components, grouped by who uses them. Each test and
   stylesheet stays next to its code; no folders by file type (`hooks/`, `css/`, `tests/`).
-  - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, recent analyses, `analyzer.css`.
+  - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, the recent analyses list,
+    `analyzer.css`.
   - `builder/`: only the builder island (build page): `Builder`, `BuildPanels`, `useBuilder`, `build-state`.
   - `compare/`: only the comparator island (compare page): `Compare`, `compare-state`, `compare.css`.
   - `policy/`: CSP-specific pieces used by several islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`,
-    `SiteField`, `FindingList`) and the shareable URL state (`state.ts`).
+    `SiteField`, `FindingList`), the shareable URL state (`state.ts`) and the recent analyses kept in the browser
+    (`recent.ts`).
   - `ui/`: generic building blocks with no CSP knowledge (`Tabs`, `Segmented`, `CodeBox`, `Rich`, `NewTabLink`,
     `useCopy`, `i18n.ts`). Usable from islands and Astro pages.
   - `site/`: Astro-only components for the static pages and layouts (`SiteHeader`, `CodeBlock`, `DevtoolsSketch`).

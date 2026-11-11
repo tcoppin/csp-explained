@@ -1,7 +1,6 @@
 import type { Vendor } from '../../lib/catalogue/schema';
-import { parse } from '../../lib/csp/parser';
 import { useT } from '../ui/i18n';
-import type { RecentAnalysis } from './recent';
+import { excerpt, type RecentAnalysis } from '../policy/recent';
 
 interface Props {
   entries: RecentAnalysis[];
@@ -12,12 +11,6 @@ interface Props {
   onDelete: (id: string) => void;
   onClearAll: () => void;
   onSwitch: (on: boolean) => void;
-}
-
-/** What the entry shows of the policy: its directives, without header names or curl output around them. */
-function excerpt(text: string): string {
-  const found = parse(text).policies.map((p) => p.text.trim()).filter(Boolean);
-  return (found.length > 0 ? found.join(' | ') : text).replace(/\s+/g, ' ').trim();
 }
 
 /** The last policies analysed in this browser, to reopen one where it was left. */

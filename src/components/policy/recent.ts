@@ -1,5 +1,6 @@
 import type { Audience } from '../../lib/csp/model';
-import { isAudience, VIEWS, type View } from '../policy/state';
+import { parse } from '../../lib/csp/parser';
+import { isAudience, VIEWS, type View } from './state';
 
 /**
  * The last policies analysed, kept in this browser's own storage only, to reopen one where it was left, once the
@@ -118,4 +119,10 @@ export function saveRecentOn(on: boolean): void {
   } catch {
     // Not critical.
   }
+}
+
+/** What an entry shows of the policy: its directives, without header names or curl output around them. */
+export function excerpt(text: string): string {
+  const found = parse(text).policies.map((p) => p.text.trim()).filter(Boolean);
+  return (found.length > 0 ? found.join(' | ') : text).replace(/\s+/g, ' ').trim();
 }
