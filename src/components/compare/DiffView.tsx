@@ -4,7 +4,7 @@ import type { DirectiveDiff, PolicyDiff, ValueDiff } from '../../lib/csp/diff';
 import type { SourceExpression } from '../../lib/csp/model';
 import { highlightClass } from '../policy/PolicyView';
 import { useT } from '../ui/i18n';
-import type { DiffLayout } from './compare-state';
+import type { DiffLayout } from './diff-layout';
 
 /** A value as the browser reads it on one side: highlighted when the change added it, struck when it took it away. */
 function Value({ v, side }: { v: ValueDiff; side?: 'before' | 'after' }) {

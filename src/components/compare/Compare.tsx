@@ -13,7 +13,8 @@ import { I18n, useT } from '../ui/i18n';
 import { Segmented } from '../ui/Segmented';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { ChangesView } from './ChangesView';
-import { COMPARE_VIEWS, decodeCompareState, encodeCompareState, loadDiffLayout, saveDiffLayout, type CompareView, type DiffLayout } from './compare-state';
+import { COMPARE_VIEWS, decodeCompareState, encodeCompareState, type CompareView } from '../policy/compare-state';
+import { loadDiffLayout, saveDiffLayout, type DiffLayout } from './diff-layout';
 import { DiffView } from './DiffView';
 import { ToolsChange } from './ToolsChange';
 // Shared view styles first, so the comparator's own rules win when they tie
