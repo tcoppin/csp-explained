@@ -1,6 +1,6 @@
 import { DEFAULT_ORIGIN, sameFinding } from './analysis';
 import { checkRequirement, checkRequirements, type Requirement, type RequirementResult } from './csp/compat';
-import { KEYWORDS, type ResourceType } from './csp/directives';
+import { KEYWORDS, NONCE_PLACEHOLDER, type ResourceType } from './csp/directives';
 import type { Policy } from './csp/model';
 import { classify, parse, parseSinglePolicy } from './csp/parser';
 import { buildPatches, type DirectiveChange } from './csp/patch';
@@ -14,8 +14,7 @@ import { evaluateSecurity, type SecurityFinding } from './csp/security';
 
 export type BaselineMode = 'allowlist' | 'nonce';
 
-/** Stands for the random value the server writes into each page; the builder can't know it. */
-export const NONCE_PLACEHOLDER = "'nonce-REPLACE_PER_PAGE'";
+export { NONCE_PLACEHOLDER };
 
 const DOCUMENT = ["object-src 'none'", "form-action 'self'", "frame-ancestors 'self'", 'upgrade-insecure-requests'];
 

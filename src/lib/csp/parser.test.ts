@@ -5,6 +5,41 @@ import { distinctIssues, issuesAt, parse } from './parser';
 const codes = (input: string) => parse(input).issues.map((i) => i.code);
 
 describe('parse', () => {
+  it("flags 'strict-dynamic' without a nonce or hash: no script could run", () => {
+    expect(codes("script-src 'strict-dynamic' https:")).toContain('strict-dynamic-without-nonce');
+    expect(codes("default-src 'self' 'strict-dynamic'")).toContain('strict-dynamic-without-nonce');
+    expect(codes("script-src 'nonce-r4nd0m' 'strict-dynamic'")).not.toContain('strict-dynamic-without-nonce');
+    expect(codes("script-src 'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng=' 'strict-dynamic'")).not.toContain(
+      'strict-dynamic-without-nonce',
+    );
+    // default-src doesn't decide for scripts when script-src is there.
+    expect(codes("default-src 'strict-dynamic'; script-src 'nonce-r4nd0m'")).not.toContain('strict-dynamic-without-nonce');
+  });
+
+  it("flags the builder's nonce placeholder left in place", () => {
+    expect(codes("script-src 'nonce-REPLACE_PER_PAGE' 'strict-dynamic'")).toEqual(['placeholder-nonce']);
+  });
+
+  it('flags hashes whose length does not fit their algorithm', () => {
+    expect(codes("script-src 'sha256-abc'")).toEqual(['hash-length']);
+    expect(codes("script-src 'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng='")).toEqual([]);
+    // Without padding, and in base64url, the length is the same.
+    expect(codes("script-src 'sha256-qznLcsROx4GACP2dm0UCKCzCG-HiZ1guq6ZZDob_Tng'")).toEqual([]);
+    expect(codes(`style-src 'sha384-${'A'.repeat(64)}' 'sha512-${'A'.repeat(86)}=='`)).toEqual([]);
+  });
+
+  it('flags directives a Report-Only policy ignores', () => {
+    const p = parse('Content-Security-Policy-Report-Only: default-src https:; sandbox allow-scripts; upgrade-insecure-requests');
+    expect(p.issues.filter((i) => i.code === 'ignored-in-report-only').map((i) => i.directive)).toEqual(['sandbox', 'upgrade-insecure-requests']);
+    expect(codes('Content-Security-Policy: default-src https:; upgrade-insecure-requests')).toEqual([]);
+  });
+
+  it("treats keywords other than 'self' and 'none' as invalid in frame-ancestors", () => {
+    const p = parse("frame-ancestors 'self' 'unsafe-inline' https://partner.example");
+    expect(p.policies[0]!.directives[0]!.values.map((v) => v.kind)).toEqual(['keyword', 'invalid', 'host']);
+    expect(p.issues.map((i) => [i.code, i.value])).toEqual([['invalid-source', "'unsafe-inline'"]]);
+  });
+
   it('parses a bare policy into directives and classified sources', () => {
     const { policies } = parse("default-src 'self'; script-src 'self' https://cdn.example.com 'nonce-abc123' 'sha256-AAAA'; img-src data: *");
     expect(policies).toHaveLength(1);

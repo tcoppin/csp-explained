@@ -131,7 +131,11 @@
     "invalid-source": "« {value} » dans {directive} n'est pas une valeur valide : les navigateurs l'ignorent.",
     "none-with-other-sources": "{directive} contient 'none' avec d'autres valeurs ; 'none' est alors ignoré.",
     "report-only-in-meta": "Une politique en mode rapport seul ne peut pas être définie par une balise <meta> ; les navigateurs ignorent celle-ci.",
-    "empty-directive": "{directive} n'a aucune valeur, ce qui bloque tout ce qui est de ce type."
+    "empty-directive": "{directive} n'a aucune valeur, ce qui bloque tout ce qui est de ce type.",
+    "strict-dynamic-without-nonce": "{directive} contient 'strict-dynamic' mais aucun nonce ni hash : aucun script de la page ne peut s'exécuter. 'strict-dynamic' ne fait confiance qu'aux scripts chargés par un script muni du nonce ou d'un hash.",
+    "placeholder-nonce": "'{value}' dans {directive} est l'exemple du générateur. Votre serveur doit le remplacer par une nouvelle valeur aléatoire pour chaque page envoyée.",
+    "hash-length": "Le hash '{value}' dans {directive} n'a pas la bonne longueur : il ne correspond à aucun code. Copiez-le de nouveau en entier.",
+    "ignored-in-report-only": "« {directive} » est sans effet dans une politique en mode rapport seul : les navigateurs l'y ignorent. Placez-la dans la politique appliquée."
   },
   "map": {
     "title": "Ce que cette politique autorise",

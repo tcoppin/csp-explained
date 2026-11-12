@@ -22,7 +22,8 @@ describe('baselinePolicy', () => {
   it('parses cleanly in both modes', () => {
     for (const mode of ['allowlist', 'nonce'] as const) {
       const parsed = parse(baselinePolicy(mode));
-      expect(parsed.issues).toEqual([]);
+      // The nonce placeholder is flagged once pasted back into the analyzer; the builder explains it itself.
+      expect(parsed.issues.map((i) => i.code)).toEqual(mode === 'nonce' ? ['placeholder-nonce'] : []);
       expect(directive(baselinePolicy(mode), 'object-src')?.values.map((v) => v.raw)).toEqual(["'none'"]);
     }
     expect(directive(baselinePolicy('nonce'), 'script-src')?.values.map((v) => v.kind)).toEqual(['nonce', 'keyword']);

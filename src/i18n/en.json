@@ -131,7 +131,11 @@
     "invalid-source": "\"{value}\" in {directive} isn't a valid value, so browsers ignore it.",
     "none-with-other-sources": "{directive} contains 'none' together with other values; 'none' is then ignored.",
     "report-only-in-meta": "Report-only policies can't be set with a <meta> tag; browsers ignore this one.",
-    "empty-directive": "{directive} has no value, which blocks everything of this type."
+    "empty-directive": "{directive} has no value, which blocks everything of this type.",
+    "strict-dynamic-without-nonce": "{directive} has 'strict-dynamic' but no nonce or hash, so no script on the page can run. 'strict-dynamic' only trusts the scripts that a nonced or hashed script loads.",
+    "placeholder-nonce": "'{value}' in {directive} is the builder's placeholder. Your server must replace it with a new random value for every page it sends.",
+    "hash-length": "The hash '{value}' in {directive} doesn't have the right length, so it never matches any code. Copy it again in full.",
+    "ignored-in-report-only": "\"{directive}\" has no effect in a Report-Only policy: browsers ignore it there. Put it in the enforced policy."
   },
   "map": {
     "title": "What this policy allows",

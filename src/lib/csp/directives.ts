@@ -131,6 +131,9 @@ export const CANONICAL_DIRECTIVE: Record<ResourceType, string> = {
   'style-attr': 'style-src',
 };
 
+/** Stands for the random value the server writes into each page (the builder's starting policy); the parser flags it. */
+export const NONCE_PLACEHOLDER = "'nonce-REPLACE_PER_PAGE'";
+
 export const KEYWORDS = new Set([
   "'self'",
   "'none'",

@@ -65,7 +65,11 @@ export type IssueCode =
   | 'invalid-source'
   | 'none-with-other-sources'
   | 'report-only-in-meta'
-  | 'empty-directive';
+  | 'empty-directive'
+  | 'strict-dynamic-without-nonce'
+  | 'placeholder-nonce'
+  | 'hash-length'
+  | 'ignored-in-report-only';
 
 export interface ParseIssue {
   code: IssueCode;

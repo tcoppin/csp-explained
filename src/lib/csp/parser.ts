@@ -1,4 +1,4 @@
-import { directiveInfo, KEYWORDS } from './directives';
+import { directiveInfo, KEYWORDS, NONCE_PLACEHOLDER } from './directives';
 import type {
   Directive,
   HostParts,
@@ -156,10 +156,35 @@ function parsePolicy(raw: RawPolicy, policyIndex: number, issues: ParseIssue[]):
       }
     }
     if (duplicate) issues.push({ code: 'duplicate-directive', policyIndex, directive: name, span: directive.span });
+    if (raw.reportOnly && raw.origin !== 'meta' && IGNORED_IN_REPORT_ONLY.has(name)) {
+      issues.push({ code: 'ignored-in-report-only', policyIndex, directive: name, span: nameToken.span });
+    }
     collectValueIssues(directive, policyIndex, issues, info?.valueType);
   }
+  collectStrictDynamicIssues(directives, policyIndex, issues);
 
   return { origin: raw.origin, reportOnly: raw.reportOnly, text: raw.text, directives };
+}
+
+/** Browsers ignore these in a Report-Only policy: they change how the page behaves, which reporting can't do. */
+const IGNORED_IN_REPORT_ONLY = new Set(['sandbox', 'upgrade-insecure-requests']);
+
+/** Base64 length of each digest, without the trailing `=`. */
+const HASH_LENGTH: Record<string, number> = { sha256: 43, sha384: 64, sha512: 86 };
+
+/**
+ * 'strict-dynamic' only trusts scripts loaded by a script that carries the nonce or a listed hash: without either in
+ * the same directive, no script runs. default-src counts only where it decides for scripts (no script-src).
+ */
+function collectStrictDynamicIssues(directives: Directive[], policyIndex: number, issues: ParseIssue[]) {
+  const first = (name: string) => directives.find((d) => d.name === name && !d.duplicate);
+  const scriptDirectives = [first('script-src'), first('script-src-elem')];
+  if (!first('script-src')) scriptDirectives.push(first('default-src'));
+  for (const d of scriptDirectives) {
+    if (!d || d.values.some((v) => v.kind === 'nonce' || v.kind === 'hash')) continue;
+    const sd = d.values.find((v) => v.kind === 'keyword' && v.value === "'strict-dynamic'");
+    if (sd) issues.push({ code: 'strict-dynamic-without-nonce', policyIndex, directive: d.name, value: sd.raw, span: sd.span });
+  }
 }
 
 function collectValueIssues(d: Directive, policyIndex: number, issues: ParseIssue[], valueType?: string) {
@@ -172,6 +197,13 @@ function collectValueIssues(d: Directive, policyIndex: number, issues: ParseIssu
   for (const v of d.values) {
     if (v.kind === 'invalid') {
       issues.push({ code: 'invalid-source', policyIndex, directive: d.name, value: v.raw, span: v.span });
+    } else if (v.kind === 'nonce' && v.raw.toLowerCase() === NONCE_PLACEHOLDER.toLowerCase()) {
+      issues.push({ code: 'placeholder-nonce', policyIndex, directive: d.name, value: v.raw, span: v.span });
+    } else if (v.kind === 'hash') {
+      const [algorithm, digest] = v.raw.slice(1, -1).split(/-(.*)/s) as [string, string];
+      if (digest.replace(/=+$/, '').length !== HASH_LENGTH[algorithm.toLowerCase()]) {
+        issues.push({ code: 'hash-length', policyIndex, directive: d.name, value: v.raw, span: v.span });
+      }
     } else if (v.kind === 'host' && KEYWORDS.has(`'${v.value}'`)) {
       // `self` without quotes is parsed by browsers as a host named "self".
       issues.push({ code: 'missing-quotes', policyIndex, directive: d.name, value: v.raw, span: v.span });
@@ -209,6 +241,9 @@ export function classify(
     return { raw, kind: 'token', value: raw, span };
   }
   const lower = raw.toLowerCase();
+  if (valueType === 'ancestor-source-list' && raw.startsWith("'") && lower !== "'self'" && lower !== "'none'") {
+    return { raw, kind: 'invalid', value: raw, span };
+  }
   if (KEYWORDS.has(lower)) return { raw, kind: 'keyword', value: lower, span };
   if (NONCE.test(raw)) return { raw, kind: 'nonce', value: raw, span };
   if (HASH.test(raw)) return { raw, kind: 'hash', value: raw, span };
