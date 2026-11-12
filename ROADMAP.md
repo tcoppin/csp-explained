@@ -43,12 +43,12 @@ backlog).
 - [x] Check `worker-src` with `'strict-dynamic'` against CSP3: no change needed. The worker-src check (§6.2.2.1) is a
       plain source-list match, without nonces or `'strict-dynamic'`; those apply only when a worker falls back to
       `script-src` (§6.1.10.1), as the matcher already does (`matcher.test.ts`).
-- [ ] The deprecated-directive message is written per directive. `report-uri` still works everywhere and some
+- [x] The deprecated-directive message is written per directive. `report-uri` still works everywhere and some
       browsers only report through it: say to keep it beside `report-to`, never that it has no effect.
-- [ ] The warning icon in "Read it" uses the warning colour, not the blocked one.
-- [ ] "What it allows" leaves out keywords that don't apply to a row (`'unsafe-inline'` and `'unsafe-eval'` on
+- [x] The warning icon in "Read it" uses the warning colour, not the blocked one.
+- [x] "What it allows" leaves out keywords that don't apply to a row (`'unsafe-inline'` and `'unsafe-eval'` on
       background workers).
-- [ ] Learn: a policy doesn't stop data leaving through a link click or a redirect; don't say it does.
+- [x] Learn: a policy doesn't stop data leaving through a link click or a redirect; don't say it does.
 
 ### 2. Interface
 
