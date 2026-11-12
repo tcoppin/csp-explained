@@ -19,6 +19,12 @@ const vendor = (id: string): Contribution => {
 const directive = (text: string, name: string) => parse(text).policies[0]!.directives.find((d) => d.name === name);
 
 describe('baselinePolicy', () => {
+  it("adds the fallback for older browsers, which browsers with 'strict-dynamic' ignore", () => {
+    const text = baselinePolicy('nonce', true);
+    expect(directive(text, 'script-src')?.values.map((v) => v.raw)).toEqual(["'nonce-REPLACE_PER_PAGE'", "'strict-dynamic'", "'unsafe-inline'", 'https:']);
+    expect(baselinePolicy('allowlist', true)).toBe(baselinePolicy('allowlist'));
+  });
+
   it('parses cleanly in both modes', () => {
     for (const mode of ['allowlist', 'nonce'] as const) {
       const parsed = parse(baselinePolicy(mode));

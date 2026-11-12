@@ -626,6 +626,8 @@
       },
       "nonce": "Yes",
       "nonceHint": "The strongest option: scripts run only if your page vouches for them.",
+      "olderBrowsers": "Older browsers too",
+      "olderBrowsersHint": "Adds `'unsafe-inline' https:` for browsers too old for `'strict-dynamic'` (before 2022). Current browsers ignore both, so they stay as protected.",
       "allowlist": "No, or not sure",
       "allowlistHint": "Scripts are trusted by where they come from. Simpler to run, easier to bypass."
     },

@@ -204,13 +204,27 @@ export function StartPanel({ b }: { b: BuilderModel }) {
             <Rich msg={`build.start.nonceExplain.${b.audience}`} />
           </p>
           {(['nonce', 'allowlist'] as const).map((mode) => (
-            <label key={mode} class="choice">
-              <input type="radio" name="mode" checked={start === mode} onChange={() => setStart(mode)} />
-              <span>
-                <strong>{t(`build.start.${mode}`)}</strong>
-                <span class="muted">{t(`build.start.${mode}Hint`)}</span>
-              </span>
-            </label>
+            <Fragment key={mode}>
+              <label class="choice">
+                <input type="radio" name="mode" checked={start === mode} onChange={() => setStart(mode)} />
+                <span>
+                  <strong>{t(`build.start.${mode}`)}</strong>
+                  <span class="muted">{t(`build.start.${mode}Hint`)}</span>
+                </span>
+              </label>
+              {/* Part of the "Yes" answer, so it sits under it. */}
+              {mode === 'nonce' && start === 'nonce' && (
+                <label class="choice older-browsers">
+                  <input type="checkbox" checked={b.olderBrowsers} onChange={(e) => b.setOlderBrowsers(e.currentTarget.checked)} />
+                  <span>
+                    <strong>{t('build.start.olderBrowsers')}</strong>
+                    <span class="muted">
+                      <Rich msg="build.start.olderBrowsersHint" />
+                    </span>
+                  </span>
+                </label>
+              )}
+            </Fragment>
           ))}
         </fieldset>
       )}

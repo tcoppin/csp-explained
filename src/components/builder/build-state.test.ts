@@ -20,6 +20,13 @@ describe('build state', () => {
     expect(decodeBuildState(`#${encodeBuildState(state)}`)).toEqual(state);
   });
 
+  it('carries the fallback for older browsers only with the nonce start', () => {
+    const base: BuildState = { start: 'nonce', olderBrowsers: true, policy: '', site: '', needs: [], hashes: {}, vendors: {}, tools: [] };
+    expect(decodeBuildState(`#${encodeBuildState(base)}`)).toMatchObject({ start: 'nonce', olderBrowsers: true });
+    expect(encodeBuildState({ ...base, start: 'allowlist' })).not.toContain('o=');
+    expect(decodeBuildState('#b=allowlist&o=1').olderBrowsers).toBeUndefined();
+  });
+
   it('only carries the policy when building on one', () => {
     const hash = encodeBuildState({ start: 'nonce', policy: "img-src 'self'", site: '', needs: [], hashes: {}, vendors: {}, tools: [] });
     expect(decodeBuildState(hash)).toEqual({ start: 'nonce' });

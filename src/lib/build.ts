@@ -18,10 +18,15 @@ export { NONCE_PLACEHOLDER };
 
 const DOCUMENT = ["object-src 'none'", "form-action 'self'", "frame-ancestors 'self'", 'upgrade-insecure-requests'];
 
-export function baselinePolicy(mode: BaselineMode): string {
+/**
+ * The starting policy. `olderBrowsers` adds the usual fallback for browsers without 'strict-dynamic' (before 2022):
+ * `'unsafe-inline' https:`, which browsers that support it ignore, so they stay as protected.
+ */
+export function baselinePolicy(mode: BaselineMode, olderBrowsers = false): string {
+  const fallback = olderBrowsers ? " 'unsafe-inline' https:" : '';
   const parts =
     mode === 'nonce'
-      ? ["default-src 'self'", `script-src ${NONCE_PLACEHOLDER} 'strict-dynamic'`, "base-uri 'none'"]
+      ? ["default-src 'self'", `script-src ${NONCE_PLACEHOLDER} 'strict-dynamic'${fallback}`, "base-uri 'none'"]
       : ["default-src 'self'", "base-uri 'self'"];
   return [...parts, ...DOCUMENT].join('; ');
 }

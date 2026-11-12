@@ -606,7 +606,7 @@
         },
         {
           "term": "Browser support",
-          "definition": "Every current browser supports nonces and `'strict-dynamic'` (Safari since 15.4, in 2022)."
+          "definition": "Every current browser supports nonces and `'strict-dynamic'` (Safari since 15.4, in 2022), so the policy above has no fallback for older ones. If you must support them, add `'unsafe-inline' https:` after `'strict-dynamic'`: current browsers ignore both, older ones fall back to them. The builder offers it as an option."
         },
         {
           "term": "In a meta tag",

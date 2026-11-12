@@ -12,6 +12,7 @@ import { loadAudience, saveAudience, toOrigin } from '../policy/state';
 /** The builder's state, kept in the link, and the policy built from it. */
 export function useBuilder(content: ContentBundle, t: Translate) {
   const [start, setStart] = useState<Start | undefined>();
+  const [olderBrowsers, setOlderBrowsers] = useState(false);
   const [policyText, setPolicyText] = useState('');
   const [site, setSite] = useState('');
   const [needs, setNeeds] = useState<SiteNeed[]>([]);
@@ -30,6 +31,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
     const s = decodeBuildState(location.hash);
     setAudienceState(s.audience ?? loadAudience());
     if (s.start) setStart(s.start);
+    if (s.olderBrowsers) setOlderBrowsers(true);
     if (s.policy) setPolicyText(s.policy);
     if (s.site) setSite(s.site);
     if (s.needs) setNeeds(s.needs);
@@ -41,12 +43,12 @@ export function useBuilder(content: ContentBundle, t: Translate) {
   }, []);
 
   useEffect(() => {
-    const hash = encodeBuildState({ start, policy: policyText, site, needs, hashes, vendors, tools, step, audience });
+    const hash = encodeBuildState({ start, olderBrowsers, policy: policyText, site, needs, hashes, vendors, tools, step, audience });
     history.replaceState(null, '', hash ? `#${hash}` : location.pathname);
-  }, [start, policyText, site, needs, hashes, vendors, tools, step, audience]);
+  }, [start, olderBrowsers, policyText, site, needs, hashes, vendors, tools, step, audience]);
 
   const origin = toOrigin(site) ?? DEFAULT_ORIGIN;
-  const baseText = start === 'policy' ? policyText : baselinePolicy(start ?? 'allowlist');
+  const baseText = start === 'policy' ? policyText : baselinePolicy(start ?? 'allowlist', olderBrowsers);
   // In the order they were picked.
   const picked = Object.keys(vendors).flatMap((id) => content.vendors.filter((v) => v.id === id));
 
@@ -76,6 +78,8 @@ export function useBuilder(content: ContentBundle, t: Translate) {
   return {
     start,
     setStart,
+    olderBrowsers,
+    setOlderBrowsers,
     policyText,
     setPolicyText,
     site,

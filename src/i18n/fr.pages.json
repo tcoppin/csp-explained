@@ -606,7 +606,7 @@
         },
         {
           "term": "Navigateurs",
-          "definition": "Tous les navigateurs actuels gèrent les nonces et `'strict-dynamic'` (Safari depuis la version 15.4, en 2022)."
+          "definition": "Tous les navigateurs actuels gèrent les nonces et `'strict-dynamic'` (Safari depuis la version 15.4, en 2022), d'où l'absence de solution de repli pour les plus anciens dans la politique ci-dessus. Si vous devez les prendre en charge, ajoutez `'unsafe-inline' https:` après `'strict-dynamic'` : les navigateurs actuels ignorent les deux, les anciens s'en servent. Le générateur le propose en option."
         },
         {
           "term": "Dans une balise meta",

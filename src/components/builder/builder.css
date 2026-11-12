@@ -366,3 +366,8 @@
 .find-hint {
   margin: 0 0 0 auto;
 }
+
+/* The fallback for older browsers belongs to the "Yes" answer above it. */
+.choice.older-browsers {
+  margin-inline-start: 1.75rem;
+}

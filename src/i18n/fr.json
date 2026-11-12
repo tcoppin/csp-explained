@@ -626,6 +626,8 @@
       },
       "nonce": "Oui",
       "nonceHint": "L'option la plus solide : un script ne s'exécute que si votre page s'en porte garante.",
+      "olderBrowsers": "Aussi les anciens navigateurs",
+      "olderBrowsersHint": "Ajoute `'unsafe-inline' https:` pour les navigateurs trop anciens pour `'strict-dynamic'` (avant 2022). Les navigateurs actuels ignorent les deux : ils restent aussi bien protégés.",
       "allowlist": "Non, ou je ne sais pas",
       "allowlistHint": "Les scripts sont acceptés selon leur provenance. Plus simple à gérer, plus facile à contourner."
     },

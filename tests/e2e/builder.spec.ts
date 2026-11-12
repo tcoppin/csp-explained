@@ -62,6 +62,22 @@ test('with a nonce, the builder explains the placeholder and what waits on it', 
   await expect(page.locator('.companion-note', { hasText: 'Waiting on the nonce' })).toContainText('Have code written directly in the page');
 });
 
+test("with a nonce, older browsers can get the usual fallback, kept in the link", async ({ page }) => {
+  await openBuilder(page, '/build#b=nonce');
+  const older = page.getByRole('checkbox', { name: /Older browsers too/ });
+  await expect(older).not.toBeChecked();
+  const preview = page.locator('.preview-policy');
+  await expect(preview).not.toContainText("'unsafe-inline'");
+  await older.check();
+  await expect(preview).toContainText("'unsafe-inline'");
+  await expect(preview).toContainText('https:');
+  await expect(page).toHaveURL(/[#&]o=1(&|$)/);
+  // Only the nonce start offers it.
+  await page.getByRole('radio', { name: /^No/ }).check();
+  await expect(older).toHaveCount(0);
+  await expect(page).not.toHaveURL(/[#&]o=1/);
+});
+
 test('the analyzer opens its policy in the builder, and the builder sends it back', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('button', { name: 'Try an example' }).click();

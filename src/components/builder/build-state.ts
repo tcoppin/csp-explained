@@ -15,6 +15,8 @@ export type Start = BaselineMode | 'policy';
 
 export interface BuildState {
   start?: Start;
+  /** With the nonce start: the fallback for browsers without 'strict-dynamic'. */
+  olderBrowsers?: boolean;
   /** The existing policy, when starting from one. */
   policy: string;
   site: string;
@@ -57,6 +59,7 @@ export function unpackTools(value: unknown): CustomTool[] {
 export function encodeBuildState(s: BuildState): string {
   const params = new URLSearchParams();
   if (s.start) params.set('b', s.start);
+  if (s.start === 'nonce' && s.olderBrowsers) params.set('o', '1');
   if (s.start === 'policy' && s.policy) params.set('p', toBase64Url(s.policy));
   if (s.site) params.set('s', s.site);
   if (s.needs.length > 0) params.set('n', s.needs.join(','));
@@ -85,6 +88,7 @@ export function decodeBuildState(hash: string): Partial<BuildState> {
   // A policy alone comes from the analyzer: build on it.
   if (isStart(start)) out.start = start;
   else if (out.policy) out.start = 'policy';
+  if (out.start === 'nonce' && params.get('o') === '1') out.olderBrowsers = true;
   const s = params.get('s');
   if (s) out.site = s;
   const n = params.get('n');
