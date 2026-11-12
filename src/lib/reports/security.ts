@@ -8,6 +8,12 @@ export function countByLevel(findings: SecurityFinding[]) {
   return counts;
 }
 
+/** "2 high, 1 medium, 0 low findings", with the informational notes when there are some. */
+export function summaryLine(t: Translate, findings: SecurityFinding[]): string {
+  const counts = countByLevel(findings);
+  return t(counts.info > 0 ? 'report.security.summaryNotes' : 'report.security.summary', counts);
+}
+
 /** Our explanation of a finding, or the evaluator's English one for a kind we don't know yet. */
 export function findingText(t: Translate, f: SecurityFinding): string {
   const key = `findings.${findingKey(f)}`;
@@ -26,8 +32,7 @@ function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean): stri
 /** Markdown review: findings in the current policy and those the proposed change would add. */
 export function securityReport(a: Analysis, t: Translate): string {
   const multiple = a.parsed.policies.length > 1;
-  const counts = countByLevel(a.findings);
-  const out: string[] = [`## ${t('report.security.title')}`, '', t('report.security.summary', counts), ''];
+  const out: string[] = [`## ${t('report.security.title')}`, '', summaryLine(t, a.findings), ''];
   if (a.parsed.policies.filter((p) => !p.reportOnly).length > 1) out.push(`> ${t('report.security.multiplePolicies')}`, '');
 
   if (a.vendors.length > 0) {

@@ -111,7 +111,12 @@ export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): Securit
   parsed.policies.forEach((policy, policyIndex) => {
     if (policy.directives.length === 0) return;
     const csp = new CspParser(sanitized(policy)).csp;
+    // Some checks run once per kind of script (script-src-elem, script-src-attr…) and raise the same finding each time.
+    const seen = new Set<string>();
     for (const f of runChecks(csp).filter((f) => !outdated(f))) {
+      const key = `${f.type}|${f.directive}|${f.value ?? ''}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
       findings.push({
         id: idOf(f.type),
         level: LEVELS[f.severity] ?? 'info',

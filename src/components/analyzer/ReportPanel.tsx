@@ -5,7 +5,7 @@ import { patchedPolicies, type Analysis } from '../../lib/analysis';
 import type { Vendor } from '../../lib/catalogue/schema';
 import type { Audience } from '../../lib/csp/model';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../../lib/reports/developer';
-import { countByLevel, securityReport } from '../../lib/reports/security';
+import { securityReport, summaryLine } from '../../lib/reports/security';
 import { itRequest, withVendorText, type MessageFormat } from '../../lib/reports/simple';
 import { track } from '../../scripts/track';
 import { FindingList } from '../policy/FindingList';
@@ -156,7 +156,6 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
   }
 
   const markdown = securityReport(analysis, t);
-  const counts = countByLevel(analysis.findings);
   const findingList = (findings: Analysis['findings']) => (
     <FindingList
       findings={findings}
@@ -176,7 +175,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
 
   return (
     <div class="report">
-      <p class="lead">{t('report.security.summary', counts)}</p>
+      <p class="lead">{summaryLine(t, analysis.findings)}</p>
       {analysis.parsed.policies.filter((p) => !p.reportOnly).length > 1 && <p class="muted">{t('report.security.multiplePolicies')}</p>}
       {analysis.vendors.length > 0 && (
         <>

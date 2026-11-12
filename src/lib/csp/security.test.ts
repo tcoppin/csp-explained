@@ -36,6 +36,11 @@ describe('evaluateSecurity', () => {
     expect(findings.some((f) => f.id === 'invalid-keyword')).toBe(true);
   });
 
+  it('reports each finding once, though the evaluator raises some once per kind of script', () => {
+    const findings = evaluateSecurity(parse("script-src 'strict-dynamic' https:; object-src 'none'; base-uri 'none'"));
+    expect(findings.filter((f) => f.id === 'ignored' && f.value === 'https:')).toHaveLength(1);
+  });
+
   it('sorts by level', () => {
     const findings = evaluateSecurity(parse("script-src 'unsafe-inline' https:"));
     const order = { high: 0, medium: 1, low: 2, info: 3 };

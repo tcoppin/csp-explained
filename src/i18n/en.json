@@ -278,6 +278,7 @@
     "security": {
       "title": "Security review",
       "summary": "{high} high, {medium} medium, {low} low findings",
+      "summaryNotes": "{high} high, {medium} medium, {low} low findings, plus {info} for information",
       "noFindings": "No findings from Google's CSP Evaluator.",
       "introduced": "New findings the proposed change would add",
       "noneIntroduced": "The proposed change doesn't add findings.",

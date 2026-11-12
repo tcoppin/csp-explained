@@ -278,6 +278,7 @@
     "security": {
       "title": "Examen de sécurité",
       "summary": "Constats : {high} élevés, {medium} moyens, {low} faibles",
+      "summaryNotes": "Constats : {high} élevés, {medium} moyens, {low} faibles, plus {info} pour information",
       "noFindings": "Aucun constat de CSP Evaluator de Google.",
       "introduced": "Nouveaux constats qu'ajouterait le changement proposé",
       "noneIntroduced": "Le changement proposé n'ajoute aucun constat.",
