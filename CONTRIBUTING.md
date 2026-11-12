@@ -79,7 +79,7 @@ Each `catalogue/vendors/<id>.yaml` lists, per feature, what the tool needs (`typ
 - Use `confidence: partial` when the official page couldn't be fully captured, and explain what's missing in `notes`.
 - `yarn catalogue:validate` checks the schema and that every source is a valid CSP expression.
 
-The [roadmap](ROADMAP.md#vendor-catalogue) lists the tools in three groups: in the catalogue with known gaps, to
+The [roadmap](ROADMAP.md#2-vendor-catalogue) lists the tools in three groups: in the catalogue with known gaps, to
 add from public documentation (anyone can suggest one with a link to the vendor's page), and private
 documentation waiting for the vendor's approval.
 
