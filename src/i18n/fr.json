@@ -153,6 +153,12 @@
     "via": "utilise la règle {directive}",
     "nothing": "Entièrement bloqué",
     "ignored": "ignoré ici par le navigateur",
+    "embed": {
+      "label": "Qui peut intégrer votre site",
+      "anyone": "Aucune restriction : n'importe quel site peut afficher le vôtre dans un cadre",
+      "none": "Aucun site ne peut afficher le vôtre dans un cadre, pas même le vôtre",
+      "ignoredInMeta": "frame-ancestors est ignorée dans une balise <meta>"
+    },
     "verdict": {
       "allowed": "Autorisé",
       "blocked": "Bloqué",

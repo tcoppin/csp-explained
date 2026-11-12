@@ -1,6 +1,6 @@
 import { explainSource, type ContentBundle } from '../../lib/content';
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from '../../lib/csp/directives';
-import { resolve } from '../../lib/csp/fallback';
+import { findDirective, resolve } from '../../lib/csp/fallback';
 import { checkResource, ignoredSources } from '../../lib/csp/matcher';
 import type { Audience, Policy, SourceExpression } from '../../lib/csp/model';
 import { highlightClass } from '../policy/PolicyView';
@@ -73,6 +73,7 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
             </tr>
           );
         })}
+        <EmbedRow policy={policy} audience={audience} content={content} />
         {BEHAVIOURS.map((type) => {
           const r = checkResource(policy, type, undefined, origin);
           return (
@@ -87,5 +88,38 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
         })}
       </tbody>
     </table>
+  );
+}
+
+/**
+ * Which websites may show this one in a frame (frame-ancestors): the other way round from the rows above, and a
+ * question non-technical readers ask. Browsers ignore it in a <meta> tag.
+ */
+function EmbedRow({ policy, audience, content }: Pick<Props, 'policy' | 'audience' | 'content'>) {
+  const t = useT();
+  const inMeta = policy.origin === 'meta';
+  const d = inMeta ? undefined : findDirective(policy, 'frame-ancestors');
+  const none = d && (d.values.length === 0 || d.values.every((v) => v.value === "'none'"));
+  return (
+    <tr>
+      <th scope="row">{t('map.embed.label')}</th>
+      <td>
+        {!d ? (
+          <span class="verdict-unrestricted">{t('map.embed.anyone')}</span>
+        ) : none ? (
+          <span class="verdict-none">{t('map.embed.none')}</span>
+        ) : (
+          <ul class="chips">
+            {d.values.map((v, i) => (
+              <li key={i}>
+                <code class={`tok ${highlightClass(v)}`}>{v.raw}</code>
+                {audience === 'simple' && v.kind !== 'host' && <span class="chip-note">{explainSource(content, v)?.title}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </td>
+      <td class="via">{inMeta ? t('map.embed.ignoredInMeta') : d && t('map.via', { directive: d.name })}</td>
+    </tr>
   );
 }

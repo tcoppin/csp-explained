@@ -153,6 +153,12 @@
     "via": "uses the {directive} rule",
     "nothing": "Blocked entirely",
     "ignored": "ignored by the browser here",
+    "embed": {
+      "label": "Who can embed your site",
+      "anyone": "No restriction: any website can show yours in a frame",
+      "none": "No website can show yours in a frame, not even your own",
+      "ignoredInMeta": "frame-ancestors is ignored in a <meta> tag"
+    },
     "verdict": {
       "allowed": "Allowed",
       "blocked": "Blocked",

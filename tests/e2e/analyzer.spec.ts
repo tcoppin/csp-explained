@@ -295,6 +295,22 @@ test("the allow map shows the sources 'strict-dynamic' makes the browser ignore"
   await expect(scripts.locator('.chip-ignored')).toHaveCount(1);
 });
 
+test('the allow map says which websites can show yours in a frame', async ({ page }) => {
+  await openAnalyzer(page);
+  const box = page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' });
+  await box.fill("default-src 'self'; frame-ancestors 'self' https://partner.example");
+  await page.getByRole('tab', { name: 'What it allows' }).click();
+  const embed = page.getByRole('row', { name: /^Who can embed your site/ });
+  await expect(embed).toContainText("'self'");
+  await expect(embed).toContainText('https://partner.example');
+  await box.fill("default-src 'self'");
+  await expect(embed).toContainText('any website can show yours in a frame');
+  // default-src doesn't cover it, and a <meta> tag can't set it.
+  await box.fill(`<meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'">`);
+  await expect(embed).toContainText('any website can show yours in a frame');
+  await expect(embed).toContainText('ignored in a <meta> tag');
+});
+
 test('the analyzer speaks French, and the IT message can be written in English', async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page, '/fr');
