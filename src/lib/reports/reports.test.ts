@@ -7,7 +7,7 @@ import { parseVendor } from '../catalogue/schema';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff } from './developer';
-import { findingText, riskText, securityReport } from './security';
+import { findingText, riskText, securityReport, toolNote } from './security';
 import { itRequest } from './simple';
 
 const t = translator('en');
@@ -197,6 +197,35 @@ describe('security report', () => {
     expect(report).not.toContain('{high}');
     // The policy as it is first, then what the change would add.
     expect(report.indexOf(t('report.security.current'))).toBeLessThan(report.indexOf(t('report.security.introduced')));
+  });
+});
+
+describe('toolNote', () => {
+  const gtm = vendor('google-tag-manager');
+  const hotjar = vendor('hotjar');
+  const a = analyze(
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://cdn.example.net; object-src 'none'",
+    [
+      { vendor: gtm, features: gtm.features.filter((f) => f.id === 'container') },
+      { vendor: hotjar, features: hotjar.features },
+    ],
+    'https://shop.example.com',
+  );
+  const finding = (value: string) => a.findings.find((f) => f.value === value)!;
+
+  it('names the picked tools that need the flagged value, and the nonce way out for those that support it', () => {
+    // Hotjar's documentation doesn't offer a nonce: the way out names Google Tag Manager only.
+    expect(toolNote(t, finding("'unsafe-inline'"), a)).toBe(
+      'Your tools need it: Google Tag Manager and Hotjar. A nonce removes this risk and works with Google Tag Manager.',
+    );
+  });
+
+  it('says nothing about a value no picked tool asked for', () => {
+    expect(toolNote(t, finding('https://cdn.example.net'), a)).toBeUndefined();
+  });
+
+  it('goes into the Markdown review too', () => {
+    expect(securityReport(a, t)).toContain('Your tools need it: Google Tag Manager and Hotjar.');
   });
 });
 

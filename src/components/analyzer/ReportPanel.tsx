@@ -5,7 +5,7 @@ import { patchedPolicies, type Analysis } from '../../lib/analysis';
 import type { Vendor } from '../../lib/catalogue/schema';
 import type { Audience } from '../../lib/csp/model';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../../lib/reports/developer';
-import { securityReport, summaryLine } from '../../lib/reports/security';
+import { securityReport, summaryLine, toolNote } from '../../lib/reports/security';
 import { itRequest, withVendorText, type MessageFormat } from '../../lib/reports/simple';
 import { track } from '../../scripts/track';
 import { FindingList } from '../policy/FindingList';
@@ -160,16 +160,23 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
     <FindingList
       findings={findings}
       tag={(f) => (analysis.parsed.policies.length > 1 ? t('analyzer.policy', { index: f.policyIndex + 1 }) : undefined)}
-      action={(f) =>
-        f.id === 'script-unsafe-inline' && (
+      action={(f) => {
+        const note = toolNote(t, f, analysis);
+        return (
           <>
-            <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
-              {t('hashes.fix.fromFinding')}
-            </button>{' '}
-            <Rich msg="hashes.fix.orNonces" />
+            {note}
+            {f.id === 'script-unsafe-inline' && (
+              <>
+                {note && ' '}
+                <button type="button" class="link-button" onClick={() => onHashes(f.policyIndex, f.directive)}>
+                  {t('hashes.fix.fromFinding')}
+                </button>{' '}
+                <Rich msg="hashes.fix.orNonces" />
+              </>
+            )}
           </>
-        )
-      }
+        );
+      }}
     />
   );
 

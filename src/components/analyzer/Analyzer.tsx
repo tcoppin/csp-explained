@@ -7,7 +7,7 @@ import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
 import { distinctIssues } from '../../lib/csp/parser';
-import { highRisks, riskText } from '../../lib/reports/security';
+import { highRisks, riskText, toolNote } from '../../lib/reports/security';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from '../policy/Explanation';
@@ -429,7 +429,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     )}
                     {risks.length > 0 && (
                       <>
-                        <FindingList findings={risks} text={(f) => riskText(t, f, audience)} />
+                        <FindingList findings={risks} text={(f) => riskText(t, f, audience)} action={(f) => toolNote(t, f, analysis)} />
                         <button type="button" class="link-button" onClick={showSecurityReview}>
                           {t('issues.securityReview')}
                         </button>

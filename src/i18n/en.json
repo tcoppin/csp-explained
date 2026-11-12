@@ -303,6 +303,8 @@
         "info": "Info"
       },
       "maybe": "possible",
+      "neededBy": "Your tools need it: {tools}.",
+      "nonceWay": "A nonce removes this risk and works with {tools}.",
       "attribution": "Checks from Google's CSP Evaluator library (Apache-2.0), explained in our words.",
       "strictHint": "Consider a nonce-based policy with 'strict-dynamic': it resists allowlist bypasses and most tag managers support nonce propagation.",
       "multiplePolicies": "Each policy is rated on its own. The browser enforces all of them together, so a weakness reported in one policy may be covered by another."
@@ -415,7 +417,7 @@
       "base-uri": "The policy doesn't restrict the page's base address (base-uri). An attacker could change where the page's own scripts load from; base-uri 'none' or 'self' prevents it."
     },
     "script-allowlist-bypass": {
-      "known": "{value} hosts files an attacker can reuse to run their own code, so allowing it weakens the policy. A nonce is the safer way to keep the tool that needs it."
+      "known": "{value} hosts files an attacker can reuse to run their own code, so allowing it weakens the policy. Remove it if nothing on your site needs it."
     },
     "object-allowlist-bypass": {
       "known": "{value} in {directive} hosts files an attacker can reuse to run code through a plugin. Setting object-src to 'none' is usually possible."

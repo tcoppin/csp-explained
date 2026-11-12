@@ -303,6 +303,8 @@
         "info": "Info"
       },
       "maybe": "possible",
+      "neededBy": "Vos outils en ont besoin : {tools}.",
+      "nonceWay": "Un nonce supprime ce risque et fonctionne avec {tools}.",
       "attribution": "Vérifications de la bibliothèque CSP Evaluator de Google (Apache-2.0), expliquées avec nos mots.",
       "strictHint": "Envisagez une politique à base de nonces avec 'strict-dynamic' : elle résiste aux contournements des listes d'hôtes et la plupart des gestionnaires de balises savent propager les nonces.",
       "multiplePolicies": "Chaque politique est évaluée seule. Le navigateur les applique toutes ensemble : une faiblesse signalée dans l'une peut être couverte par une autre."
@@ -415,7 +417,7 @@
       "base-uri": "La politique ne limite pas l'adresse de base de la page (base-uri). Un attaquant pourrait changer l'endroit d'où se chargent les scripts de la page ; base-uri 'none' ou 'self' l'empêche."
     },
     "script-allowlist-bypass": {
-      "known": "{value} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter son propre code, donc l'autoriser affaiblit la politique. Un nonce est le moyen le plus sûr de garder l'outil qui en a besoin."
+      "known": "{value} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter son propre code, donc l'autoriser affaiblit la politique. Retirez-le si rien sur votre site n'en a besoin."
     },
     "object-allowlist-bypass": {
       "known": "{value} dans {directive} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter du code via un plugin. Mettre object-src à 'none' est en général possible."

@@ -1,5 +1,5 @@
 import type { Translate } from '../../i18n';
-import type { Analysis } from '../analysis';
+import { toolsNeeding, type Analysis } from '../analysis';
 import type { Audience } from '../csp/model';
 import { findingKey, type SecurityFinding } from '../csp/security';
 
@@ -27,6 +27,19 @@ export function riskText(t: Translate, f: SecurityFinding, audience: Audience): 
   return audience === 'simple' && t.has(key) ? t(key, { directive: f.directive, value: f.value ?? '' }) : findingText(t, f);
 }
 
+/**
+ * When picked tools ask for the flagged value: which ones, and whether a nonce would remove the risk for those that
+ * support it ("Your tools need it: Google Tag Manager. A nonce removes this risk and works with Google Tag Manager.").
+ */
+export function toolNote(t: Translate, f: SecurityFinding, a: Pick<Analysis, 'vendors' | 'origin'>): string | undefined {
+  const tools = toolsNeeding(f, a.vendors, a.origin);
+  if (tools.length === 0) return undefined;
+  const list = (names: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(names);
+  const withNonce = tools.filter((v) => v.nonce?.supported);
+  const needed = t('report.security.neededBy', { tools: list(tools.map((v) => v.name)) });
+  return withNonce.length > 0 ? `${needed} ${t('report.security.nonceWay', { tools: list(withNonce.map((v) => v.name)) })}` : needed;
+}
+
 /** The high findings, once per kind of risk (two policies with the same weakness are one thing to fix). */
 export function highRisks(findings: SecurityFinding[]): SecurityFinding[] {
   const seen = new Set<string>();
@@ -38,13 +51,14 @@ export function highRisks(findings: SecurityFinding[]): SecurityFinding[] {
   });
 }
 
-function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean): string {
+function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean, a: Analysis): string {
   const level = t(`report.security.level.${f.level}`) + (f.maybe ? ` (${t('report.security.maybe')})` : '');
   const where = [f.directive, f.value].filter(Boolean).join(' ');
   const policy = multiplePolicies
     ? ` [${t('analyzer.policy', { index: f.policyIndex + 1 })}${f.reportOnly ? `, ${t('analyzer.reportOnlyShort')}` : ''}]`
     : '';
-  return `- **${level}** \`${where}\`${policy}: ${findingText(t, f)}`;
+  const note = toolNote(t, f, a);
+  return `- **${level}** \`${where}\`${policy}: ${findingText(t, f)}${note ? ` ${note}` : ''}`;
 }
 
 /** Markdown review: findings in the current policy and those the proposed change would add. */
@@ -56,12 +70,12 @@ export function securityReport(a: Analysis, t: Translate): string {
   // What the policy has today first, then what the proposed change would add to it.
   out.push(`### ${t('report.security.current')}`, '');
   if (a.findings.length === 0) out.push(t('report.security.noFindings'));
-  else out.push(...a.findings.map((f) => line(f, t, multiple)));
+  else out.push(...a.findings.map((f) => line(f, t, multiple, a)));
 
   if (a.vendors.length > 0) {
     out.push('', `### ${t('report.security.introduced')}`, '');
     if (a.introducedFindings.length === 0) out.push(t('report.security.noneIntroduced'));
-    else out.push(...a.introducedFindings.map((f) => line(f, t, multiple)));
+    else out.push(...a.introducedFindings.map((f) => line(f, t, multiple, a)));
   }
 
   const strict = a.parsed.policies.some((p) =>

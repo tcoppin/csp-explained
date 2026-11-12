@@ -1,8 +1,9 @@
 import { requirementsOf } from './catalogue/requirements';
 import type { Feature, Vendor } from './catalogue/schema';
-import { checkRequirements, type RequirementResult, type RequirementVerdict } from './csp/compat';
+import { checkRequirements, probeFor, type RequirementResult, type RequirementVerdict } from './csp/compat';
 import type { ParseResult, PolicyOrigin } from './csp/model';
-import { parse, parseSinglePolicy } from './csp/parser';
+import { classify, parse, parseSinglePolicy } from './csp/parser';
+import { expressionMatchesUrl } from './csp/matcher';
 import { buildPatches, type PolicyPatch } from './csp/patch';
 import { evaluateSecurity, type SecurityFinding } from './csp/security';
 
@@ -76,4 +77,23 @@ export function patchedPolicies(a: Analysis): PatchedPolicy[] {
     const patch = a.patches.find((x) => x.policyIndex === i);
     return { text: patch?.after ?? p.text, reportOnly: p.reportOnly, origin: p.origin, changed: patch !== undefined };
   });
+}
+
+/**
+ * The picked tools that ask for the value a finding is about: the same value (`'unsafe-inline'`), or a host the
+ * flagged one covers (`https://*.example.com` for a tool asking for `https://cdn.example.com`).
+ */
+export function toolsNeeding(f: SecurityFinding, vendors: VendorCheck[], origin: string): Vendor[] {
+  if (!f.value) return [];
+  const value = f.value.toLowerCase();
+  const expr = classify(f.value, { start: 0, end: f.value.length });
+  return vendors
+    .filter((v) =>
+      v.results.some(({ requirement: r }) => {
+        if (r.source.toLowerCase() === value) return true;
+        const probe = expr.kind === 'host' || expr.kind === 'scheme' ? probeFor(r, origin) : undefined;
+        return probe !== undefined && expressionMatchesUrl(expr, probe, origin);
+      }),
+    )
+    .map((v) => v.vendor);
 }
