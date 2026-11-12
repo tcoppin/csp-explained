@@ -1,6 +1,6 @@
 import { EFFECTIVE_DIRECTIVE, type ResourceType } from './directives';
 import { resolve } from './fallback';
-import { checkResource, ignoredSources, type Verdict } from './matcher';
+import { checkResource, ignoredSources, sourceApplies, type Verdict } from './matcher';
 import type { Directive, Policy, SourceExpression } from './model';
 
 /**
@@ -43,9 +43,17 @@ export interface SourcesChange {
   /** Directive that decides it; undefined when nothing restricts that kind of load. */
   before?: string;
   after?: string;
-  /** Sources the browser uses (those it ignores, e.g. hosts next to 'strict-dynamic', are left out). */
+  /**
+   * Sources the browser uses (those it ignores, e.g. hosts next to 'strict-dynamic', are left out), without nonces
+   * and hashes, which say nothing about addresses.
+   */
   added: string[];
   removed: string[];
+  /** A nonce appears or goes. A nonce whose value changes is no change: it's new for every page. */
+  nonce?: 'added' | 'removed';
+  /** Inline code allowed by hash: a changed hash means the code changed. */
+  hashesAdded?: string[];
+  hashesRemoved?: string[];
 }
 
 /** How inline code or eval is treated before and after. */
@@ -70,6 +78,11 @@ export interface PolicyDiff extends PolicyPair {
   directives: DirectiveDiff[];
   /** Only the kinds of load whose treatment changed. */
   effective: EffectiveChange[];
+  /**
+   * `changed`: both sides have a nonce, with different values, as two page loads should. `same`: the same value on
+   * both sides, which two page loads should never show.
+   */
+  nonce?: 'same' | 'changed';
 }
 
 /** Kinds of load named by a URL, in the order people think of them. */
@@ -142,11 +155,17 @@ export function diffDirectives(before: Policy | undefined, after: Policy | undef
 /** Sources the browser uses for `type` in this policy, by key, with the directive that holds them. */
 function effectiveSources(policy: Policy | undefined, type: ResourceType) {
   const governing = policy ? resolve(policy, EFFECTIVE_DIRECTIVE[type]).governing : undefined;
-  if (!governing) return { directive: undefined, sources: new Map<string, string>() };
+  if (!governing) return { directive: undefined, sources: new Map<string, string>(), hashes: new Set<string>(), nonce: false };
   const ignored = new Set(ignoredSources(governing, type));
-  const sources = new Map(governing.values.filter((v) => !ignored.has(v)).map((v) => [valueKey(v), v.raw]));
-  return { directive: governing.name, sources };
+  const used = governing.values.filter((v) => !ignored.has(v) && sourceApplies(v, type));
+  const sources = new Map(used.filter((v) => v.kind !== 'nonce' && v.kind !== 'hash').map((v) => [valueKey(v), v.raw]));
+  const hashes = new Set(used.filter((v) => v.kind === 'hash').map((v) => v.raw));
+  return { directive: governing.name, sources, hashes, nonce: used.some((v) => v.kind === 'nonce') };
 }
+
+/** Every nonce a policy lists, whatever the directive. */
+const noncesOf = (policy: Policy | undefined) =>
+  new Set(policy?.directives.flatMap((d) => d.values.filter((v) => v.kind === 'nonce').map((v) => v.raw)) ?? []);
 
 /** A policy that isn't there (added or removed) allows everything; so does an empty one. */
 function verdictFor(policy: Policy | undefined, type: ResourceType, selfOrigin: string): Verdict {
@@ -160,8 +179,21 @@ export function effectiveChanges(before: Policy | undefined, after: Policy | und
     const a = effectiveSources(after, type);
     const added = [...a.sources].filter(([k]) => !b.sources.has(k)).map(([, raw]) => raw);
     const removed = [...b.sources].filter(([k]) => !a.sources.has(k)).map(([, raw]) => raw);
-    if (b.directive !== a.directive || added.length > 0 || removed.length > 0) {
-      changes.push({ kind: 'sources', type, before: b.directive, after: a.directive, added, removed });
+    const hashesAdded = [...a.hashes].filter((h) => !b.hashes.has(h));
+    const hashesRemoved = [...b.hashes].filter((h) => !a.hashes.has(h));
+    const nonce = a.nonce === b.nonce ? undefined : a.nonce ? 'added' : 'removed';
+    if (b.directive !== a.directive || added.length > 0 || removed.length > 0 || nonce || hashesAdded.length > 0 || hashesRemoved.length > 0) {
+      changes.push({
+        kind: 'sources',
+        type,
+        before: b.directive,
+        after: a.directive,
+        added,
+        removed,
+        ...(nonce && { nonce }),
+        ...(hashesAdded.length > 0 && { hashesAdded }),
+        ...(hashesRemoved.length > 0 && { hashesRemoved }),
+      });
     }
   }
   for (const type of INLINE_TYPES) {
@@ -211,6 +243,9 @@ export function diffPolicies(before: Policy[], after: Policy[], selfOrigin: stri
         : modeChanged || deliveryChanged || directives.some((d) => d.status !== 'unchanged')
           ? 'changed'
           : 'unchanged';
-    return { ...pair, status, modeChanged, deliveryChanged, directives, effective: effectiveChanges(b, a, selfOrigin) };
+    const nb = noncesOf(b);
+    const na = noncesOf(a);
+    const nonce = nb.size > 0 && na.size > 0 ? ([...na].some((n) => nb.has(n)) ? 'same' : 'changed') : undefined;
+    return { ...pair, status, modeChanged, deliveryChanged, directives, effective: effectiveChanges(b, a, selfOrigin), ...(nonce && { nonce }) };
   });
 }

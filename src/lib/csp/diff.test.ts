@@ -51,7 +51,19 @@ describe('effectiveChanges', () => {
   it('leaves out sources the browser ignores next to strict-dynamic', () => {
     const c = changes("script-src 'self' cdn.a.com", "script-src 'self' cdn.a.com 'nonce-r4nd' 'strict-dynamic'");
     const scripts = c.find((x) => x.type === 'script');
-    expect(scripts).toMatchObject({ added: ["'nonce-r4nd'", "'strict-dynamic'"], removed: ["'self'", 'cdn.a.com'] });
+    expect(scripts).toMatchObject({ added: ["'strict-dynamic'"], removed: ["'self'", 'cdn.a.com'], nonce: 'added' });
+  });
+
+  it("doesn't count a nonce renewed between two page loads as a change", () => {
+    expect(changes("script-src 'nonce-AAAA1111' 'strict-dynamic'", "script-src 'nonce-BBBB2222' 'strict-dynamic'")).toEqual([]);
+  });
+
+  it('keeps hashes apart from addresses, and away from workers', () => {
+    const c = changes("script-src 'self' 'sha256-old'", "script-src 'self' 'sha256-new' https://cdn.a.com");
+    expect(c).toEqual([
+      { kind: 'sources', type: 'script', before: 'script-src', after: 'script-src', added: ['https://cdn.a.com'], removed: [], hashesAdded: ["'sha256-new'"], hashesRemoved: ["'sha256-old'"] },
+      { kind: 'sources', type: 'worker', before: 'script-src', after: 'script-src', added: ['https://cdn.a.com'], removed: [] },
+    ]);
   });
 
   it('reports inline code and eval by verdict', () => {
@@ -112,6 +124,13 @@ describe('diffPolicies', () => {
       status: 'unchanged',
       deliveryChanged: false,
     });
+  });
+
+  it('tells a renewed nonce from one that never changes', () => {
+    const nonce = (before: string, after: string) => diffPolicies([policy(before)], [policy(after)], SELF)[0]!.nonce;
+    expect(nonce("script-src 'nonce-AAAA1111'", "script-src 'nonce-BBBB2222'")).toBe('changed');
+    expect(nonce("script-src 'nonce-AAAA1111'", "script-src 'nonce-AAAA1111' https://cdn.a.com")).toBe('same');
+    expect(nonce("script-src 'self'", "script-src 'nonce-AAAA1111'")).toBeUndefined();
   });
 
   it('marks a policy added when the before side had none', () => {

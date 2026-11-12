@@ -537,7 +537,13 @@
       "ruleRemoved": "Règle supprimée",
       "valuesAdded": "Ajouté",
       "valuesRemoved": "Retiré",
-      "nothing": "Rien ne change dans ce que les navigateurs autorisent : seule l'écriture de la politique change."
+      "nothing": "Rien ne change dans ce que les navigateurs autorisent : seule l'écriture de la politique change.",
+      "nonce": {
+        "added": "Désormais aussi ce qui porte le nonce de la page",
+        "removed": "Plus ce qui porte le nonce de la page"
+      },
+      "hashesAdded": "Désormais aussi ce code en ligne (par hash)",
+      "hashesRemoved": "Plus ce code en ligne (par hash)"
     },
     "notice": {
       "added": "Cette politique est nouvelle : les navigateurs l'appliqueront.",
@@ -547,7 +553,9 @@
       "reportOnlyNow": "La politique d'après est en mode rapport : ce qu'elle interdit sera seulement signalé, plus bloqué.",
       "toMeta": "La politique d'après est définie par une balise <meta>, où les navigateurs ignorent frame-ancestors, report-uri, report-to et sandbox.",
       "toHeader": "La politique d'après est envoyée dans un en-tête HTTP, donc les règles qu'une balise <meta> ignore (frame-ancestors, rapports, sandbox) s'appliquent désormais.",
-      "bothReportOnly": "Les deux politiques sont en mode rapport : ces changements touchent ce qui est signalé. Rien n'est bloqué."
+      "bothReportOnly": "Les deux politiques sont en mode rapport : ces changements touchent ce qui est signalé. Rien n'est bloqué.",
+      "nonceSame": "Les deux politiques utilisent le même nonce. Si elles viennent de deux chargements de page, le nonce n'est pas renouvelé : il doit être nouveau et aléatoire pour chaque page, sinon il ne protège rien. Si vous avez modifié l'une pour obtenir l'autre, ignorez ce message.",
+      "nonceChanged": "Le nonce diffère entre les deux, comme il se doit : un nouveau pour chaque page. Ce n'est pas compté comme un changement."
     },
     "diff": {
       "intro": "Ce que le changement ajoute est surligné ; ce qu'il retire est barré.",

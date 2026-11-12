@@ -67,6 +67,23 @@ function ChangeRow({ change, label, audience, content }: { change: EffectiveChan
                 <Chips sources={change.removed} audience={audience} content={content} removed />
               </div>
             )}
+            {change.nonce && (
+              <p class={`change-line change-${change.nonce}`}>
+                <span class="change-label">{t(`compare.changes.nonce.${change.nonce}`)}</span>
+              </p>
+            )}
+            {change.hashesAdded && (
+              <div class="change-line change-added">
+                <span class="change-label">{t('compare.changes.hashesAdded')}</span>
+                <Chips sources={change.hashesAdded} audience={audience} content={content} />
+              </div>
+            )}
+            {change.hashesRemoved && (
+              <div class="change-line change-removed">
+                <span class="change-label">{t('compare.changes.hashesRemoved')}</span>
+                <Chips sources={change.hashesRemoved} audience={audience} content={content} removed />
+              </div>
+            )}
           </>
         )}
         {via}
@@ -128,6 +145,7 @@ export function pairNotices(pair: PolicyDiff): string[] {
   if (pair.modeChanged) notes.push(pair.after?.reportOnly ? 'compare.notice.reportOnlyNow' : 'compare.notice.enforcedNow');
   if (pair.deliveryChanged) notes.push(pair.after?.origin === 'meta' ? 'compare.notice.toMeta' : 'compare.notice.toHeader');
   if (pair.before?.reportOnly && pair.after?.reportOnly) notes.push('compare.notice.bothReportOnly');
+  if (pair.nonce) notes.push(pair.nonce === 'same' ? 'compare.notice.nonceSame' : 'compare.notice.nonceChanged');
   return notes;
 }
 
@@ -148,7 +166,7 @@ export function ChangesView({ pair, audience, content }: Props) {
   return (
     <div class="changes">
       {notices.map((key) => (
-        <p key={key} class={`notice${key.endsWith('bothReportOnly') ? ' notice-quiet' : ''}`}>
+        <p key={key} class={`notice${key.endsWith('bothReportOnly') || key.endsWith('nonceChanged') ? ' notice-quiet' : ''}`}>
           {t(key)}
         </p>
       ))}

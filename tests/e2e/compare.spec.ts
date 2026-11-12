@@ -48,6 +48,20 @@ test('says when two policies only differ in how they are written', async ({ page
   await expect(page.getByRole('tabpanel')).toContainText('Nothing changes in what browsers allow');
 });
 
+test('a renewed nonce is no change, the same nonce twice is a warning', async ({ page }) => {
+  await openComparator(page);
+  const strict = (nonce: string, extra = '') => `script-src 'nonce-${nonce}' 'strict-dynamic'${extra}; object-src 'none'; base-uri 'none'`;
+  await page.getByRole('textbox', { name: 'Before' }).fill(strict('AAAA1111'));
+  await page.getByRole('textbox', { name: 'After' }).fill(strict('BBBB2222'));
+  const panel = page.getByRole('tabpanel');
+  await expect(panel).toContainText('The nonce differs between the two, as it should');
+  await expect(panel).toContainText('Nothing changes in what browsers allow');
+  await expect(panel).not.toContainText('nonce-BBBB2222');
+
+  await page.getByRole('textbox', { name: 'After' }).fill(strict('AAAA1111', ' https:'));
+  await expect(panel).toContainText('Both policies use the same nonce');
+});
+
 test('points at a side it cannot read', async ({ page }) => {
   await openComparator(page);
   await page.getByRole('textbox', { name: 'Before' }).fill(';;');
@@ -61,8 +75,12 @@ test('the example shows each view: changes, both policies, findings and tools', 
   await openComparator(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
 
-  // What changes: sources gained and lost, inline code by verdict; workers change like scripts and share the row.
-  await expect(page.getByRole('row', { name: /^Scripts, Background workers/ })).toContainText("'strict-dynamic'");
+  // What changes: sources gained and lost, inline code by verdict. Scripts gain the nonce; workers, which never carry
+  // one, only 'strict-dynamic'.
+  const scripts = page.getByRole('row', { name: /^Scripts/ });
+  await expect(scripts).toContainText("'strict-dynamic'");
+  await expect(scripts).toContainText("Now also what carries the page's nonce");
+  await expect(page.getByRole('row', { name: /^Background workers/ })).not.toContainText('nonce');
   await expect(page.getByRole('row', { name: /^Inline event handlers/ })).toContainText('BlockedBefore: Allowed');
 
   // Both policies: inline, or side by side on wider screens only.

@@ -218,3 +218,16 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
   if (matchedBy) return { ...base, verdict: 'allowed', matchedBy, ignored: [] };
   return { ...base, verdict: 'blocked', ignored: [] };
 }
+
+/**
+ * Can this value let the page load `type` from an address? Nonces and hashes only reach script and style elements
+ * (a worker carries neither); inline and eval keywords are shown only beside the scripts and styles they're written
+ * for, and 'strict-dynamic' only for what scripts load.
+ */
+export function sourceApplies(v: SourceExpression, type: ResourceType): boolean {
+  const element = type === 'script' || type === 'style';
+  if (v.kind === 'nonce' || v.kind === 'hash') return element;
+  if (v.kind !== 'keyword' || v.value === "'self'" || v.value === "'none'") return true;
+  if (v.value === "'strict-dynamic'") return type === 'script' || type === 'worker';
+  return element;
+}

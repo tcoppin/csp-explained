@@ -537,7 +537,13 @@
       "ruleRemoved": "Rule removed",
       "valuesAdded": "Added",
       "valuesRemoved": "Removed",
-      "nothing": "Nothing changes in what browsers allow: only the way the policy is written."
+      "nothing": "Nothing changes in what browsers allow: only the way the policy is written.",
+      "nonce": {
+        "added": "Now also what carries the page's nonce",
+        "removed": "No longer what carries the page's nonce"
+      },
+      "hashesAdded": "Now also this inline code (by hash)",
+      "hashesRemoved": "No longer this inline code (by hash)"
     },
     "notice": {
       "added": "This policy is new: browsers will enforce it.",
@@ -547,7 +553,9 @@
       "reportOnlyNow": "The after policy is report-only: what it disallows will only be reported, no longer blocked.",
       "toMeta": "The after policy is set with a <meta> tag, where browsers ignore frame-ancestors, report-uri, report-to and sandbox.",
       "toHeader": "The after policy is sent as an HTTP header, so the rules a <meta> tag ignores (frame-ancestors, reporting, sandbox) now apply.",
-      "bothReportOnly": "Both policies are report-only: these changes affect what gets reported. Nothing is blocked."
+      "bothReportOnly": "Both policies are report-only: these changes affect what gets reported. Nothing is blocked.",
+      "nonceSame": "Both policies use the same nonce. If they come from two page loads, the nonce isn't renewed: it must be new and random for every page, or it protects nothing. If you edited one policy into the other, ignore this.",
+      "nonceChanged": "The nonce differs between the two, as it should: a new one for every page. It isn't counted as a change."
     },
     "diff": {
       "intro": "What the change adds is highlighted; what it takes away is struck through.",

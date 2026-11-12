@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { requiresTrustedTypes, resolve } from './fallback';
-import { checkResource, expressionMatchesUrl, ignoredSources } from './matcher';
+import type { ResourceType } from './directives';
+import { checkResource, expressionMatchesUrl, ignoredSources, sourceApplies } from './matcher';
 import { classify, parse, parseSinglePolicy } from './parser';
 
 const SELF = 'https://shop.example.com';
@@ -149,5 +150,25 @@ describe('requiresTrustedTypes', () => {
     expect(requiresTrustedTypes(policy("require-trusted-types-for 'SCRIPT'"))).toBe(true);
     expect(requiresTrustedTypes(policy('trusted-types default'))).toBe(false);
     expect(requiresTrustedTypes(policy("default-src 'self'"))).toBe(false);
+  });
+});
+
+describe('sourceApplies', () => {
+  /** The values that can allow one kind of content, from a directive's values. */
+  const shown = (values: string, type: ResourceType) =>
+    parseSinglePolicy(`default-src ${values}`).directives[0]!.values.filter((v) => sourceApplies(v, type)).map((v) => v.raw);
+  const ALL = "'self' 'unsafe-inline' 'unsafe-eval' 'nonce-abc' 'strict-dynamic' https://cdn.example";
+
+  it('keeps everything written for scripts beside scripts', () => {
+    expect(shown(ALL, 'script')).toEqual(ALL.split(' '));
+  });
+
+  it("leaves inline-code keywords and nonces off workers, which only addresses and 'strict-dynamic' reach", () => {
+    expect(shown(ALL, 'worker')).toEqual(["'self'", "'strict-dynamic'", 'https://cdn.example']);
+  });
+
+  it('keeps only addresses for content that is never inline code', () => {
+    expect(shown(ALL, 'img')).toEqual(["'self'", 'https://cdn.example']);
+    expect(shown("'unsafe-inline'", 'font')).toEqual([]);
   });
 });
