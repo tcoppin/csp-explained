@@ -29,19 +29,20 @@ backlog).
 
 ### 1. Correctness fixes
 
-- [ ] Each security finding appears once. CSP Evaluator raises some once per kind of script:
+- [x] Each security finding appears once. CSP Evaluator raises some once per kind of script:
       `script-src 'strict-dynamic' https:` lists "`https:` is ignored" three times, under a "0 high, 0 medium,
       0 low findings" heading.
-- [ ] Our own checks, on top of CSP Evaluator (which stays, for its research on allowlist bypasses):
+- [x] Our own checks, on top of CSP Evaluator (which stays, for its research on allowlist bypasses):
   - `'strict-dynamic'` with no nonce or hash: no script can run.
   - The builder's `'nonce-REPLACE_PER_PAGE'` left in place.
   - A hash whose length doesn't fit its algorithm (`'sha256-abc'`): it never matches.
   - `sandbox` and `upgrade-insecure-requests` in a Report-Only policy, where browsers ignore them.
   - Keywords other than `'self'` and `'none'` in `frame-ancestors`.
-- [ ] The patch skips a value that another added value already covers. Today GA4's `https://*.google.com` and
+- [x] The patch skips a value that another added value already covers. Today GA4's `https://*.google.com` and
       GTM's `https://www.google.com` both land in `connect-src` (IT message, diff and builder).
-- [ ] Check `worker-src` with `'strict-dynamic'` against CSP3, whose worker check looks like the script one: we
-      report the worker blocked.
+- [x] Check `worker-src` with `'strict-dynamic'` against CSP3: no change needed. The worker-src check (§6.2.2.1) is a
+      plain source-list match, without nonces or `'strict-dynamic'`; those apply only when a worker falls back to
+      `script-src` (§6.1.10.1), as the matcher already does (`matcher.test.ts`).
 - [ ] The deprecated-directive message is written per directive. `report-uri` still works everywhere and some
       browsers only report through it: say to keep it beside `report-to`, never that it has no effect.
 - [ ] The warning icon in "Read it" uses the warning colour, not the blocked one.
