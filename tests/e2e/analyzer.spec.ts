@@ -379,5 +379,6 @@ test('a history kept before it became opt-in carries on, unless it was turned of
   });
   await openAnalyzer(page);
   await expect(page.getByRole('button', { name: 'Keep a history on this device' })).toBeVisible();
-  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  // The button is in the server-rendered page; the old key goes once the island's effects have run.
+  await expect.poll(() => page.evaluate(() => Object.keys(localStorage))).toEqual([]);
 });
