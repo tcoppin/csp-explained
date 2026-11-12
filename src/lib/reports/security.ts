@@ -1,5 +1,6 @@
 import type { Translate } from '../../i18n';
 import type { Analysis } from '../analysis';
+import type { Audience } from '../csp/model';
 import { findingKey, type SecurityFinding } from '../csp/security';
 
 export function countByLevel(findings: SecurityFinding[]) {
@@ -18,6 +19,23 @@ export function summaryLine(t: Translate, findings: SecurityFinding[]): string {
 export function findingText(t: Translate, f: SecurityFinding): string {
   const key = `findings.${findingKey(f)}`;
   return t.has(key) ? t(key, { directive: f.directive, value: f.value ?? '' }) : f.description;
+}
+
+/** A finding as "Things to check" says it: in plain words for everyone, as the security review says it otherwise. */
+export function riskText(t: Translate, f: SecurityFinding, audience: Audience): string {
+  const key = `risks.${findingKey(f)}`;
+  return audience === 'simple' && t.has(key) ? t(key, { directive: f.directive, value: f.value ?? '' }) : findingText(t, f);
+}
+
+/** The high findings, once per kind of risk (two policies with the same weakness are one thing to fix). */
+export function highRisks(findings: SecurityFinding[]): SecurityFinding[] {
+  const seen = new Set<string>();
+  return findings.filter((f) => {
+    const key = `${findingKey(f)}|${f.directive}|${f.value ?? ''}`;
+    if (f.level !== 'high' || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean): string {

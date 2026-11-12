@@ -9,10 +9,12 @@ interface Props {
   tag?: (f: SecurityFinding) => string | undefined;
   /** Something to do about the finding, after its explanation. */
   action?: (f: SecurityFinding) => ComponentChildren;
+  /** The explanation; the security review's own words by default. */
+  text?: (f: SecurityFinding) => string;
 }
 
 /** Security findings, each with its level, where it is, and what it means in our words. */
-export function FindingList({ findings, tag, action }: Props) {
+export function FindingList({ findings, tag, action, text }: Props) {
   const t = useT();
   return (
     <ul class="findings">
@@ -28,7 +30,7 @@ export function FindingList({ findings, tag, action }: Props) {
             <code>{[f.directive, f.value].filter(Boolean).join(' ')}</code>
             {label && <span class="tag">{label}</span>}
             <span class="desc">
-              {findingText(t, f)}
+              {text ? text(f) : findingText(t, f)}
               {extra && <> {extra}</>}
             </span>
           </li>

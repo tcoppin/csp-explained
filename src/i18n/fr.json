@@ -120,6 +120,7 @@
   },
   "issues": {
     "title": "Points à vérifier",
+    "securityReview": "L'examen de sécurité complet",
     "empty-input": "Nous n'avons trouvé aucune directive dans ce texte.",
     "violation-message": "C'est un message d'erreur, pas votre politique. Il ne montre que la règle qui a bloqué quelque chose ({directive}). Trouvez la politique complète, puis collez-la ici.",
     "violation-message-unnamed": "C'est un message d'erreur, pas votre politique. Il ne montre que la règle qui a bloqué quelque chose. Trouvez la politique complète, puis collez-la ici.",
@@ -403,6 +404,22 @@
   },
   "trustedTypes": {
     "toolsNote": "Cette politique active les Trusted Types, et les outils choisis n'indiquent pas dans leur documentation s'ils fonctionnent avec. Là où un outil écrit du HTML ou charge des scripts, le navigateur peut l'arrêter. Testez d'abord avec `Content-Security-Policy-Report-Only`. [Ce que changent les Trusted Types](/trusted-types)"
+  },
+  "risks": {
+    "script-unsafe-inline": "Le code écrit directement dans la page peut s'exécuter ('unsafe-inline' dans {directive}). Si un attaquant glisse du code dans une page, il s'exécute aussi : la politique perd l'essentiel de sa protection.",
+    "plain-url-schemes": "{value} dans {directive} permet à la page de charger du code depuis presque n'importe quel site, donc un attaquant peut héberger son code à peu près partout.",
+    "plain-wildcard": "{value} dans {directive} permet à la page de charger du code depuis n'importe quel site : la politique n'y protège rien.",
+    "missing-directives": {
+      "object-src": "La politique ne limite pas les plugins (object-src). D'anciens contenus de plugin peuvent servir à exécuter du code ; object-src 'none' ferme cette porte et ne casse presque jamais rien.",
+      "script-src": "La politique ne limite pas les scripts, elle ne protège donc pas contre du code injecté.",
+      "base-uri": "La politique ne limite pas l'adresse de base de la page (base-uri). Un attaquant pourrait changer l'endroit d'où se chargent les scripts de la page ; base-uri 'none' ou 'self' l'empêche."
+    },
+    "script-allowlist-bypass": {
+      "known": "{value} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter son propre code, donc l'autoriser affaiblit la politique. Un nonce est le moyen le plus sûr de garder l'outil qui en a besoin."
+    },
+    "object-allowlist-bypass": {
+      "known": "{value} dans {directive} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter du code via un plugin. Mettre object-src à 'none' est en général possible."
+    }
   },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' dans {directive} laisse s'exécuter tout script ou gestionnaire d'événement injecté dans la page, ce qui retire l'essentiel de la protection contre le XSS. Les nonces ou les hashes autorisent votre propre code dans la page sans lui.",

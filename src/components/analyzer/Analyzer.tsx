@@ -7,9 +7,11 @@ import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
 import { distinctIssues } from '../../lib/csp/parser';
+import { highRisks, riskText } from '../../lib/reports/security';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, issueText } from '../policy/Explanation';
+import { FindingList } from '../policy/FindingList';
 import { HashFix, offersHashes } from '../policy/HashTool';
 import { I18n, useT } from '../ui/i18n';
 import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
@@ -214,6 +216,12 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     setSheetOpen(true);
   };
 
+  /** From "Things to check": the security review, without changing the reader the visitor chose for next time. */
+  const showSecurityReview = () => {
+    setAudience('security');
+    goTo('report');
+  };
+
   const chooseAudience = (a: Audience) => {
     setAudience(a);
     saveAudience(a);
@@ -226,13 +234,16 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const hashOffer = selectedDirective && selectedValue?.raw.toLowerCase() === "'unsafe-inline'" && offersHashes(selectedDirective.name) ? selectedDirective.name : undefined;
 
   const issues = distinctIssues(parsed.issues.filter((i) => i.code !== 'empty-input'));
+  // Serious weaknesses are things to check for every reader, not only in the security review.
+  const risks = highRisks(analysis.findings);
+  const toCheck = issues.length + risks.length;
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
   const reported = analysis.vendors.filter((v) => v.reported).length;
 
   /** A view's status: the full text, and the short form shown in the row of views on phones. */
   const status = (v: View): { tone: 'ok' | 'warn' | 'bad'; text: string; short: string } | null => {
-    if (v === 'read' && issues.length > 0) return { tone: 'warn', text: t('views.issues', { count: issues.length }), short: String(issues.length) };
+    if (v === 'read' && toCheck > 0) return { tone: 'warn', text: t('views.issues', { count: toCheck }), short: String(toCheck) };
     if (v === 'tools' && analysis.vendors.length > 0) {
       if (blocked > 0) return { tone: 'bad', text: t('views.blocked', { count: blocked }), short: String(blocked) };
       if (nonce > 0) return { tone: 'warn', text: t('views.nonce', { count: nonce }), short: String(nonce) };
@@ -406,14 +417,24 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     </div>
                   )}
                 </div>
-                {issues.length > 0 && (
+                {toCheck > 0 && (
                   <div class="issues">
                     <h2 id="things-to-check">{t('issues.title')}</h2>
-                    <ul class="issue-list">
-                      {issues.map((i, n) => (
-                        <li key={n}>{issueText(t, i)}</li>
-                      ))}
-                    </ul>
+                    {issues.length > 0 && (
+                      <ul class="issue-list">
+                        {issues.map((i, n) => (
+                          <li key={n}>{issueText(t, i)}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {risks.length > 0 && (
+                      <>
+                        <FindingList findings={risks} text={(f) => riskText(t, f, audience)} />
+                        <button type="button" class="link-button" onClick={showSecurityReview}>
+                          {t('issues.securityReview')}
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

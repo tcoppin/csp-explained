@@ -199,12 +199,30 @@ test('options are chosen with the arrow keys', async ({ page }) => {
 
 test('a directive written three times is one thing to check', async ({ page }) => {
   await openAnalyzer(page);
-  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self'; script-src https://a.example; script-src 'none'");
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self'; script-src https://a.example; script-src 'none'; object-src 'none'");
   await expect(page.locator('.issue-list li')).toHaveCount(1);
   await expect(page.getByRole('tab', { name: /Read it/ })).toContainText('1 to check');
   // The copy the browser uses carries no warning; the ignored copies do.
   await expect(page.locator('.policy .line').nth(0).locator('.flag')).toHaveCount(0);
   await expect(page.locator('.policy .line').nth(2).locator('.flag')).toHaveCount(1);
+});
+
+test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' 'unsafe-inline'; object-src 'none'");
+  await expect(page.getByRole('tab', { name: /Read it/ })).toContainText('1 to check');
+  const issues = page.locator('.issues');
+  await expect(issues.locator('.finding')).toHaveCount(1);
+  await expect(issues).toContainText('Code written directly in the page is allowed to run');
+
+  // Developers get the security review's words; the link opens the review without changing the reader kept for later.
+  await page.getByRole('radio', { name: 'Developers' }).click();
+  await expect(issues).toContainText('removes most of the protection against XSS');
+  await page.getByRole('radio', { name: 'Everyone' }).click();
+  await issues.getByRole('button', { name: 'The full security review' }).click();
+  await expect(page.getByRole('tab', { name: 'Report' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('radio', { name: 'Security' })).toBeChecked();
+  expect(await page.evaluate(() => localStorage.getItem('csp-explained:audience'))).toBe('simple');
 });
 
 test('switching policy on another view still explains the policy shown', async ({ page }) => {
@@ -226,10 +244,11 @@ test('on phones, the views show numbers, and the explanation opens as a sheet', 
 
   // The row shows "1"; screen readers and the line under the row get the full badge.
   const read = page.getByRole('tab', { name: /Read it/ });
-  await expect(read).toHaveAccessibleName(/^Read it\s*1 to check$/);
-  await expect(read.locator('.count .view-short')).toHaveText('1');
+  // The example has one mistake (report-uri) and one serious weakness ('unsafe-inline' in script-src).
+  await expect(read).toHaveAccessibleName(/^Read it\s*2 to check$/);
+  await expect(read.locator('.count .view-short')).toHaveText('2');
   const status = page.locator('.view-status');
-  await expect(status).toHaveText('1 to check');
+  await expect(status).toHaveText('2 to check');
 
   const sheet = page.locator('.sheet');
   await expect(sheet).toBeHidden();
@@ -239,7 +258,7 @@ test('on phones, the views show numbers, and the explanation opens as a sheet', 
   await page.getByRole('button', { name: 'Close the explanation' }).click();
   await expect(sheet).toBeHidden();
 
-  await status.getByRole('button', { name: '1 to check' }).click();
+  await status.getByRole('button', { name: '2 to check' }).click();
   await expect(page.getByRole('heading', { name: 'Things to check' })).toBeInViewport();
   await page.getByRole('tab', { name: 'What it allows' }).click();
   await expect(status).toBeHidden();

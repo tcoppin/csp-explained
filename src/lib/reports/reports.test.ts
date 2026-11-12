@@ -7,7 +7,7 @@ import { parseVendor } from '../catalogue/schema';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff } from './developer';
-import { findingText, securityReport } from './security';
+import { findingText, riskText, securityReport } from './security';
 import { itRequest } from './simple';
 
 const t = translator('en');
@@ -228,6 +228,19 @@ describe('findingKey', () => {
     const unreachable = ['invalid-keyword.invalid', 'nonce-charset'];
     const messages = t.keys('findings').flatMap((k) => (t.has(k) ? [k] : t.keys(k))).map((k) => k.slice('findings.'.length));
     expect(messages.filter((k) => !produced.has(k) && !unreachable.includes(k))).toEqual([]);
+  });
+
+  it('says every high finding in plain words for everyone, and only those', () => {
+    const high = new Set(POLICIES.flatMap((p) => evaluateSecurity(parse(p)).filter((f) => f.level === 'high').map((f) => findingKey(f))));
+    expect([...high].filter((key) => !t.has(`risks.${key}`))).toEqual([]);
+    const plain = t.keys('risks').flatMap((k) => (t.has(k) ? [k] : t.keys(k))).map((k) => k.slice('risks.'.length));
+    expect(plain.filter((k) => !high.has(k))).toEqual([]);
+  });
+
+  it('keeps the security wording for developers and security teams', () => {
+    const f = evaluateSecurity(parse("script-src 'unsafe-inline'; object-src 'none'"))[0]!;
+    expect(riskText(t, f, 'simple')).toBe(t('risks.script-unsafe-inline', { directive: 'script-src', value: "'unsafe-inline'" }));
+    expect(riskText(t, f, 'security')).toBe(findingText(t, f));
   });
 
   it('falls back to the evaluator text for a kind of finding we have no message for', () => {

@@ -120,6 +120,7 @@
   },
   "issues": {
     "title": "Things to check",
+    "securityReview": "The full security review",
     "empty-input": "We couldn't find any directive in this text.",
     "violation-message": "This is an error message, not your policy. It only shows the rule that blocked something ({directive}). Find the whole policy, then paste it here.",
     "violation-message-unnamed": "This is an error message, not your policy. It only shows the rule that blocked something. Find the whole policy, then paste it here.",
@@ -403,6 +404,22 @@
   },
   "trustedTypes": {
     "toolsNote": "This policy turns on Trusted Types, and the tools picked don't say in their documentation whether they work with it. Where a tool writes HTML or loads scripts, the browser may stop it. Test with `Content-Security-Policy-Report-Only` first. [What Trusted Types change](/trusted-types)"
+  },
+  "risks": {
+    "script-unsafe-inline": "Code written directly in the page is allowed to run ('unsafe-inline' in {directive}). If an attacker slips code into a page, it runs too, which removes most of what the policy protects against.",
+    "plain-url-schemes": "{value} in {directive} lets the page load code from almost any website, so an attacker can host their code nearly anywhere.",
+    "plain-wildcard": "{value} in {directive} lets the page load code from any website at all, so the policy protects nothing there.",
+    "missing-directives": {
+      "object-src": "The policy doesn't restrict plugins (object-src). Old plugin content can be used to run code; object-src 'none' closes that door and rarely breaks anything.",
+      "script-src": "The policy doesn't restrict scripts, so it gives no protection against injected code.",
+      "base-uri": "The policy doesn't restrict the page's base address (base-uri). An attacker could change where the page's own scripts load from; base-uri 'none' or 'self' prevents it."
+    },
+    "script-allowlist-bypass": {
+      "known": "{value} hosts files an attacker can reuse to run their own code, so allowing it weakens the policy. A nonce is the safer way to keep the tool that needs it."
+    },
+    "object-allowlist-bypass": {
+      "known": "{value} in {directive} hosts files an attacker can reuse to run code through a plugin. Setting object-src to 'none' is usually possible."
+    }
   },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' in {directive} lets any injected inline script or event handler run, which removes most of the protection against XSS. Nonces or hashes allow your own inline code without it.",
