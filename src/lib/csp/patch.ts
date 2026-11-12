@@ -1,7 +1,7 @@
-import { allChecks, type Requirement, type RequirementResult } from './compat';
+import { allChecks, probeFor, type Requirement, type RequirementResult } from './compat';
 import { CANONICAL_DIRECTIVE } from './directives';
 import { findDirective } from './fallback';
-import { ignoredSources } from './matcher';
+import { expressionMatchesUrl, ignoredSources } from './matcher';
 import type { Directive, ParseResult, Policy } from './model';
 import { classify } from './parser';
 
@@ -43,11 +43,25 @@ function ignoredIn(governing: Directive, source: string, type: Requirement['type
 }
 
 /**
+ * Does `source` already allow what this requirement loads (`https://*.google.com` covers `https://www.google.com`)?
+ * Only with the same scheme: `wss://*.hotjar.com` allows `https://*.hotjar.com` too (CSP3 scheme matching), but a
+ * reader expects the https address the vendor documents to stay.
+ */
+function covers(source: string, req: Requirement, selfOrigin: string): boolean {
+  const probe = probeFor(req, selfOrigin);
+  if (probe === undefined) return false;
+  const expr = classify(source, { start: 0, end: source.length });
+  const scheme = expr.kind === 'scheme' ? expr.value.slice(0, -1) : expr.host?.scheme;
+  if (scheme !== undefined && scheme !== new URL(probe).protocol.slice(0, -1)) return false;
+  return expressionMatchesUrl(expr, probe, selfOrigin);
+}
+
+/**
  * Computes the smallest edit that makes every blocked requirement pass, in enforced and report-only policies.
  * When only default-src applies, a dedicated directive is created (copying default-src)
  * instead of widening default-src for every resource type.
  */
-export function buildPatches(parsed: ParseResult, results: RequirementResult[]): PolicyPatch[] {
+export function buildPatches(parsed: ParseResult, results: RequirementResult[], selfOrigin: string): PolicyPatch[] {
   const perPolicy = new Map<number, Map<string, Pending>>();
 
   for (const r of results) {
@@ -90,8 +104,20 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[]):
       }
       // Already listed but ignored (e.g. 'unsafe-inline' next to a nonce): adding it again would change nothing.
       if (pending.base.some((v) => v.toLowerCase() === source.toLowerCase())) continue;
+      // Another tool's value already allows it: one value, asked for by both.
+      const coveredBy = pending.added.find((v) => covers(v, r.requirement, selfOrigin));
+      if (coveredBy !== undefined) {
+        pending.requestedBy[coveredBy]!.push(r.requirement);
+        continue;
+      }
       pending.added.push(source);
       pending.requestedBy[source] = [r.requirement];
+      // And the other way round: this value may allow everything a value added earlier was asked for.
+      for (const v of pending.added.filter((v) => v !== source && pending.requestedBy[v]!.every((q) => covers(source, q, selfOrigin)))) {
+        pending.requestedBy[source].push(...pending.requestedBy[v]!);
+        delete pending.requestedBy[v];
+        pending.added.splice(pending.added.indexOf(v), 1);
+      }
       changes.set(target, pending);
       perPolicy.set(check.policyIndex, changes);
     }

@@ -46,7 +46,7 @@ export function analyze(input: string, selections: VendorSelection[], origin = D
     const results = checkRequirements(parsed, s.features.flatMap(requirementsOf), origin);
     return { ...s, results, verdict: overallVerdict(results), reported: results.some((r) => r.reported) };
   });
-  const patches = buildPatches(parsed, vendors.flatMap((v) => v.results));
+  const patches = buildPatches(parsed, vendors.flatMap((v) => v.results), origin);
   const findings = evaluateSecurity(parsed);
 
   let introducedFindings: SecurityFinding[] = [];

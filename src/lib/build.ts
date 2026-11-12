@@ -152,7 +152,7 @@ export function buildPolicy(baseText: string, contributions: Contribution[], ori
     // What this policy would do once it decides: a Report-Only one would only get 'reported' verdicts otherwise.
     const current = parseSinglePolicy(text, base.origin, false);
     const groupResults = checkRequirements({ input: text, policies: [current], issues: [] }, group, origin);
-    const patch = buildPatches({ input: text, policies: [current], issues: [] }, groupResults)[0];
+    const patch = buildPatches({ input: text, policies: [current], issues: [] }, groupResults, origin)[0];
     results.push(...groupResults);
     if (!patch) continue;
     changes = mergeChanges(changes, patch.changes);
