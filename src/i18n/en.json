@@ -126,6 +126,14 @@
     "unknown-directive": "\"{directive}\" isn't a CSP directive, so browsers ignore it. Is it a typo?",
     "duplicate-directive": "\"{directive}\" appears more than once. Browsers only use the first one and ignore the rest.",
     "deprecated-directive": "\"{directive}\" is deprecated or has no effect in modern browsers.",
+    "deprecated": {
+      "report-uri": "\"report-uri\" is the older way to receive violation reports. It still works, and browsers that don't support report-to yet only report through it: keep it, and add report-to beside it.",
+      "prefetch-src": "\"prefetch-src\" was removed from the specification and current browsers ignore it. You can delete it.",
+      "block-all-mixed-content": "\"block-all-mixed-content\" is obsolete: browsers now upgrade or block insecure content on secure pages by themselves. You can delete it.",
+      "plugin-types": "\"plugin-types\" is obsolete: browsers no longer run plugins such as Flash or Java. You can delete it; object-src 'none' is what still matters.",
+      "navigate-to": "\"navigate-to\" was dropped from the specification before any browser supported it, so it has no effect. You can delete it.",
+      "require-sri-for": "\"require-sri-for\" never became a standard and current browsers ignore it. To check that scripts haven't changed, put integrity attributes on the script tags."
+    },
     "ignored-in-meta": "\"{directive}\" is ignored when the policy is set with a <meta> tag. It only works as an HTTP header.",
     "missing-quotes": "\"{value}\" in {directive} should be written with quotes ('{value}'). Without them the browser treats it as a website name.",
     "invalid-source": "\"{value}\" in {directive} isn't a valid value, so browsers ignore it.",

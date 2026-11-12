@@ -18,7 +18,10 @@ interface Props {
 }
 
 export function issueText(t: Translate, i: ParseIssue): string {
-  return t(`issues.${i.code}`, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
+  // Each deprecated directive has its own story (report-uri still works, plugin-types does nothing).
+  const own = `issues.deprecated.${i.directive ?? ''}`;
+  const key = i.code === 'deprecated-directive' && t.has(own) ? own : `issues.${i.code}`;
+  return t(key, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
 }
 
 /** Explains the selected directive or value, in the voice of the selected audience. */
