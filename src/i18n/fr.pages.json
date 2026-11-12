@@ -15,6 +15,15 @@
     "whyTitle": "Pourquoi les sites en ont une",
     "why1": "Une page web est assemblée à partir de nombreux morceaux : votre propre code, mais aussi des scripts d'outils de mesure d'audience, de publicité, de chat ou de test. Si un attaquant réussit à glisser son propre script dans une page, par exemple via un plugin vulnérable ou un fournisseur compromis, ce script peut lire ce que tapent les visiteurs, y compris les mots de passe et les numéros de carte. Des attaques de ce type ont touché de grandes enseignes et des compagnies aériennes.",
     "why2": "La politique est un filet de sécurité : même si du code malveillant entre, le navigateur refuse de l'exécuter, et bloque la plupart des moyens d'envoyer des données vers des endroits qui ne sont pas sur la liste (un lien ou une redirection peut encore en faire sortir). Pour les sites qui prennent des paiements, des normes comme PCI DSS attendent désormais ce type de contrôle.",
+    "cantTitle": "Ce qu'elle ne fait pas",
+    "cantLead": "Une politique est un filet de sécurité, pas un mur autour de votre site. Elle ne permet pas de :",
+    "cant": {
+      "weakness": "corriger la faille qui a laissé entrer du code malveillant. Tenir à jour le site, ses extensions et ses outils reste le plus important ;",
+      "supplier": "arrêter un outil que vous avez autorisé. Si un fournisseur de la liste est piraté, son code s'exécute comme avant, d'où l'intérêt d'une liste courte ;",
+      "leave": "bloquer toutes les façons dont des données peuvent sortir. Un lien sur lequel le visiteur clique, ou une redirection vers un autre site, n'est pas vérifié ;",
+      "pages": "protéger les pages qui ne l'envoient pas. Chaque page a besoin de la politique, y compris les pages d'erreur."
+    },
+    "cantClose": "Elle bloque malgré tout les attaques les plus courantes, pour un faible coût : c'est pourquoi elle vaut la peine d'être mise en place, et d'être gardée stricte.",
     "toolsTitle": "Pourquoi elle bloque les outils marketing",
     "tools1": "Du point de vue du navigateur, un nouveau tag de mesure d'audience ou un outil d'A/B testing n'est que du code de plus, venant d'un nouvel endroit. Si cet endroit n'est pas sur la liste, il est bloqué, exactement comme le serait une attaque. Le navigateur ne peut pas distinguer un outil que vous avez choisi d'un outil malveillant : seule la liste le peut.",
     "tools2": "Ajouter un outil revient donc généralement à ajouter ses adresses à la liste. La plupart des éditeurs publient exactement quoi ajouter. Certains demandent aussi des permissions qui affaiblissent la protection pour tout le monde, comme autoriser le code écrit directement dans la page (`'unsafe-inline'`). C'est là que votre équipe sécurité peut tiquer, et c'est une discussion légitime, pas un refus.",

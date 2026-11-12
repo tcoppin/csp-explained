@@ -9,6 +9,7 @@ export function getStaticPaths() {
 
 const t = translatorFor(Astro);
 const words = t.keys('pages.learn.words');
+const limits = t.keys('pages.learn.cant');
 ---
 
 <GuideLayout title={t('pages.learn.title')} description={t('pages.learn.description')} heading={t('pages.learn.heading')} lead="pages.learn.lead" next={{ key: 'directives', href: '/directives' }}>
@@ -26,6 +27,13 @@ const words = t.keys('pages.learn.words');
     <h2>{t('pages.learn.whyTitle')}</h2>
     <p><Rich t={t} msg="pages.learn.why1" /></p>
     <p><Rich t={t} msg="pages.learn.why2" /></p>
+
+    <h2>{t('pages.learn.cantTitle')}</h2>
+    <p><Rich t={t} msg="pages.learn.cantLead" /></p>
+    <ul>
+      {limits.map((key) => <li><Rich t={t} msg={key} /></li>)}
+    </ul>
+    <p><Rich t={t} msg="pages.learn.cantClose" /></p>
 
     <h2>{t('pages.learn.toolsTitle')}</h2>
     <p><Rich t={t} msg="pages.learn.tools1" /></p>

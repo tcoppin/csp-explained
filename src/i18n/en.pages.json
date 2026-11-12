@@ -15,6 +15,15 @@
     "whyTitle": "Why websites have one",
     "why1": "A web page is assembled from many pieces: your own code, but also scripts from analytics, advertising, chat or testing tools. If an attacker manages to slip their own script into a page, for example through a vulnerable plugin or a compromised supplier, that script can read what visitors type, including passwords and card numbers. Attacks like this have hit well-known retailers and airlines.",
     "why2": "The policy is a safety net: even if malicious code gets in, the browser refuses to run it, and blocks most of the ways it could send data to places that aren't on the list (a link or a redirect can still carry some out). For sites that take payments, standards such as PCI DSS now expect this kind of control.",
+    "cantTitle": "What it can't do",
+    "cantLead": "A policy is a safety net, not a wall around your site. It doesn't:",
+    "cant": {
+      "weakness": "fix the weakness that let bad code in. Keeping the site, its plugins and its tools up to date still matters most;",
+      "supplier": "stop a tool you allowed. If a supplier on the list is hacked, its code runs as before, which is why a short list is safer;",
+      "leave": "stop every way data can leave. A link the visitor clicks, or a redirect to another website, isn't checked;",
+      "pages": "protect the pages that don't send it. Each page needs the policy, including the error pages."
+    },
+    "cantClose": "It still blocks the most common attacks, at little cost, which is why it's worth having and worth keeping tight.",
     "toolsTitle": "Why it blocks marketing tools",
     "tools1": "From the browser's point of view, a new analytics tag or A/B testing tool is just more code coming from a new place. If that place isn't on the list, it's blocked, exactly like an attack would be. The browser can't tell a tool you chose from a malicious one: only the list can.",
     "tools2": "So adding a tool usually means adding its addresses to the list. Most vendors publish exactly what to add. Some also ask for permissions that loosen the protection for everyone, like allowing code written directly in the page (`'unsafe-inline'`). That's where your security team may push back, and that's a reasonable conversation, not a refusal.",
