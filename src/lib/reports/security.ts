@@ -35,16 +35,16 @@ export function securityReport(a: Analysis, t: Translate): string {
   const out: string[] = [`## ${t('report.security.title')}`, '', summaryLine(t, a.findings), ''];
   if (a.parsed.policies.filter((p) => !p.reportOnly).length > 1) out.push(`> ${t('report.security.multiplePolicies')}`, '');
 
-  if (a.vendors.length > 0) {
-    out.push(`### ${t('report.security.introduced')}`, '');
-    if (a.introducedFindings.length === 0) out.push(t('report.security.noneIntroduced'));
-    else out.push(...a.introducedFindings.map((f) => line(f, t, multiple)));
-    out.push('');
-  }
-
+  // What the policy has today first, then what the proposed change would add to it.
   out.push(`### ${t('report.security.current')}`, '');
   if (a.findings.length === 0) out.push(t('report.security.noFindings'));
   else out.push(...a.findings.map((f) => line(f, t, multiple)));
+
+  if (a.vendors.length > 0) {
+    out.push('', `### ${t('report.security.introduced')}`, '');
+    if (a.introducedFindings.length === 0) out.push(t('report.security.noneIntroduced'));
+    else out.push(...a.introducedFindings.map((f) => line(f, t, multiple)));
+  }
 
   const strict = a.parsed.policies.some((p) =>
     p.directives.some((d) => d.values.some((v) => v.kind === 'keyword' && v.value === "'strict-dynamic'")),

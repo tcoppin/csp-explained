@@ -195,6 +195,8 @@ describe('security report', () => {
     expect(report).toContain('Security review');
     expect(report).toContain('script-src');
     expect(report).not.toContain('{high}');
+    // The policy as it is first, then what the change would add.
+    expect(report.indexOf(t('report.security.current'))).toBeLessThan(report.indexOf(t('report.security.introduced')));
   });
 });
 

@@ -177,14 +177,14 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
     <div class="report">
       <p class="lead">{summaryLine(t, analysis.findings)}</p>
       {analysis.parsed.policies.filter((p) => !p.reportOnly).length > 1 && <p class="muted">{t('report.security.multiplePolicies')}</p>}
+      <h3>{t('report.security.current')}</h3>
+      {analysis.findings.length === 0 ? <p>{t('report.security.noFindings')}</p> : findingList(analysis.findings)}
       {analysis.vendors.length > 0 && (
         <>
           <h3>{t('report.security.introduced')}</h3>
           {analysis.introducedFindings.length === 0 ? <p>{t('report.security.noneIntroduced')}</p> : findingList(analysis.introducedFindings)}
         </>
       )}
-      <h3>{t('report.security.current')}</h3>
-      {analysis.findings.length === 0 ? <p>{t('report.security.noFindings')}</p> : findingList(analysis.findings)}
       <p class="muted">{t('report.security.attribution')}</p>
       <div class="actions">
         <CopyButton text={markdown} label={t('report.copyMarkdown')} onCopy={copied('markdown')} />
