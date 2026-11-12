@@ -21,6 +21,52 @@ add the date when an idea comes in so old ones can be reviewed.
 - [x] Open Graph image and description for link previews (`yarn og:image`).
 - [x] `sitemap.xml` (`@astrojs/sitemap`) and `robots.txt`.
 
+## Review of 2026-11-12
+
+A full review with the owner: the engine against tricky policies, every page in screenshots, and the earlier
+choices. Order of work: these fixes first, then the interface changes, then the new features (Phase 2, the
+backlog).
+
+### 1. Correctness fixes
+
+- [ ] Each security finding appears once. CSP Evaluator raises some once per kind of script:
+      `script-src 'strict-dynamic' https:` lists "`https:` is ignored" three times, under a "0 high, 0 medium,
+      0 low findings" heading.
+- [ ] Our own checks, on top of CSP Evaluator (which stays, for its research on allowlist bypasses):
+  - `'strict-dynamic'` with no nonce or hash: no script can run.
+  - The builder's `'nonce-REPLACE_PER_PAGE'` left in place.
+  - A hash whose length doesn't fit its algorithm (`'sha256-abc'`): it never matches.
+  - `sandbox` and `upgrade-insecure-requests` in a Report-Only policy, where browsers ignore them.
+  - Keywords other than `'self'` and `'none'` in `frame-ancestors`.
+- [ ] The patch skips a value that another added value already covers. Today GA4's `https://*.google.com` and
+      GTM's `https://www.google.com` both land in `connect-src` (IT message, diff and builder).
+- [ ] Check `worker-src` with `'strict-dynamic'` against CSP3, whose worker check looks like the script one: we
+      report the worker blocked.
+- [ ] The deprecated-directive message is written per directive. `report-uri` still works everywhere and some
+      browsers only report through it: say to keep it beside `report-to`, never that it has no effect.
+- [ ] The warning icon in "Read it" uses the warning colour, not the blocked one.
+- [ ] "What it allows" leaves out keywords that don't apply to a row (`'unsafe-inline'` and `'unsafe-eval'` on
+      background workers).
+- [ ] Learn: a policy doesn't stop data leaving through a link click or a redirect; don't say it does.
+
+### 2. Interface
+
+- [ ] High security findings count in "Read it" ("Things to check" and its badge) for every audience, in plain
+      words, linking to the Security report. Today "Everyone" sees "1 to check" beside three high findings.
+- [ ] A finding about a host that a picked tool needs names the tool and the way out, from the catalogue's nonce
+      information: "Required by Google Tag Manager, which you picked. To keep it without this risk, use a nonce:
+      Google Tag Manager supports it."
+- [ ] "Will my tools work?": what's missing first, what already works folded ("Show the 8 that already work"),
+      and a tool that fully works on one line.
+- [ ] Security report: findings in the current policy first, then those the proposed change would add.
+- [ ] "What it allows": a "Who can embed your site" row (`frame-ancestors`), in plain words.
+- [ ] Learn: a short "What a CSP can't do" section. A safety net, not a firewall.
+- [ ] Comparator: nonces and hashes kept apart from addresses. A nonce that changes between two snapshots is
+      expected and said so, not listed as a new allowed source (today under scripts and workers); the same nonce
+      on both sides is a warning, since it isn't random; a changed hash means the inline code changed.
+- [ ] Builder: an "Older browsers too" option on the nonce starting point, adding `'unsafe-inline' https:`
+      (ignored by browsers that support `'strict-dynamic'`). The nonces guide says why it's off by default.
+
 ## Vendor catalogue
 
 Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#vendor-catalogue).
@@ -56,6 +102,12 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
 
 - [ ] **Wingify (formerly VWO)**: the CSP list is only shown inside the app; its public help article links there.
 
+### Schema
+
+- [ ] A requirement type for tools that show the customer's site inside their own app (visual editors, replay
+      viewers): `frame-ancestors`. Filled only where the public docs say so. The builder's starting
+      `frame-ancestors 'self'` then opens up for those tools instead of breaking them (2026-11-12).
+
 ### Keeping it current
 
 Internal tooling, never part of the public site.
@@ -63,6 +115,9 @@ Internal tooling, never part of the public site.
 - [ ] Drift check in CI: a scheduled GitHub Actions job opens a blank local test page in a headless browser,
       loads each vendor's own tag there, and records which domains the tag really uses. It flags vendors that
       start using a domain their documentation doesn't list yet. Complements the weekly documentation watcher.
+  - Decided 2026-11-12: observed domains may reach visitors, apart from the documented requirements and labelled
+    "seen in use, not documented by the vendor", with the date. Verdicts and patches use documented requirements
+    only.
 
 ## Translations (French first)
 
@@ -88,10 +143,25 @@ Added 2026-10-29. English stays the reference; other languages only replace text
       (no infra change).
 - [x] Suggest the other language to visitors whose browser prefers it: a quiet note above the header, in that
       language, never a redirect. Dismissing it or using the footer language link is remembered on the device.
+- [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
+      message files, YAML translations, `yarn i18n:status`, the locale list).
 
 ## Phase 2: "Check my website"
 
 Enter a site address instead of copying and pasting the policy.
+
+Decided 2026-11-12: browser-only first. The two items below need no server and come first; the server-side check
+after them stays optional, since it breaks the "everything runs in the browser" promise and brings costs and SSRF
+risks.
+
+- [ ] **Explain a pasted console error**: the parser already recognises violation messages but only asks for the
+      policy. Name the blocked address and the directive, the catalogue tool behind it, and the line to add. Its
+      engine serves stage 1 of the violation reports too.
+- [ ] **Import a HAR file** (DevTools › Network › Save all as HAR): list every address the page loaded, by kind of
+      content, recognise the catalogue tools, and build the policy from it in the builder. The file stays on the
+      device; say so, since a HAR can hold cookies and personal data.
+
+Later, with a server:
 
 - [ ] **Get the policy automatically**: a server-side request reads the page's `Content-Security-Policy`
       headers and `<meta>` tags, and opens the analysis as if they had been pasted.
@@ -101,8 +171,6 @@ Enter a site address instead of copying and pasting the policy.
 - [ ] Detect which known tools the page loads (script and network requests) and pre-select them in
       "Will my tools work?".
 - [ ] Let people pick the page to check (homepage, product page, checkout), since policies can differ per page.
-- [ ] Paste a console error: "which tool is this, and what's the fix?" (works without the server). Violation
-      reports moved to their own section below.
 
 How it would run and what to watch:
 
@@ -150,9 +218,9 @@ explanation, the link to the catalogue and the ready fix, not storage.
 Decided 2026-10-28: keep **CSP Explained**. "Explained" matches what people search for ("CSP explained") and
 the plain-language voice better than "CSP Explainer".
 
-- [ ] If the site grows beyond CSP to other security headers (HSTS, Permissions-Policy, COOP/COEP, CORS,
-      cookies), choose an umbrella name then, with CSP as its main section (`/csp`) and the current domain
-      redirecting there. Each header gets the same three voices.
+- Decided 2026-11-12: the site stays on CSP. Other headers appear only where they interact with a policy,
+  explained from the CSP side: `X-Frame-Options` beside `frame-ancestors`, `Reporting-Endpoints` beside `report-to`.
+  No HSTS, CORS or Permissions-Policy sections, so no umbrella name.
 - Stay clearly apart from securityheaders.com (a grading scanner): avoid names close to it and don't drift
   into scoring sites.
 
@@ -165,6 +233,21 @@ the plain-language voice better than "CSP Explainer".
 - [ ] Vendor-sponsored "verified" listings, clearly labelled, with no influence on results.
 
 ## Ideas backlog
+
+- [ ] **Browser support** (2026-11-12): a line per directive and keyword on the directive pages, and a short note
+      in the analyzer when a policy relies on something some browsers ignore (`script-src-elem`, `report-to`,
+      Trusted Types). Notes only: verdicts keep assuming a current browser.
+- [ ] **Guides** (2026-11-12):
+  - Where to set a CSP, per platform (Shopify, WordPress, Webflow, Wix, Cloudflare), including those that only
+    allow a `<meta>` tag, which loses `frame-ancestors` and reporting.
+  - Ship a CSP without breaking your site: Report-Only, watch, enforce, tighten, through the builder, the
+    reporting guide and the comparator.
+  - Clickjacking: `frame-ancestors` and `X-Frame-Options`.
+  - Common mistakes.
+- [ ] **Who is this domain?** (2026-11-12): look up an address in the catalogue to find the tool behind it. The
+      vendors page searches by name only today. Feeds the console-error explainer.
+- [ ] **The core as an npm package or CLI** (2026-11-12): check a policy and a list of tools in CI with the same
+      engine, no server. Comes before the API in Phase 3.
 
 - [x] **Policy comparator** (`/compare`, 2026-11-11): two policies (before/after, staging vs production). What
       changes per kind of content through the fallback chain, both policies with the edits marked (inline, or side
