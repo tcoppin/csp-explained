@@ -137,6 +137,26 @@ test("a site address we can't read says so, a mistyped scheme doesn't", async ({
   }
 });
 
+test("a tool shows what's missing first, and folds what already works", async ({ page }) => {
+  await openAnalyzer(page);
+  // Google Tag Manager's script host is listed; its inline snippet, image and data hosts are not.
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  const gtm = page.getByRole('region', { name: 'Google Tag Manager' });
+  const working = gtm.locator('details.working');
+  await expect(gtm.locator('.req-blocked').first()).toBeVisible();
+  await expect(working.locator('summary')).toHaveText('Show the one that already works');
+  await expect(working.locator('.req-allowed')).toBeHidden();
+  await working.locator('summary').click();
+  await expect(working.locator('.req-allowed', { hasText: 'https://www.googletagmanager.com' })).toBeVisible();
+
+  // A policy that restricts none of it: nothing to fix, everything folded.
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("object-src 'none'");
+  await expect(gtm.locator('> .requirements')).toHaveCount(0);
+  await expect(gtm.locator('details.working summary')).toHaveText(/^Show the \d+ that already work$/);
+});
+
 test('tools are picked from a searchable multi-select', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

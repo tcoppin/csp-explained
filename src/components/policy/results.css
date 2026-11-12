@@ -17,6 +17,22 @@
   padding: 0;
   margin: 0.75rem 0;
 }
+/* Requirements a policy already meets, folded under the ones to fix */
+.working {
+  margin: 0.75rem 0;
+}
+.working summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.working .requirements {
+  margin-top: 0.25rem;
+}
+@media (pointer: coarse) {
+  .working summary {
+    padding-block: 0.6rem;
+  }
+}
 .req {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);

@@ -183,6 +183,10 @@
     "intro": "Pick the tools you use (or want to use) and see whether this policy lets them work.",
     "search": "Add a tool",
     "features": "Features used",
+    "working": {
+      "one": "Show the one that already works",
+      "other": "Show the {count} that already work"
+    },
     "verified": "Checked against the official docs on {date}",
     "partial": "Partially verified: the official docs list more than what we check today",
     "sources": "Official documentation",

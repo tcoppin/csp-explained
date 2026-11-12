@@ -87,22 +87,40 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
             </fieldset>
           )}
 
-          <ul class="requirements">
-            {results.map((r, i) => (
-              <li key={i} class={`req req-${shown(r.verdict, r.reported)}`}>
-                <span class="req-what">
-                  {t(`resources.${r.requirement.type}`)} <code>{r.requirement.source}</code>
-                </span>
-                <span class="req-why">
-                  {audience === 'simple'
-                    ? r.verdict === 'allowed' && r.reported
-                      ? `${r.requirement.reason} ${t('vendors.requirement.alsoReportedSimple')}`
-                      : r.requirement.reason
-                    : requirementText(t, r)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {(() => {
+            // What needs doing first; what already works stays one click away.
+            const toFix = results.filter((r) => shown(r.verdict, r.reported) !== 'allowed');
+            const working = results.filter((r) => shown(r.verdict, r.reported) === 'allowed');
+            const list = (rs: RequirementResult[]) => (
+              <ul class="requirements">
+                {rs.map((r, i) => (
+                  <li key={i} class={`req req-${shown(r.verdict, r.reported)}`}>
+                    <span class="req-what">
+                      {t(`resources.${r.requirement.type}`)} <code>{r.requirement.source}</code>
+                    </span>
+                    <span class="req-why">
+                      {audience === 'simple'
+                        ? r.verdict === 'allowed' && r.reported
+                          ? `${r.requirement.reason} ${t('vendors.requirement.alsoReportedSimple')}`
+                          : r.requirement.reason
+                        : requirementText(t, r)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            );
+            return (
+              <>
+                {toFix.length > 0 && list(toFix)}
+                {working.length > 0 && (
+                  <details class="working">
+                    <summary>{t('vendors.working', { count: working.length })}</summary>
+                    {list(working)}
+                  </details>
+                )}
+              </>
+            );
+          })()}
 
           {verdict === 'needs-nonce' && vendor.nonce?.how && (
             <p class="nonce-how">

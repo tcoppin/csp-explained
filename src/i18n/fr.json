@@ -183,6 +183,10 @@
     "intro": "Choisissez les outils que vous utilisez (ou voulez utiliser) et voyez si cette politique les laisse fonctionner.",
     "search": "Ajouter un outil",
     "features": "Fonctionnalités utilisées",
+    "working": {
+      "one": "Voir l'élément qui fonctionne déjà",
+      "other": "Voir les {count} éléments qui fonctionnent déjà"
+    },
     "verified": "Vérifié avec la documentation officielle le {date}",
     "partial": "Partiellement vérifié : la documentation officielle liste plus que ce que nous vérifions aujourd'hui",
     "sources": "Documentation officielle",
