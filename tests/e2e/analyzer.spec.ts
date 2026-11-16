@@ -1,5 +1,5 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
-import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, POLICY, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
   const errors = watchErrors(page);
@@ -249,6 +249,17 @@ test('a screen reader hears what the colours and marks of the policy show', asyn
   expect(heard).toContain('button, https://a.example, not pressed');
   expect(heard).toContain('button, data:, not pressed');
   expect(errors).toEqual([]);
+});
+
+test('a screen reader hears one line naming what is explained, not the whole explanation', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY.replace("'self' https", "'self' 'unsafe-inline' https"));
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  // On phones the explanation is a sheet that opens with the pick: the line is still heard.
+  expect(await live(() => page.getByRole('button', { name: /unsafe-inline/ }).click())).toEqual(["polite: 'unsafe-inline' in script-src: Inline code"]);
+  expect(await live(() => page.getByRole('button', { name: 'img-src' }).click())).toEqual(['polite: img-src: Images']);
+  // The explanation itself is still there to read on.
+  await expect(page.locator('.explanation h3')).toHaveText('Images');
 });
 
 test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {

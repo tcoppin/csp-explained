@@ -1,5 +1,5 @@
 /** The builder (/build): its steps, what each choice adds to the policy, and the way back to the analyzer. */
-import { test, expect, watchErrors, openAnalyzer, openBuilder, pickTool, policyAction, readAloud, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openBuilder, pickTool, policyAction, readAloud, announced, HELLO, HELLO_HASH } from './helpers';
 
 test('builds a policy from nothing, with a catalogue tool and one of our own', async ({ page, context, sent }) => {
   const errors = watchErrors(page);
@@ -61,6 +61,9 @@ test('a screen reader hears which values were added for the site or its tools', 
   expect(heard).toContain('button, wss://*.hotjar.com, added for your site or tools, not pressed');
   // The strict start isn't highlighted, so it says nothing more.
   expect(heard).toContain("button, 'self', not pressed");
+  // Picking a part announces one line, not the whole explanation.
+  const live = (await announced(page, () => page.locator('.policy').getByRole('button', { name: /^wss:/ }).click())).filter((p) => p.startsWith('polite:'));
+  expect(live).toEqual([expect.stringMatching(/^polite: wss:\/\/\*\.hotjar\.com in connect-src: /)]);
 });
 
 test('with a nonce, the builder explains the placeholder and what waits on it', async ({ page }) => {

@@ -9,7 +9,7 @@ import type { Audience, Policy } from '../../lib/csp/model';
 import { deploySnippet, headersBesideMeta, TARGETS, type Target } from '../../lib/reports/developer';
 import { track } from '../../scripts/track';
 import { CodeBox } from '../ui/CodeBox';
-import { Explanation } from '../policy/Explanation';
+import { Explanation, explanationSummary } from '../policy/Explanation';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
 import { HashTool } from '../policy/HashTool';
 import { useT } from '../ui/i18n';
@@ -484,6 +484,9 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
               <Explanation policy={policy} selection={activeSelection} issues={[]} audience={audience} content={content} />
             </div>
           </div>
+          <p class="visually-hidden" role="status">
+            {explanationSummary(t, policy, activeSelection, content)}
+          </p>
         </div>
       )}
 

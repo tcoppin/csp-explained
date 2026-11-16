@@ -358,7 +358,10 @@
     "fallsBackTo": "Falls back to:",
     "alsoAppliesTo": "Also applies to:",
     "alsoGoverns": "Currently also governs:",
-    "moreAbout": "More about {directive}"
+    "moreAbout": "More about {directive}",
+    "summaryDirective": "{directive}: {title}",
+    "summaryValue": "{value} in {directive}: {title}",
+    "summaryValueOnly": "{value} in {directive}"
   },
   "categories": {
     "tag-management": "Tag management",

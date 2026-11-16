@@ -24,6 +24,21 @@ export function issueText(t: Translate, i: ParseIssue): string {
   return t(key, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
 }
 
+/**
+ * One line naming what is explained ("'unsafe-inline' in script-src: Inline code"), for the islands' live region:
+ * a screen reader announces it on each pick, and the whole explanation stays where it is to read on.
+ */
+export function explanationSummary(t: Translate, policy: Policy, selection: Selection | undefined, content: ContentBundle): string {
+  const directive = selection && policy.directives[selection.directiveIndex];
+  if (!directive) return '';
+  const value = selection.valueIndex === undefined ? undefined : directive.values[selection.valueIndex];
+  if (!value) return t('explanation.summaryDirective', { directive: directive.name, title: content.directives[directive.name]?.title ?? '' });
+  const title = explainSource(content, value)?.title;
+  return title
+    ? t('explanation.summaryValue', { value: value.raw, directive: directive.name, title })
+    : t('explanation.summaryValueOnly', { value: value.raw, directive: directive.name });
+}
+
 /** Explains the selected directive or value, in the voice of the selected audience. */
 export function Explanation({ policy, selection, issues, audience, content }: Props) {
   const t = useT();
@@ -45,7 +60,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
         .filter((name) => resolve(policy, name).governing === directive);
 
   return (
-    <article class="explanation" aria-live="polite">
+    <article class="explanation">
       {value ? (
         <>
           <p class="crumb">

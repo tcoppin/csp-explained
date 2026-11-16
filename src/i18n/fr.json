@@ -358,7 +358,10 @@
     "fallsBackTo": "Se replie sur :",
     "alsoAppliesTo": "S'applique aussi à :",
     "alsoGoverns": "Régit aussi actuellement :",
-    "moreAbout": "En savoir plus sur {directive}"
+    "moreAbout": "En savoir plus sur {directive}",
+    "summaryDirective": "{directive} : {title}",
+    "summaryValue": "{value} dans {directive} : {title}",
+    "summaryValueOnly": "{value} dans {directive}"
   },
   "categories": {
     "tag-management": "Gestion de balises",

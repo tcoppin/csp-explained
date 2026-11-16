@@ -10,7 +10,7 @@ import { distinctIssues } from '../../lib/csp/parser';
 import { highRisks, riskText, toolNote } from '../../lib/reports/security';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
-import { Explanation, issueText } from '../policy/Explanation';
+import { Explanation, explanationSummary, issueText } from '../policy/Explanation';
 import { FindingList } from '../policy/FindingList';
 import { HashFix, offersHashes } from '../policy/HashTool';
 import { I18n, useT } from '../ui/i18n';
@@ -417,6 +417,10 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     </div>
                   )}
                 </div>
+                {/* Outside the sheet, which is hidden on phones until it opens: announced on every pick. */}
+                <p class="visually-hidden" role="status">
+                  {explanationSummary(t, policy, activeSelection, content)}
+                </p>
                 {toCheck > 0 && (
                   <div class="issues">
                     <h2 id="things-to-check">{t('issues.title')}</h2>
