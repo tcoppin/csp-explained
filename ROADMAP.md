@@ -9,8 +9,12 @@ needs our own server comes last, because it changes the site's promise that the 
 
 ## 1. Improve what exists
 
-- [ ] Accessibility audit with a screen reader user. The automated checks (axe, see Done) can't tell whether the
-      explanations make sense when heard, or whether the sheet and tabs are easy to use with a screen reader.
+- [ ] **Screen reader check by an experienced user** (VoiceOver or NVDA, ideally someone who uses one daily). The
+      automated checks (see Done) can't tell how code is pronounced, whether the explanations make sense when heard,
+      or how the tools feel to use. The owner tried on 2026-11-16 and found the policy took a Tab stop per part
+      (fixed); a full run needs someone at ease with a screen reader. Give them the script in CONTRIBUTING.md ›
+      Accessibility. Ways to find someone: a request on the repository's issues, accessibility communities, a
+      local association for blind and partially sighted people, or a paid accessibility testing service.
 - [ ] Print-friendly / PDF export of the reports.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
@@ -260,6 +264,13 @@ Interface:
       stays at the top. The colour theme moved to the footer.
 - [x] **Privacy-friendly usage counts**: one anonymous log line per event through our own `/e` endpoint, counted
       on a CloudWatch dashboard (`src/usage.ts`). No cookies, no third party, never the pasted policy.
+- [x] **Screen reader and high-contrast pass** (2026-11-16): a virtual screen reader (Guidepup) in the e2e suite
+      checks what is said and announced; a high-contrast test checks every chosen state on every page. Fixed what
+      they found: risky, ignored and added values said aloud, one short line announced per pick instead of the
+      whole explanation, the focus never lost when the analyzer, builder or tool picker changes, the policy as one
+      Tab stop with the explanation read next, the phone sheet never hiding the focus, chosen tabs and options
+      visible in high-contrast mode, no smooth scrolling under "reduce motion". Each new feature brings its own
+      tests (CONTRIBUTING.md › Accessibility). The check by a real screen reader user is still open (section 1).
 - [x] **Accessibility**: automated WCAG 2.2 AA checks (axe) on every page, both languages and themes, the analysis
       views, the builder and the open menu, in the e2e suite (2026-11-06). Controls take a 44px tap on touch
       screens, except the policy's tappable parts (36px).

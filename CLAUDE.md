@@ -17,8 +17,9 @@ ideas to `ROADMAP.md`, not here.
 - When a choice is a matter of taste (palette, layout), show options rendered on the real pages and let them pick.
 - Every new feature or redesign comes with its accessibility tests in the same commit (CONTRIBUTING.md ›
   Accessibility): `readAloud` for what is shown by colour or marks, `announced` for what changes, `toBeFocused` when
-  the focused control goes away, new views in `everyView`. A new tool or a redesign also gets the manual VoiceOver
-  check: ask the owner to run it.
+  the focused control goes away, new views in `everyView`. A new tool or a redesign also needs the manual screen
+  reader check: the owner isn't at ease with VoiceOver, so add what to check to the roadmap's "Screen reader check
+  by an experienced user" item instead of asking them to run it.
 
 ## Commands
 
