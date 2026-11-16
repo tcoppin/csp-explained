@@ -1,4 +1,6 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
+import type { Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
@@ -558,4 +560,142 @@ test('a history kept before it became opt-in carries on, unless it was turned of
   await expect(page.getByRole('button', { name: 'Keep a history on this device' })).toBeVisible();
   // The button is in the server-rendered page; the old key goes once the island's effects have run.
   await expect.poll(() => page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+});
+
+/** Replaces the browser's print window: records what would be printed, then closes it unless `keepOpen`. */
+async function stubPrint(page: Page, keepOpen = false) {
+  await page.evaluate((keep) => {
+    window.print = () => {
+      const w = window as unknown as { printed: object };
+      w.printed = {
+        text: document.querySelector<HTMLElement>('.print-host')?.innerText ?? '',
+        title: document.title,
+        printing: document.documentElement.classList.contains('printing'),
+      };
+      if (!keep) dispatchEvent(new Event('afterprint'));
+    };
+  }, keepOpen);
+}
+const printed = (page: Page) => page.evaluate(() => (window as unknown as { printed?: { text: string; title: string; printing: boolean } }).printed);
+
+test('a report prints alone, with what the visitor chose to include, and the page comes back after', async ({ page, sent }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByText('Your site address (optional)').click();
+  await page.locator('.site-field input').fill('https://shop.example.com/cart');
+  await page.getByRole('radio', { name: 'Security' }).click();
+  await page.getByRole('tab', { name: /Report/ }).click();
+  const title = await page.title();
+
+  // By default: the report and the policy it is about, not the rules explained.
+  const save = page.getByRole('group', { name: 'Save a copy' });
+  await expect(save.getByRole('checkbox', { name: 'Include the analysed policy' })).toBeChecked();
+  await expect(save.getByRole('checkbox', { name: 'Include what each rule means' })).not.toBeChecked();
+  await save.getByRole('checkbox', { name: 'Include what each rule means' }).check();
+  await stubPrint(page);
+  await save.getByRole('button', { name: 'Print or save as PDF' }).click();
+
+  const doc = (await printed(page))!;
+  expect(doc.printing).toBe(true);
+  // The suggested PDF name: the report and the site.
+  expect(doc.title).toBe('Security review – shop.example.com');
+  expect(doc.text).toContain('shop.example.com');
+  expect(doc.text).toContain('Analysed policy');
+  expect(doc.text).toContain(POLICY);
+  expect(doc.text).toContain('Findings in the current policy');
+  expect(doc.text).toContain('What each rule means');
+  // In the reader's voice: the security one here.
+  expect(doc.text).toContain('The most important directive against cross-site scripting');
+  await expect.poll(sent).toContain('n=export-report&audience=security&format=pdf');
+
+  // Once the print window closes, the page is as it was, the focus still on the button.
+  await expect(page.locator('.print-host')).toHaveCount(0);
+  await expect(save.getByRole('button', { name: 'Print or save as PDF' })).toBeFocused();
+  expect(await page.title()).toBe(title);
+  expect(await page.evaluate(() => document.documentElement.classList.contains('printing'))).toBe(false);
+
+  // Without the policy, on another reader's report: the choices stay.
+  await save.getByRole('checkbox', { name: 'Include the analysed policy' }).uncheck();
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  await page.getByRole('radio', { name: 'Developers' }).click();
+  await page.getByRole('button', { name: 'See the change to make' }).click();
+  await expect(save.getByRole('checkbox', { name: 'Include the analysed policy' })).not.toBeChecked();
+  await save.getByRole('button', { name: 'Print or save as PDF' }).click();
+  const change = (await printed(page))!;
+  expect(change.text).toContain('Proposed CSP change');
+  expect(change.text).not.toContain('Analysed policy');
+  expect(change.text).toContain('Add to your nginx server block');
+  expect(errors).toEqual([]);
+});
+
+test('on paper, only the report shows, in dark ink on white even in the dark theme', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await page.getByRole('radio', { name: 'Security' }).click();
+  await page.getByRole('tab', { name: /Report/ }).click();
+  await stubPrint(page, true);
+  await page.getByRole('button', { name: 'Print or save as PDF' }).click();
+
+  await page.emulateMedia({ media: 'print', colorScheme: 'dark' });
+  await expect(page.locator('.report-doc')).toBeVisible();
+  for (const hidden of ['.site-header', 'main', '.site-footer']) await expect(page.locator(hidden).first()).toBeHidden();
+  const colours = await page.locator('.report-doc').evaluate((el) => [getComputedStyle(el).color, getComputedStyle(el).backgroundColor]);
+  expect(colours).toEqual(['rgb(42, 29, 46)', 'rgb(255, 255, 255)']);
+
+  // On screen, the document never shows.
+  await page.emulateMedia({ media: 'screen' });
+  await expect(page.locator('.report-doc')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('a report downloads as a standalone .html file, and the IT message as text', async ({ page, sent }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  await page.getByRole('button', { name: 'Write the request to IT' }).click();
+  const save = page.getByRole('group', { name: 'Save a copy' });
+
+  const [txt] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .txt' }).click()]);
+  expect(txt.suggestedFilename()).toBe('csp-request-to-it.txt');
+  expect(readFileSync((await txt.path())!, 'utf8')).toBe(await page.locator('textarea.message').inputValue());
+
+  const [html] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .html' }).click()]);
+  expect(html.suggestedFilename()).toBe('csp-request-to-it.html');
+  const file = readFileSync((await html.path())!, 'utf8');
+  expect(file).toMatch(/^<!doctype html>\n<html lang="en">/);
+  expect(file).toContain('<title>Request to IT</title>');
+  // Its styles are inside: it opens anywhere, without the site.
+  expect(file).toMatch(/<style>[^<]*\.report-doc \{/);
+  expect(file).toContain('connect-src rule (copied from default-src) with https://www.googletagmanager.com');
+  expect(file).toContain('Open this analysis');
+
+  // Opened on its own, it shows the same document.
+  const opened = await page.context().newPage();
+  await opened.setContent(file);
+  await expect(opened.getByRole('heading', { level: 1 })).toHaveText('Request to IT');
+  await expect(opened.getByRole('heading', { name: 'Analysed policy' })).toBeVisible();
+  expect(sent()).toEqual(expect.arrayContaining(['n=export-report&audience=simple&format=txt', 'n=export-report&audience=simple&format=html']));
+});
+
+test('the French report saves in French, the IT message in the language picked for it', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Google Tag Manager');
+  await page.getByRole('button', { name: 'Write the request to IT' }).click();
+  await openAnalyzer(page, `/fr${new URL(page.url()).hash}`);
+  await page.getByRole('tab', { name: /^Rapport/ }).click();
+  await page.getByRole('radio', { name: 'English' }).click();
+  await stubPrint(page);
+  await page.getByRole('button', { name: 'Imprimer ou enregistrer en PDF' }).click();
+  const doc = (await printed(page))!;
+  expect(doc.text).toContain("Demande à l'équipe informatique");
+  expect(doc.text).toContain('Politique analysée');
+  expect(doc.text).toContain("We'd like to use Google Tag Manager");
+  await expect(page.locator('.print-host')).toHaveCount(0);
 });

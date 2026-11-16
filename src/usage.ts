@@ -20,6 +20,8 @@ export const USAGE_EVENTS = {
   tool: ['tool'],
   /** A report was copied: which audience, and which part (message, diff, deploy snippet, Markdown). */
   'copy-report': ['audience', 'kind'],
+  /** A report was saved: which audience, and in which format (pdf, html, md, txt). */
+  'export-report': ['audience', 'format'],
   /** The Find my CSP console snippet was copied. */
   'copy-snippet': [],
   /** The builder's policy was shown (once per page load), and what it started from: allowlist, nonce or policy. */

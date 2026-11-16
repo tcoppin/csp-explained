@@ -198,6 +198,10 @@ async function everyView(page: Page, check: (where: string) => Promise<void>) {
     await page.getByRole('tab', { name: new RegExp(tab.replace('?', '\\?')) }).click();
     await check(`analysis ${tab}`);
   }
+  // The security review: the full report, with its choices for saving a copy.
+  await page.getByRole('radio', { name: 'Security' }).click();
+  await check('analysis Report for security');
+  await page.getByRole('radio', { name: 'Everyone' }).click();
   await openComparator(page, COMPARE_EXAMPLE);
   for (const tab of ['What changes', 'Both policies', 'Security', 'Your tools']) {
     await page.getByRole('tab', { name: new RegExp(`^${tab}`) }).click();

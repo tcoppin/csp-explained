@@ -229,7 +229,6 @@
     "title": "Votre rapport",
     "copy": "Copier",
     "copied": "Copié",
-    "download": "Télécharger le .md",
     "nothing": "Ce rapport est construit à partir des outils que vous voulez utiliser. Choisissez-les d'abord, ou passez à Sécurité pour un examen de la politique elle-même.",
     "languageLabel": "Langue du message",
     "formats": {
@@ -328,7 +327,37 @@
     },
     "pickTools": "Choisir mes outils",
     "copyThis": "Copier",
-    "copyMarkdown": "Copier le Markdown"
+    "copyMarkdown": "Copier le Markdown",
+    "export": {
+      "title": "Enregistrer une copie",
+      "include": {
+        "policy": "Inclure la politique analysée",
+        "rules": "Inclure ce que veut dire chaque règle"
+      },
+      "print": "Imprimer ou enregistrer en PDF",
+      "html": "Télécharger le .html",
+      "md": "Télécharger le .md",
+      "txt": "Télécharger le .txt",
+      "hint": "La fenêtre d'impression de votre navigateur s'ouvre : choisissez « Enregistrer au format PDF » comme destination pour obtenir un fichier. Les choix ci-dessus s'appliquent au PDF et au fichier .html."
+    },
+    "document": {
+      "title": {
+        "simple": "Demande à l'équipe informatique",
+        "developer": "Changement de CSP proposé",
+        "security": "Examen de sécurité"
+      },
+      "site": "Site",
+      "tools": "Outils",
+      "date": "Date",
+      "policy": {
+        "one": "Politique analysée",
+        "other": "Politiques analysées"
+      },
+      "rules": "Ce que veut dire chaque règle",
+      "diffCaption": "Changements, règle par règle : les lignes qui commencent par + sont ajoutées, celles qui commencent par - sont remplacées.",
+      "footer": "Réalisé avec {site}. La politique a été analysée uniquement dans le navigateur : rien n'a été envoyé.",
+      "link": "Ouvrir cette analyse"
+    }
   },
   "views": {
     "label": "Analyse",

@@ -7,7 +7,7 @@ import { parseSinglePolicy } from '../csp/parser';
 export const TARGETS = ['nginx', 'apache', 'cloudfront', 'netlify', 'vercel', 'express', 'meta'] as const;
 export type Target = (typeof TARGETS)[number];
 
-const headerName = (reportOnly: boolean) => (reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy');
+export const headerName = (reportOnly: boolean) => (reportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy');
 
 /** The policy as a double-quoted nginx or Apache string: whatever was pasted can't end the string early. */
 const quoted = (text: string) => `"${text.replace(/["\\]/g, '\\$&')}"`;

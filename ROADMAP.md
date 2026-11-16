@@ -15,7 +15,10 @@ needs our own server comes last, because it changes the site's promise that the 
       (fixed); a full run needs someone at ease with a screen reader. Give them the script in CONTRIBUTING.md ›
       Accessibility. Ways to find someone: a request on the repository's issues, accessibility communities, a
       local association for blind and partially sighted people, or a paid accessibility testing service.
-- [ ] Print-friendly / PDF export of the reports.
+      Also check "Save a copy" under each report (2026-11-16): the group and its two choices are read with their
+      names; "Print or save as PDF" opens the print window and, once closed, the focus is back on that button;
+      a PDF saved from it, opened in a PDF reader, reads headings and the policy in order; the downloaded .html
+      file reads the same way in a browser.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -230,6 +233,11 @@ Interface:
 
 ### Features
 
+- [x] **Save a copy of a report** (2026-11-16): under each report, "Print or save as PDF" (the browser's print
+      window, with a document made for paper: always dark on white, the site, tools and date at the top), and
+      downloads as .html (the same document, standalone), .md (developer, security) or .txt (IT message). The
+      PDF and .html can include the analysed policy (on by default) and what each rule means. No library: the
+      PDF comes from the browser, so its text stays selectable and readable by assistive technology.
 - [x] **Policy comparator** (`/compare`, 2026-11-11): two policies (before/after, staging vs production). What
       changes per kind of content through the fallback chain, both policies with the edits marked (inline, or side
       by side on wide screens), findings fixed and introduced, and tools the change breaks or fixes. Opened from the

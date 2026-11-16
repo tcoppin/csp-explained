@@ -1,10 +1,13 @@
+import type { VNode } from 'preact';
 import { useState } from 'preact/hooks';
 import { SITE_URL } from '../../config';
 import { LOCALE_NAMES, LOCALES, localePath, translator, type Locale, type Translate } from '../../i18n';
 import { patchedPolicies, type Analysis } from '../../lib/analysis';
 import type { Vendor } from '../../lib/catalogue/schema';
+import type { DirectiveDoc } from '../../lib/content';
 import type { Audience } from '../../lib/csp/model';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, TARGETS, type Target } from '../../lib/reports/developer';
+import { exportFileName, printTitle, type ExportFormat, type ExportOptions } from '../../lib/reports/export';
 import { securityReport, summaryLine, toolNote } from '../../lib/reports/security';
 import { itRequest, withVendorText, type MessageFormat } from '../../lib/reports/simple';
 import { track } from '../../scripts/track';
@@ -14,6 +17,7 @@ import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
 import { useT } from '../ui/i18n';
 import { useCopy } from '../ui/useCopy';
+import { documentFile, documentTitle, printDocument, ReportDocument } from './ReportDocument';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 
@@ -27,13 +31,82 @@ function CopyButton({ text, label, onCopy }: { text: string; label?: string; onC
   );
 }
 
-function download(name: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown' }));
+const TYPES: Record<Exclude<ExportFormat, 'pdf'>, string> = { md: 'text/markdown', txt: 'text/plain', html: 'text/html' };
+
+function download(name: string, text: string, format: Exclude<ExportFormat, 'pdf'>) {
+  const url = URL.createObjectURL(new Blob([text], { type: `${TYPES[format]};charset=utf-8` }));
   const a = document.createElement('a');
   a.href = url;
   a.download = name;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Saving the report: printed or saved as PDF, or downloaded as a file. The choices of what to include apply to the PDF
+ * and the .html file, which are the same document; the text file is the report as copied.
+ */
+interface SaveProps {
+  audience: Audience;
+  site: string;
+  options: ExportOptions;
+  setOptions: (o: ExportOptions) => void;
+  doc: (options: ExportOptions) => VNode;
+  text: { format: 'md' | 'txt'; content: string };
+}
+
+function SaveCopy({ audience, site, options, setOptions, doc, text }: SaveProps) {
+  const t = useT();
+  const title = documentTitle(t, audience);
+  const saved = (format: ExportFormat) => track('export-report', { audience, format });
+  const option = (key: keyof ExportOptions) => (
+    <label>
+      <input type="checkbox" checked={options[key]} onChange={(e) => setOptions({ ...options, [key]: e.currentTarget.checked })} />{' '}
+      {t(`report.export.include.${key}`)}
+    </label>
+  );
+  return (
+    <fieldset class="save-copy">
+      <legend>{t('report.export.title')}</legend>
+      <div class="save-options">
+        {option('policy')}
+        {option('rules')}
+      </div>
+      <div class="actions">
+        <button
+          type="button"
+          class="button"
+          onClick={() => {
+            saved('pdf');
+            printDocument(doc(options), printTitle(title, site));
+          }}
+        >
+          {t('report.export.print')}
+        </button>
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            saved('html');
+            download(exportFileName(audience, 'html'), documentFile(doc(options), title, t.locale), 'html');
+          }}
+        >
+          {t('report.export.html')}
+        </button>
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            saved(text.format);
+            download(exportFileName(audience, text.format), text.content, text.format);
+          }}
+        >
+          {t(`report.export.${text.format}`)}
+        </button>
+      </div>
+      <p class="muted format-hint">{t('report.export.hint')}</p>
+    </fieldset>
+  );
 }
 
 const FORMATS: MessageFormat[] = ['email', 'chat', 'ticket'];
@@ -46,18 +119,27 @@ interface Props {
   site: string;
   /** Each language's tool texts, so the IT message can be written in another language than the page's. */
   vendorsIn: Partial<Record<Locale, Vendor[]>>;
+  /** What each rule means, for the printed report when the visitor asks for it. */
+  directives: Record<string, DirectiveDoc>;
+  /** What the PDF and .html file include: kept by the analyzer, so they last from one report and view to the next. */
+  exportOptions: ExportOptions;
+  onExportOptions: (o: ExportOptions) => void;
   onPickTools: () => void;
   /** Opens the hashes offer for the 'unsafe-inline' a finding is about. */
   onHashes: (policyIndex: number, directive: string) => void;
 }
 
-export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, onHashes }: Props) {
+export function ReportPanel({ analysis, audience, site, vendorsIn, directives, exportOptions, onExportOptions, onPickTools, onHashes }: Props) {
   const t = useT();
   const [format, setFormat] = useState<MessageFormat>('email');
   // A French marketer may write to an English-speaking IT team: the message has its own language.
   const [messageLocale, setMessageLocale] = useState<Locale>(t.locale);
   const [target, setTarget] = useState<Target>('nginx');
   const copied = (kind: ReportPart) => () => track('copy-report', { audience, kind });
+  /** The report as a document, built when it's saved: the link is this analysis as the address bar has it then. */
+  const doc = (message?: { text: string; locale: Locale }) => (options: ExportOptions) => (
+    <ReportDocument t={t} analysis={analysis} audience={audience} site={site} options={options} directives={directives} message={message} target={target} link={location.href} date={new Date()} />
+  );
 
   const noTools = (
     <div class="empty">
@@ -92,6 +174,7 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
         <div class="actions">
           <CopyButton text={text} onCopy={copied('message')} />
         </div>
+        <SaveCopy audience={audience} site={site} options={exportOptions} setOptions={onExportOptions} doc={doc({ text, locale: messageLocale })} text={{ format: 'txt', content: text }} />
       </div>
     );
   }
@@ -147,10 +230,8 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
         <p class="muted">{t('report.developer.verify')}</p>
         <div class="actions">
           <CopyButton text={markdown} label={t('report.copyMarkdown')} onCopy={copied('markdown')} />
-          <button type="button" class="button quiet" onClick={() => download('csp-change.md', markdown)}>
-            {t('report.download')}
-          </button>
         </div>
+        <SaveCopy audience={audience} site={site} options={exportOptions} setOptions={onExportOptions} doc={doc()} text={{ format: 'md', content: markdown }} />
       </div>
     );
   }
@@ -195,10 +276,8 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, onPickTools, 
       <p class="muted">{t('report.security.attribution')}</p>
       <div class="actions">
         <CopyButton text={markdown} label={t('report.copyMarkdown')} onCopy={copied('markdown')} />
-        <button type="button" class="button quiet" onClick={() => download('csp-security-review.md', markdown)}>
-          {t('report.download')}
-        </button>
       </div>
+      <SaveCopy audience={audience} site={site} options={exportOptions} setOptions={onExportOptions} doc={doc()} text={{ format: 'md', content: markdown }} />
     </div>
   );
 }

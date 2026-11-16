@@ -130,7 +130,9 @@ long, missing or said twice, and open an issue for it.
    read out. Shift+Tab takes you back to the part. The "Things to check" list comes after the explanation.
 4. **Will my tools work?** Search for a tool, choose it with the arrows and Enter: you hear "Hotjar added". Its
    result says what works and what's missing. Remove it: "Hotjar removed", and you're back in the search.
-5. **Report.** Choose a format, copy it: the button says "Copied".
+5. **Report.** Choose a format, copy it: the button says "Copied". Under it, "Save a copy" is a group with two
+   choices and its buttons. "Print or save as PDF" opens the print window; close it and you're back on the button.
+   Save the PDF, open it in Preview or a PDF reader: the headings and the policy are read in order.
 6. **Edit, Done, Clear.** Edit puts you in the text box, Done back on "Your policy", Clear in the empty text box.
 7. **Builder.** Choose a start and go Next: you land on the new step's question each time. On the last step, the
    values added for your tools say "added for your site or tools".

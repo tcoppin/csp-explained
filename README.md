@@ -25,6 +25,7 @@ To know whether the site is useful, it counts visits and a few actions. That's a
 | `shared` | A share link is opened | None |
 | `tool` | A tool is added in the tool picker | The tool's catalogue id |
 | `copy-report` | A report is copied | The audience and the part copied (message, diff, deploy snippet, Markdown) |
+| `export-report` | A report is printed or downloaded | The audience and the format (`pdf`, `html`, `md`, `txt`) |
 | `copy-snippet` | The Find my CSP console snippet is copied | None |
 | `build` | The builder's policy is shown (once per page load) | What it started from: `allowlist`, `nonce` or `policy` |
 | `copy-build` | The built policy is copied | `policy`, or the deploy target (e.g. `nginx`) |

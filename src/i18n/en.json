@@ -229,7 +229,6 @@
     "title": "Your report",
     "copy": "Copy",
     "copied": "Copied",
-    "download": "Download .md",
     "nothing": "This report is built from the tools you want to use. Pick them first, or switch to Security for a review of the policy itself.",
     "languageLabel": "Message language",
     "formats": {
@@ -328,7 +327,37 @@
     },
     "pickTools": "Pick my tools",
     "copyThis": "Copy this",
-    "copyMarkdown": "Copy Markdown"
+    "copyMarkdown": "Copy Markdown",
+    "export": {
+      "title": "Save a copy",
+      "include": {
+        "policy": "Include the analysed policy",
+        "rules": "Include what each rule means"
+      },
+      "print": "Print or save as PDF",
+      "html": "Download .html",
+      "md": "Download .md",
+      "txt": "Download .txt",
+      "hint": "Your browser's print window opens: choose \"Save as PDF\" as the destination to get a file. The choices above apply to the PDF and the .html file."
+    },
+    "document": {
+      "title": {
+        "simple": "Request to IT",
+        "developer": "Proposed CSP change",
+        "security": "Security review"
+      },
+      "site": "Site",
+      "tools": "Tools",
+      "date": "Date",
+      "policy": {
+        "one": "Analysed policy",
+        "other": "Analysed policies"
+      },
+      "rules": "What each rule means",
+      "diffCaption": "Changes, rule by rule: lines starting with + are added, lines starting with - are replaced.",
+      "footer": "Made with {site}. The policy was analysed in the browser only: nothing was sent.",
+      "link": "Open this analysis"
+    }
   },
   "views": {
     "label": "Analysis",

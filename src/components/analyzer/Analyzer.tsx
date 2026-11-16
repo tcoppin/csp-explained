@@ -7,6 +7,7 @@ import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
 import { distinctIssues } from '../../lib/csp/parser';
+import { DEFAULT_EXPORT, type ExportOptions } from '../../lib/reports/export';
 import { highRisks, riskText, toolNote } from '../../lib/reports/security';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
@@ -75,6 +76,8 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const [policyIndex, setPolicyIndex] = useState(0);
   // The hashes offer under 'unsafe-inline' starts open when a security finding led there.
   const [hashesOpen, setHashesOpen] = useState(false);
+  // What a saved report includes, for this visit only.
+  const [exportOptions, setExportOptions] = useState<ExportOptions>(DEFAULT_EXPORT);
   // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
@@ -517,6 +520,9 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   audience={audience}
                   site={site}
                   vendorsIn={{ ...otherVendors, [locale]: content.vendors }}
+                  directives={content.directives}
+                  exportOptions={exportOptions}
+                  onExportOptions={setExportOptions}
                   onPickTools={() => goTo('tools')}
                   onHashes={showHashes}
                 />
