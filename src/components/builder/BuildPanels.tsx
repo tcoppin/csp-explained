@@ -14,7 +14,7 @@ import { TrustedTypesNote } from '../policy/TrustedTypesNote';
 import { HashTool } from '../policy/HashTool';
 import { useT } from '../ui/i18n';
 import { OwnToolEditor } from './OwnTools';
-import { highlightClass, PolicyView, type Selection } from '../policy/PolicyView';
+import { highlightClass, PolicyKeysHint, PolicyView, type Selection } from '../policy/PolicyView';
 import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
 import { encodeCompareState } from '../policy/compare-state';
@@ -159,7 +159,7 @@ function WhoAsked({ built, policy, selection }: { built: BuiltPolicy; policy: Po
   const asked = askedFor(built, d.name, v.raw);
   const fromBase = built.base?.directives.some((b) => b.name === d.name && b.values.some((x) => x.raw === v.raw));
   return (
-    <div class="who-asked">
+    <div class="who-asked" id="who-asked">
       <h3>{t('build.review.whoAsked')}</h3>
       {asked.length > 0 ? (
         <ul>
@@ -469,6 +469,7 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
       {tab === 'lines' && (
         <div {...tabPanelProps('review', 'lines')} class="panel">
           <p class="muted">{t('build.review.intro')}</p>
+          <PolicyKeysHint />
           <div class="decoded-grid">
             <PolicyView
               policy={policy}
@@ -479,7 +480,9 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
               onSelect={setSelection}
               highlighted={(d, v) => askedFor(built, d.name, v.raw).length > 0}
             />
-            <div class="explanation-slot">
+            {/* Focusable, right after the policy: Tab from the policy goes here, and screen readers read it out (its
+                name is its text; who-asked is only there for a value someone asked for) */}
+            <div class="explanation-slot" tabIndex={0} role="group" aria-labelledby="who-asked explanation">
               <WhoAsked built={built} policy={policy} selection={activeSelection} />
               <Explanation policy={policy} selection={activeSelection} issues={[]} audience={audience} content={content} />
             </div>

@@ -349,6 +349,8 @@
     "allOk": "tout est OK"
   },
   "policyView": {
+    "label": "{policy} : les flèches passent d'une partie à l'autre, Entrée en explique une, Tab va à l'explication",
+    "keys": "Au clavier : les flèches passent d'une partie à l'autre, Entrée en explique une, Tab va à l'explication.",
     "risky": "risqué",
     "invalid": "non valide",
     "added": "ajouté pour votre site ou vos outils",

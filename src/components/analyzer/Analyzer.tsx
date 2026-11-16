@@ -15,7 +15,7 @@ import { FindingList } from '../policy/FindingList';
 import { HashFix, offersHashes } from '../policy/HashTool';
 import { I18n, useT } from '../ui/i18n';
 import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
-import { PolicyView, type Selection } from '../policy/PolicyView';
+import { PolicyKeysHint, PolicyView, type Selection } from '../policy/PolicyView';
 import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRecentOn, upsertRecent, type RecentAnalysis } from '../policy/recent';
 import { RecentAnalyses } from './RecentAnalyses';
 import { ReportPanel } from './ReportPanel';
@@ -418,6 +418,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 <div class="panel-head">
                   <PolicySwitch parsed={parsed} value={currentIndex} onChange={setPolicyIndex} />
                   <p class="muted">{t('analyzer.clickHint')}</p>
+                  <PolicyKeysHint />
                 </div>
                 <div class="decoded-grid">
                   <PolicyView
@@ -432,7 +433,13 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                     }}
                   />
                   {activeSelection && (
-                    <div class={`explanation-slot sheet${sheetOpen ? ' open' : ''}`}>
+                    <div
+                      class={`explanation-slot sheet${sheetOpen ? ' open' : ''}`}
+                      // Tab from the policy comes here, and screen readers read the explanation out: its name is its text.
+                      tabIndex={0}
+                      role="group"
+                      aria-labelledby="explanation"
+                    >
                       <button type="button" class="sheet-close" aria-label={t('analyzer.closeExplanation')} onClick={closeSheet}>
                         <svg viewBox="0 0 16 16" aria-hidden="true">
                           <path d="M4 4l8 8M12 4l-8 8" />

@@ -123,10 +123,11 @@ long, missing or said twice, and open an issue for it.
    of rules) and its actions.
 2. **The views.** The tabs say which is open and how many things to check; the arrow keys move between them.
    "Explain it for" says which reader is chosen.
-3. **Reading the policy.** Go through it with VO+→: each part says what it is, and "risky", "ignored" or "something
-   to check" where the page shows a colour or a mark. Press a part: you hear one line ("'unsafe-inline' in
-   script-src: Inline code"), not the whole explanation. Carry on with VO+→ after the policy to read the
-   explanation. The "Things to check" list is next.
+3. **Reading the policy.** Tab to the policy: you hear "Policy 1: arrow keys move between its parts, Enter
+   explains one, Tab goes to the explanation". The whole policy is one Tab stop. Move with the arrow keys: each part
+   says what it is, and "risky", "ignored" or "something to check" where the page shows a colour or a mark. Press
+   Enter on a part: you hear one line ("'unsafe-inline' in script-src: Inline code"). Press Tab: the explanation is
+   read out. Shift+Tab takes you back to the part. The "Things to check" list comes after the explanation.
 4. **Will my tools work?** Search for a tool, choose it with the arrows and Enter: you hear "Hotjar added". Its
    result says what works and what's missing. Remove it: "Hotjar removed", and you're back in the search.
 5. **Report.** Choose a format, copy it: the button says "Copied".

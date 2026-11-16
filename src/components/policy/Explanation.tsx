@@ -60,7 +60,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
         .filter((name) => resolve(policy, name).governing === directive);
 
   return (
-    <article class="explanation">
+    <article class="explanation" id="explanation">
       {value ? (
         <>
           <p class="crumb">

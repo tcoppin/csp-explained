@@ -61,6 +61,10 @@ test('a screen reader hears which values were added for the site or its tools', 
   expect(heard).toContain('button, wss://*.hotjar.com, added for your site or tools, not pressed');
   // The strict start isn't highlighted, so it says nothing more.
   expect(heard).toContain("button, 'self', not pressed");
+  // The policy is one Tab stop; Tab goes on to who asked for the part and what it means.
+  await page.locator('.policy button[tabindex="0"]').focus();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.explanation-slot')).toBeFocused();
   // Picking a part announces one line, not the whole explanation.
   const live = (await announced(page, () => page.locator('.policy').getByRole('button', { name: /^wss:/ }).click())).filter((p) => p.startsWith('polite:'));
   expect(live).toEqual([expect.stringMatching(/^polite: wss:\/\/\*\.hotjar\.com in connect-src: /)]);

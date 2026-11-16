@@ -349,6 +349,8 @@
     "allOk": "all OK"
   },
   "policyView": {
+    "label": "{policy}: arrow keys move between its parts, Enter explains one, Tab goes to the explanation",
+    "keys": "With the keyboard: arrow keys move between the parts, Enter explains one, Tab goes to the explanation.",
     "risky": "risky",
     "invalid": "not valid",
     "added": "added for your site or tools",

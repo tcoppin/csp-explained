@@ -1,4 +1,5 @@
 import { Fragment } from 'preact';
+import { useState } from 'preact/hooks';
 import type { ContentBundle } from '../../lib/content';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
 import type { Translate } from '../../i18n';
@@ -57,6 +58,16 @@ interface Props {
   highlighted?: (d: Directive, v: SourceExpression) => boolean;
 }
 
+/** How to move through the policy with the keyboard: shown while it has the keyboard focus (policy-view.css). */
+export function PolicyKeysHint() {
+  const t = useT();
+  return (
+    <p class="muted policy-keys" aria-hidden="true">
+      {t('policyView.keys')}
+    </p>
+  );
+}
+
 /** The policy, one directive per line, every token clickable, annotated with a plain title in the margin. */
 export function PolicyView({ policy, policyIndex, issues, docs, selection, onSelect, highlighted }: Props) {
   const t = useT();
@@ -73,8 +84,43 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
       .filter(Boolean)
       .join(', ');
 
+  // One Tab stop for the whole policy (WAI-ARIA roving tabindex): the arrow keys move between its parts, Enter
+  // explains one, and Tab goes on to the explanation instead of through every part.
+  const [focused, setFocused] = useState<string>();
+  const keyOf = (d: number, v?: number) => (v === undefined ? `${d}` : `${d}.${v}`);
+  const keys = policy.directives.flatMap((d, di) => [keyOf(di), ...d.values.map((_, vi) => keyOf(di, vi))]);
+  const selectedKey = selection?.policyIndex === policyIndex ? keyOf(selection.directiveIndex, selection.valueIndex) : undefined;
+  const tabStop = [focused, selectedKey].find((k) => k !== undefined && keys.includes(k)) ?? keys[0];
+
+  const onKeyDown = (e: KeyboardEvent) => {
+    const parts = [...(e.currentTarget as HTMLElement).querySelectorAll<HTMLElement>('button.tok')];
+    const index = parts.indexOf(e.target as HTMLElement);
+    if (index < 0) return;
+    // Up and Down go to the name of the line above or below.
+    const line = (step: number) => {
+      const lines = [...(e.currentTarget as HTMLElement).children];
+      const at = lines.indexOf((e.target as HTMLElement).closest('li')!);
+      return parts.indexOf(lines[Math.min(Math.max(at + step, 0), lines.length - 1)]!.querySelector<HTMLElement>('button.tok')!);
+    };
+    const next =
+      e.key === 'ArrowRight' ? Math.min(index + 1, parts.length - 1)
+      : e.key === 'ArrowLeft' ? Math.max(index - 1, 0)
+      : e.key === 'ArrowDown' ? line(1)
+      : e.key === 'ArrowUp' ? line(-1)
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? parts.length - 1
+      : -1;
+    if (next < 0) return;
+    e.preventDefault();
+    parts[next]!.focus();
+  };
+
   return (
-    <ol class="policy" aria-label={t('analyzer.policy', { index: policyIndex + 1 })}>
+    <ol
+      class="policy"
+      aria-label={t('policyView.label', { policy: t('analyzer.policy', { index: policyIndex + 1 }) })}
+      onKeyDown={onKeyDown}
+    >
       {policy.directives.map((d, di) => (
         <li key={di} class={`line${d.duplicate || !d.known ? ' line-ignored' : ''}`}>
           <span class="margin-note" aria-hidden="true">
@@ -85,6 +131,8 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
             <button
               type="button"
               class="tok tok-directive"
+              tabIndex={tabStop === keyOf(di) ? 0 : -1}
+              onFocus={() => setFocused(keyOf(di))}
               aria-pressed={isSelected(di)}
               onClick={() => onSelect({ policyIndex, directiveIndex: di })}
             >
@@ -102,6 +150,8 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
                   <button
                     type="button"
                     class={`tok ${hl}`}
+                    tabIndex={tabStop === keyOf(di, vi) ? 0 : -1}
+                    onFocus={() => setFocused(keyOf(di, vi))}
                     aria-pressed={isSelected(di, vi)}
                     onClick={() => onSelect({ policyIndex, directiveIndex: di, valueIndex: vi })}
                   >

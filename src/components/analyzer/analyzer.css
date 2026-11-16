@@ -222,6 +222,10 @@
   body:has(.sheet.open) {
     padding-bottom: 55dvh;
   }
+  /* Against the edges of the screen: the focus outline goes inside the sheet */
+  .sheet.open:focus-visible {
+    outline-offset: -3px;
+  }
   .sheet .explanation {
     border-left: 0;
     padding-left: 0;

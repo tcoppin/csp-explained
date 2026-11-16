@@ -293,6 +293,35 @@ test('the focus follows the editor and the summary as they take each other\'s pl
   await expect(box).toBeFocused();
 });
 
+test('with the keyboard, the policy is one stop: arrows move, Enter explains, Tab goes to the explanation', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);
+  const policy = page.getByRole('list', { name: /^Policy 1: arrow keys move between its parts/ });
+  const parts = policy.getByRole('button');
+  // Only one part takes Tab: the one picked.
+  await expect(policy.locator('button[tabindex="0"]')).toHaveCount(1);
+  await policy.locator('button[tabindex="0"]').focus();
+  await expect(page.getByText('With the keyboard: arrow keys move between the parts')).toBeVisible();
+  await page.keyboard.press('ArrowRight');
+  await expect(parts.nth(1)).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(policy.getByRole('button', { name: 'script-src' })).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(policy.getByRole('button', { name: "'none'" })).toBeFocused();
+  await page.keyboard.press('ArrowUp');
+  await expect(policy.getByRole('button', { name: 'img-src' })).toBeFocused();
+  expect(await announced(page, () => page.keyboard.press('Enter'))).toContain('polite: img-src: Images');
+  await expect(policy.getByRole('button', { name: 'img-src' })).toHaveAttribute('aria-pressed', 'true');
+
+  // Tab leaves the policy for the explanation, which a screen reader then reads out.
+  const heard = (await announced(page, () => page.keyboard.press('Tab'))).join(' ');
+  await expect(page.locator('.explanation-slot')).toBeFocused();
+  expect(heard).toContain('Images Which places images can come from.');
+  // And Shift+Tab goes back to the part it explains.
+  await page.keyboard.press('Shift+Tab');
+  await expect(policy.getByRole('button', { name: 'img-src' })).toBeFocused();
+});
+
 test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' 'unsafe-inline'; object-src 'none'");
@@ -334,7 +363,7 @@ test('on phones, the sheet never hides the part of the policy that has the focus
   // Moving through the whole policy with the keyboard: each part in turn stays above the sheet.
   const count = await parts.count();
   for (let i = 1; i < count; i++) {
-    await page.keyboard.press('Tab');
+    await page.keyboard.press('ArrowRight');
     await expect(parts.nth(i)).toBeFocused();
     const [part, top] = await Promise.all([parts.nth(i).boundingBox(), sheet.boundingBox()]);
     expect(part!.y + part!.height, `part ${i} above the sheet`).toBeLessThanOrEqual(top!.y);

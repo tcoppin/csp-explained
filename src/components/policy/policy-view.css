@@ -104,6 +104,19 @@ button.tok:hover {
   text-decoration: wavy underline var(--bad);
 }
 
+/* The keyboard hint under the intro, while the policy or its explanation has the keyboard focus (screen readers
+   get it in the policy's name) */
+.policy-keys {
+  display: none;
+}
+.panel:has(.decoded-grid :focus-visible) .policy-keys {
+  display: block;
+}
+/* The explanation takes the focus after the policy, so it can be read out: it shows like the parts do */
+.explanation-slot:focus-visible {
+  outline-offset: 0.5rem;
+}
+
 /* The policy next to the explanation of the part picked in it (stacked on narrow screens) */
 .decoded-grid {
   display: grid;
