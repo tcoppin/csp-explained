@@ -1,5 +1,5 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
-import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, POLICY, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
   const errors = watchErrors(page);
@@ -225,6 +225,30 @@ test('a directive written three times is one thing to check', async ({ page }) =
   // The copy the browser uses carries no warning; the ignored copies do.
   await expect(page.locator('.policy .line').nth(0).locator('.flag')).toHaveCount(0);
   await expect(page.locator('.policy .line').nth(2).locator('.flag')).toHaveCount(1);
+});
+
+test('a screen reader hears what the colours and marks of the policy show', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill("script-src 'self' 'unsafe-inline' https://a.example; script-src 'none'; img-src * data: ht!tp; foo-src x");
+  const heard = await readAloud(page, '.policy');
+  expect(heard).toEqual(
+    expect.arrayContaining([
+      'button, script-src, pressed',
+      "button, 'self', not pressed",
+      "button, 'unsafe-inline', risky, not pressed",
+      'button, script-src, ignored: this rule is repeated, something to check, not pressed',
+      'button, *, risky, not pressed',
+      'button, ht!tp, not valid, not pressed',
+      'button, foo-src, ignored: unknown rule, something to check, not pressed',
+    ]),
+  );
+  // Values whose colour only tells their kind apart say nothing more.
+  expect(heard).toContain('button, https://a.example, not pressed');
+  expect(heard).toContain('button, data:, not pressed');
+  expect(errors).toEqual([]);
 });
 
 test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {

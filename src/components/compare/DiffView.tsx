@@ -2,7 +2,7 @@ import { Fragment } from 'preact';
 import type { ContentBundle } from '../../lib/content';
 import type { DirectiveDiff, PolicyDiff, ValueDiff } from '../../lib/csp/diff';
 import type { SourceExpression } from '../../lib/csp/model';
-import { highlightClass } from '../policy/PolicyView';
+import { highlightClass, SpokenNote, valueNote } from '../policy/PolicyView';
 import { useT } from '../ui/i18n';
 import type { DiffLayout } from './diff-layout';
 
@@ -15,6 +15,7 @@ function Value({ v, side }: { v: ValueDiff; side?: 'before' | 'after' }) {
       <ins class={`tok ${highlightClass(expr)}`}>
         <span class="visually-hidden">{t('compare.diff.added')} </span>
         {v.raw}
+        <SpokenNote text={valueNote(t, highlightClass(expr))} />
       </ins>
     );
   }

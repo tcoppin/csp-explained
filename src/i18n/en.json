@@ -346,6 +346,14 @@
     "reported": { "one": "{count} reported", "other": "{count} reported" },
     "allOk": "all OK"
   },
+  "policyView": {
+    "risky": "risky",
+    "invalid": "not valid",
+    "added": "added for your site or tools",
+    "repeated": "ignored: this rule is repeated",
+    "unknown": "ignored: unknown rule",
+    "flagged": "something to check"
+  },
   "explanation": {
     "fallsBackTo": "Falls back to:",
     "alsoAppliesTo": "Also applies to:",

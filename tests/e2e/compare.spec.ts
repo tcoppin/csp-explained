@@ -1,5 +1,5 @@
 /** The comparator (/compare): the two policies, what the change does in each view, the link, and what is counted. */
-import { test, expect, watchErrors, openAnalyzer, openBuilder, openComparator, pickTool, policyAction, POLICY } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openBuilder, openComparator, pickTool, policyAction, readAloud, POLICY } from './helpers';
 
 /** One of the policies kept in a comparator link. */
 const inLink = (url: string, key: 'b' | 'a') => {
@@ -115,6 +115,17 @@ test('the example shows each view: changes, both policies, findings and tools', 
   await expect(hotjar).toContainText('Before the change: Blocked by this policy');
   await expect(hotjar.locator('.req-blocked', { hasText: 'https://survey-images.hotjar.com' })).toContainText('Before the change: Works with this policy');
   expect(errors).toEqual([]);
+});
+
+test('a screen reader hears what was added, removed, and which addition is risky', async ({ page, isMobile }) => {
+  await openComparator(page);
+  await page.getByRole('textbox', { name: 'Before' }).fill("script-src 'self' https://a.example");
+  await page.getByRole('textbox', { name: 'After' }).fill("script-src 'self' 'unsafe-inline'");
+  await page.getByRole('tab', { name: /^Both policies/ }).click();
+  // Each piece of an insertion is read in turn: flattened, it reads as one sentence.
+  const heard = (await readAloud(page, '[role="tabpanel"]')).join(' ').replaceAll(' ,', ',');
+  expect(heard).toContain("insertion added: 'unsafe-inline', risky end of insertion");
+  expect(heard).toContain('deletion removed: https://a.example end of deletion');
 });
 
 test('says when a policy moves from report-only to enforced', async ({ page }) => {

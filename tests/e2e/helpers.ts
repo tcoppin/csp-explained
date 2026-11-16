@@ -1,6 +1,8 @@
 /** What the end-to-end specs share: the usage fixture, opening each island, and common steps. */
 import AxeBuilder from '@axe-core/playwright';
 import { test as base, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 export { expect } from '@playwright/test';
 import { COMPARE_EXAMPLE as EXAMPLE } from '../../src/config';
@@ -83,3 +85,80 @@ export async function accessibilityProblems(page: Page, where: string): Promise<
   const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
   return violations.flatMap((v) => v.nodes.map((n) => `${where}: ${v.id} (${v.impact}) ${n.target.join(' ')}`));
 }
+
+/*
+ * Screen reader. The virtual screen reader (Guidepup) reads the page the way VoiceOver or NVDA would, from the
+ * accessibility tree: tests check what is said, not only what is shown. It is served from the site's own origin,
+ * so our CSP stays enforced while it runs.
+ */
+const SCREEN_READER = readFileSync(createRequire(import.meta.url).resolve('@guidepup/virtual-screen-reader/browser.js'), 'utf8');
+
+async function startScreenReader(page: Page, container: string) {
+  if (!(await page.evaluate(() => 'screenReader' in window))) {
+    await page.route('**/__test/screen-reader*.js', (route) =>
+      route.fulfill({
+        contentType: 'text/javascript',
+        body: route.request().url().endsWith('lib.js')
+          ? SCREEN_READER
+          : "import { virtual } from './screen-reader-lib.js'; window.screenReader = virtual;",
+      }),
+    );
+    // A module import, not a <script> tag: our Trusted Types rule refuses script URLs set by code.
+    await page.evaluate(() => import('/__test/screen-reader.js' as string));
+  }
+  await page.evaluate(async (selector) => {
+    const sr = (window as any).screenReader;
+    await sr.stop();
+    await sr.start({ container: document.querySelector(selector) });
+  }, container);
+}
+
+/**
+ * What a screen reader says going through `container` (a CSS selector) from start to end, one phrase per line:
+ * roles, names and states, the way someone moving with VoiceOver's or NVDA's "next item" hears it.
+ */
+export async function readAloud(page: Page, container: string): Promise<string[]> {
+  await startScreenReader(page, container);
+  const log = await page.evaluate(async () => {
+    const sr = (window as any).screenReader;
+    const log: string[] = [await sr.lastSpokenPhrase()];
+    // At the end, the reader starts again from the top.
+    for (let i = 0; i < 1000; i++) {
+      await sr.next();
+      const phrase: string = await sr.lastSpokenPhrase();
+      if (phrase === log[0]) break;
+      log.push(phrase);
+    }
+    await sr.stop();
+    return log;
+  });
+  // Screen readers say a button in one go; the virtual one also steps through what is inside it.
+  const out: string[] = [];
+  for (let i = 0; i < log.length; i++) {
+    out.push(spoken(log[i]!));
+    const end = log.indexOf(`end of ${log[i]}`, i + 1);
+    if (log[i]!.startsWith('button, ') && end > 0) i = end;
+  }
+  return out;
+}
+
+/**
+ * What a screen reader announces by itself (live regions, focus moves) while `action` runs, one phrase per line.
+ * Listens to the whole page.
+ */
+export async function announced(page: Page, action: () => Promise<void>): Promise<string[]> {
+  await startScreenReader(page, 'body');
+  await page.evaluate(() => (window as any).screenReader.clearSpokenPhraseLog());
+  await action();
+  // Live regions are read after the change settles.
+  await page.waitForTimeout(300);
+  return page.evaluate(async () => {
+    const sr = (window as any).screenReader;
+    const log: string[] = await sr.spokenPhraseLog();
+    await sr.stop();
+    return log;
+  }).then((log) => log.map(spoken));
+}
+
+/** Hidden notes start with a comma; the virtual reader puts a space before it, which no one hears. */
+const spoken = (phrase: string) => phrase.replace(/\s+,/g, ',');

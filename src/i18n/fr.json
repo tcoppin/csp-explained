@@ -346,6 +346,14 @@
     "reported": { "one": "{count} signalé", "other": "{count} signalés" },
     "allOk": "tout est OK"
   },
+  "policyView": {
+    "risky": "risqué",
+    "invalid": "non valide",
+    "added": "ajouté pour votre site ou vos outils",
+    "repeated": "ignorée : cette règle est en double",
+    "unknown": "ignorée : règle inconnue",
+    "flagged": "point à vérifier"
+  },
   "explanation": {
     "fallsBackTo": "Se replie sur :",
     "alsoAppliesTo": "S'applique aussi à :",

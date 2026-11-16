@@ -1,6 +1,7 @@
 import { Fragment } from 'preact';
 import type { ContentBundle } from '../../lib/content';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
+import type { Translate } from '../../i18n';
 import { useT } from '../ui/i18n';
 import './policy-view.css';
 
@@ -30,6 +31,21 @@ export function highlightClass(v: SourceExpression): string {
   }
 }
 
+/**
+ * What the highlight says without its colour, read after the value by screen readers ("'unsafe-inline', risky").
+ * Empty for the colours that only tell the kind of value apart.
+ */
+export function valueNote(t: Translate, highlight: string): string {
+  if (highlight === 'hl-unsafe') return t('policyView.risky');
+  if (highlight === 'hl-invalid') return t('policyView.invalid');
+  return '';
+}
+
+/** A short spoken note, after a pause, that sighted readers get from the look of the part. */
+export function SpokenNote({ text }: { text: string }) {
+  return text ? <span class="visually-hidden">, {text}</span> : null;
+}
+
 interface Props {
   policy: Policy;
   policyIndex: number;
@@ -51,6 +67,12 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
   const flagged = (d: Directive) =>
     issues.some((i) => i.policyIndex === policyIndex && i.span && i.span.start >= d.span.start && i.span.end <= d.span.end);
 
+  // Struck through or flagged in the margin, which screen readers skip: said on the directive's name instead.
+  const directiveNote = (d: Directive) =>
+    [d.duplicate ? t('policyView.repeated') : !d.known ? t('policyView.unknown') : '', flagged(d) ? t('policyView.flagged') : '']
+      .filter(Boolean)
+      .join(', ');
+
   return (
     <ol class="policy" aria-label={t('analyzer.policy', { index: policyIndex + 1 })}>
       {policy.directives.map((d, di) => (
@@ -67,20 +89,28 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
               onClick={() => onSelect({ policyIndex, directiveIndex: di })}
             >
               {d.name}
+              <SpokenNote text={directiveNote(d)} />
             </button>
-            {d.values.map((v, vi) => (
-              <Fragment key={vi}>
-                {' '}
-                <button
-                  type="button"
-                  class={`tok ${!highlighted || highlighted(d, v) ? highlightClass(v) : 'hl-none'}${isSelected(di, vi) ? ' selected' : ''}`}
-                  aria-pressed={isSelected(di, vi)}
-                  onClick={() => onSelect({ policyIndex, directiveIndex: di, valueIndex: vi })}
-                >
-                  {v.raw}
-                </button>
-              </Fragment>
-            ))}
+            {d.values.map((v, vi) => {
+              const shown = !highlighted || highlighted(d, v);
+              const hl = shown ? highlightClass(v) : 'hl-none';
+              // In the builder the highlight means "added for your site or tools", whatever the kind of value.
+              const note = highlighted ? (shown ? t('policyView.added') : '') : valueNote(t, hl);
+              return (
+                <Fragment key={vi}>
+                  {' '}
+                  <button
+                    type="button"
+                    class={`tok ${hl}${isSelected(di, vi) ? ' selected' : ''}`}
+                    aria-pressed={isSelected(di, vi)}
+                    onClick={() => onSelect({ policyIndex, directiveIndex: di, valueIndex: vi })}
+                  >
+                    {v.raw}
+                    <SpokenNote text={note} />
+                  </button>
+                </Fragment>
+              );
+            })}
             <span class="semi">;</span>
           </code>
         </li>

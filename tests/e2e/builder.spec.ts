@@ -1,5 +1,5 @@
 /** The builder (/build): its steps, what each choice adds to the policy, and the way back to the analyzer. */
-import { test, expect, watchErrors, openAnalyzer, openBuilder, pickTool, policyAction, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openBuilder, pickTool, policyAction, readAloud, HELLO, HELLO_HASH } from './helpers';
 
 test('builds a policy from nothing, with a catalogue tool and one of our own', async ({ page, context, sent }) => {
   const errors = watchErrors(page);
@@ -51,6 +51,16 @@ test('builds a policy from nothing, with a catalogue tool and one of our own', a
   await fresh.getByRole('combobox', { name: 'Add a tool' }).click();
   await expect(fresh.getByRole('group', { name: 'Your own tools' })).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('a screen reader hears which values were added for the site or its tools', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await pickTool(page, 'Hotjar');
+  await page.getByRole('button', { name: 'See your policy' }).click();
+  const heard = await readAloud(page, '.policy');
+  expect(heard).toContain('button, wss://*.hotjar.com, added for your site or tools, not pressed');
+  // The strict start isn't highlighted, so it says nothing more.
+  expect(heard).toContain("button, 'self', not pressed");
 });
 
 test('with a nonce, the builder explains the placeholder and what waits on it', async ({ page }) => {
