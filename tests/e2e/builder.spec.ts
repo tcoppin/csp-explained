@@ -66,6 +66,24 @@ test('a screen reader hears which values were added for the site or its tools', 
   expect(live).toEqual([expect.stringMatching(/^polite: wss:\/\/\*\.hotjar\.com in connect-src: /)]);
 });
 
+test('each step takes the focus to its question, and the tool picker says what it added or removed', async ({ page }) => {
+  await openBuilder(page);
+  await page.getByRole('radio', { name: /^A blank policy/ }).check();
+  await page.getByRole('radio', { name: /^No, or not sure/ }).check();
+  const heard = await announced(page, () => page.getByRole('button', { name: 'Next: your site' }).click());
+  expect(heard.at(-1)).toMatch(/^heading, .+, level 2$/);
+  await expect(page.locator('#step-title')).toBeFocused();
+  await page.getByRole('button', { name: 'Next: your tools' }).click();
+  await expect(page.locator('#step-title')).toBeFocused();
+
+  const picker = page.getByRole('combobox', { name: 'Add a tool' });
+  await picker.fill('Hotjar');
+  expect(await announced(page, () => picker.press('Enter'))).toContain('polite: Hotjar added');
+  // Removing it takes its button away: the focus goes back to the search.
+  expect(await announced(page, () => page.getByRole('button', { name: 'Remove Hotjar' }).click())).toContain('polite: Hotjar removed');
+  await expect(picker).toBeFocused();
+});
+
 test('with a nonce, the builder explains the placeholder and what waits on it', async ({ page }) => {
   await openBuilder(page, '/build#b=nonce&n=inline-scripts&step=review');
   await expect(page.locator('.policy')).toContainText("'nonce-REPLACE_PER_PAGE' 'strict-dynamic'");

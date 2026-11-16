@@ -1,5 +1,5 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
-import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, POLICY, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
   const errors = watchErrors(page);
@@ -272,6 +272,25 @@ test('on phones, the status under the views takes the focus to the things to che
   await expect(heading).toBeFocused();
   // No smooth scrolling: the heading is in sight straight away.
   expect(await heading.evaluate((h) => h.getBoundingClientRect().top >= 0 && h.getBoundingClientRect().bottom <= innerHeight)).toBe(true);
+});
+
+test('the focus follows the editor and the summary as they take each other\'s place', async ({ page }) => {
+  await openAnalyzer(page);
+  const box = page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' });
+  const heading = page.getByRole('heading', { name: 'Your policy', level: 1 });
+  await box.focus();
+  // A paste folds the editor away: the focus goes to the start of the result, not back to the top of the page.
+  expect(await announced(page, () => paste(page, POLICY))).toContain('heading, Your policy, level 1');
+  await expect(heading).toBeFocused();
+  await page.getByRole('button', { name: 'Edit' }).click();
+  await expect(box).toBeFocused();
+  await page.getByRole('button', { name: 'Done' }).click();
+  await expect(heading).toBeFocused();
+  await policyAction(page, 'button', 'Clear');
+  await expect(box).toBeFocused();
+  // Typing never moves the focus away.
+  await box.fill(POLICY);
+  await expect(box).toBeFocused();
 });
 
 test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {

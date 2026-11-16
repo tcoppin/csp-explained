@@ -41,6 +41,15 @@ export async function openAnalyzer(page: Page, path = '/') {
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
 }
 
+/** Pastes `text` into the focused field, as Ctrl+V does (the analyzer reacts to a paste differently from typing). */
+export async function paste(page: Page, text: string) {
+  await page.evaluate((text) => {
+    const data = new DataTransfer();
+    data.setData('text/plain', text);
+    document.activeElement!.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  }, text);
+}
+
 /** Adds a tool through the searchable multi-select. */
 export async function pickTool(page: Page, name: string) {
   await page.getByRole('combobox', { name: 'Add a tool' }).fill(name);

@@ -218,6 +218,8 @@
     "searchPlaceholder": "Ajouter un outil, par ex. GTM ou Hotjar",
     "selected": "Outils choisis",
     "remove": "Retirer {name}",
+    "added": "{name} ajouté",
+    "removed": "{name} retiré",
     "noMatch": "Aucun outil ne correspond à « {query} » pour l'instant.",
     "suggest": "Un outil manque ? Proposez-le",
     "partialShort": "partiellement vérifié"

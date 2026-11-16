@@ -138,7 +138,9 @@ export function PolicySummary({ parsed, policy, onEdit, onClear, buildHref, comp
   }, []);
   return (
     <>
-      <h1 id="input-title">{t('analyzer.yourPolicy')}</h1>
+      <h1 id="input-title" tabIndex={-1}>
+        {t('analyzer.yourPolicy')}
+      </h1>
       <div class="summary-bar">
         <p class="summary">
           {parsed.policies.length > 1 ? (

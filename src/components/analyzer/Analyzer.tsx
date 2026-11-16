@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../../config';
 import { localePath, translator, type Locale } from '../../i18n';
 import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../../lib/analysis';
@@ -282,6 +282,17 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   };
   // On phones the row of views shows numbers only: the open view's full status goes under it.
   const current = status(view);
+
+  // Pasting, Done, Edit or Clear swap the editor and the summary, taking away the control that had the focus. The
+  // focus then goes to the start of what replaced it (the text box, or the "Your policy" heading) instead of the top
+  // of the page. It's only moved when it was lost, never taken from somewhere else.
+  const shownEditor = useRef(showEditor);
+  useLayoutEffect(() => {
+    if (shownEditor.current === showEditor) return;
+    shownEditor.current = showEditor;
+    if (document.activeElement && document.activeElement !== document.body) return;
+    document.getElementById(showEditor ? 'policy-input' : 'input-title')?.focus();
+  }, [showEditor]);
 
   // On phones the explanation is a sheet over the bottom of the screen, opened by a tap and closed by its button,
   // by Escape, or by moving to another view, editing or clearing. On wider screens it's always beside the policy.

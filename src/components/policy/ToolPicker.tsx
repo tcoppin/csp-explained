@@ -42,6 +42,8 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | undefined>();
   const input = useRef<HTMLInputElement>(null);
+  // Said by screen readers after each pick or removal: the list itself only changes a checkmark.
+  const [said, setSaid] = useState('');
 
   const groups = useMemo(
     () =>
@@ -70,8 +72,14 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
     setActive(visible[(index + delta + visible.length) % visible.length]!.id);
   };
 
-  const pick = (id: string) => {
+  const toggle = (id: string) => {
+    const name = byId.get(id)?.name ?? id;
+    setSaid(t(selected.includes(id) ? 'vendors.removed' : 'vendors.added', { name }));
     onToggle(id);
+  };
+
+  const pick = (id: string) => {
+    toggle(id);
     setQuery('');
     setActive(id);
     input.current?.focus();
@@ -100,7 +108,7 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
         else setQuery('');
         break;
       case 'Backspace':
-        if (query === '' && selected.length > 0) onToggle(selected[selected.length - 1]!);
+        if (query === '' && selected.length > 0) toggle(selected[selected.length - 1]!);
         break;
     }
   };
@@ -122,7 +130,13 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
             if (!vendor) return null;
             return (
               <li key={id}>
-                <button type="button" class="picked-tool" aria-label={t('vendors.remove', { name: vendor.name })} onClick={() => onToggle(id)}>
+                <button type="button" class="picked-tool" aria-label={t('vendors.remove', { name: vendor.name })}
+                  onClick={() => {
+                    toggle(id);
+                    // The button goes away with the tool: the focus goes to the search instead of the page.
+                    input.current?.focus();
+                  }}
+                >
                   {vendor.name}
                   <svg viewBox="0 0 16 16" aria-hidden="true">
                     <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
@@ -135,6 +149,9 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
       )}
 
       <div class="combo">
+        <p class="visually-hidden" role="status">
+          {said}
+        </p>
         <label class="visually-hidden" for="tool-search">
           {t('vendors.search')}
         </label>

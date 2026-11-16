@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { translator, type Locale } from '../../i18n';
 import type { ContentBundle } from '../../lib/content';
 import type { Audience } from '../../lib/csp/model';
@@ -60,9 +60,21 @@ export default function Builder({ content, locale }: Props) {
   const index = STEPS.indexOf(step);
   const next = STEPS[index + 1];
   const go = (s: Step) => {
+    // The control pressed: the focus moves on from it once the step is shown, unless the visitor went elsewhere.
+    from.current = document.activeElement;
     b.setStep(s);
     document.getElementById('builder')?.scrollIntoView({ block: 'start' });
   };
+  // After moving to a step, the focus goes to its question: the button that was pressed may be gone, or now lead
+  // somewhere else, and screen readers hear where they are.
+  const from = useRef<Element | null>(null);
+  useLayoutEffect(() => {
+    const pressed = from.current;
+    from.current = null;
+    if (!pressed) return;
+    const focus = document.activeElement;
+    if (focus === pressed || !focus || focus === document.body) document.getElementById('step-title')?.focus({ preventScroll: true });
+  }, [step]);
 
   return (
     <I18n.Provider value={t}>
@@ -85,7 +97,9 @@ export default function Builder({ content, locale }: Props) {
 
         <div class="builder-grid">
           <section class="builder-step" aria-labelledby="step-title">
-            <h2 id="step-title">{t(`build.steps.${step}Title`)}</h2>
+            <h2 id="step-title" tabIndex={-1}>
+              {t(`build.steps.${step}Title`)}
+            </h2>
             <p class="panel-intro">
               <Rich msg={`build.intro.${step}`} />
             </p>
