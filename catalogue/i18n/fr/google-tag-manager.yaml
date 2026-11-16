@@ -54,3 +54,43 @@ features:
       font:
         # Loads the preview panel fonts.
         { en: e842c16b, text: "Charge les polices du panneau d'aperçu." }
+  tag-gateway:
+    description:
+      # The Google tag loads from a path on your own site. Your server or CDN must not add your Content-Security-Policy header to the responses from that path, or the service worker is blocked.
+      { en: 08ab3ca1, text: "La balise Google se charge depuis un chemin de votre propre site. Votre serveur ou votre CDN ne doit pas ajouter votre en-tête Content-Security-Policy aux réponses de ce chemin, sinon le service worker est bloqué." }
+    label:
+      # Google tag gateway for advertisers
+      { en: 71e70e0f, text: "Passerelle de balise Google pour les annonceurs" }
+    reasons:
+      script:
+        # Loads the Google tag from your measurement path.
+        { en: ac0228b0, text: "Charge la balise Google depuis votre chemin de mesure." }
+      img:
+        # Sends measurement requests to your measurement path.
+        { en: c56d567f, text: "Envoie les requêtes de mesure à votre chemin de mesure." }
+      connect:
+        # Sends measurement requests to your measurement path.
+        { en: c56d567f, text: "Envoie les requêtes de mesure à votre chemin de mesure." }
+      worker:
+        # Runs a service worker from your measurement path.
+        { en: 25a3dd51, text: "Exécute un service worker depuis votre chemin de mesure." }
+  server-side-same-origin:
+    description:
+      # With the tagging server on a subdomain instead (sgtm.yoursite.com), allow that address in img-src, connect-src and frame-src (and script-src-elem if the Google tag loads from it); no worker-src is needed. On a path of your site, your server or CDN must not add your Content-Security-Policy header to its responses, or the service worker is blocked.
+      { en: 3189acb9, text: "Si le serveur de taggage est plutôt sur un sous-domaine (sgtm.votresite.fr), autorisez cette adresse dans img-src, connect-src et frame-src (et script-src-elem si la balise Google se charge depuis lui) ; worker-src n'est pas nécessaire. Sur un chemin de votre site, votre serveur ou votre CDN ne doit pas ajouter votre en-tête Content-Security-Policy à ses réponses, sinon le service worker est bloqué." }
+    label:
+      # Server-side tagging, on a path of your site
+      { en: 1d15d063, text: "Taggage côté serveur, sur un chemin de votre site" }
+    reasons:
+      img:
+        # Sends measurement requests to your tagging server.
+        { en: 3239de6e, text: "Envoie les requêtes de mesure à votre serveur de taggage." }
+      connect:
+        # Sends measurement requests to your tagging server.
+        { en: 3239de6e, text: "Envoie les requêtes de mesure à votre serveur de taggage." }
+      frame:
+        # Registers the service worker through a frame.
+        { en: 1366a0ad, text: "Enregistre le service worker au moyen d'un cadre." }
+      worker:
+        # Runs a service worker from your tagging server.
+        { en: ec96642b, text: "Exécute un service worker depuis votre serveur de taggage." }

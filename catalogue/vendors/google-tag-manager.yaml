@@ -4,7 +4,7 @@ category: tag-management
 website: https://tagmanager.google.com
 sources:
   - https://developers.google.com/tag-platform/security/guides/csp
-lastVerified: 2026-10-28
+lastVerified: 2026-11-16
 confidence: verified
 nonce:
   supported: true
@@ -53,3 +53,41 @@ features:
       - type: font
         sources: [https://fonts.gstatic.com, "data:"]
         reason: Loads the preview panel fonts.
+  - id: tag-gateway
+    label: Google tag gateway for advertisers
+    description: >-
+      The Google tag loads from a path on your own site. Your server or CDN must not add your
+      Content-Security-Policy header to the responses from that path, or the service worker is blocked.
+    requirements:
+      - type: script
+        sources: ["'self'"]
+        reason: Loads the Google tag from your measurement path.
+      - type: img
+        sources: ["'self'"]
+        reason: Sends measurement requests to your measurement path.
+      - type: connect
+        sources: ["'self'"]
+        reason: Sends measurement requests to your measurement path.
+      - type: worker
+        sources: ["'self'"]
+        reason: Runs a service worker from your measurement path.
+  - id: server-side-same-origin
+    label: Server-side tagging, on a path of your site
+    description: >-
+      With the tagging server on a subdomain instead (sgtm.yoursite.com), allow that address in img-src,
+      connect-src and frame-src (and script-src-elem if the Google tag loads from it); no worker-src is needed.
+      On a path of your site, your server or CDN must not add your Content-Security-Policy header to its
+      responses, or the service worker is blocked.
+    requirements:
+      - type: img
+        sources: ["'self'"]
+        reason: Sends measurement requests to your tagging server.
+      - type: connect
+        sources: ["'self'"]
+        reason: Sends measurement requests to your tagging server.
+      - type: frame
+        sources: ["'self'"]
+        reason: Registers the service worker through a frame.
+      - type: worker
+        sources: ["'self'"]
+        reason: Runs a service worker from your tagging server.

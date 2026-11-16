@@ -45,6 +45,7 @@
     "t.contentsquare.net"
   ],
   "https://developers.google.com/tag-platform/security/guides/csp": [
+    "'self'",
     "'unsafe-eval'",
     "'unsafe-inline'",
     "connect-src",
@@ -85,6 +86,7 @@
     "script-src",
     "script-src-elem",
     "style-src",
+    "worker-src",
     "www.googletagmanager.com"
   ],
   "https://www.intercom.com/help/en/articles/3894-using-intercom-with-content-security-policy": [
