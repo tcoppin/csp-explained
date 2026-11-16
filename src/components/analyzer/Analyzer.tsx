@@ -218,6 +218,12 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     setSheetOpen(true);
   };
 
+  /** The close button goes away with the sheet: the focus goes back to the part it explained. */
+  const closeSheet = () => {
+    setSheetOpen(false);
+    document.querySelector<HTMLElement>('.policy .tok.selected')?.focus();
+  };
+
   /** The status under the views takes keyboard and screen reader users to the list too, not only the eyes. */
   const toThingsToCheck = () => {
     const heading = document.getElementById('things-to-check');
@@ -416,7 +422,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   />
                   {activeSelection && (
                     <div class={`explanation-slot sheet${sheetOpen ? ' open' : ''}`}>
-                      <button type="button" class="sheet-close" aria-label={t('analyzer.closeExplanation')} onClick={() => setSheetOpen(false)}>
+                      <button type="button" class="sheet-close" aria-label={t('analyzer.closeExplanation')} onClick={closeSheet}>
                         <svg viewBox="0 0 16 16" aria-hidden="true">
                           <path d="M4 4l8 8M12 4l-8 8" />
                         </svg>

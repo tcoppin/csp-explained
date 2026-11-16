@@ -303,6 +303,33 @@ test('switching policy on another view still explains the policy shown', async (
   await expect(page.locator('.explanation')).toContainText('img-src');
 });
 
+test('on phones, the sheet never hides the part of the policy that has the focus', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'phone layout');
+  await openAnalyzer(page);
+  const long = Array.from({ length: 14 }, (_, i) => `${['script-src', 'img-src', 'font-src', 'connect-src', 'media-src', 'frame-src', 'style-src'][i % 7]} https://a${i}.example https://b${i}.example`);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(long.join('; '));
+  const parts = page.locator('.policy button');
+  await parts.first().click();
+  const sheet = page.locator('.sheet.open');
+  await expect(sheet).toBeVisible();
+  // Moving through the whole policy with the keyboard: each part in turn stays above the sheet.
+  const count = await parts.count();
+  for (let i = 1; i < count; i++) {
+    await page.keyboard.press('Tab');
+    await expect(parts.nth(i)).toBeFocused();
+    const [part, top] = await Promise.all([parts.nth(i).boundingBox(), sheet.boundingBox()]);
+    expect(part!.y + part!.height, `part ${i} above the sheet`).toBeLessThanOrEqual(top!.y);
+  }
+  // The footer comes above it too.
+  const footer = page.locator('footer a').last();
+  await footer.focus();
+  const [link, top] = await Promise.all([footer.boundingBox(), sheet.boundingBox()]);
+  expect(link!.y + link!.height).toBeLessThanOrEqual(top!.y);
+  // Closing the sheet gives the focus back to the part it explained.
+  await page.getByRole('button', { name: 'Close the explanation' }).click();
+  await expect(parts.first()).toBeFocused();
+});
+
 test('on phones, the views show numbers, and the explanation opens as a sheet', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'phone layout');
   const errors = watchErrors(page);
