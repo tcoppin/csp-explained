@@ -68,6 +68,79 @@ Yarn refuses package versions published in the last few days (`npmMinimalAgeGate
 | `infra/` | AWS CDK app: S3 + CloudFront, security headers, GitHub OIDC deploy role. |
 | `scripts/` | Catalogue validation, translation status and vendor documentation watcher. |
 
+## Accessibility
+
+The site is meant for people who don't read CSPs every day, including people who use a screen reader, a keyboard
+only, zoom, or Windows high-contrast mode. Part of that is checked on every run of `yarn test:e2e`; the rest needs
+a person with a real screen reader.
+
+### What the e2e suite checks
+
+- **axe**, WCAG 2.2 A and AA, on every page in both languages and both themes, and on each view of the three tools
+  (`everyView` in `tests/e2e/site.spec.ts`).
+- **High-contrast mode**: every chosen tab, option, current page and picked part is pictured, then pictured again
+  with only that state turned off; identical pictures mean the state can't be seen (`invisibleStates`).
+- **A virtual screen reader** ([Guidepup](https://www.guidepup.dev/docs/virtual)), loaded into the built pages with
+  our CSP still enforced. `readAloud(page, selector)` gives what a screen reader says going through part of a page,
+  `announced(page, action)` what it says by itself while something happens. It reads the accessibility tree the way
+  VoiceOver and NVDA do, but it isn't one of them: how they pronounce code, and how long things feel when heard, is
+  left to the manual check.
+
+### What a new feature or a redesign adds
+
+Each in the spec of the area it touches, in the same commit as the change:
+
+1. **What is shown is also said.** Anything shown by colour, a mark, strike-through or position (risky, added,
+   ignored, chosen…) gets hidden text, and a `readAloud` test that hears it.
+2. **What changes is announced, briefly.** Anything that appears or changes without a page load (a result, an
+   added tool, a copied link) is announced in one short line from a `role="status"` that is always in the page,
+   outside anything hidden until it opens. An `announced` test checks the line, and that it isn't a whole panel.
+3. **The focus is never lost.** When an action removes or replaces the control that had the focus, the focus goes
+   to the start of what replaced it (a heading with `tabIndex={-1}`, or the field to type in). A test checks
+   where it lands with `toBeFocused()`.
+4. **A new page or view** goes in `everyView`, so axe and the high-contrast test run on it.
+5. **A new tool or a redesign of one** gets the manual check below before it ships.
+
+### Manual check with a screen reader
+
+About 20 minutes with VoiceOver on a Mac, in Safari (the pair most VoiceOver users have). NVDA with Firefox on
+Windows is the other common pair: the same steps work with its own keys.
+
+| VoiceOver | What it does |
+|---|---|
+| <kbd>Cmd</kbd>+<kbd>F5</kbd> | Turn VoiceOver on or off |
+| <kbd>Ctrl</kbd>+<kbd>Option</kbd> (VO) + <kbd>→</kbd> / <kbd>←</kbd> | Next / previous item |
+| VO+<kbd>Space</kbd> | Press the item |
+| VO+<kbd>U</kbd> | Rotor: lists of headings, links, landmarks, form controls (arrows to switch list) |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Next / previous control |
+| <kbd>Ctrl</kbd> | Stop speaking |
+
+Use the production build (`yarn build && yarn preview`) or the live site. For each step, note what was unclear, too
+long, missing or said twice, and open an issue for it.
+
+1. **Home page.** The rotor's headings and landmarks give a fair idea of the page. Tab to the text box: you hear
+   what to paste. Paste a policy (Cmd+V): you hear "Your policy, heading level 1", then the summary (enforced, number
+   of rules) and its actions.
+2. **The views.** The tabs say which is open and how many things to check; the arrow keys move between them.
+   "Explain it for" says which reader is chosen.
+3. **Reading the policy.** Go through it with VO+→: each part says what it is, and "risky", "ignored" or "something
+   to check" where the page shows a colour or a mark. Press a part: you hear one line ("'unsafe-inline' in
+   script-src: Inline code"), not the whole explanation. Carry on with VO+→ after the policy to read the
+   explanation. The "Things to check" list is next.
+4. **Will my tools work?** Search for a tool, choose it with the arrows and Enter: you hear "Hotjar added". Its
+   result says what works and what's missing. Remove it: "Hotjar removed", and you're back in the search.
+5. **Report.** Choose a format, copy it: the button says "Copied".
+6. **Edit, Done, Clear.** Edit puts you in the text box, Done back on "Your policy", Clear in the empty text box.
+7. **Builder.** Choose a start and go Next: you land on the new step's question each time. On the last step, the
+   values added for your tools say "added for your site or tools".
+8. **Compare.** Try the example, open "Both policies": what the change added and removed is said, risky additions
+   too.
+9. **A guide page** (Moving to nonces): the contents list, the stack tabs and a code block's "Copy this".
+10. **On a phone** (iPhone, triple-click the side button for VoiceOver), once a tool is redesigned: tap a part of the
+    policy, swipe through the sheet, close it, and you're back on that part.
+
+Write the date and what was found in the roadmap.
+
 ## Vendor catalogue
 
 Each `catalogue/vendors/<id>.yaml` lists, per feature, what the tool needs (`type` of resource, CSP `sources`, `reason`). Rules:

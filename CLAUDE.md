@@ -15,6 +15,10 @@ ideas to `ROADMAP.md`, not here.
 - Before saying a UI change is done, build it and look at it: Playwright screenshots of desktop, mobile
   (390 px) and both themes, saved in the scratchpad.
 - When a choice is a matter of taste (palette, layout), show options rendered on the real pages and let them pick.
+- Every new feature or redesign comes with its accessibility tests in the same commit (CONTRIBUTING.md ›
+  Accessibility): `readAloud` for what is shown by colour or marks, `announced` for what changes, `toBeFocused` when
+  the focused control goes away, new views in `everyView`. A new tool or a redesign also gets the manual VoiceOver
+  check: ask the owner to run it.
 
 ## Commands
 
@@ -119,6 +123,11 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   it only values our parser recognised, and run each check in its own `try`.
 - **The island hydrates after first paint.** Tests must wait for `astro-island:not([ssr])` before typing.
 - In screenshot scripts that inject styles, use `bypassCSP: true`. Our CSP blocks them otherwise.
+- **A focus moved in a Preact `useEffect` comes too late.** It runs after the next paint, when a quick visitor (or a
+  test) may already be typing elsewhere, and steals their focus. Use `useLayoutEffect`, and move only a focus that
+  was lost (on `body`) or is still on the control that was pressed.
+- **High-contrast mode puts a plate in the page's colour behind text.** A background in system colours (`Highlight`,
+  `Mark`) needs `forced-color-adjust: none`, or its text disappears behind the plate.
 - **The CloudFormation execution role is narrow** (`infra/iam/cfn-execution-policy.json`). A new kind of AWS resource
   needs that policy extended first. It can't attach managed policies: give roles inline policies (`grant*`).
 
