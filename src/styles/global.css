@@ -261,6 +261,30 @@ pre {
   line-height: 1.5;
 }
 
+/*
+ * High-contrast mode (Windows) replaces our colours with the system's, so a choice shown by colour alone, like the
+ * filled option or the highlighted tab, disappears. Every chosen tab, option and current link takes the system's
+ * selection colours instead, whatever component draws it. !important: scoped page styles are more specific, and
+ * these rules only apply in that mode. An e2e test checks every chosen state still shows.
+ */
+@media (forced-colors: active) {
+  :is([role='tab'][aria-selected='true'], [role='radio'][aria-checked='true'], a[aria-current]:not([aria-current='false'])) {
+    /* Already system colours: without this, the browser draws a plate in the page's colour behind the text. */
+    forced-color-adjust: none;
+    background: Highlight !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+    /* Room around labels drawn without padding (underlined tabs, links), without moving anything */
+    box-shadow: 0 0 0 0.25em Highlight !important;
+  }
+  :is([role='tab'][aria-selected='true'], [role='radio'][aria-checked='true'], a[aria-current]:not([aria-current='false'])) * {
+    forced-color-adjust: none;
+    background: none !important;
+    color: inherit !important;
+    border-color: currentColor !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

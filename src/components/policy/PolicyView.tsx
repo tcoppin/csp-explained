@@ -84,7 +84,7 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
           <code class="tokens">
             <button
               type="button"
-              class={`tok tok-directive${isSelected(di) ? ' selected' : ''}`}
+              class="tok tok-directive"
               aria-pressed={isSelected(di)}
               onClick={() => onSelect({ policyIndex, directiveIndex: di })}
             >
@@ -101,7 +101,7 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
                   {' '}
                   <button
                     type="button"
-                    class={`tok ${hl}${isSelected(di, vi) ? ' selected' : ''}`}
+                    class={`tok ${hl}`}
                     aria-pressed={isSelected(di, vi)}
                     onClick={() => onSelect({ policyIndex, directiveIndex: di, valueIndex: vi })}
                   >

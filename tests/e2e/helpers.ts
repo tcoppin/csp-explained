@@ -86,6 +86,48 @@ export async function accessibilityProblems(page: Page, where: string): Promise<
   return violations.flatMap((v) => v.nodes.map((n) => `${where}: ${v.id} (${v.impact}) ${n.target.join(' ')}`));
 }
 
+/**
+ * Chosen states nobody can see as the page is shown now (the open tab, the checked option, the current page, the
+ * picked part of the policy): each visible element in such a state is pictured, then pictured again with only that
+ * state turned off. Identical pictures mean the state shows only through something the display dropped, like
+ * colour in high-contrast mode. One line each. Kinds of element already in `seen` (the header's current page, on
+ * every page) are skipped.
+ */
+export async function invisibleStates(page: Page, where: string, seen = new Set<string>()): Promise<string[]> {
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  // Handles, not locators: once its state is off, an element no longer matches the selector.
+  const states = await page.$$('[aria-selected="true"], [aria-checked="true"], [aria-pressed="true"], [aria-current]:not([aria-current="false"])');
+  const found: string[] = [];
+  for (const el of states) {
+    if (!(await el.isVisible())) continue;
+    const kind = await el.evaluate((e) =>
+      [e.tagName, e.className, e.getAttribute('role'), e.parentElement?.className, e.parentElement?.parentElement?.className].join('|'),
+    );
+    if (seen.has(kind)) continue;
+    seen.add(kind);
+    await el.scrollIntoViewIfNeeded();
+    const box = (await el.boundingBox())!;
+    // A little around it, for outlines and underlines drawn outside the element.
+    const clip = { x: Math.max(0, box.x - 6), y: Math.max(0, box.y - 6), width: box.width + 12, height: box.height + 12 };
+    const on = await page.screenshot({ clip });
+    const attribute = await el.evaluate((e) => {
+      const name = ['aria-selected', 'aria-checked', 'aria-pressed', 'aria-current'].find((a) => e.hasAttribute(a) && e.getAttribute(a) !== 'false')!;
+      const value = e.getAttribute(name)!;
+      if (name === 'aria-current') e.removeAttribute(name);
+      else e.setAttribute(name, 'false');
+      return { name, value };
+    });
+    const off = await page.screenshot({ clip });
+    await el.evaluate((e, { name, value }) => e.setAttribute(name, value), attribute);
+    if (on.equals(off)) {
+      const label = (await el.getAttribute('aria-label')) ?? (await el.innerText()).trim().replace(/\s+/g, ' ').slice(0, 40);
+      found.push(`${where}: ${attribute.name}="${attribute.value}" on "${label}"`);
+    }
+  }
+  return found;
+}
+
 /*
  * Screen reader. The virtual screen reader (Guidepup) reads the page the way VoiceOver or NVDA would, from the
  * accessibility tree: tests check what is said, not only what is shown. It is served from the site's own origin,

@@ -221,7 +221,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   /** The close button goes away with the sheet: the focus goes back to the part it explained. */
   const closeSheet = () => {
     setSheetOpen(false);
-    document.querySelector<HTMLElement>('.policy .tok.selected')?.focus();
+    document.querySelector<HTMLElement>('.policy .tok[aria-pressed="true"]')?.focus();
   };
 
   /** The status under the views takes keyboard and screen reader users to the list too, not only the eyes. */
@@ -290,7 +290,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSheetOpen(false);
     document.addEventListener('keydown', onKey);
     // Keep the tapped part in sight, above the sheet.
-    const tok = document.querySelector('.policy .tok.selected');
+    const tok = document.querySelector('.policy .tok[aria-pressed="true"]');
     if (tok && matchMedia(NARROW).matches) window.scrollBy({ top: tok.getBoundingClientRect().top - innerHeight * 0.25, behavior: motion() });
     return () => document.removeEventListener('keydown', onKey);
   }, [sheetOpen, selection]);

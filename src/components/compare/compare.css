@@ -200,3 +200,11 @@
   border-color: var(--action);
   outline: none;
 }
+
+/* High-contrast mode drops the green line under what the change added: underline it instead. */
+@media (forced-colors: active) {
+  .policy-diff ins,
+  .diff-columns ins {
+    text-decoration: underline 2px;
+  }
+}

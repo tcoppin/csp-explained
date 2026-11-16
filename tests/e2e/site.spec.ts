@@ -1,5 +1,6 @@
 /** Every page: header, theme, links, metadata, our own CSP, phone widths and accessibility. */
-import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, POLICY, accessibilityProblems, COMPARE_EXAMPLE } from './helpers';
+import type { Page } from '@playwright/test';
+import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
   // About 150 pages: more than the default 30 seconds on CI's two-core runners.
@@ -181,41 +182,62 @@ test('the footer reports an issue about the page, never about a shared policy', 
   );
 });
 
+/**
+ * Every page in both languages, then the analysis and each of its views, the comparator's views and layouts, the
+ * builder's last step and the open menu: `check` runs on each, named by `where`.
+ */
+async function everyView(page: Page, check: (where: string) => Promise<void>) {
+  const pages = inEveryLanguage(['/', '/build', '/compare', '/find-my-csp', '/learn', '/directives', '/directives/script-src', '/nonces', '/reporting', '/trusted-types', '/vendors', '/vendors/hotjar', '/about']);
+  for (const path of pages) {
+    await page.goto(path);
+    await check(path);
+  }
+  await openAnalyzer(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {
+    await page.getByRole('tab', { name: new RegExp(tab.replace('?', '\\?')) }).click();
+    await check(`analysis ${tab}`);
+  }
+  await openComparator(page, COMPARE_EXAMPLE);
+  for (const tab of ['What changes', 'Both policies', 'Security', 'Your tools']) {
+    await page.getByRole('tab', { name: new RegExp(`^${tab}`) }).click();
+    await check(`comparison ${tab}`);
+  }
+  await page.getByRole('tab', { name: /^Both policies/ }).click();
+  const columns = page.getByRole('radio', { name: 'Side by side' });
+  if (await columns.isVisible()) {
+    await columns.click();
+    await check('comparison in columns');
+  }
+  await page.goto('/build#b=allowlist&v=hotjar:tracking&step=review');
+  await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
+  await check('builder review');
+  await page.getByRole('banner').getByRole('button', { name: 'Menu' }).click();
+  await check('menu');
+}
+
 test('pages pass the automated WCAG 2.2 AA checks, in both themes', async ({ page }) => {
   test.setTimeout(120_000);
   const problems: string[] = [];
-  const pages = inEveryLanguage(['/', '/build', '/compare', '/find-my-csp', '/learn', '/directives', '/directives/script-src', '/nonces', '/reporting', '/trusted-types', '/vendors', '/vendors/hotjar', '/about']);
   for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme });
-    for (const path of pages) {
-      await page.goto(path);
-      problems.push(...(await accessibilityProblems(page, `${theme} ${path}`)));
-    }
-
-    // The analysis, each view, the builder's last step and the open menu.
-    await openAnalyzer(page);
-    await page.getByRole('button', { name: 'Try an example' }).click();
-    for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {
-      await page.getByRole('tab', { name: new RegExp(tab.replace('?', '\\?')) }).click();
-      problems.push(...(await accessibilityProblems(page, `${theme} analysis ${tab}`)));
-    }
-    // Each view of the comparator, and both layouts of the two policies.
-    await openComparator(page, COMPARE_EXAMPLE);
-    for (const tab of ['What changes', 'Both policies', 'Security', 'Your tools']) {
-      await page.getByRole('tab', { name: new RegExp(`^${tab}`) }).click();
-      problems.push(...(await accessibilityProblems(page, `${theme} comparison ${tab}`)));
-    }
-    await page.getByRole('tab', { name: /^Both policies/ }).click();
-    const columns = page.getByRole('radio', { name: 'Side by side' });
-    if (await columns.isVisible()) {
-      await columns.click();
-      problems.push(...(await accessibilityProblems(page, `${theme} comparison in columns`)));
-    }
-    await page.goto('/build#b=allowlist&v=hotjar:tracking&step=review');
-    await page.locator('astro-island:not([ssr])').first().waitFor({ state: 'attached' });
-    problems.push(...(await accessibilityProblems(page, `${theme} builder review`)));
-    await page.getByRole('banner').getByRole('button', { name: 'Menu' }).click();
-    problems.push(...(await accessibilityProblems(page, `${theme} menu`)));
+    await everyView(page, async (where) => {
+      problems.push(...(await accessibilityProblems(page, `${theme} ${where}`)));
+    });
   }
   expect(problems).toEqual([]);
+});
+
+test('in high-contrast mode, every chosen tab, option, page and part still shows', async ({ page }) => {
+  test.setTimeout(120_000);
+  // Windows high-contrast replaces our colours with the system's: a state shown only by colour disappears.
+  const hidden: string[] = [];
+  for (const theme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ forcedColors: 'active', colorScheme: theme, reducedMotion: 'reduce' });
+    const seen = new Set<string>();
+    await everyView(page, async (where) => {
+      hidden.push(...(await invisibleStates(page, `${theme} ${where}`, seen)));
+    });
+  }
+  expect(hidden).toEqual([]);
 });

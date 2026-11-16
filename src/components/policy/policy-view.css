@@ -74,7 +74,7 @@
 button.tok:hover {
   outline: 2px solid var(--ink-soft);
 }
-.tok.selected {
+.tok[aria-pressed='true'] {
   outline: 3px solid var(--ink);
   outline-offset: 1px;
 }
@@ -118,5 +118,16 @@ button.tok:hover {
     position: sticky;
     /* Below the site header, which stays at the top */
     top: 4.75rem;
+  }
+}
+
+/* High-contrast mode drops our colours: highlighted values keep a highlight, in the system's own (Mark), so the
+   builder's "added" values still stand out. */
+@media (forced-colors: active) {
+  .tok:is(.hl-keyword, .hl-host, .hl-scheme, .hl-nonce, .hl-unsafe, .hl-invalid) {
+    /* System colours already: no plate in the page's colour behind the text */
+    forced-color-adjust: none;
+    background: Mark;
+    color: MarkText;
   }
 }
