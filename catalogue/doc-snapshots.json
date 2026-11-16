@@ -303,9 +303,7 @@
   ],
   "https://developers.piano.io/analytics/data-collection/sdks/javascript/": [
     "'unsafe-inline'",
-    "collect.example.com",
     "connect-src",
-    "https://collect.example.com",
     "https://tag.aticdn.net",
     "https://xxxxxxx.pa-cd.com",
     "mysite.com",

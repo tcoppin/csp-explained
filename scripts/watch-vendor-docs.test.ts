@@ -15,4 +15,10 @@ describe('extractTokens', () => {
       'wss://ws.vendor.com',
     ]);
   });
+
+  it('ignores the placeholder domains reserved for documentation', () => {
+    const html = `<p>img-src https://www.example.com, sgtm.example.com, cdn.example.org, tag.shop.example
+      and https://examples.vendor.com, notexample.com</p>`;
+    expect(extractTokens(html)).toEqual(['https://examples.vendor.com', 'img-src', 'notexample.com']);
+  });
 });

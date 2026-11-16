@@ -21,6 +21,8 @@ type Snapshots = Record<string, string[]>;
 const DIRECTIVE = /\b[a-z]+-src(?:-elem|-attr)?\b|\b(?:frame-ancestors|form-action|base-uri|upgrade-insecure-requests)\b/g;
 const KEYWORD = /'(?:self|none|unsafe-inline|unsafe-eval|strict-dynamic|unsafe-hashes|wasm-unsafe-eval)'/g;
 const HOST = /(?<![\w.*/-])(?:(?:https?|wss?):\/\/)?(?:\*\.)?(?:[a-z0-9-]+\.)+[a-z]{2,}\b/gi;
+/** Domains reserved for documentation (RFC 2606): vendors use them as placeholders for your own site. */
+const PLACEHOLDER = /(?:^|[/.])example(?:\.(?:com|net|org))?$/;
 
 export function extractTokens(html: string): string[] {
   const text = html
@@ -31,7 +33,7 @@ export function extractTokens(html: string): string[] {
     .replace(/&amp;/g, '&');
   const tokens = new Set<string>();
   for (const re of [DIRECTIVE, KEYWORD, HOST]) for (const m of text.matchAll(re)) tokens.add(m[0].toLowerCase());
-  return [...tokens].sort();
+  return [...tokens].filter((t) => !PLACEHOLDER.test(t)).sort();
 }
 
 async function fetchTokens(url: string): Promise<string[] | Error> {
