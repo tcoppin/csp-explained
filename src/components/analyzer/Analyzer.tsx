@@ -34,6 +34,9 @@ const AUDIENCES: Audience[] = ['simple', 'developer', 'security'];
 /** Phone-sized screens, as in analyzer.css. */
 const NARROW = '(max-width: 40rem)';
 
+/** Smooth scrolling, unless the visitor asked their system for less motion. */
+const motion = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+
 /** Small segmented control to pick between several policies (header + meta, comma-separated…). */
 function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value: number; onChange: (i: number) => void }) {
   const t = useT();
@@ -198,8 +201,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     setSheetOpen(false);
     const toolbar = document.querySelector('.workspace');
     if (toolbar && toolbar.getBoundingClientRect().top < 0) {
-      const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-      toolbar.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+      toolbar.scrollIntoView({ behavior: motion(), block: 'start' });
     }
   };
 
@@ -214,6 +216,13 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     setHashesOpen(true);
     goTo('read');
     setSheetOpen(true);
+  };
+
+  /** The status under the views takes keyboard and screen reader users to the list too, not only the eyes. */
+  const toThingsToCheck = () => {
+    const heading = document.getElementById('things-to-check');
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ behavior: motion() });
   };
 
   /** From "Things to check": the security review, without changing the reader the visitor chose for next time. */
@@ -276,7 +285,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     document.addEventListener('keydown', onKey);
     // Keep the tapped part in sight, above the sheet.
     const tok = document.querySelector('.policy .tok.selected');
-    if (tok && matchMedia(NARROW).matches) window.scrollBy({ top: tok.getBoundingClientRect().top - innerHeight * 0.25, behavior: 'smooth' });
+    if (tok && matchMedia(NARROW).matches) window.scrollBy({ top: tok.getBoundingClientRect().top - innerHeight * 0.25, behavior: motion() });
     return () => document.removeEventListener('keydown', onKey);
   }, [sheetOpen, selection]);
 
@@ -378,7 +387,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
             {current && (
               <p class="view-status">
                 {view === 'read' ? (
-                  <button type="button" class={`count count-${current.tone}`} onClick={() => document.getElementById('things-to-check')?.scrollIntoView({ behavior: 'smooth' })}>
+                  <button type="button" class={`count count-${current.tone}`} onClick={toThingsToCheck}>
                     {current.text}
                   </button>
                 ) : (
@@ -423,7 +432,9 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                 </p>
                 {toCheck > 0 && (
                   <div class="issues">
-                    <h2 id="things-to-check">{t('issues.title')}</h2>
+                    <h2 id="things-to-check" tabIndex={-1}>
+                      {t('issues.title')}
+                    </h2>
                     {issues.length > 0 && (
                       <ul class="issue-list">
                         {issues.map((i, n) => (

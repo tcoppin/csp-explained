@@ -262,6 +262,18 @@ test('a screen reader hears one line naming what is explained, not the whole exp
   await expect(page.locator('.explanation h3')).toHaveText('Images');
 });
 
+test('on phones, the status under the views takes the focus to the things to check, without motion if asked', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'The status under the views is shown on phones only.');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' 'unsafe-inline'; object-src 'none'");
+  await page.locator('.view-status').getByRole('button', { name: '1 to check' }).click();
+  const heading = page.getByRole('heading', { name: 'Things to check' });
+  await expect(heading).toBeFocused();
+  // No smooth scrolling: the heading is in sight straight away.
+  expect(await heading.evaluate((h) => h.getBoundingClientRect().top >= 0 && h.getBoundingClientRect().bottom <= innerHeight)).toBe(true);
+});
+
 test('serious weaknesses are things to check for everyone, in plain words', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' 'unsafe-inline'; object-src 'none'");
