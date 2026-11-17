@@ -136,6 +136,12 @@ describe('parse', () => {
     }
   });
 
+  it('recognises a Trusted Types message pasted with the code that caused it, instead of reading the code as a policy', () => {
+    const result = parse(`s.src = "https://cdn.vendor.example/tag.js";\nVM309:2 This document requires 'TrustedScriptURL' assignment. The action has been blocked.`);
+    expect(result.policies).toEqual([]);
+    expect(result.issues.map((i) => i.code)).toContain('violation-message');
+  });
+
   it("recognises the find-my-csp snippet's answer when a page has no policy", () => {
     expect(FIND_CSP_SNIPPET).toContain("'No Content-Security-Policy found on '");
     const result = parse('No Content-Security-Policy found on https://www.example.com/');

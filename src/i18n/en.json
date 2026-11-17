@@ -809,7 +809,7 @@
   "violations": {
     "lead": "This is a message from the browser console, not a policy. What it means is below.",
     "title": { "one": "What the message says", "other": "What the {count} messages say" },
-    "intro": "Each fix allows what one message names, nothing more. A tool often needs other things too: to check everything, [find your policy](/find-my-csp), paste it here and pick your tools.",
+    "nextStep": "To check everything your tools need, not only what was blocked here, paste your whole policy instead and pick your tools ([where to find it](/find-my-csp)).",
     "announce": { "one": "1 message explained.", "other": "{count} messages explained." },
     "what": {
       "script": "A script from {host}",
@@ -824,13 +824,18 @@
       "worker": "A worker from {host}",
       "form": "A form sent to {host}",
       "base": "A base address on {host}",
-      "inline-script": "A script written in the page",
-      "inline-style": "Styles written in the page",
+      "inline-script": { "one": "A script written in the page", "other": "{count} scripts written in the page" },
+      "inline-style": { "one": "Styles written in the page", "other": "{count} style blocks written in the page" },
       "style-attr": "A `style` attribute",
       "inline-handler": "An event handler written in the page (`onclick`, `onload`…)",
       "eval": "Code built from text (`eval`)",
       "extension": "A browser extension",
-      "ancestors": "{host} refused to be shown in a frame"
+      "ancestors": "{host} refused to be shown in a frame",
+      "trusted": {
+        "TrustedHTML": "HTML written into the page as plain text",
+        "TrustedScript": "Code passed as plain text",
+        "TrustedScriptURL": "A script address set as plain text"
+      }
     },
     "blocked": "Blocked by `{directive}`.",
     "reported": "Not blocked: your report-only policy reported it under `{directive}`.",
@@ -838,8 +843,6 @@
     "seen": "Seen {count} times.",
     "tool": "This address is used by [{vendor}](/vendors/{id}): {features}.",
     "noTool": "No tool in the catalogue uses this address. Check what it is before allowing it: part of your site, a tool the catalogue doesn't have yet, or code a browser extension added to the page.",
-    "fixLine": "Replace your {directive} rule with",
-    "fixCreated": "Add this rule to your policy",
     "createdNote": "Your policy has no `{directive}` yet, so the browser used `default-src`. This new rule starts with the values of `default-src`, so nothing else changes.",
     "fixAdd": "Add `{add}` to your `{directive}` rule.",
     "fixAddCreated": "Add a `{directive}` rule to your policy: the values of your `default-src`, then `{add}`.",
@@ -853,6 +856,23 @@
     "styleAttr": "A `style-src-attr` rule allows style attributes on their own: style blocks and scripts stay protected, and a style attribute can't run code. Or move these styles into your stylesheet.",
     "handler": "Your policy can't allow this safely: `'unsafe-inline'` would let any script slipped into the page run too. Move the code into a script and attach it with `addEventListener`.",
     "extension": "`{host}` is a browser extension installed where this message appeared, not part of your site. Nothing to change in your policy.",
-    "ancestors": "The page at {host} doesn't allow other sites to show it in a frame (its `frame-ancestors` rule). Only its owner can change that: your policy has nothing to do with it."
+    "ancestors": "The page at {host} doesn't allow other sites to show it in a frame (its `frame-ancestors` rule). Only its owner can change that: your policy has nothing to do with it.",
+    "lines": {
+      "title": "What to change in your policy",
+      "intro": "Copy them all: each one replaces the rule of the same name in your policy. Together they allow what these messages say was blocked, and nothing else.",
+      "replace": "Replace your {directive} rule with",
+      "add": "Add this rule to your policy",
+      "replaceReportOnly": "In your report-only policy, replace your {directive} rule with",
+      "addReportOnly": "Add this rule to your report-only policy"
+    },
+    "inLines": { "one": "The `{directive}` line above allows it.", "other": "The `{directive}` line above allows them." },
+    "ttWhat": {
+      "TrustedHTML": "HTML",
+      "TrustedScript": "code",
+      "TrustedScriptURL": "a script address"
+    },
+    "tt": "Your policy requires Trusted Types (`require-trusted-types-for`): code can't hand the browser {what} as plain text, only through a Trusted Types policy that checks it first. The code that did this, your own or a tool's, has to use one. There is nothing to add to your policy for it: [how Trusted Types work](/trusted-types).",
+    "ttSink": "Where it happened: `{sink}`.",
+    "ttTool": "The text you pasted has an address used by [{vendor}](/vendors/{id}). If its code is the one blocked, ask {vendor} whether it supports Trusted Types."
   }
 }

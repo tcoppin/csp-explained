@@ -239,10 +239,12 @@ Interface:
 
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole
       console works) in the analyzer. Each one says what was blocked (or only reported), the rule that did it, the
-      catalogue tool behind the address, and the line to use: the quoted rule with the tool's documented value,
-      or a new rule when `default-src` applied. Inline code gets the hash the browser gave (or the hash generator,
-      for Safari), style attributes their own rule, `eval` its cost; extensions and frames refused by another site
-      are set apart. Chrome's and WebKit's wordings come from the browsers themselves; Firefox's from its message
+      catalogue tool behind the address, and which line allows it. The lines come first, one per rule, with
+      everything the messages need (the tool's documented value, the hashes the browser gave), so copying one never
+      drops another; a new rule when `default-src` applied. Inline blocks of one kind are read together, Safari's
+      get the hash generator, style attributes their own rule, `eval` its cost. Trusted Types messages say what the
+      code has to change, with the tool behind an address pasted with them; extensions and frames refused by
+      another site are set apart. Chrome's and WebKit's wordings come from the browsers themselves; Firefox's from its message
       templates (Playwright's Firefox wouldn't start on macOS 27 that day): check one by hand when you can.
 - [x] **Who is this domain?** (2026-11-17): the Tools page's search takes an address as well as a name (a host,
       a full address, or a value copied from a console message). It shows the tools that use it and the lines that

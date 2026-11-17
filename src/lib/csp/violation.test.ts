@@ -142,6 +142,24 @@ describe('parseViolations', () => {
     ]);
   });
 
+  it('reads Trusted Types messages, with where the code tried to put plain text when Chrome says so', () => {
+    const chrome = parseViolations(
+      "This document requires 'TrustedHTML' assignment. The action has been blocked.\nUncaught TypeError: Failed to set the 'innerHTML' property on 'Element': This document requires 'TrustedHTML' assignment.\n" +
+        "This document requires 'TrustedScript' assignment. The policy is report-only, so the violation has been logged but no further action has been taken.",
+    );
+    expect(chrome.map((v) => [v.kind, v.trustedType, v.sink, v.reportOnly])).toEqual([
+      ['trusted-types', 'TrustedHTML', 'Element.innerHTML', false],
+      ['trusted-types', 'TrustedScript', undefined, true],
+    ]);
+    // WebKit names the rule.
+    expect(one(`[Report Only] This requires a TrustedScriptURL value else it violates the following Content Security Policy directive: "require-trusted-types-for 'script'"`)).toMatchObject({
+      kind: 'trusted-types',
+      trustedType: 'TrustedScriptURL',
+      directive: 'require-trusted-types-for',
+      reportOnly: true,
+    });
+  });
+
   it('reads a message the console wrapped onto several lines', () => {
     expect(one(CHROME.script.replace(' violates the following ', ' violates the following\n'))).toMatchObject({ directive: 'script-src', url: 'https://cdn.us.heap-api.com/js/heap.js' });
   });

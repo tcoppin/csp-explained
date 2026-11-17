@@ -20,7 +20,7 @@ const HEADER_LINE = /^\s*(content-security-policy(?:-report-only)?)\s*:\s*(.*)$/
 const META_TAG = /<meta\b[^>]*>/gi;
 // Console messages for a blocked resource (Chrome, Firefox, Safari). They name one rule, not the policy.
 const VIOLATION =
-  /violates\s+the\s+following\s+(?:report-only\s+)?(?:content\s+security\s+policy\s+)?directive|directive\s+of\s+the\s+content\s+security\s+policy|content[- ]security[- ]policy:\s+the\s+page.s\s+settings\s+(?:blocked|observed)/i;
+  /violates\s+the\s+following\s+(?:report-only\s+)?(?:content\s+security\s+policy\s+)?directive|directive\s+of\s+the\s+content\s+security\s+policy|content[- ]security[- ]policy:\s+the\s+page.s\s+settings\s+(?:blocked|observed)|requires\s+(?:'Trusted(?:HTML|Script|ScriptURL)'\s+assignment|a\s+Trusted(?:HTML|Script|ScriptURL)\s+value)/i;
 // What the Find my CSP console snippet copies when the page has no policy.
 const NO_POLICY = /^\s*No Content-Security-Policy found\b/i;
 const VIOLATED_DIRECTIVE = /directive:?\s*["“]([a-z-]+)|in\s+the\s+([a-z-]+)\s+directive|\(“?([a-z-]+)”?\)/i;

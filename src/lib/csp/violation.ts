@@ -9,7 +9,10 @@ import type { ResourceType } from './directives';
  * message templates (`csp.properties`). Older Chrome wordings ("Refused to load the script …") are read too.
  */
 
-export type BlockedKind = 'url' | 'inline-script' | 'inline-style' | 'style-attr' | 'inline-handler' | 'eval';
+export type BlockedKind = 'url' | 'inline-script' | 'inline-style' | 'style-attr' | 'inline-handler' | 'eval' | 'trusted-types';
+
+/** What a page with `require-trusted-types-for 'script'` refused to take as plain text. */
+export type TrustedType = 'TrustedHTML' | 'TrustedScript' | 'TrustedScriptURL';
 
 export interface Violation {
   /** The message, as pasted (on one line). */
@@ -27,6 +30,10 @@ export interface Violation {
   effective?: string;
   /** The hash Chrome and Firefox compute for a blocked inline script or style. */
   hash?: string;
+  /** For `kind: 'trusted-types'`: what the page asked for. */
+  trustedType?: TrustedType;
+  /** Where the code tried to put it, when Chrome's error that follows says so: `HTMLScriptElement.src`. */
+  sink?: string;
   /** Report-only: nothing was blocked, the browser only reports it. */
   reportOnly: boolean;
   /** The same message pasted several times (browsers repeat them): counted once. */
@@ -38,6 +45,10 @@ const START = new RegExp(
   [
     String.raw`(?:\[Report Only\]\s*)?(?:(?:Uncaught\s+)?EvalError:\s*)?Refused to\b`,
     String.raw`Content[- ]Security[- ]Policy:\s+The page`,
+    // Trusted Types: "This document requires 'TrustedHTML' assignment." (Chrome), "This requires a TrustedHTML
+    // value else it violates…" (WebKit).
+    // Not when Chrome's TypeError repeats it ("…'HTMLScriptElement': This document requires…"): that is the same one.
+    String.raw`(?<!:\s)(?:\[Report Only\]\s*)?This (?:document )?requires (?:a |')Trusted`,
     // Chrome's current wording: the verb comes first, the address (with its dots) before "violates".
     String.raw`\b(?:Loading|Connecting to|Framing|Executing|Applying|Evaluating|Compiling|Creating|Sending|Setting|Navigating to|Running)\b(?=.{0,400}?\bviolates the following)`,
     // Noise Chrome and Safari print around violations: starts of messages we then drop.
@@ -59,6 +70,10 @@ const FALLBACK_NOTE = /Note (?:also )?that '([a-z-]+)' was not explicitly set, s
 const HASH = /'(sha(?:256|384|512)-[A-Za-z0-9+/_-]{20,}={0,2})'/;
 const QUOTED_URL = /['‘"“]((?:[a-z][a-z0-9+.-]*:\/\/|blob:|data:)[^'’"”\s]*)['’"”]/i;
 const BARE_URL = /\b(?:at|load|to|from)\s+((?:https?|wss?|ftp|blob|data|[a-z-]+-extension):[^\s'"“”]+)/i;
+const TRUSTED = /requires (?:a |')(Trusted(?:HTML|ScriptURL|Script))'?(?: value| assignment)/;
+// Chrome's TypeError after the message: "Failed to set the 'src' property on 'HTMLScriptElement'", or
+// "Failed to execute 'setTimeout' on 'Window'".
+const SINK = /Failed to (?:set the '([\w$]+)' property|execute '([\w$]+)') on '([\w$]+)'/;
 const REPORT_ONLY = /\[Report Only\]|report-only|\bobserved (?:the|an?)\b|A CSP report is being sent/i;
 
 const DIRECTIVE_TYPE: Record<string, ResourceType> = {
@@ -104,7 +119,7 @@ export function parseViolations(input: string): Violation[] {
   starts.forEach((start, i) => {
     const v = readOne(text.slice(start, starts[i + 1]).trim());
     if (!v) return;
-    const key = `${v.kind}|${v.url ?? ''}|${v.directive ?? ''}|${v.value ?? ''}|${v.hash ?? ''}|${v.reportOnly}`;
+    const key = `${v.kind}|${v.url ?? ''}|${v.directive ?? ''}|${v.value ?? ''}|${v.hash ?? ''}|${v.trustedType ?? ''}|${v.sink ?? ''}|${v.reportOnly}`;
     const same = found.get(key);
     if (same) same.count++;
     else found.set(key, v);
@@ -113,6 +128,20 @@ export function parseViolations(input: string): Violation[] {
 }
 
 function readOne(text: string): Violation | undefined {
+  const trusted = TRUSTED.exec(text);
+  if (trusted) {
+    const sink = SINK.exec(text);
+    return {
+      text,
+      kind: 'trusted-types',
+      type: 'script',
+      directive: 'require-trusted-types-for',
+      trustedType: trusted[1] as TrustedType,
+      ...(sink ? { sink: `${sink[3]}.${sink[1] ?? sink[2]}` } : {}),
+      reportOnly: REPORT_ONLY.test(text),
+      count: 1,
+    };
+  }
   if (!/violates|does not appear in|appears in neither|settings (?:blocked|observed)/i.test(text)) return undefined;
 
   const quoted = QUOTED_VALUE.exec(text) ?? SINGLE_QUOTED_VALUE.exec(text);
@@ -148,7 +177,7 @@ function readOne(text: string): Violation | undefined {
   };
 }
 
-function kindOf(rest: string): BlockedKind {
+function kindOf(rest: string): Exclude<BlockedKind, 'trusted-types'> {
   // Not "event handlers" alone: Chrome's note about hashes mentions them for any inline code.
   if (/inline event handler|\ban event handler\b/i.test(rest)) return 'inline-handler';
   if (/evaluat\w* a string as JavaScript|JavaScript eval|WebAssembly|'unsafe-eval' is not an allowed source/i.test(rest)) return 'eval';

@@ -103,22 +103,36 @@ test('a pasted console is explained message by message, with the tool behind eac
   await expect(page.getByRole('heading', { name: 'Other ways to start' })).toHaveCount(0);
   const item = (name: string) => page.locator('.violation', { has: page.getByRole('heading', { name, exact: true }) });
 
-  // A tool's address: the tool, and the rule the browser quoted with the address added.
+  // One line per rule first, with everything the messages under it need: copying one never drops another.
+  const lines = page.locator('.violation-lines');
+  await expect(lines.getByRole('heading', { name: 'What to change in your policy' })).toBeVisible();
+  await expect(lines.locator('figcaption > span')).toHaveText([
+    'Replace your script-src rule with',
+    'Add this rule to your policy',
+    'In your report-only policy, replace your script-src rule with',
+  ]);
+  await expect(lines.locator('pre')).toHaveText([
+    "script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='",
+    "connect-src 'self' https://*.google-analytics.com",
+    "script-src 'self' 'nonce-n0nce' 'unsafe-eval'",
+  ]);
+  await lines.getByRole('button', { name: 'Copy this' }).first().click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='",
+  );
+  await expect(lines).toContainText('Your policy has no connect-src yet, so the browser used default-src.');
+
+  // A tool's address: the tool, and the line that allows it.
   const heap = item('A script from cdn.us.heap-api.com');
   await expect(heap.locator('.violation-status')).toHaveText('Blocked by script-src.');
   await expect(heap.getByRole('link', { name: 'Contentsquare' })).toHaveAttribute('href', '/vendors/contentsquare');
-  await expect(heap.locator('.code-block')).toContainText('Replace your script-src rule with');
-  await heap.getByRole('button', { name: 'Copy this' }).click();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com");
+  await expect(heap).toContainText('The script-src line above allows it.');
 
-  // Blocked by default-src: a new rule, with the tool's documented wildcard; repeats counted once.
-  const ga = item('A connection to region1.google-analytics.com');
-  await expect(ga.locator('.violation-status')).toHaveText('Blocked by default-src. Seen 2 times.');
-  await expect(ga.locator('.code-block')).toContainText('Add this rule to your policy');
-  await expect(ga.locator('pre')).toHaveText("connect-src 'self' https://*.google-analytics.com");
+  // Blocked by default-src, repeats counted once.
+  await expect(item('A connection to region1.google-analytics.com').locator('.violation-status')).toHaveText('Blocked by default-src. Seen 2 times.');
 
   // Inline code with the hash the browser gave; eval only reported, with its cost; an extension set apart.
-  await expect(item('A script written in the page').first().locator('pre')).toHaveText("script-src 'self' 'nonce-n0nce' 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='");
+  await expect(item('A script written in the page').first()).toContainText('The script-src line above allows it.');
   const evalItem = item('Code built from text (eval)');
   await expect(evalItem.locator('.violation-status')).toHaveText('Not blocked: your report-only policy reported it under script-src.');
   await expect(evalItem.locator('.violation-risk')).toContainText("'unsafe-eval' lets the page run code built from text");
@@ -137,6 +151,28 @@ test('a pasted console is explained message by message, with the tool behind eac
   expect(errors).toEqual([]);
 });
 
+test('a Trusted Types message is explained without being read as a policy, with the tool behind the code pasted with it', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(
+    [
+      "const s = document.createElement('script');",
+      's.src = "https://try.abtasty.com/0123abcd.js";',
+      'document.head.appendChild(s);',
+      "VM309:2 This document requires 'TrustedScriptURL' assignment. The action has been blocked.",
+      "VM309:2 Uncaught TypeError: Failed to set the 'src' property on 'HTMLScriptElement': This document requires 'TrustedScriptURL' assignment.",
+      '    at <anonymous>:2:7',
+    ].join('\n'),
+  );
+  await expect(page.locator('.policy')).toHaveCount(0);
+  const tt = page.locator('.violation', { has: page.getByRole('heading', { name: 'A script address set as plain text' }) });
+  await expect(tt.locator('.violation-status')).toHaveText('Blocked by require-trusted-types-for.');
+  await expect(tt).toContainText('There is nothing to add to your policy for it');
+  await expect(tt).toContainText('Where it happened: HTMLScriptElement.src.');
+  await expect(tt.getByRole('link', { name: 'AB Tasty' })).toHaveAttribute('href', '/vendors/ab-tasty');
+  await expect(tt.getByRole('link', { name: 'how Trusted Types work' })).toHaveAttribute('href', '/trusted-types');
+  await expect(page.locator('.violation-lines')).toHaveCount(0);
+});
+
 test('a console message cut short still gets the one-line answer', async ({ page }) => {
   await openAnalyzer(page);
   await page
@@ -152,7 +188,8 @@ test('console messages are explained in French on French pages', async ({ page }
   const heap = page.locator('.violation', { has: page.getByRole('heading', { name: 'Un script de cdn.us.heap-api.com' }) });
   await expect(heap.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(heap.getByRole('link', { name: 'Contentsquare' })).toHaveAttribute('href', '/fr/vendors/contentsquare');
-  await expect(heap.locator('.code-block')).toContainText('Remplacez votre règle script-src par');
+  await expect(heap).toContainText("La ligne script-src ci-dessus l'autorise.");
+  await expect(page.locator('.violation-lines figcaption > span').first()).toHaveText('Remplacez votre règle script-src par');
 });
 
 test('a screen reader hears how many messages were explained, and what each one blocked and why', async ({ page }) => {

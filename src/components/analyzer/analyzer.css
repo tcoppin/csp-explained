@@ -138,12 +138,22 @@
 }
 .violations h2 {
   font-size: var(--step-1);
+  margin-bottom: 1.25rem;
+}
+/* The lines that allow everything at once, before the messages they come from */
+.violation-lines {
+  margin-bottom: 2.5rem;
+}
+.violation-lines h3 {
+  margin: 0 0 0.35rem;
+}
+.violation-lines .code-block {
+  margin-block: 0.75rem;
 }
 .violation-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: 48rem;
 }
 .violation {
   border-left: 4px solid var(--rule);

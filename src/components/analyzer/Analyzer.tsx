@@ -135,7 +135,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const policy = parsed.policies[currentIndex];
   // Console messages pasted in place of a policy: explained one by one.
   const violations = useMemo(
-    () => (!hasPolicy && parsed.issues.some((i) => i.code === 'violation-message') ? explainViolations(input, content.vendors) : []),
+    () => (!hasPolicy && parsed.issues.some((i) => i.code === 'violation-message') ? explainViolations(input, content.vendors) : { items: [], lines: [] }),
     [hasPolicy, parsed, input, content.vendors],
   );
 
@@ -159,7 +159,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
 
   // Count one explained console message per page load, the same way (never the message itself).
   useEffect(() => {
-    if (countedError.current || !typed.current || violations.length === 0) return;
+    if (countedError.current || !typed.current || violations.items.length === 0) return;
     const timer = setTimeout(() => {
       countedError.current = true;
       track('explain-error');
@@ -336,7 +336,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
               input={input}
               parsed={parsed}
               hasPolicy={hasPolicy}
-              explained={violations.length > 0}
+              explained={violations.items.length > 0}
               site={site}
               onType={(text, collapse) => {
                 typed.current = true;
@@ -384,9 +384,9 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
 
         {/* Always in the page, so the explanation is announced as it appears. */}
         <p class="visually-hidden" role="status">
-          {violations.length > 0 && t('violations.announce', { count: violations.length })}
+          {violations.items.length > 0 && t('violations.announce', { count: violations.items.length })}
         </p>
-        {showEditor && !hasPolicy && (violations.length > 0 ? <ViolationList items={violations} /> : <OtherStarts />)}
+        {showEditor && !hasPolicy && (violations.items.length > 0 ? <ViolationList explained={violations} /> : <OtherStarts />)}
 
         {hasPolicy && policy && (
           <section class="workspace" aria-label={t('views.label')}>

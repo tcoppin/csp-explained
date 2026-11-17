@@ -13,7 +13,9 @@ export function Rich({ msg, vars, t }: { msg: string; vars?: Vars; t?: Translate
   const tr = useT(t);
   return (
     <>
-      {parseRich(tr(msg), vars).map((node, i) => {
+      {/* The count picks a plural form; the other variables are filled in after the markup is read, so text in them
+          (an address, a name) never becomes markup. */}
+      {parseRich(tr(msg, vars?.count !== undefined ? { count: vars.count } : undefined), vars).map((node, i) => {
         switch (node.type) {
           case 'text':
             return <Fragment key={i}>{node.text}</Fragment>;

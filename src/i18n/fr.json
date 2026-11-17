@@ -809,7 +809,7 @@
   "violations": {
     "lead": "C'est un message de la console du navigateur, pas une politique. Voici ce qu'il veut dire.",
     "title": { "one": "Ce que dit le message", "other": "Ce que disent les {count} messages" },
-    "intro": "Chaque correction autorise ce que nomme un message, rien de plus. Un outil a souvent besoin d'autres choses : pour tout vérifier, [trouvez votre politique](/find-my-csp), collez-la ici et choisissez vos outils.",
+    "nextStep": "Pour vérifier tout ce dont vos outils ont besoin, pas seulement ce qui a été bloqué ici, collez plutôt votre politique complète et choisissez vos outils ([où la trouver](/find-my-csp)).",
     "announce": { "one": "1 message expliqué.", "other": "{count} messages expliqués." },
     "what": {
       "script": "Un script de {host}",
@@ -824,13 +824,18 @@
       "worker": "Un worker de {host}",
       "form": "Un formulaire envoyé à {host}",
       "base": "Une adresse de base sur {host}",
-      "inline-script": "Un script écrit dans la page",
-      "inline-style": "Des styles écrits dans la page",
+      "inline-script": { "one": "Un script écrit dans la page", "other": "{count} scripts écrits dans la page" },
+      "inline-style": { "one": "Des styles écrits dans la page", "other": "{count} blocs de style écrits dans la page" },
       "style-attr": "Un attribut `style`",
       "inline-handler": "Un gestionnaire d'événement écrit dans la page (`onclick`, `onload`…)",
       "eval": "Du code construit à partir de texte (`eval`)",
       "extension": "Une extension du navigateur",
-      "ancestors": "{host} a refusé d'être affichée dans un cadre"
+      "ancestors": "{host} a refusé d'être affichée dans un cadre",
+      "trusted": {
+        "TrustedHTML": "Du HTML écrit dans la page en texte brut",
+        "TrustedScript": "Du code passé en texte brut",
+        "TrustedScriptURL": "Une adresse de script donnée en texte brut"
+      }
     },
     "blocked": "Bloqué par `{directive}`.",
     "reported": "Pas bloqué : votre politique en mode rapport seul l'a signalé au titre de `{directive}`.",
@@ -838,8 +843,6 @@
     "seen": "Vu {count} fois.",
     "tool": "Cette adresse est utilisée par [{vendor}](/vendors/{id}) : {features}.",
     "noTool": "Aucun outil du catalogue n'utilise cette adresse. Vérifiez ce que c'est avant de l'autoriser : une partie de votre site, un outil que le catalogue n'a pas encore, ou du code ajouté à la page par une extension du navigateur.",
-    "fixLine": "Remplacez votre règle {directive} par",
-    "fixCreated": "Ajoutez cette règle à votre politique",
     "createdNote": "Votre politique n'a pas encore de `{directive}`, le navigateur a donc utilisé `default-src`. Cette nouvelle règle reprend les valeurs de `default-src` : rien d'autre ne change.",
     "fixAdd": "Ajoutez `{add}` à votre règle `{directive}`.",
     "fixAddCreated": "Ajoutez une règle `{directive}` à votre politique : les valeurs de votre `default-src`, puis `{add}`.",
@@ -853,6 +856,23 @@
     "styleAttr": "Une règle `style-src-attr` autorise les attributs de style seuls : les blocs de style et les scripts restent protégés, et un attribut de style ne peut pas exécuter de code. Ou déplacez ces styles dans votre feuille de style.",
     "handler": "Votre politique ne peut pas autoriser ceci sans risque : `'unsafe-inline'` laisserait aussi s'exécuter tout script glissé dans la page. Déplacez le code dans un script et attachez-le avec `addEventListener`.",
     "extension": "`{host}` est une extension installée dans le navigateur où ce message est apparu, pas une partie de votre site. Rien à changer dans votre politique.",
-    "ancestors": "La page {host} n'autorise pas d'autres sites à l'afficher dans un cadre (sa règle `frame-ancestors`). Seul son propriétaire peut changer cela : votre politique n'y est pour rien."
+    "ancestors": "La page {host} n'autorise pas d'autres sites à l'afficher dans un cadre (sa règle `frame-ancestors`). Seul son propriétaire peut changer cela : votre politique n'y est pour rien.",
+    "lines": {
+      "title": "Ce qu'il faut changer dans votre politique",
+      "intro": "Copiez-les toutes : chacune remplace la règle du même nom dans votre politique. Ensemble, elles autorisent ce que ces messages signalent comme bloqué, et rien d'autre.",
+      "replace": "Remplacez votre règle {directive} par",
+      "add": "Ajoutez cette règle à votre politique",
+      "replaceReportOnly": "Dans votre politique en mode rapport seul, remplacez votre règle {directive} par",
+      "addReportOnly": "Ajoutez cette règle à votre politique en mode rapport seul"
+    },
+    "inLines": { "one": "La ligne `{directive}` ci-dessus l'autorise.", "other": "La ligne `{directive}` ci-dessus les autorise." },
+    "ttWhat": {
+      "TrustedHTML": "du HTML",
+      "TrustedScript": "du code",
+      "TrustedScriptURL": "une adresse de script"
+    },
+    "tt": "Votre politique exige les Trusted Types (`require-trusted-types-for`) : le code ne peut pas confier {what} au navigateur en texte brut, seulement par une politique Trusted Types qui le vérifie d'abord. Le code qui a fait cela, le vôtre ou celui d'un outil, doit en utiliser une. Il n'y a rien à ajouter à votre politique pour cela : [comment fonctionnent les Trusted Types](/trusted-types).",
+    "ttSink": "Où : `{sink}`.",
+    "ttTool": "Le texte collé contient une adresse utilisée par [{vendor}](/vendors/{id}). Si c'est son code qui est bloqué, demandez à {vendor} s'il prend en charge les Trusted Types."
   }
 }
