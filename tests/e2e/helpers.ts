@@ -66,6 +66,19 @@ export async function policyAction(page: Page, role: 'button' | 'link', name: st
 /** Each path in English and in French (`/learn` → `/learn`, `/fr/learn`). */
 export const inEveryLanguage = (paths: string[]) => paths.flatMap((p) => [p, p === '/' ? '/fr' : `/fr${p}`]);
 
+/**
+ * A browser console copied whole: six policy messages from Chrome and Safari (a tool's script, a request repeated
+ * twice, inline code with its hash, eval in report-only, an extension, inline code without a hash). The inline
+ * script is `console.log('inline ran')`, whose hash Chrome gives in the fourth message.
+ */
+export const CONSOLE = `Loading the script 'https://cdn.us.heap-api.com/js/heap.js' violates the following Content Security Policy directive: "script-src 'self' 'nonce-n0nce'". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.
+Connecting to 'https://region1.google-analytics.com/g/collect?v=2' violates the following Content Security Policy directive: "default-src 'self'". Note that 'connect-src' was not explicitly set, so 'default-src' is used as a fallback. The action has been blocked.
+Connecting to 'https://region1.google-analytics.com/g/collect?v=2' violates the following Content Security Policy directive: "default-src 'self'". Note that 'connect-src' was not explicitly set, so 'default-src' is used as a fallback. The action has been blocked.
+Executing inline script violates the following Content Security Policy directive 'script-src 'self' 'nonce-n0nce''. Either the 'unsafe-inline' keyword, a hash ('sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.
+Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self' 'nonce-n0nce'". The policy is report-only, so the violation has been logged but no further action has been taken.
+Loading the script 'chrome-extension://abcdefghijklmnop/content.js' violates the following Content Security Policy directive: "script-src 'self'". The action has been blocked.
+Refused to execute a script because its hash, its nonce, or 'unsafe-inline' does not appear in the script-src directive of the Content Security Policy.`;
+
 export const POLICY = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' data:; object-src 'none'";
 
 /** Waits until the builder island is interactive. */

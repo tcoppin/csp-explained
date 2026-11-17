@@ -20,6 +20,7 @@ To know whether the site is useful, it counts visits and a few actions. That's a
 |---|---|---|
 | `visit` | A page is opened from outside the site | The page |
 | `analyze` | A policy pasted or typed by the visitor is analysed (once per page load; not the example) | None |
+| `explain-error` | Console messages pasted in place of a policy are explained (once per page load) | None |
 | `compare` | Two policies pasted or typed by the visitor are compared (once per page load; not the example) | None |
 | `example` | "Try an example" is clicked | None |
 | `shared` | A share link is opened | None |

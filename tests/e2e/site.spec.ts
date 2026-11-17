@@ -1,6 +1,6 @@
 /** Every page: header, theme, links, metadata, our own CSP, phone widths and accessibility. */
 import type { Page } from '@playwright/test';
-import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, CONSOLE, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
   // About 150 pages: more than the default 30 seconds on CI's two-core runners.
@@ -197,6 +197,11 @@ async function everyView(page: Page, check: (where: string) => Promise<void>) {
   await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('google.com');
   await page.locator('.near').waitFor();
   await check('catalogue searched by address');
+  // Console messages pasted in place of a policy, explained.
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(CONSOLE);
+  await page.locator('.violations').waitFor();
+  await check('analyzer explaining console messages');
   await openAnalyzer(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
   for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {

@@ -1,7 +1,7 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
 import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, POLICY, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, CONSOLE, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
   const errors = watchErrors(page);
@@ -93,13 +93,80 @@ test('counts usage without ever sending the policy', async ({ page, context, sen
   for (const q of sent()) expect(q).not.toMatch(/self|googletagmanager\.com|src/);
 });
 
-test('a pasted console error is explained, not analysed', async ({ page }) => {
+test('a pasted console is explained message by message, with the tool behind each address and the line to use', async ({ page, sent }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(CONSOLE);
+  await expect(page.locator('.issue')).toHaveText('This is a message from the browser console, not a policy. What it means is below.');
+  await expect(page.getByRole('heading', { name: 'What the 6 messages say' })).toBeVisible();
+  await expect(page.locator('.policy')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Other ways to start' })).toHaveCount(0);
+  const item = (name: string) => page.locator('.violation', { has: page.getByRole('heading', { name, exact: true }) });
+
+  // A tool's address: the tool, and the rule the browser quoted with the address added.
+  const heap = item('A script from cdn.us.heap-api.com');
+  await expect(heap.locator('.violation-status')).toHaveText('Blocked by script-src.');
+  await expect(heap.getByRole('link', { name: 'Contentsquare' })).toHaveAttribute('href', '/vendors/contentsquare');
+  await expect(heap.locator('.code-block')).toContainText('Replace your script-src rule with');
+  await heap.getByRole('button', { name: 'Copy this' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com");
+
+  // Blocked by default-src: a new rule, with the tool's documented wildcard; repeats counted once.
+  const ga = item('A connection to region1.google-analytics.com');
+  await expect(ga.locator('.violation-status')).toHaveText('Blocked by default-src. Seen 2 times.');
+  await expect(ga.locator('.code-block')).toContainText('Add this rule to your policy');
+  await expect(ga.locator('pre')).toHaveText("connect-src 'self' https://*.google-analytics.com");
+
+  // Inline code with the hash the browser gave; eval only reported, with its cost; an extension set apart.
+  await expect(item('A script written in the page').first().locator('pre')).toHaveText("script-src 'self' 'nonce-n0nce' 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='");
+  const evalItem = item('Code built from text (eval)');
+  await expect(evalItem.locator('.violation-status')).toHaveText('Not blocked: your report-only policy reported it under script-src.');
+  await expect(evalItem.locator('.violation-risk')).toContainText("'unsafe-eval' lets the page run code built from text");
+  await expect(item('A browser extension')).toContainText('Nothing to change in your policy.');
+  await expect(item('A browser extension').locator('.code-block')).toHaveCount(0);
+
+  // Safari gives no hash: the code pasted here gets the same one Chrome computed.
+  const safari = item('A script written in the page').last();
+  await safari.getByRole('textbox').fill("console.log('inline ran')");
+  await safari.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(safari.locator('.code-block', { hasText: 'Add to your script-src rule' }).locator('pre')).toHaveText("'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='");
+
+  // Counted once, never with the messages.
+  await expect.poll(sent).toContain('n=explain-error');
+  for (const q of sent()) expect(q).not.toMatch(/heap|google|sha256|script/);
+  expect(errors).toEqual([]);
+});
+
+test('a console message cut short still gets the one-line answer', async ({ page }) => {
   await openAnalyzer(page);
   await page
     .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
-    .fill(`Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following\nContent Security Policy directive: "script-src 'self'".`);
+    .fill('Refused to load the script because it violates the following Content Security Policy directive');
   await expect(page.locator('.issue')).toContainText('This is an error message, not your policy');
-  await expect(page.locator('.policy')).toHaveCount(0);
+  await expect(page.locator('.violations')).toHaveCount(0);
+});
+
+test('console messages are explained in French on French pages', async ({ page }) => {
+  await openAnalyzer(page, '/fr');
+  await page.getByRole('textbox', { name: 'Collez une Content-Security-Policy' }).fill(CONSOLE);
+  const heap = page.locator('.violation', { has: page.getByRole('heading', { name: 'Un script de cdn.us.heap-api.com' }) });
+  await expect(heap.locator('.violation-status')).toHaveText('Bloqué par script-src.');
+  await expect(heap.getByRole('link', { name: 'Contentsquare' })).toHaveAttribute('href', '/fr/vendors/contentsquare');
+  await expect(heap.locator('.code-block')).toContainText('Remplacez votre règle script-src par');
+});
+
+test('a screen reader hears how many messages were explained, and what each one blocked and why', async ({ page }) => {
+  await openAnalyzer(page);
+  const input = page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' });
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  expect(await live(() => input.fill(CONSOLE))).toEqual(['polite: 6 messages explained.']);
+  // Typing on doesn't steal the focus.
+  await expect(input).toBeFocused();
+  // The colour of the block says "only reported"; the words say it too.
+  const heard = (await readAloud(page, '.violation:nth-child(4)')).join(' ');
+  expect(heard).toContain('heading, Code built from text (eval), level 3');
+  expect(heard).toMatch(/Not blocked: your report-only policy reported it under (?:code )?script-src/);
+  expect(heard).toMatch(/'unsafe-eval' (?:end of code )?lets the page run code built from text/);
 });
 
 test('restores the analysis from a share link', async ({ page }) => {

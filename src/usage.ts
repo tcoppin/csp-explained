@@ -10,6 +10,8 @@ export const USAGE_EVENTS = {
   visit: ['page'],
   /** A policy pasted or typed by the visitor was analysed (once per page load; not the example). */
   analyze: [],
+  /** Console messages pasted in place of a policy were explained (once per page load; never the messages). */
+  'explain-error': [],
   /** Two policies pasted or typed by the visitor were compared (once per page load; not the example). */
   compare: [],
   /** "Try an example" was clicked. */

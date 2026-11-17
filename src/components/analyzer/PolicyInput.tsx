@@ -18,6 +18,8 @@ interface EditorProps {
   input: string;
   parsed: ParseResult;
   hasPolicy: boolean;
+  /** Console messages were pasted, and are explained below the editor. */
+  explained: boolean;
   site: string;
   /** Text typed or pasted by the visitor; `collapse` folds the editor to show the analysis. */
   onType: (text: string, collapse: boolean) => void;
@@ -27,7 +29,7 @@ interface EditorProps {
 }
 
 /** Where the visitor pastes their policy (and, optionally, their site's address). */
-export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample, onSite, onDone }: EditorProps) {
+export function PolicyEditor({ input, parsed, hasPolicy, explained, site, onType, onExample, onSite, onDone }: EditorProps) {
   const t = useT();
   return (
     <>
@@ -73,6 +75,8 @@ export function PolicyEditor({ input, parsed, hasPolicy, site, onType, onExample
         input.trim() !== '' &&
         (parsed.issues.some((i) => i.code === 'no-policy-found') ? (
           <p class="issue"><Rich msg="analyzer.noPolicyFound" /></p>
+        ) : explained ? (
+          <p class="issue">{t('violations.lead')}</p>
         ) : (
           <p class="issue">{emptyMessage(t, parsed.issues)}</p>
         ))}

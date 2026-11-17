@@ -77,7 +77,7 @@
       }
     },
     "countTitle": "What we count",
-    "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, trying the example, opening a share link, adding a tool, copying the snippet, copying, printing or downloading a report, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy or your site address.",
+    "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, explaining a console message, trying the example, opening a share link, adding a tool, copying the snippet, copying, printing or downloading a report, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy, your site address or the messages you paste.",
     "sourcesTitle": "Where the information comes from",
     "sourceSpec": "Directive behaviour follows the [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) specification.",
     "sourceEvaluator": "Security findings come from Google's [CSP Evaluator](https://github.com/google/csp-evaluator) library (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.",

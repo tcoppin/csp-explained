@@ -131,6 +131,47 @@
   }
 }
 
+/* Console messages pasted in place of a policy: one block per message, its rule in the status colour of what
+   happened (blocked, only reported, or nothing to change in this policy) */
+.violations {
+  margin-top: 2.5rem;
+}
+.violations h2 {
+  font-size: var(--step-1);
+}
+.violation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 48rem;
+}
+.violation {
+  border-left: 4px solid var(--rule);
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin-bottom: 2rem;
+  overflow-wrap: anywhere;
+}
+.violation.blocked {
+  border-left-color: var(--bad);
+}
+.violation.reported {
+  border-left-color: var(--warn);
+}
+.violation h3 {
+  margin: 0 0 0.35rem;
+}
+.violation-status {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+.violation .code-block {
+  margin-block: 0.75rem;
+}
+.violation-risk {
+  border-left: 3px solid var(--warn);
+  padding-left: 0.75rem;
+}
+
 .issues {
   margin-top: 2.5rem;
 }

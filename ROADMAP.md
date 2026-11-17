@@ -23,6 +23,9 @@ needs our own server comes last, because it changes the site's promise that the 
       address", the result is announced once typing pauses ("static.hotjar.com is used by Hotjar"), not after each
       letter; the lines under a tool make sense heard ("https://static.hotjar.com in script-src, for…"), including
       how the addresses and directive names are pronounced.
+      And the console-message explainer (2026-11-17): paste a few console messages in the analyzer; "6 messages
+      explained" is heard once; each message reads as a heading, then whether it was blocked or only reported, then
+      the tool and the line; the hash generator under a Safari message is easy to reach and its result is heard.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -87,12 +90,9 @@ Internal tooling, never part of the public site.
 
 Everything here runs on the visitor's device, like the analyzer: nothing typed, pasted or dropped is sent anywhere.
 
-- [ ] **Explain a pasted console error** (2026-11-12): the parser already recognises violation messages but only
-      asks for the policy. Name the blocked address and the directive, the catalogue tool behind it
-      (`src/lib/catalogue/lookup.ts` finds it), and the line to add. Its engine serves the violation reports below
-      too.
 - [ ] **Read violation reports** (2026-11-05): paste or drop a batch of reports (`report-to` or `report-uri`
-      format, or a log export). Group them by blocked address, directive and page; set noise apart (browser
+      format, or a log export). The console-message explainer (`src/lib/violations.ts`) already names the tool and
+      builds the fix for one blocked address; reports give the same facts as fields. Group them by blocked address, directive and page; set noise apart (browser
       extensions, code injected on the visitor's device, the same visitor's repeats); name the catalogue tool
       behind each group and build the fix with the patch engine. Raw reports are noisy and can hold personal data
       (page addresses with query strings, referrers, code samples), so this one stays on the device too. Our angle
@@ -237,6 +237,13 @@ Interface:
 
 ### Features
 
+- [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole
+      console works) in the analyzer. Each one says what was blocked (or only reported), the rule that did it, the
+      catalogue tool behind the address, and the line to use: the quoted rule with the tool's documented value,
+      or a new rule when `default-src` applied. Inline code gets the hash the browser gave (or the hash generator,
+      for Safari), style attributes their own rule, `eval` its cost; extensions and frames refused by another site
+      are set apart. Chrome's and WebKit's wordings come from the browsers themselves; Firefox's from its message
+      templates (Playwright's Firefox wouldn't start on macOS 27 that day): check one by hand when you can.
 - [x] **Who is this domain?** (2026-11-17): the Tools page's search takes an address as well as a name (a host,
       a full address, or a value copied from a console message). It shows the tools that use it and the lines that
       cover it: the address, the directives and the feature ("https://cdn.us.heap-api.com in script-src, for

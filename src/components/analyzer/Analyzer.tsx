@@ -9,6 +9,7 @@ import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
 import { distinctIssues } from '../../lib/csp/parser';
 import { DEFAULT_EXPORT, type ExportOptions } from '../../lib/reports/export';
 import { highRisks, riskText, toolNote } from '../../lib/reports/security';
+import { explainViolations } from '../../lib/violations';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
 import { Explanation, explanationSummary, issueText } from '../policy/Explanation';
@@ -26,6 +27,7 @@ import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, 
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
 import { VendorChecker } from './VendorChecker';
+import { ViolationList } from './ViolationList';
 // Shared view styles first, so the analyzer's own rules win when they tie
 import '../ui/panels.css';
 import '../policy/results.css';
@@ -81,6 +83,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   // Usage counts: was the text typed or pasted by the visitor, and was that counted already?
   const typed = useRef(false);
   const counted = useRef(false);
+  const countedError = useRef(false);
   // Recent analyses kept in this browser; the entry the current analysis updates, once it has one.
   const [recent, setRecent] = useState<RecentAnalysis[]>([]);
   // Off until the visitor turns it on: nothing is stored before they ask.
@@ -130,6 +133,11 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const showEditor = !hasPolicy || editing;
   const currentIndex = Math.min(policyIndex, Math.max(parsed.policies.length - 1, 0));
   const policy = parsed.policies[currentIndex];
+  // Console messages pasted in place of a policy: explained one by one.
+  const violations = useMemo(
+    () => (!hasPolicy && parsed.issues.some((i) => i.code === 'violation-message') ? explainViolations(input, content.vendors) : []),
+    [hasPolicy, parsed, input, content.vendors],
+  );
 
   // Select the first directive whenever the policy changes shape, or another policy is shown.
   const activeSelection =
@@ -148,6 +156,16 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     }, 1500);
     return () => clearTimeout(timer);
   }, [input, hasPolicy]);
+
+  // Count one explained console message per page load, the same way (never the message itself).
+  useEffect(() => {
+    if (countedError.current || !typed.current || violations.length === 0) return;
+    const timer = setTimeout(() => {
+      countedError.current = true;
+      track('explain-error');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [violations]);
 
   // Keep this analysis in the history once it settles: one entry per analysis, updated as it changes.
   useEffect(() => {
@@ -318,6 +336,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
               input={input}
               parsed={parsed}
               hasPolicy={hasPolicy}
+              explained={violations.length > 0}
               site={site}
               onType={(text, collapse) => {
                 typed.current = true;
@@ -363,7 +382,11 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
           />
         )}
 
-        {showEditor && !hasPolicy && <OtherStarts />}
+        {/* Always in the page, so the explanation is announced as it appears. */}
+        <p class="visually-hidden" role="status">
+          {violations.length > 0 && t('violations.announce', { count: violations.length })}
+        </p>
+        {showEditor && !hasPolicy && (violations.length > 0 ? <ViolationList items={violations} /> : <OtherStarts />)}
 
         {hasPolicy && policy && (
           <section class="workspace" aria-label={t('views.label')}>
