@@ -1,0 +1,18 @@
+GET
+https://sdk.us.heap-api.com/js/heap.js
+NS_ERROR_DOM_NETWORK_ERR
+Loading failed for the <script> with source “https://cdn.us.heap-api.com/js/heap.js”. trusted-types:4:54
+Content-Security-Policy: The page’s settings blocked an inline script (script-src-elem) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce' https: 'unsafe-eval'”. Consider using a hash ('sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=') or a nonce. trusted-types:5:9
+Content-Security-Policy: The page’s settings blocked an event handler (script-src-attr) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce' https: 'unsafe-eval'”. Consider using a hash ('sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=') together with 'unsafe-hashes'.
+Source: x() trusted-types
+TypeError: HTMLScriptElement.src setter: Sink type mismatch violation blocked by CSP trusted-types:18:145
+TypeError: Element.innerHTML setter: Sink type mismatch violation blocked by CSP trusted-types:19:83
+TypeError: Window.setTimeout: Sink type mismatch violation blocked by CSP trusted-types:20:60
+Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ trusted-types:14:9
+Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ trusted-types:16:9
+Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ trusted-types:18:53
+Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ trusted-types:19:18
+Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ trusted-types:20:19
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://api.blocked.test/collect. (Reason: CORS request did not succeed). Status code: (null).
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.blocked.test/f.woff2. (Reason: CORS request did not succeed). Status code: (null).
+downloadable font: download failed (font-family: "x" style:normal weight:400 width:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.blocked.test/f.woff2

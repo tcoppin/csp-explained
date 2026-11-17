@@ -834,7 +834,8 @@
       "trusted": {
         "TrustedHTML": "Du HTML écrit dans la page en texte brut",
         "TrustedScript": "Du code passé en texte brut",
-        "TrustedScriptURL": "Une adresse de script donnée en texte brut"
+        "TrustedScriptURL": "Une adresse de script donnée en texte brut",
+        "unknown": "Du texte brut confié au navigateur là où il faut un Trusted Type"
       }
     },
     "blocked": "Bloqué par `{directive}`.",
@@ -869,7 +870,8 @@
     "ttWhat": {
       "TrustedHTML": "du HTML",
       "TrustedScript": "du code",
-      "TrustedScriptURL": "une adresse de script"
+      "TrustedScriptURL": "une adresse de script",
+      "unknown": "une valeur"
     },
     "tt": "Votre politique exige les Trusted Types (`require-trusted-types-for`) : le code ne peut pas confier {what} au navigateur en texte brut, seulement par une politique Trusted Types qui le vérifie d'abord. Le code qui a fait cela, le vôtre ou celui d'un outil, doit en utiliser une. Il n'y a rien à ajouter à votre politique pour cela : [comment fonctionnent les Trusted Types](/trusted-types).",
     "ttSink": "Où : `{sink}`.",

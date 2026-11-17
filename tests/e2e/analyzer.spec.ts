@@ -173,6 +173,19 @@ test('a Trusted Types message is explained without being read as a policy, with 
   await expect(page.locator('.violation-lines')).toHaveCount(0);
 });
 
+test("Firefox's Trusted Types message is explained, the kind of value taken from the sink its error names", async ({ page }) => {
+  await openAnalyzer(page);
+  const input = page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' });
+  const message = 'Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ debugger eval code:2:1';
+  await input.fill(`${message}\nUncaught TypeError: HTMLScriptElement.src setter: Sink type mismatch violation blocked by CSP`);
+  await expect(page.getByRole('heading', { name: 'A script address set as plain text' })).toBeVisible();
+  await expect(page.locator('.violation')).toContainText('Where it happened: HTMLScriptElement.src.');
+  // Without the error, the kind of value is unknown.
+  await input.fill(message);
+  await expect(page.getByRole('heading', { name: 'Plain text handed to the browser where it needs a Trusted Type' })).toBeVisible();
+  await expect(page.locator('.violation-status')).toHaveText('Blocked by require-trusted-types-for.');
+});
+
 test('a console message cut short still gets the one-line answer', async ({ page }) => {
   await openAnalyzer(page);
   await page

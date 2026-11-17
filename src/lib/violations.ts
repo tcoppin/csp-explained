@@ -79,7 +79,9 @@ export interface ExplainedMessages {
 
 const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:/i;
 const LOCAL_SCHEME = /^(blob|data|filesystem):/i;
-const ANY_URL = /\bhttps?:\/\/[^\s'"“”‘’<>()]+/gi;
+// An address written in code (`s.src = "https://…"`, `fetch('https://…')`): what was run, unlike the addresses in
+// the browser's own lines, which it quotes with “curly” quotes.
+const CODE_URL = /(?:=|\()\s*["'`](https?:\/\/[^"'`\s]+)["'`]/gi;
 
 /** Every policy message in `input`, explained with the catalogue, and the lines that allow everything they name. */
 export function explainViolations(input: string, vendors: Vendor[]): ExplainedMessages {
@@ -153,9 +155,9 @@ function usesOf(vendors: Vendor[], test: (r: { type: ResourceType; source: strin
   return uses;
 }
 
-/** The catalogue tools behind any address in the pasted text. */
+/** The catalogue tools behind an address in code pasted with the messages. */
 function mentioned(input: string, vendors: Vendor[]): ToolUse[] {
-  const addresses = [...new Set(input.match(ANY_URL) ?? [])].map(addressOf).filter((a) => a !== undefined);
+  const addresses = [...new Set([...input.matchAll(CODE_URL)].map((m) => m[1]!))].map(addressOf).filter((a) => a !== undefined);
   return usesOf(vendors, (r) => addresses.some((a) => sourceMatchesAddress(r.source, a) === 'exact'));
 }
 

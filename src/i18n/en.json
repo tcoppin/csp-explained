@@ -834,7 +834,8 @@
       "trusted": {
         "TrustedHTML": "HTML written into the page as plain text",
         "TrustedScript": "Code passed as plain text",
-        "TrustedScriptURL": "A script address set as plain text"
+        "TrustedScriptURL": "A script address set as plain text",
+        "unknown": "Plain text handed to the browser where it needs a Trusted Type"
       }
     },
     "blocked": "Blocked by `{directive}`.",
@@ -869,7 +870,8 @@
     "ttWhat": {
       "TrustedHTML": "HTML",
       "TrustedScript": "code",
-      "TrustedScriptURL": "a script address"
+      "TrustedScriptURL": "a script address",
+      "unknown": "a value"
     },
     "tt": "Your policy requires Trusted Types (`require-trusted-types-for`): code can't hand the browser {what} as plain text, only through a Trusted Types policy that checks it first. The code that did this, your own or a tool's, has to use one. There is nothing to add to your policy for it: [how Trusted Types work](/trusted-types).",
     "ttSink": "Where it happened: `{sink}`.",

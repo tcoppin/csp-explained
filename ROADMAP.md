@@ -244,8 +244,8 @@ Interface:
       drops another; a new rule when `default-src` applied. Inline blocks of one kind are read together, Safari's
       get the hash generator, style attributes their own rule, `eval` its cost. Trusted Types messages say what the
       code has to change, with the tool behind an address pasted with them; extensions and frames refused by
-      another site are set apart. Chrome's and WebKit's wordings come from the browsers themselves; Firefox's from its message
-      templates (Playwright's Firefox wouldn't start on macOS 27 that day): check one by hand when you can.
+      another site are set apart. The wordings come from the browsers themselves: Chromium and WebKit through Playwright, Firefox
+      copied by hand from a test page (whole consoles kept in `src/lib/csp/console-messages/`).
 - [x] **Who is this domain?** (2026-11-17): the Tools page's search takes an address as well as a name (a host,
       a full address, or a value copied from a console message). It shows the tools that use it and the lines that
       cover it: the address, the directives and the feature ("https://cdn.us.heap-api.com in script-src, for

@@ -44,24 +44,30 @@ export interface Violation {
 const START = new RegExp(
   [
     String.raw`(?:\[Report Only\]\s*)?(?:(?:Uncaught\s+)?EvalError:\s*)?Refused to\b`,
-    String.raw`Content[- ]Security[- ]Policy:\s+The page`,
+    // Firefox; in report-only mode: "Content-Security-Policy: (Report-Only policy) The page’s settings would block…".
+    String.raw`Content[- ]Security[- ]Policy:\s+(?:\(Report-Only policy\)\s+)?The page`,
     // Trusted Types: "This document requires 'TrustedHTML' assignment." (Chrome), "This requires a TrustedHTML
     // value else it violates…" (WebKit).
     // Not when Chrome's TypeError repeats it ("…'HTMLScriptElement': This document requires…"): that is the same one.
     String.raw`(?<!:\s)(?:\[Report Only\]\s*)?This (?:document )?requires (?:a |')Trusted`,
     // Chrome's current wording: the verb comes first, the address (with its dots) before "violates".
     String.raw`\b(?:Loading|Connecting to|Framing|Executing|Applying|Evaluating|Compiling|Creating|Sending|Setting|Navigating to|Running)\b(?=.{0,400}?\bviolates the following)`,
-    // Noise Chrome and Safari print around violations: starts of messages we then drop.
+    // Noise browsers print around violations: starts of messages we then drop (Chrome and Safari, then Firefox).
     String.raw`\bFetch API cannot load\b`,
     String.raw`\bFailed to load resource\b`,
     String.raw`\bThe Content Security Policy '`,
+    String.raw`\bLoading failed for the\b`,
+    String.raw`\bSecurity Error:`,
+    String.raw`\bCross-Origin Request Blocked:`,
+    String.raw`\bdownloadable font:`,
   ].join('|'),
   'g',
 );
 
-// The rule's value, quoted: "script-src 'self'" (Chrome), “script-src 'self'” (Firefox), or between single quotes
-// for inline code in Chrome: 'script-src 'self' 'nonce-abc''.
-const QUOTED_VALUE = /directive[^"“]{0,120}?["“]([a-z][a-z-]*(?:\s[^"”]*)?)["”]/i;
+// The rule's value, quoted: "script-src 'self'" (Chrome), “script-src 'self'” (Firefox, which sometimes closes with
+// an opening quote: “require-trusted-types-for ’script’“), or between single quotes for inline code in Chrome:
+// 'script-src 'self' 'nonce-abc''.
+const QUOTED_VALUE = /directive[^"“]{0,120}?["“]([a-z][a-z-]*(?:\s[^"”“]*)?)["”“]/i;
 const SINGLE_QUOTED_VALUE = /directive '([a-z][a-z-]*(?: .*?)?)'(?:\.\s|\.$|$)/i;
 const NEITHER = /neither the ([a-z-]+) directive nor the ([a-z-]+) directive/i;
 const IN_THE = /\bin the ([a-z-]+) directive/i;
@@ -71,10 +77,28 @@ const HASH = /'(sha(?:256|384|512)-[A-Za-z0-9+/_-]{20,}={0,2})'/;
 const QUOTED_URL = /['‘"“]((?:[a-z][a-z0-9+.-]*:\/\/|blob:|data:)[^'’"”\s]*)['’"”]/i;
 const BARE_URL = /\b(?:at|load|to|from)\s+((?:https?|wss?|ftp|blob|data|[a-z-]+-extension):[^\s'"“”]+)/i;
 const TRUSTED = /requires (?:a |')(Trusted(?:HTML|ScriptURL|Script))'?(?: value| assignment)/;
+// Firefox doesn't name the type: "The page’s settings blocked assigning to an injection sink because it violates…".
+const TRUSTED_FIREFOX = /settings (?:blocked|observed) assigning to an injection sink/i;
 // Chrome's TypeError after the message: "Failed to set the 'src' property on 'HTMLScriptElement'", or
 // "Failed to execute 'setTimeout' on 'Window'".
 const SINK = /Failed to (?:set the '([\w$]+)' property|execute '([\w$]+)') on '([\w$]+)'/;
-const REPORT_ONLY = /\[Report Only\]|report-only|\bobserved (?:the|an?)\b|A CSP report is being sent/i;
+// Firefox's: "HTMLScriptElement.src setter: Sink type mismatch violation blocked by CSP", followed by where it
+// happened ("trusted-types:18:145") when Firefox prints it apart from the message.
+const FIREFOX_SINK = /\b([A-Z][\w$]*)\.([\w$]+)(?: setter)?: Sink type mismatch/;
+const FIREFOX_SINK_AT = /\b([A-Z][\w$]*)\.([\w$]+)(?: setter)?: Sink type mismatch violation blocked by CSP\s+(\S+:\d+):\d+/g;
+// Where Firefox's message happened: after the rule it quotes, "…“require-trusted-types-for ’script’“ trusted-types:18:53".
+const MESSAGE_AT = /require-trusted-types-for[^“”"]*[“”"]\s+(\S+:\d+):\d+/;
+const REPORT_ONLY = /\[Report Only\]|report-only|\bobserved (?:the|an?|assigning)\b|A CSP report is being sent/i;
+
+/** What a sink takes, for Firefox, which names the sink but not the type: `HTMLScriptElement.src` takes a script URL. */
+function trustedTypeOf(sink: string): TrustedType | undefined {
+  const [owner, member] = sink.split('.') as [string, string];
+  if (/^(?:src|href)$/.test(member) && /Script/.test(owner)) return 'TrustedScriptURL';
+  if (/^(?:importScripts|Worker|SharedWorker|register)$/.test(member)) return 'TrustedScriptURL';
+  if (/^(?:innerHTML|outerHTML|srcdoc|insertAdjacentHTML|write|writeln|parseFromString|setHTMLUnsafe|createContextualFragment)$/.test(member)) return 'TrustedHTML';
+  if (/^(?:text|textContent|innerText|eval|setTimeout|setInterval|Function)$/.test(member)) return 'TrustedScript';
+  return undefined;
+}
 
 const DIRECTIVE_TYPE: Record<string, ResourceType> = {
   'script-src': 'script',
@@ -113,11 +137,13 @@ const WORDS: [RegExp, ResourceType][] = [
 /** The messages in `input`, each read once; text that isn't a policy message (other console lines) is left out. */
 export function parseViolations(input: string): Violation[] {
   const text = input.replace(/\s+/g, ' ').trim();
+  // Firefox's Trusted Types errors, by file and line, for the messages printed apart from them.
+  const sinksAt = new Map([...text.matchAll(FIREFOX_SINK_AT)].map((m) => [m[3]!, `${m[1]}.${m[2]}`]));
   const starts = [...text.matchAll(START)].map((m) => m.index);
   if (starts[0] !== 0) starts.unshift(0);
   const found = new Map<string, Violation>();
   starts.forEach((start, i) => {
-    const v = readOne(text.slice(start, starts[i + 1]).trim());
+    const v = readOne(text.slice(start, starts[i + 1]).trim(), sinksAt);
     if (!v) return;
     const key = `${v.kind}|${v.url ?? ''}|${v.directive ?? ''}|${v.value ?? ''}|${v.hash ?? ''}|${v.trustedType ?? ''}|${v.sink ?? ''}|${v.reportOnly}`;
     const same = found.get(key);
@@ -127,17 +153,27 @@ export function parseViolations(input: string): Violation[] {
   return [...found.values()];
 }
 
-function readOne(text: string): Violation | undefined {
+function readOne(text: string, sinksAt: Map<string, string>): Violation | undefined {
   const trusted = TRUSTED.exec(text);
-  if (trusted) {
-    const sink = SINK.exec(text);
+  if (trusted || TRUSTED_FIREFOX.test(text)) {
+    const chromeSink = SINK.exec(text);
+    const firefoxSink = FIREFOX_SINK.exec(text);
+    const at = MESSAGE_AT.exec(text)?.[1];
+    const sink = chromeSink
+      ? `${chromeSink[3]}.${chromeSink[1] ?? chromeSink[2]}`
+      : firefoxSink
+        ? `${firefoxSink[1]}.${firefoxSink[2]}`
+        : at
+          ? sinksAt.get(at)
+          : undefined;
+    const trustedType = (trusted?.[1] as TrustedType | undefined) ?? (sink ? trustedTypeOf(sink) : undefined);
     return {
       text,
       kind: 'trusted-types',
       type: 'script',
       directive: 'require-trusted-types-for',
-      trustedType: trusted[1] as TrustedType,
-      ...(sink ? { sink: `${sink[3]}.${sink[1] ?? sink[2]}` } : {}),
+      ...(trustedType ? { trustedType } : {}),
+      ...(sink ? { sink } : {}),
       reportOnly: REPORT_ONLY.test(text),
       count: 1,
     };
@@ -160,7 +196,14 @@ function readOne(text: string): Violation | undefined {
   if (!directive && !effective) return undefined;
 
   const kind = kindOf(rest);
-  const url = kind === 'url' ? (QUOTED_URL.exec(rest)?.[1] ?? BARE_URL.exec(rest)?.[1])?.replace(/[.,;:]+$/, '') : undefined;
+  // The first address in the message: quoted (Chrome) or not (Firefox, Safari).
+  const url =
+    kind === 'url'
+      ? [QUOTED_URL.exec(rest), BARE_URL.exec(rest)]
+          .filter((m) => m !== null)
+          .sort((a, b) => a.index - b.index)[0]?.[1]
+          ?.replace(/[.,;:]+$/, '')
+      : undefined;
   if (kind === 'url' && !url) return undefined;
 
   return {
@@ -183,8 +226,9 @@ function kindOf(rest: string): Exclude<BlockedKind, 'trusted-types'> {
   if (/evaluat\w* a string as JavaScript|JavaScript eval|WebAssembly|'unsafe-eval' is not an allowed source/i.test(rest)) return 'eval';
   if (/inline script|execute a script because its hash|an inline script/i.test(rest)) return 'inline-script';
   if (/inline style|apply a stylesheet because its hash|an inline style/i.test(rest)) {
-    // Chrome adds this note for a style="…" attribute, which a hash only reaches with 'unsafe-hashes'.
-    return /hashes do not apply to event handlers, style attributes/i.test(rest) ? 'style-attr' : 'inline-style';
+    // A style="…" attribute, which a hash only reaches with 'unsafe-hashes': Chrome adds this note, Firefox names
+    // the rule meant for it.
+    return /hashes do not apply to event handlers, style attributes|\(style-src-attr\)/i.test(rest) ? 'style-attr' : 'inline-style';
   }
   return 'url';
 }

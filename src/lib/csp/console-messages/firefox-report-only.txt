@@ -1,0 +1,35 @@
+Content-Security-Policy: This site (http://localhost:4399) has a Report-Only policy without a report-uri directive nor a report-to directive. CSP will not block and cannot report violations of this policy. report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a style (style-src-elem) at https://cdn.blocked-style.test/a.css from being applied because it violates the following directive: “style-src 'self'” 2 report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block an inline style (style-src-elem) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-FcQqt3aNlV7AZnGV4zkQRVeCeJOxbMPnQSx258L803E=', requires 'unsafe-hashes' for style attributes) or a nonce. report-only:3:1
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a script (script-src-elem) at https://cdn.us.heap-api.com/js/heap.js from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'” report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a script (script-src-elem) at https://sdk.us.heap-api.com/js/heap.js from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'” report-only
+GET
+https://sdk.us.heap-api.com/js/heap.js
+NS_ERROR_DOM_NETWORK_ERR
+Loading failed for the <script> with source “https://cdn.us.heap-api.com/js/heap.js”. report-only:4:54
+Content-Security-Policy: (Report-Only policy) The page’s settings would block an inline script (script-src-elem) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'”. Consider using a hash ('sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=') or a nonce. report-only:5:9
+inline ran report-only:5:17
+GET
+https://try.abtasty.com/x.js
+[HTTP/3 403 ]
+Content-Security-Policy: (Report-Only policy) The page’s settings would block an inline style (style-src-attr) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-AsBing+OROn4oj79i1McYY1lPcuhBPrT15PfKUjuHIY=', requires 'unsafe-hashes' for style attributes) or a nonce.
+Source: color:blue report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block an event handler (script-src-attr) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'”. Consider using a hash ('sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=') together with 'unsafe-hashes'.
+Source: x() report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block the loading of a resource (img-src) at https://img.blocked.test/p.gif because it violates the following directive: “img-src 'self'” report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a JavaScript eval (script-src) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'” (Missing 'unsafe-eval') report-only:14:9
+Content-Security-Policy: (Report-Only policy) The page’s settings would block the loading of a resource (connect-src) at https://api.blocked.test/collect because it violates the following directive: “connect-src 'self'” report-only:15:8
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a script (script-src-elem) at https://try.abtasty.com/x.js from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'” report-only:18:107
+Content-Security-Policy: (Report-Only policy) The page’s settings would block a JavaScript eval (script-src) from being executed because it violates the following directive: “script-src 'self' 'nonce-n0nce'” (Missing 'unsafe-eval') report-only:20:19
+2 report-only:20:9
+Content-Security-Policy: (Report-Only policy) The page’s settings would block the loading of a resource (frame-src) at https://frame.blocked.test/ because it violates the following directive: “frame-src 'self'” report-only
+Content-Security-Policy: (Report-Only policy) The page’s settings would block the loading of a resource (font-src) at https://fonts.blocked.test/f.woff2 because it violates the following directive: “font-src 'self'” report-only
+Security Error: Content at http://localhost:4399/report-only may not load data from https://worker.blocked.test/w.js.
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://fonts.blocked.test/f.woff2. (Reason: CORS request did not succeed). Status code: (null).
+downloadable font: download failed (font-family: "x" style:normal weight:400 width:100 src index:0): bad URI or cross-site access not allowed source: https://fonts.blocked.test/f.woff2
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://api.blocked.test/collect. (Reason: CORS request did not succeed). Status code: (null).
+GET
+http://localhost:4399/favicon.ico
+[HTTP/1.1 404 Not Found 0ms]
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. x.js
+Loading failed for the <script> with source “https://try.abtasty.com/x.js”.

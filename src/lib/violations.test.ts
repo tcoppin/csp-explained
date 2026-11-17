@@ -131,4 +131,11 @@ describe('explainViolations', () => {
     expect(lines).toEqual([]);
     expect([...new Set(items[0]!.tools.map((t) => t.vendor.name))]).toEqual(['AB Tasty']);
   });
+
+  it("names no tool for Trusted Types from addresses in the browser's own lines", () => {
+    const firefox = readFileSync(join(import.meta.dirname, 'csp/console-messages/firefox-trusted-types.txt'), 'utf8');
+    const { items } = explainViolations(firefox, vendors);
+    // Firefox's "Loading failed for the <script> with source “https://cdn.us.heap-api.com/…”" isn't the blocked code.
+    expect(items.filter((e) => e.case === 'trusted-types').flatMap((e) => e.tools)).toEqual([]);
+  });
 });

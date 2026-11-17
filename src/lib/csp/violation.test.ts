@@ -1,5 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { parseViolations } from './violation';
+import { parseViolations, type Violation } from './violation';
+
+/** A whole console, copied from Firefox on our test page (scripts, styles, images… blocked by one rule each). */
+const firefoxConsole = (page: string) => readFileSync(join(import.meta.dirname, 'console-messages', `firefox-${page}.txt`), 'utf8');
+/** What was read from each message, in a line: kind, what was blocked, the rule, report-only. */
+const summary = (v: Violation) =>
+  [v.kind, v.url ?? v.trustedType ?? v.hash ?? '', v.type, v.directive, v.effective ?? '', v.reportOnly ? 'report-only' : 'blocked', `×${v.count}`].join(' ');
 
 // Messages as the browsers printed them on 2026-11-17 (Chromium and WebKit, through Playwright), on a page whose
 // policy blocks one thing of each kind. Firefox's follow its message templates (csp.properties).
@@ -101,6 +109,27 @@ describe('parseViolations', () => {
     expect(one(SAFARI.defaultSrc)).toMatchObject({ type: 'img', directive: 'default-src', effective: 'img-src' });
   });
 
+  it("reads Firefox's real message for a blocked script, among the lines Firefox prints around it", () => {
+    // Copied from Firefox on 2026-11-17 (the site and the tag id replaced).
+    const found = parseViolations(
+      [
+        'HTTPS-First Mode: Upgrading insecure request “http://site.example/with-csp.html” to use “https”. with-csp.html',
+        'Loading failed for the <script> with source “https://try.abtasty.com/0123abcd.js”. with-csp.html:1:1',
+        "Content-Security-Policy: The page’s settings blocked a script (script-src-elem) at https://try.abtasty.com/0123abcd.js from being executed because it violates the following directive: “script-src 'self' 'unsafe-inline'”",
+      ].join('\n'),
+    );
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({
+      kind: 'url',
+      url: 'https://try.abtasty.com/0123abcd.js',
+      type: 'script',
+      directive: 'script-src',
+      effective: 'script-src-elem',
+      value: "script-src 'self' 'unsafe-inline'",
+      reportOnly: false,
+    });
+  });
+
   it("reads Firefox's messages", () => {
     expect(one(FIREFOX.script)).toMatchObject({ url: 'https://cdn.us.heap-api.com/js/heap.js', type: 'script', directive: 'script-src', effective: 'script-src-elem', value: "script-src 'self'" });
     expect(one(FIREFOX.reportOnly)).toMatchObject({ reportOnly: true, type: 'img', directive: 'default-src', effective: 'img-src' });
@@ -108,6 +137,74 @@ describe('parseViolations', () => {
     expect(one(FIREFOX.eval)).toMatchObject({ kind: 'eval', directive: 'script-src' });
     expect(one(FIREFOX.handler)).toMatchObject({ kind: 'inline-handler', effective: 'script-src-attr' });
     expect(one(FIREFOX.older)).toMatchObject({ url: 'https://cdn.vendor.example/tag.js', type: 'script', directive: 'script-src' });
+  });
+
+  it("reads a whole Firefox console: every kind of block, each message once, Firefox's other lines left out", () => {
+    expect(parseViolations(firefoxConsole('enforced')).map(summary)).toEqual([
+      'url https://cdn.blocked-style.test/a.css style style-src style-src-elem blocked ×1',
+      "inline-style 'sha256-FcQqt3aNlV7AZnGV4zkQRVeCeJOxbMPnQSx258L803E=' inline-style style-src style-src-elem blocked ×1",
+      'url https://cdn.us.heap-api.com/js/heap.js script script-src script-src-elem blocked ×1',
+      "inline-script 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=' inline-script script-src script-src-elem blocked ×1",
+      "style-attr 'sha256-AsBing+OROn4oj79i1McYY1lPcuhBPrT15PfKUjuHIY=' style-attr style-src style-src-attr blocked ×1",
+      "inline-handler 'sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=' inline-handler script-src script-src-attr blocked ×1",
+      'url https://img.blocked.test/p.gif img img-src  blocked ×1',
+      'eval  eval script-src  blocked ×2',
+      'url https://api.blocked.test/collect connect connect-src  blocked ×1',
+      'url https://try.abtasty.com/x.js script script-src script-src-elem blocked ×1',
+      'url https://fonts.blocked.test/f.woff2 font font-src  blocked ×1',
+      'url https://frame.blocked.test/ frame frame-src  blocked ×1',
+      'url https://form.blocked.test/post form form-action  blocked ×1',
+    ]);
+  });
+
+  it("reads Firefox's report-only console: \"(Report-Only policy) … would block\"", () => {
+    const found = parseViolations(firefoxConsole('report-only'));
+    expect(found.map(summary)).toEqual([
+      'url https://cdn.blocked-style.test/a.css style style-src style-src-elem report-only ×1',
+      "inline-style 'sha256-FcQqt3aNlV7AZnGV4zkQRVeCeJOxbMPnQSx258L803E=' inline-style style-src style-src-elem report-only ×1",
+      'url https://cdn.us.heap-api.com/js/heap.js script script-src script-src-elem report-only ×1',
+      'url https://sdk.us.heap-api.com/js/heap.js script script-src script-src-elem report-only ×1',
+      "inline-script 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=' inline-script script-src script-src-elem report-only ×1",
+      "style-attr 'sha256-AsBing+OROn4oj79i1McYY1lPcuhBPrT15PfKUjuHIY=' style-attr style-src style-src-attr report-only ×1",
+      "inline-handler 'sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=' inline-handler script-src script-src-attr report-only ×1",
+      'url https://img.blocked.test/p.gif img img-src  report-only ×1',
+      'eval  eval script-src  report-only ×2',
+      'url https://api.blocked.test/collect connect connect-src  report-only ×1',
+      'url https://try.abtasty.com/x.js script script-src script-src-elem report-only ×1',
+      'url https://frame.blocked.test/ frame frame-src  report-only ×1',
+      'url https://fonts.blocked.test/f.woff2 font font-src  report-only ×1',
+    ]);
+  });
+
+  it("reads Firefox's default-src fallbacks", () => {
+    expect(parseViolations(firefoxConsole('default-src')).map(summary)).toEqual([
+      'url https://cdn.blocked-style.test/a.css style default-src style-src-elem blocked ×1',
+      "inline-style 'sha256-FcQqt3aNlV7AZnGV4zkQRVeCeJOxbMPnQSx258L803E=' inline-style default-src style-src-elem blocked ×1",
+      'url https://cdn.us.heap-api.com/js/heap.js script script-src script-src-elem blocked ×1',
+      "inline-script 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=' inline-script script-src script-src-elem blocked ×1",
+      "style-attr 'sha256-AsBing+OROn4oj79i1McYY1lPcuhBPrT15PfKUjuHIY=' style-attr default-src style-src-attr blocked ×1",
+      "inline-handler 'sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=' inline-handler script-src script-src-attr blocked ×1",
+      'url https://img.blocked.test/p.gif img default-src img-src blocked ×1',
+      'eval  eval script-src  blocked ×2',
+      'url https://api.blocked.test/collect connect default-src connect-src blocked ×1',
+      'url https://try.abtasty.com/x.js script script-src script-src-elem blocked ×1',
+      'url https://fonts.blocked.test/f.woff2 font default-src font-src blocked ×1',
+      'url https://frame.blocked.test/ frame default-src frame-src blocked ×1',
+    ]);
+  });
+
+  it("reads Firefox's Trusted Types messages, matched with the errors printed before them by their line", () => {
+    const found = parseViolations(firefoxConsole('trusted-types'));
+    expect(found.map(summary)).toEqual([
+      "inline-script 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg=' inline-script script-src script-src-elem blocked ×1",
+      "inline-handler 'sha256-D6IGS8VMvCoyaR/l0h9tERrBTATY01CoPS7l6xDv0kI=' inline-handler script-src script-src-attr blocked ×1",
+      // eval() and new Worker() print no error to match: what they needed stays unknown.
+      'trusted-types  script require-trusted-types-for  blocked ×2',
+      'trusted-types TrustedScriptURL script require-trusted-types-for  blocked ×1',
+      'trusted-types TrustedHTML script require-trusted-types-for  blocked ×1',
+      'trusted-types TrustedScript script require-trusted-types-for  blocked ×1',
+    ]);
+    expect(found.map((v) => v.sink).filter(Boolean)).toEqual(['HTMLScriptElement.src', 'Element.innerHTML', 'Window.setTimeout']);
   });
 
   it('reads a whole console pasted at once: each message once, the noise left out', () => {
@@ -151,6 +248,20 @@ describe('parseViolations', () => {
       ['trusted-types', 'TrustedHTML', 'Element.innerHTML', false],
       ['trusted-types', 'TrustedScript', undefined, true],
     ]);
+    // Firefox names neither the type nor the rule's value in a usable way, but its TypeError names the sink
+    // (copied from Firefox on 2026-11-17, the tag id replaced).
+    const firefox = parseViolations(
+      [
+        "const s = document.createElement('script');",
+        's.src = "https://try.abtasty.com/0123abcd.js";',
+        'Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“ debugger eval code:2:1',
+        'Uncaught TypeError: HTMLScriptElement.src setter: Sink type mismatch violation blocked by CSP',
+        '    <anonymous> debugger eval code:2',
+      ].join('\n'),
+    );
+    expect(firefox.map((v) => [v.kind, v.trustedType, v.sink, v.reportOnly])).toEqual([['trusted-types', 'TrustedScriptURL', 'HTMLScriptElement.src', false]]);
+    // Without the TypeError, the type stays unknown.
+    expect(one('Content-Security-Policy: The page’s settings blocked assigning to an injection sink because it violates the following directive: “require-trusted-types-for ’script’“').trustedType).toBeUndefined();
     // WebKit names the rule.
     expect(one(`[Report Only] This requires a TrustedScriptURL value else it violates the following Content Security Policy directive: "require-trusted-types-for 'script'"`)).toMatchObject({
       kind: 'trusted-types',

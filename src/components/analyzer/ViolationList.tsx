@@ -61,7 +61,7 @@ function ViolationItem({ e, index }: { e: ExplainedViolation; index: number }) {
     e.case === 'extension' || e.case === 'ancestors'
       ? e.case
       : e.case === 'trusted-types'
-        ? `trusted.${v.trustedType}`
+        ? `trusted.${v.trustedType ?? 'unknown'}`
         : v.kind === 'url'
           ? v.type
           : v.kind;
@@ -113,7 +113,7 @@ function Body({ e }: { e: ExplainedViolation }) {
     case 'trusted-types':
       return (
         <>
-          <p><Rich msg="violations.tt" vars={{ what: t(`violations.ttWhat.${v.trustedType}`) }} /></p>
+          <p><Rich msg="violations.tt" vars={{ what: t(`violations.ttWhat.${v.trustedType ?? 'unknown'}`) }} /></p>
           {v.sink && <p><Rich msg="violations.ttSink" vars={{ sink: v.sink }} /></p>}
           {byVendor(e.tools).map(([first]) => (
             <p key={first.vendor.id}>
