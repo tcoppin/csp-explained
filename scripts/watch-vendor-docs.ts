@@ -36,9 +36,15 @@ export function extractTokens(html: string): string[] {
   return [...tokens].filter((t) => !PLACEHOLDER.test(t)).sort();
 }
 
-async function fetchTokens(url: string): Promise<string[] | Error> {
+/**
+ * Asks for English: without a language, some sites (Google's developer docs) serve a translation picked at random,
+ * often older than the English page, which reads as hosts added and removed.
+ */
+const HEADERS = { 'user-agent': 'csp-explained-catalogue-watch (+https://github.com)', 'accept-language': 'en' };
+
+export async function fetchTokens(url: string, get: typeof fetch = fetch): Promise<string[] | Error> {
   try {
-    const res = await fetch(url, { headers: { 'user-agent': 'csp-explained-catalogue-watch (+https://github.com)' }, redirect: 'follow' });
+    const res = await get(url, { headers: HEADERS, redirect: 'follow' });
     if (!res.ok) return new Error(`HTTP ${res.status}`);
     return extractTokens(await res.text());
   } catch (e) {

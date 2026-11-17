@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { extractTokens } from './watch-vendor-docs';
+import { extractTokens, fetchTokens } from './watch-vendor-docs';
+
+describe('fetchTokens', () => {
+  it('asks for the English page, so a translation never reads as a documentation change', async () => {
+    let sent: RequestInit | undefined;
+    const get = (async (_url: string, init?: RequestInit) => {
+      sent = init;
+      return new Response('<p>script-src cdn.vendor.com</p>');
+    }) as typeof fetch;
+    expect(await fetchTokens('https://docs.vendor.com/csp', get)).toEqual(['cdn.vendor.com', 'script-src']);
+    expect(new Headers(sent?.headers).get('accept-language')).toBe('en');
+  });
+});
 
 describe('extractTokens', () => {
   it('keeps directives, keywords and hosts, ignoring markup and scripts', () => {
