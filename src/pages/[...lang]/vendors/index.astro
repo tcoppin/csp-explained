@@ -6,6 +6,7 @@ import { groupByCategory } from '../../../lib/catalogue/categories';
 import { requirementsOf } from '../../../lib/catalogue/requirements';
 import type { Vendor } from '../../../lib/catalogue/schema';
 import { CANONICAL_DIRECTIVE } from '../../../lib/csp/directives';
+import { parseHostSource } from '../../../lib/csp/parser';
 import { localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
 import { contentFor } from '../../../lib/site-content';
 
@@ -29,6 +30,28 @@ function needs(v: Vendor) {
   };
 }
 const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool%3A%20`;
+
+/**
+ * Every address a tool lists, once per feature, with the directives it goes in: the lines the address search
+ * shows (hidden until an address matches them).
+ */
+function uses(v: Vendor) {
+  const lines = new Map<string, { source: string; feature: string; directives: string[] }>();
+  for (const f of v.features) {
+    for (const r of requirementsOf(f)) {
+      if (!parseHostSource(r.source)?.host.includes('.')) continue;
+      const key = `${f.id} ${r.source}`;
+      const line = lines.get(key) ?? { source: r.source, feature: f.label, directives: [] };
+      const directive = CANONICAL_DIRECTIVE[r.type];
+      if (!line.directives.includes(directive)) line.directives.push(directive);
+      lines.set(key, line);
+    }
+  }
+  return [...lines.values()];
+}
+/** "{source} in {directives}, for {feature}." → its text and placeholders apart, so each placeholder can be an element. */
+const useParts = t(m('use')).split(/(\{\w+\})/).filter(Boolean);
+const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).formatToParts(names);
 ---
 
 <Base title={t(m('title'))} description={t(m('description'))}>
@@ -37,8 +60,20 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
     <p class="lead"><Rich t={t} msg={m('lead')} /></p>
     <p class="finder" data-finder hidden>
       <label for="find-tool">{t(m('find'))}</label>
-      <input id="find-tool" type="search" autocomplete="off" placeholder={t(m('findPlaceholder'))} />
+      <input id="find-tool" type="search" autocomplete="off" spellcheck="false" placeholder={t(m('findPlaceholder'))} />
     </p>
+    <p
+      class="visually-hidden"
+      role="status"
+      data-status
+      data-say-found={t(m('found'))}
+      data-say-used-by={t(m('usedBy'))}
+      data-say-near-found={t(m('nearFound'))}
+      data-say-no-match={t(m('noMatch'))}
+      data-say-no-address={t(m('noAddress'))}
+    >
+    </p>
+    <p class="near" data-near data-template={t(m('near'))} hidden></p>
     {
       groups.map((g) => (
         <section data-group>
@@ -46,8 +81,9 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
           <ul class="tools">
             {g.vendors.map((v) => {
               const n = needs(v);
+              const lines = uses(v);
               return (
-                <li data-name={v.name.toLowerCase()}>
+                <li data-name={v.name.toLowerCase()} data-label={v.name}>
                   <div class="tool-head">
                     <a href={localePath(t.locale, `/vendors/${v.id}`)}>{v.name}</a>
                     <span class={v.confidence === 'verified' ? 'status' : 'status partial'}>
@@ -63,6 +99,25 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
                     ))}
                     {v.nonce?.supported && <span class="nonce">{t(m('nonce'))}</span>}
                   </p>
+                  {lines.length > 0 && (
+                    <ul class="uses" data-uses hidden>
+                      {lines.map((line) => (
+                        <li data-source={line.source} hidden>
+                          {useParts.map((part) =>
+                            part === '{source}' ? (
+                              <code class="host">{line.source}</code>
+                            ) : part === '{directives}' ? (
+                              directiveList(line.directives).map((p) => (p.type === 'element' ? <code class="chip">{p.value}</code> : p.value))
+                            ) : part === '{feature}' ? (
+                              line.feature
+                            ) : (
+                              part
+                            ),
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               );
             })}
@@ -79,20 +134,67 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
 </Base>
 
 <script>
-  // Find a tool: hides the tools whose name doesn't match, and the groups left empty. Without JavaScript the
-  // field stays hidden and every tool shows.
+  import { addressOf, sourceMatchesAddress } from '../../../lib/catalogue/lookup';
+
+  // Find a tool by its name, or by an address it uses: hides the tools that don't match and the groups left empty.
+  // For an address, each tool left shows the lines that cover it; when no tool uses the address itself, the tools
+  // using addresses under it (google.com → www.google.com). Without JavaScript the field stays hidden and every
+  // tool shows.
   const finder = document.querySelector<HTMLElement>('[data-finder]');
   const input = finder?.querySelector('input');
   const tools = [...document.querySelectorAll<HTMLElement>('[data-name]')];
   const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
   const none = document.querySelector<HTMLElement>('[data-no-match]');
-  if (finder && input) {
+  const near = document.querySelector<HTMLElement>('[data-near]');
+  const status = document.querySelector<HTMLElement>('[data-status]');
+  const lang = document.documentElement.lang;
+  const fill = (template: string, vars: Record<string, string>) => template.replace(/\{(\w+)\}/g, (m, k: string) => vars[k] ?? m);
+  const list = (names: string[]) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(names);
+  let pending: number | undefined;
+
+  function search(query: string): string {
+    const address = addressOf(query);
+    const lines = tools.map((tool) => [...tool.querySelectorAll<HTMLElement>('[data-source]')]);
+    for (const line of lines.flat()) line.hidden = true;
+    const kinds = address ? lines.map((ls) => ls.map((l) => sourceMatchesAddress(l.dataset.source!, address))) : [];
+    const exact = kinds.some((ks) => ks.includes('exact'));
+    const wanted = exact ? 'exact' : 'domain';
+
+    tools.forEach((tool, i) => {
+      if (!address) {
+        tool.hidden = query !== '' && !tool.dataset.name!.includes(query.toLowerCase());
+      } else {
+        lines[i]!.forEach((line, j) => (line.hidden = kinds[i]![j] !== wanted));
+        tool.hidden = !kinds[i]!.includes(wanted);
+      }
+      const uses = tool.querySelector<HTMLElement>('[data-uses]');
+      if (uses) uses.hidden = !address || tool.hidden;
+    });
+    for (const g of groups) g.hidden = !g.querySelector('[data-name]:not([hidden])');
+
+    const shown = tools.filter((tool) => !tool.hidden).map((tool) => tool.dataset.label!);
+    const host = address?.host ?? '';
+    if (near) {
+      near.hidden = !address || exact || shown.length === 0;
+      near.textContent = fill(near.dataset.template!, { address: host });
+    }
+    if (none) {
+      none.hidden = shown.length > 0;
+      none.textContent = fill(address ? status!.dataset.sayNoAddress! : status!.dataset.sayNoMatch!, { address: host });
+    }
+    if (!query) return '';
+    if (shown.length === 0) return none!.textContent!;
+    const template = !address ? status!.dataset.sayFound! : exact ? status!.dataset.sayUsedBy! : status!.dataset.sayNearFound!;
+    return fill(template, { tools: list(shown), address: host });
+  }
+
+  if (finder && input && status) {
     finder.hidden = false;
     input.addEventListener('input', () => {
-      const q = input.value.trim().toLowerCase();
-      for (const tool of tools) tool.hidden = q !== '' && !tool.dataset.name!.includes(q);
-      for (const g of groups) g.hidden = !g.querySelector('[data-name]:not([hidden])');
-      if (none) none.hidden = tools.some((tool) => !tool.hidden);
+      const line = search(input.value.trim());
+      // Said once typing pauses, not after every letter.
+      window.clearTimeout(pending);
+      pending = window.setTimeout(() => (status.textContent = line), 500);
     });
   }
 </script>
@@ -180,6 +282,32 @@ const missingUrl = `${REPO_URL}/issues/new?labels=catalogue&title=Add%20a%20tool
   }
   .chip.unsafe {
     background: var(--hl-unsafe);
+  }
+  .near {
+    margin: 1.5rem 0 0;
+    color: var(--ink-soft);
+  }
+  /* The lines that cover the address searched for: the address highlighted, the rest quiet */
+  .uses {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+  }
+  .tools .uses li {
+    padding: 0.15rem 0;
+    border-bottom: none;
+    overflow-wrap: anywhere;
+  }
+  /* In a sentence: no gap before the comma that follows, and no line break before it either (an inline-block
+     lets the comma start the next line) */
+  .uses .chip {
+    display: inline;
+    margin: 0;
+  }
+  .host {
+    background: var(--hl-host);
+    padding: 0 0.25em;
+    border-radius: 3px;
   }
   .nonce {
     font-size: var(--step--1);

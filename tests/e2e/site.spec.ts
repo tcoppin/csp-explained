@@ -192,6 +192,11 @@ async function everyView(page: Page, check: (where: string) => Promise<void>) {
     await page.goto(path);
     await check(path);
   }
+  // The catalogue searched by address: the lines that cover it, and the note when only addresses under it match.
+  await page.goto('/vendors');
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('google.com');
+  await page.locator('.near').waitFor();
+  await check('catalogue searched by address');
   await openAnalyzer(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
   for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {

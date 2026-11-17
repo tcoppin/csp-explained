@@ -19,6 +19,10 @@ needs our own server comes last, because it changes the site's promise that the 
       names; "Print or save as PDF" opens the print window and, once closed, the focus is back on that button;
       a PDF saved from it, opened in a PDF reader, reads headings and the policy in order; the downloaded .html
       file reads the same way in a browser.
+      Also the address search on the Tools page (2026-11-17): typing `static.hotjar.com` in "Find a tool or an
+      address", the result is announced once typing pauses ("static.hotjar.com is used by Hotjar"), not after each
+      letter; the lines under a tool make sense heard ("https://static.hotjar.com in script-src, for…"), including
+      how the addresses and directive names are pronounced.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -84,10 +88,9 @@ Internal tooling, never part of the public site.
 Everything here runs on the visitor's device, like the analyzer: nothing typed, pasted or dropped is sent anywhere.
 
 - [ ] **Explain a pasted console error** (2026-11-12): the parser already recognises violation messages but only
-      asks for the policy. Name the blocked address and the directive, the catalogue tool behind it, and the line
-      to add. Its engine serves the violation reports below too.
-- [ ] **Who is this domain?** (2026-11-12): look up an address in the catalogue to find the tool behind it. The
-      vendors page searches by name only today. Feeds the console-error explainer.
+      asks for the policy. Name the blocked address and the directive, the catalogue tool behind it
+      (`src/lib/catalogue/lookup.ts` finds it), and the line to add. Its engine serves the violation reports below
+      too.
 - [ ] **Read violation reports** (2026-11-05): paste or drop a batch of reports (`report-to` or `report-uri`
       format, or a log export). Group them by blocked address, directive and page; set noise apart (browser
       extensions, code injected on the visitor's device, the same visitor's repeats); name the catalogue tool
@@ -234,6 +237,12 @@ Interface:
 
 ### Features
 
+- [x] **Who is this domain?** (2026-11-17): the Tools page's search takes an address as well as a name (a host,
+      a full address, or a value copied from a console message). It shows the tools that use it and the lines that
+      cover it: the address, the directives and the feature ("https://cdn.us.heap-api.com in script-src, for
+      Product Analytics (Heap)"). When no tool uses the address itself (`google.com`), it says so and shows the
+      tools using addresses under it. Matching follows CSP's own rules (`src/lib/catalogue/lookup.ts`), ready for
+      the console-error explainer.
 - [x] **Save a copy of a report** (2026-11-16): under each report, "Print or save as PDF" (the browser's print
       window, with a document made for paper: always dark on white, the site, tools and date at the top), and
       downloads as .html (the same document, standalone), .md (developer, security) or .txt (IT message). The

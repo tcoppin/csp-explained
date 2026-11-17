@@ -1,5 +1,5 @@
 /** The guides and reference pages: Find my CSP, nonces, reporting, the catalogue, directive pages. */
-import { test, expect, watchErrors, openAnalyzer } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, readAloud, announced } from './helpers';
 
 test("the find-my-csp snippet's \"no policy\" answer points to the builder", async ({ page }) => {
   await openAnalyzer(page);
@@ -51,11 +51,11 @@ test('the catalogue finds a tool, and a tool page shows each line once with what
   await expect(hotjar).toContainText('Checked Oct 29, 2026');
   await expect(hotjar.locator('.chip.unsafe')).toHaveText("'unsafe-inline'");
 
-  await page.getByRole('searchbox', { name: 'Find a tool' }).fill('goo');
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('goo');
   await expect(hotjar).toBeHidden();
   await expect(page.getByRole('heading', { name: 'Session replay & heatmaps' })).toBeHidden();
   await expect(page.getByRole('link', { name: 'Google Tag Manager' })).toBeVisible();
-  await page.getByRole('searchbox', { name: 'Find a tool' }).fill('nothing like this');
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('nothing like this');
   await expect(page.getByText('No tool matches.')).toBeVisible();
 
   await page.goto('/vendors/hotjar');
@@ -65,6 +65,80 @@ test('the catalogue finds a tool, and a tool page shows each line once with what
   expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/^script-src https:\/\/static\.hotjar\.com https:\/\/script\.hotjar\.com 'unsafe-inline';\n/);
   await expect(page.locator('table')).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('the catalogue finds the tool behind an address, and the lines that cover it', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/vendors');
+  const find = page.getByRole('searchbox', { name: 'Find a tool or an address' });
+  const contentsquare = page.locator('[data-name="contentsquare"]');
+
+  // An address copied from a console message: only the tool and the line that cover it show.
+  await find.fill("'https://cdn.us.heap-api.com/js/heap.js'.");
+  await expect(page.locator('[data-name]:not([hidden])')).toHaveCount(1);
+  await expect(contentsquare.locator('.uses li:not([hidden])')).toHaveText([
+    'https://cdn.us.heap-api.com in script-src, for Product Analytics (Heap), US data centre.',
+    'https://cdn.us.heap-api.com in script-src, for Product Analytics (Heap), EU data centre.',
+  ]);
+  await expect(page.locator('.near')).toBeHidden();
+
+  // One address in several directives of one feature reads as one line.
+  await find.fill('heapanalytics.com');
+  await expect(contentsquare.locator('.uses li:not([hidden])')).toContainText([
+    'https://heapanalytics.com in connect-src, for Heap SDK v4 (older).',
+    'https://heapanalytics.com in script-src, connect-src, img-src, style-src, and font-src, for Heap Visual Labeler.',
+  ]);
+
+  // A domain no tool uses itself: the tools using addresses under it, said so.
+  await find.fill('google.com');
+  await expect(page.locator('.near')).toHaveText('No tool uses google.com itself. These tools use addresses under it.');
+  await expect(page.locator('[data-name="google ads"] .uses li:not([hidden])').first()).toContainText('https://www.google.com in');
+  await expect(contentsquare).toBeHidden();
+
+  // An address the catalogue doesn't know.
+  await find.fill('cdn.my-own-site.com');
+  await expect(page.locator('[data-name]:not([hidden])')).toHaveCount(0);
+  await expect(page.getByText("No tool in the catalogue uses cdn.my-own-site.com. It may belong to your own site")).toBeVisible();
+
+  // Back to a name: no address lines.
+  await find.fill('content');
+  await expect(contentsquare).toBeVisible();
+  await expect(contentsquare.locator('.uses')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('the address search speaks French on French pages', async ({ page }) => {
+  await page.goto('/fr/vendors');
+  await page.getByRole('searchbox', { name: 'Trouver un outil ou une adresse' }).fill('csxd.contentsquare.net');
+  // Its own frame line, and the wildcard lines that cover it too.
+  await expect(page.locator('[data-name="contentsquare"] .uses li:not([hidden])')).toContainText([
+    '*.contentsquare.net dans script-src et connect-src, pour Experience Analytics.',
+    'csxd.contentsquare.net dans frame-src, pour Suivi entre domaines (cadre hébergé par Contentsquare).',
+  ]);
+});
+
+test('a screen reader hears which tools use an address, once typing pauses, and the line that covers it', async ({ page }) => {
+  await page.goto('/vendors');
+  const find = page.getByRole('searchbox', { name: 'Find a tool or an address' });
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  expect(await live(async () => {
+    await find.fill('t.contentsquare.net');
+    await page.waitForTimeout(600);
+  })).toEqual(['polite: t.contentsquare.net is used by Contentsquare.']);
+  expect(await live(async () => {
+    await find.fill('google.com');
+    await page.waitForTimeout(600);
+  })).toEqual(['polite: No tool uses google.com itself. Addresses under it are used by Google Tag Manager, Google Analytics 4, and Google Ads.']);
+  expect(await live(async () => {
+    await find.fill('goo');
+    await page.waitForTimeout(600);
+  })).toEqual(['polite: Found: Google Tag Manager, Google Analytics 4, and Google Ads.']);
+  await expect(find).toBeFocused();
+
+  await find.fill('csxd.contentsquare.net');
+  // The virtual reader marks where code starts and ends; the words come in the order of the sentence.
+  const heard = (await readAloud(page, '[data-name="contentsquare"]')).join(' ').replace(/\s*(?:code|end of code)\s*/g, ' ').replace(/ ,/g, ',');
+  expect(heard).toContain('csxd.contentsquare.net in frame-src, for Cross-domain tracking (frame hosted by Contentsquare).');
 });
 
 test('find my CSP shows one method at a time', async ({ page }) => {
