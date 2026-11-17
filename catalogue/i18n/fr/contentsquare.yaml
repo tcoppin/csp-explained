@@ -2,8 +2,8 @@
 # en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
 
 notes:
-  # The official page also documents img-src tracking subdomains, blob: workers (child-src / worker-src) and csxd. frames for cross-domain tracking. Those are not captured here yet.
-  { en: d2b74d15, text: "La page officielle documente aussi des sous-domaines de suivi pour img-src, des workers blob: (child-src / worker-src) et des cadres csxd. pour le suivi entre domaines. Ils ne sont pas encore repris ici." }
+  # Cross-domain tracking through your own frame host (frame-src csxd.<your domain>, one per domain) depends on your domains and is not checked here; only the frame hosted by Contentsquare is. If your security rules forbid wildcards, Contentsquare provides a list of hosts for your project on request.
+  { en: f8638aaa, text: "Le suivi entre domaines par votre propre hôte de cadre (frame-src csxd.<votre domaine>, un par domaine) dépend de vos domaines et n'est pas vérifié ici ; seul le cadre hébergé par Contentsquare l'est. Si vos règles de sécurité interdisent les jokers, Contentsquare fournit sur demande la liste des hôtes de votre projet." }
 features:
   experience-analytics:
     label:
@@ -11,17 +11,17 @@ features:
       { en: f57bc2a1, text: "Experience Analytics" }
     reasons:
       script:
-        # Loads the tag (from t.contentsquare.net) and zoning from the app.
-        { en: "88083750", text: "Charge le tag (depuis t.contentsquare.net) et le zoning depuis l'application." }
+        # Loads the tag (from t.contentsquare.net) and, when the site is opened in the Contentsquare app, what builds zoning and screenshots.
+        { en: 1eafeaf5, text: "Charge le tag (depuis t.contentsquare.net) et, quand le site est ouvert dans l'application Contentsquare, ce qui construit le zoning et les captures d'écran." }
       inline-script:
-        # The tag is usually started by a small inline script.
-        { en: daeab25f, text: "Le tag est en général lancé par un petit script dans la page." }
+        # Runs the installation snippet and your own inline Contentsquare code (not needed with a nonce).
+        { en: 10bcacc2, text: "Exécute le code d'installation et votre propre code Contentsquare écrit dans la page (inutile avec un nonce)." }
       connect:
-        # Sends data.
-        { en: ec9a65aa, text: "Envoie les données." }
+        # Sends data, and lets Contentsquare check that the tag is installed.
+        { en: d2f7a229, text: "Envoie les données et permet à Contentsquare de vérifier que le tag est installé." }
       style:
-        # Styles for in-page zoning.
-        { en: "42328644", text: "Styles du zoning dans la page." }
+        # Styles for zoning and screenshots, when the site is opened in the Contentsquare app.
+        { en: 1e8c10ed, text: "Styles du zoning et des captures d'écran, quand le site est ouvert dans l'application Contentsquare." }
   voice-of-customer:
     label:
       # Voice of Customer
@@ -33,3 +33,109 @@ features:
       font:
         # Loads the survey fonts. Without it, surveys fall back to default fonts.
         { en: d160b3c7, text: "Charge les polices des questionnaires. Sans cette règle, ils s'affichent avec les polices par défaut." }
+  cross-domain:
+    description:
+      # Links one visitor's sessions across your domains.
+      { en: a52ff0f4, text: "Relie les sessions d'un même visiteur sur vos différents domaines." }
+    label:
+      # Cross-domain tracking (frame hosted by Contentsquare)
+      { en: 4270574b, text: "Suivi entre domaines (cadre hébergé par Contentsquare)" }
+    reasons:
+      frame:
+        # Loads the frame that links sessions across domains.
+        { en: 7a524d49, text: "Charge le cadre qui relie les sessions entre domaines." }
+  product-analytics-us:
+    description:
+      # Only when the project also loads Heap.
+      { en: dde750ca, text: "Seulement si le projet charge aussi Heap." }
+    label:
+      # Product Analytics (Heap), US data centre
+      { en: 81e1e6c3, text: "Product Analytics (Heap), centre de données américain" }
+    reasons:
+      script:
+        # Loads the Heap SDK and its settings.
+        { en: 8db4cdf4, text: "Charge le SDK Heap et ses réglages." }
+      connect:
+        # Sends Heap events.
+        { en: f4efecd0, text: "Envoie les événements Heap." }
+  product-analytics-eu:
+    description:
+      # Only when the project also loads Heap.
+      { en: dde750ca, text: "Seulement si le projet charge aussi Heap." }
+    label:
+      # Product Analytics (Heap), EU data centre
+      { en: eff78569, text: "Product Analytics (Heap), centre de données européen" }
+    reasons:
+      script:
+        # Loads the Heap SDK and its settings. The US host only serves tag versions older than region-aware routing.
+        { en: f79e7679, text: "Charge le SDK Heap et ses réglages. L'hôte américain ne sert qu'aux versions du tag antérieures au routage par région." }
+      connect:
+        # Sends Heap events.
+        { en: f4efecd0, text: "Envoie les événements Heap." }
+  heap-sdk-v4:
+    description:
+      # Instead of the current SDK (v5).
+      { en: d9473493, text: "À la place du SDK actuel (v5)." }
+    label:
+      # Heap SDK v4 (older)
+      { en: a843df96, text: "SDK Heap v4 (ancien)" }
+    reasons:
+      script:
+        # Loads the older Heap SDK.
+        { en: 900203dd, text: "Charge l'ancien SDK Heap." }
+      connect:
+        # Sends Heap events.
+        { en: f4efecd0, text: "Envoie les événements Heap." }
+  visual-labeler:
+    description:
+      # Tags events by pointing at the page, only while someone from your team has the site open in the Contentsquare app. Visitors don't need it.
+      { en: fb933ddc, text: "Définit des événements en désignant les éléments de la page, seulement quand quelqu'un de votre équipe a ouvert le site dans l'application Contentsquare. Les visiteurs n'en ont pas besoin." }
+    label:
+      # Heap Visual Labeler
+      { en: 2f6eff82, text: "Heap Visual Labeler" }
+    reasons:
+      script:
+        # Loads the Visual Labeler.
+        { en: 94d6d39f, text: "Charge le Visual Labeler." }
+      eval:
+        # The Visual Labeler needs it to display.
+        { en: 7fe08244, text: "Le Visual Labeler en a besoin pour s'afficher." }
+      connect:
+        # Fetches the Visual Labeler's settings.
+        { en: c843ccc2, text: "Récupère les réglages du Visual Labeler." }
+      img:
+        # Loads the Visual Labeler's images.
+        { en: eb286a8a, text: "Charge les images du Visual Labeler." }
+      style:
+        # Loads the Visual Labeler's styles.
+        { en: 3579b19a, text: "Charge les styles du Visual Labeler." }
+      font:
+        # Loads the Visual Labeler's fonts.
+        { en: a4eabaf5, text: "Charge les polices du Visual Labeler." }
+  visual-labeler-eu:
+    description:
+      # Add to the Visual Labeler for an EU project.
+      { en: a30c9624, text: "À ajouter au Visual Labeler pour un projet européen." }
+    label:
+      # Heap Visual Labeler, EU data centre
+      { en: 32e4b2d5, text: "Heap Visual Labeler, centre de données européen" }
+    reasons:
+      script:
+        # Loads the Visual Labeler from the EU.
+        { en: 2860b1e5, text: "Charge le Visual Labeler depuis l'Europe." }
+      connect:
+        # Fetches the Visual Labeler's settings from the EU.
+        { en: "34188e57", text: "Récupère les réglages du Visual Labeler depuis l'Europe." }
+      img:
+        # Loads the Visual Labeler's images from the EU.
+        { en: b3918759, text: "Charge les images du Visual Labeler depuis l'Europe." }
+      style:
+        # Loads the Visual Labeler's styles from the EU.
+        { en: fa6f9362, text: "Charge les styles du Visual Labeler depuis l'Europe." }
+      font:
+        # Loads the Visual Labeler's fonts from the EU.
+        { en: 4f9f7b60, text: "Charge les polices du Visual Labeler depuis l'Europe." }
+nonce:
+  how:
+    # The tag itself adds no inline script. Put the nonce on the inline installation snippet and on your own inline Contentsquare code, or move them to a file; 'unsafe-inline' is then no longer required. Contentsquare doesn't document 'strict-dynamic', so keep the Contentsquare hosts in script-src.
+    { en: 433035ce, text: "Le tag lui-même n'ajoute aucun script dans la page. Mettez le nonce sur le code d'installation et sur votre propre code Contentsquare écrit dans la page, ou placez-les dans un fichier : 'unsafe-inline' n'est alors plus nécessaire. Contentsquare ne documente pas 'strict-dynamic' : gardez les hôtes Contentsquare dans script-src." }

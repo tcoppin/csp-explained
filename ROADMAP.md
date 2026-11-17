@@ -32,7 +32,6 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
 
 ### In the catalogue, with known gaps
 
-- [ ] **Contentsquare**: add `img-src` tracking domains, `blob:` workers (child-src / worker-src), `csxd.` frames.
 - [ ] Google: country domains (`google.<TLD>`) for Ads and GA4 advertising features aren't checked.
 - [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).

@@ -4,11 +4,18 @@ category: session-replay
 website: https://contentsquare.com
 sources:
   - https://docs.contentsquare.com/en/web/content-security-policy/
-lastVerified: 2026-11-09
-confidence: partial
+lastVerified: 2026-11-17
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    The tag itself adds no inline script. Put the nonce on the inline installation snippet and on your own
+    inline Contentsquare code, or move them to a file; 'unsafe-inline' is then no longer required.
+    Contentsquare doesn't document 'strict-dynamic', so keep the Contentsquare hosts in script-src.
 notes: >-
-  The official page also documents img-src tracking subdomains, blob: workers (child-src / worker-src)
-  and csxd. frames for cross-domain tracking. Those are not captured here yet.
+  Cross-domain tracking through your own frame host (frame-src csxd.<your domain>, one per domain) depends on
+  your domains and is not checked here; only the frame hosted by Contentsquare is. If your security rules forbid
+  wildcards, Contentsquare provides a list of hosts for your project on request.
 features:
   - id: experience-analytics
     label: Experience Analytics
@@ -16,16 +23,16 @@ features:
     requirements:
       - type: script
         sources: ["*.contentsquare.net", app.contentsquare.com]
-        reason: Loads the tag (from t.contentsquare.net) and zoning from the app.
+        reason: Loads the tag (from t.contentsquare.net) and, when the site is opened in the Contentsquare app, what builds zoning and screenshots.
       - type: inline-script
         sources: ["'unsafe-inline'"]
-        reason: The tag is usually started by a small inline script.
+        reason: Runs the installation snippet and your own inline Contentsquare code (not needed with a nonce).
       - type: connect
         sources: ["*.contentsquare.net", "*.contentsquare.com"]
-        reason: Sends data.
+        reason: Sends data, and lets Contentsquare check that the tag is installed.
       - type: style
         sources: [app.contentsquare.com]
-        reason: Styles for in-page zoning.
+        reason: Styles for zoning and screenshots, when the site is opened in the Contentsquare app.
   - id: voice-of-customer
     label: Voice of Customer
     requirements:
@@ -35,3 +42,83 @@ features:
       - type: font
         sources: ["*.contentsquare.net"]
         reason: Loads the survey fonts. Without it, surveys fall back to default fonts.
+  - id: cross-domain
+    label: Cross-domain tracking (frame hosted by Contentsquare)
+    description: Links one visitor's sessions across your domains.
+    requirements:
+      - type: frame
+        sources: [csxd.contentsquare.net]
+        reason: Loads the frame that links sessions across domains.
+  - id: product-analytics-us
+    label: Product Analytics (Heap), US data centre
+    description: Only when the project also loads Heap.
+    requirements:
+      - type: script
+        sources: [https://cdn.us.heap-api.com]
+        reason: Loads the Heap SDK and its settings.
+      - type: connect
+        sources: [https://c.us.heap-api.com]
+        reason: Sends Heap events.
+  - id: product-analytics-eu
+    label: Product Analytics (Heap), EU data centre
+    description: Only when the project also loads Heap.
+    requirements:
+      - type: script
+        sources: [https://cdn.eu.heap-api.com, https://cdn.us.heap-api.com]
+        reason: Loads the Heap SDK and its settings. The US host only serves tag versions older than region-aware routing.
+      - type: connect
+        sources: [https://c.eu.heap-api.com]
+        reason: Sends Heap events.
+  - id: heap-sdk-v4
+    label: Heap SDK v4 (older)
+    description: Instead of the current SDK (v5).
+    requirements:
+      - type: script
+        sources: [https://cdn.heapanalytics.com]
+        reason: Loads the older Heap SDK.
+      - type: connect
+        sources: [https://heapanalytics.com]
+        reason: Sends Heap events.
+  - id: visual-labeler
+    label: Heap Visual Labeler
+    description: >-
+      Tags events by pointing at the page, only while someone from your team has the site open in the
+      Contentsquare app. Visitors don't need it.
+    requirements:
+      - type: script
+        sources: [https://heapanalytics.com]
+        reason: Loads the Visual Labeler.
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: The Visual Labeler needs it to display.
+      - type: connect
+        sources: [https://heapanalytics.com]
+        reason: Fetches the Visual Labeler's settings.
+      - type: img
+        sources: [https://heapanalytics.com]
+        reason: Loads the Visual Labeler's images.
+      - type: style
+        sources: [https://heapanalytics.com]
+        reason: Loads the Visual Labeler's styles.
+      - type: font
+        sources: [https://heapanalytics.com]
+        reason: Loads the Visual Labeler's fonts.
+  - id: visual-labeler-eu
+    label: Heap Visual Labeler, EU data centre
+    description: Add to the Visual Labeler for an EU project.
+    requirements:
+      - type: script
+        sources: [https://eu.heapanalytics.com]
+        reason: Loads the Visual Labeler from the EU.
+      - type: connect
+        sources: [https://eu.heapanalytics.com]
+        reason: Fetches the Visual Labeler's settings from the EU.
+      - type: img
+        sources: [https://eu.heapanalytics.com]
+        reason: Loads the Visual Labeler's images from the EU.
+      - type: style
+        sources: [https://eu.heapanalytics.com]
+        reason: Loads the Visual Labeler's styles from the EU.
+      - type: font
+        sources: [https://eu.heapanalytics.com]
+        reason: Loads the Visual Labeler's fonts from the EU.
