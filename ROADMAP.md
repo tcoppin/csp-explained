@@ -22,7 +22,9 @@ needs our own server comes last, because it changes the site's promise that the 
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
-- [ ] `cspexplained.com` registration failed (AWS support contacted).
+- [ ] `cspexplained.com` (without the hyphen): retry later. On 2026-11-17, AWS support said the account can't
+      register more domains and that they can't lift that restriction for now. Another registrar, with a redirect
+      to `csp-explained.com`, is the fallback.
 
 ## 2. Vendor catalogue
 
