@@ -125,6 +125,9 @@ describe('parse', () => {
       wrapped: `Refused to load the script 'https://cdn.vendor.example/tag.js' because it violates the following\nContent Security Policy directive: "script-src 'self'".`,
       firefox: `Content-Security-Policy: The page’s settings blocked the loading of a resource (script-src-elem) at https://cdn.vendor.example/tag.js because it violates the following directive: “script-src 'self'”`,
       safari: `Refused to load https://cdn.vendor.example/tag.js because it does not appear in the script-src directive of the Content Security Policy.`,
+      // Report-only: Chrome's wording for frames and forms, and Firefox's.
+      chromeReportOnly: `Framing 'https://cdn.vendor.example/' violates the following report-only Content Security Policy directive: "script-src 'self'". The violation has been logged, but no further action has been taken.`,
+      firefoxReportOnly: `Content-Security-Policy: The page’s settings observed the loading of a resource (script-src-elem) at https://cdn.vendor.example/tag.js because it violates the following directive: “script-src 'self'”. A CSP report is being sent.`,
     };
     for (const [browser, message] of Object.entries(errors)) {
       const result = parse(message);
