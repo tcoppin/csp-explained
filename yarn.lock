@@ -2635,6 +2635,7 @@ __metadata:
     "@types/node": "npm:^26.6.6"
     astro: "npm:^7.4.10"
     csp_evaluator: "npm:^1.1.8"
+    playwright-core: "npm:1.65.0"
     preact: "npm:^11.2.0"
     tsx: "npm:^4.23.15"
     typescript: "npm:^6.0.3"
@@ -3901,15 +3902,6 @@ __metadata:
   version: 4.0.7
   resolution: "picomatch@npm:4.0.7"
   checksum: 10c0/beb6ae02c43ae44e84883b90830196d9046b1726ead292adcf7f57945e0bb0d992d68563d87e03b484b6f3c9a5c6defda7523477f047d7f0e663f126cc01787f
-  languageName: node
-  linkType: hard
-
-"playwright-core@npm:1.64.1":
-  version: 1.64.1
-  resolution: "playwright-core@npm:1.64.1"
-  bin:
-    playwright-core: cli.js
-  checksum: 10c0/91c4f5ed1cff4b0e18b6ac62f66770f5f1b6c204d4aebd6a321c07466dca18a70822ac692597c6059705a703f9768097ac551df179fb49294d639509148e04f3
   languageName: node
   linkType: hard
 
