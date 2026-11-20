@@ -37,6 +37,17 @@ needs our own server comes last, because it changes the site's promise that the 
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
       export from someone who uses one would settle it; add it to `src/lib/csp/violation-reports/` as a fixture.
+- [ ] Reports reader, what the review of 2026-11-20 left for later:
+      - Report counts aren't importance: one visitor reloading, or a bot, makes many reports, and browsers limit and
+        deduplicate them differently. A blocked inline script on `/checkout` matters more than an analytics tool
+        blocked everywhere. Weigh by pages that matter (checkout, sign-in) or by distinct pages and browsers.
+      - More noise than extensions: in-app browsers (Instagram, Facebook), Google Translate, antivirus software and
+        proxies that rewrite pages, Safari extensions without a scheme, `about:blank`. Today they land in the site's
+        problems.
+      - "Is it safe to enforce?": most reports come from a report-only policy being tried out. Answer that question
+        for a report-only batch: what would break, what can be ignored.
+      - Inline code leads to `'unsafe-inline'`: `style-src-attr 'unsafe-inline'` is the first line of the example,
+        added to the fixed policy on its own. Say what it costs, and offer moving the styles first.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
