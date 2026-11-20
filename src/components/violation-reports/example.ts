@@ -3,7 +3,7 @@
  * (Reporting API format). Until the evening of 14 November the policy didn't allow Google Tag Manager, which was
  * blocked then. Hotjar and Google Analytics are blocked across pages and browsers, a product page uses style attributes,
  * the checkout has an inline script, a look-alike "jQuery" no tool uses turns up on the cart and checkout (what a
- * card skimmer looks like), and some visitors' extensions add their own noise.
+ * card skimmer looks like), and some visitors' extensions, an antivirus and Chrome's translation add their own noise.
  */
 
 const SITE = 'https://shop.example.com';
@@ -57,6 +57,9 @@ const KINDS: Kind[] = [
   // New on the 17th: no tool uses it, and nothing on the site changed then.
   { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4], from: 4 * 24 * 60 - 6 * 60 },
   { times: 14, blockedURL: 'https://www.googletagmanager.com/gtm.js?id=GTM-X1Y2Z3', effectiveDirective: 'script-src-elem', until: (CHANGE - START) / 60000 },
+  // Kaspersky's script, added to every page by the antivirus; a page translated by Chrome.
+  { times: 4, blockedURL: 'https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js', effectiveDirective: 'script-src-elem', browsers: [0] },
+  { times: 3, blockedURL: 'https://translate.googleapis.com/translate_static/css/translateelement.css', effectiveDirective: 'style-src-elem', pages: [0, 1], browsers: [0] },
 ];
 
 export const EXAMPLE_REPORTS = KINDS.flatMap((k, n) =>

@@ -136,6 +136,44 @@ describe('explainReports', () => {
     expect(e.groups).toHaveLength(2);
   });
 
+  it('sets apart what the site didn\'t cause, by cause, and keeps it out of the lines', () => {
+    const INSTAGRAM = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 400.0.0.0';
+    const GOOGLEBOT = 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/142.0.0.0 Safari/537.36';
+    const CUBOT = 'Mozilla/5.0 (Linux; Android 12; CUBOT X50) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36';
+    const script = (url: string) => ({ blockedURL: url, effectiveDirective: 'script-src-elem' });
+    const input = [
+      report(script('chrome-extension://abc/content.js')),
+      report(script('https://gc.kis.v2.scr.kaspersky-labs.com/X/main.js')),
+      report({ blockedURL: 'https://translate.googleapis.com/translate_static/css/translateelement.css', effectiveDirective: 'style-src-elem' }),
+      report({ ...script('https://static.hotjar.com/c/hotjar-1.js'), documentURL: 'https://shop-example-com.translate.goog/' }),
+      report(script('https://in-app.example/x.js'), INSTAGRAM),
+      report(script('https://crawl.example/x.js'), GOOGLEBOT),
+      report({ ...script('https://cached.example/x.js'), documentURL: 'https://webcache.googleusercontent.com/search?q=cache:shop.example.com' }),
+      report({ ...script('https://saved.example/x.js'), documentURL: 'file:///Users/someone/Downloads/shop.html' }),
+      report({ blockedURL: 'about', effectiveDirective: 'frame-src' }),
+      // Seen in a normal browser too, or from a phone whose name has "bot" in it: the site's.
+      report(script('https://cdn.us.heap-api.com/js/heap.js'), INSTAGRAM),
+      report(script('https://cdn.us.heap-api.com/js/heap.js')),
+      report({ blockedURL: 'https://region1.google-analytics.com/g/collect', effectiveDirective: 'connect-src' }, CUBOT),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    expect(e.origin).toBe('https://shop.example.com');
+    expect(e.noise.map((g) => [g.noise, g.explained.host])).toEqual([
+      ['extension', 'abc'],
+      ['software', 'gc.kis.v2.scr.kaspersky-labs.com'],
+      ['translation', 'translate.googleapis.com'],
+      ['translation', 'static.hotjar.com'],
+      ['in-app', 'in-app.example'],
+      ['bot', 'crawl.example'],
+      ['copy', 'cached.example'],
+      ['copy', 'saved.example'],
+      ['browser', undefined],
+    ]);
+    expect(e.noise.every((g) => !g.explained.fix && !g.unknown)).toBe(true);
+    expect(e.groups.map((g) => g.explained.host)).toEqual(['cdn.us.heap-api.com', 'region1.google-analytics.com']);
+    expect(e.lines.map((l) => l.line)).toEqual(["script-src 'self' 'nonce-abc' https://cdn.us.heap-api.com", "connect-src 'self' https://*.google-analytics.com"]);
+  });
+
   it('tells a domain from its subdomains', () => {
     expect(siteOf('cdn.shop.example.com')).toBe('example.com');
     expect(siteOf('www.shop.co.uk')).toBe('shop.co.uk');

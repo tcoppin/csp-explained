@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/ho
 import { localePath, translator, type Locale } from '../../i18n';
 import type { ContentBundle } from '../../lib/content';
 import { readReports } from '../../lib/csp/violation-report';
-import { explainReports, type ExplainedReports, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
+import { explainReports, NOISE_KINDS, type ExplainedReports, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
 import { track } from '../../scripts/track';
 import { encodeCompareState } from '../policy/compare-state';
 import { Lines, ViolationItem } from '../policy/ViolationList';
@@ -304,19 +304,25 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
         </details>
       )}
 
-      {r.noise.length > 0 && (
-        <details class="report-noise">
-          <summary>{t('reportsReader.noise', { count: r.noise.length, reports: noiseReports })}</summary>
-          <p>{t('reportsReader.noiseIntro')}</p>
-          <ol class="violation-list">
-            {r.noise.map((g, i) => (
-              <ViolationItem key={i} e={g.explained} index={r.groups.length + r.allowed.length + i} source="reports">
-                {stats(g)}
-              </ViolationItem>
-            ))}
-          </ol>
-        </details>
-      )}
+      {/* What isn't the site's doing, folded at the end: one section per cause, each saying why. */}
+      {NOISE_KINDS.map((kind) => {
+        const groups = r.noise.filter((g) => g.noise === kind);
+        if (groups.length === 0) return null;
+        const start = r.groups.length + r.allowed.length + r.noise.indexOf(groups[0]!);
+        return (
+          <details key={kind} class="report-noise" data-noise={kind}>
+            <summary>{t(`reportsReader.noise.${kind}.title`, { count: groups.length, reports: groups.reduce((n, g) => n + g.reports, 0) })}</summary>
+            <p>{t(`reportsReader.noise.${kind}.intro`)}</p>
+            <ol class="violation-list">
+              {groups.map((g, i) => (
+                <ViolationItem key={i} e={g.explained} index={start + i} source="reports" setApart>
+                  {stats(g)}
+                </ViolationItem>
+              ))}
+            </ol>
+          </details>
+        );
+      })}
     </section>
   );
 }

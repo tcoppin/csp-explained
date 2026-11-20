@@ -9,7 +9,7 @@ import { explainItems, linesOf, type ExplainedViolation, type FixedPolicy, type 
 /**
  * Violation reports read together: grouped by what was blocked, under which rule and policy; each group explained
  * the way a console message is (the tool behind it, the line that allows it), with how many reports, pages and
- * browsers it stands for. What doesn't come from the site (browser extensions) is set apart.
+ * browsers it stands for. What doesn't come from the site is set apart, by cause (`NoiseKind`).
  *
  * A report says something was blocked, not that it should be allowed: a script injected into the page, or a tool
  * that was hacked, is blocked the same way as a tool someone forgot. So an address no catalogue tool uses, outside
@@ -40,9 +40,23 @@ export interface ReportGroup {
    * is left out unless the visitor said they know it (`trusted`); then `fix` is set and covered by the lines.
    */
   unknown?: true;
-  /** Not the site's doing: a browser extension (the address, or the code that asked for it). */
-  noise?: 'extension';
+  /** Not the site's doing: set apart, with no line. */
+  noise?: NoiseKind;
 }
+
+/**
+ * Why a problem isn't the site's doing:
+ * - `extension`: a browser extension (the address, or the code that asked for it);
+ * - `software`: software on the visitor's device or network that adds code to every page (antivirus, adware, company
+ *   proxies);
+ * - `translation`: a translator adding its own styles and scripts, or the page shown through one;
+ * - `in-app`: seen only in apps' built-in browsers (Instagram, Facebook, TikTok…), which add their own code;
+ * - `bot`: seen only from crawlers and automated browsers;
+ * - `copy`: the page shown somewhere else (a search engine's cache, an archive, a saved file);
+ * - `browser`: the browser's own pages and internal addresses.
+ */
+export type NoiseKind = 'extension' | 'software' | 'translation' | 'in-app' | 'bot' | 'copy' | 'browser';
+export const NOISE_KINDS: readonly NoiseKind[] = ['extension', 'software', 'translation', 'in-app', 'bot', 'copy', 'browser'];
 
 export interface ReportPolicy {
   text: string;
@@ -75,7 +89,7 @@ export interface ExplainedReports {
   skipped: number;
   /** Problems, most reports first. */
   groups: ReportGroup[];
-  /** Set apart: not caused by the site. */
+  /** Set apart: not caused by the site, by cause in the order of `NOISE_KINDS`, then most reports first. */
   noise: ReportGroup[];
   /** Set apart: reported under an older policy, and the newest one allows it. */
   allowed: ReportGroup[];
@@ -92,8 +106,59 @@ export interface ExplainedReports {
   origin?: string;
 }
 
-const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:/i;
+const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension(?::|$)/i;
 const INLINE = new Set(['inline', '', 'self']);
+
+// What browsers report about themselves, and the hosts of software that adds code to every page: from Sentry's list
+// of CSP noise ("sourced from personal experience as well as reputable blogs from Twitter and Dropbox",
+// `DEFAULT_DISALLOWED_SOURCES` in getsentry/sentry, src/sentry/interfaces/security.py), without the widgets a site can
+// use on purpose (amung.us, siteheart.net) and localhost; and Kaspersky's and AdGuard's local injection hosts.
+const BROWSER = /^(?:about|chrome|chromeinvokeimmediate|chromenull|mxaddon-pkg|jar|webviewprogressproxy|tmtbff|mbinit|symres|resource)(?::|$)|^data:text\/html,chromewebdata/i;
+const SOFTWARE = [
+  'kaspersky-labs.com', 'local.adguard.org', 'injections.adguard.com', 'gateway.zscalertwo.net', 'www.passpack.com',
+  'metrext.com', 'static.image2play.com', 'tlscdn.com', '73a5b0806e464be8bd4e694c744624f0.com', '020dfefc4ac745dab7594f2f771c1ded.com',
+  'superfish.com', 'v.zilionfast.in', 'xls.searchfun.in', 'istatic.datafastguru.info', 'resultshub-a.akamaihd.net', 'pulseadnetwork.com',
+  'middlerush-a.akamaihd.net', 'www.websmartcenter.com', 'a.linkluster.com', 'saveyoutime.ru', 'cdncache-a.akamaihd.net', 'x.rafomedia.com',
+  'savingsslider-a.akamaihd.net', 'icontent.us', 'amiok.org', 'connectionstrenth.com', 'netanalitics.space', 'printapplink.com',
+  'godlinkapp.com', 'devappstor.com', 'hoholikik.club', 'smartlink.cool', 'promfflinkdev.com',
+];
+/** Chrome's built-in translation fetches its styles and scripts from these. */
+const TRANSLATION = ['translate.googleapis.com', 'translate-pa.googleapis.com'];
+/** Pages shown somewhere else: a search engine's cache, an archive. */
+const COPIES = ['webcache.googleusercontent.com', 'cc.bingj.com', 'web.archive.org', 'archive.ph', 'archive.today', 'archive.is'];
+const IN_APP = /\b(?:FBAN|FBAV|FB_IAB|FBIOS|Instagram|musical_ly|Bytedance\w*|TikTok|Snapchat|LinkedInApp)\b|\bLine\/|\bPinterest\//;
+// "bot/" and the like, so that a phone called CUBOT isn't one.
+const BOT = /(?:bot|crawler|spider)[\w-]*\/|\b(?:HeadlessChrome|PhantomJS|Chrome-Lighthouse|Google-InspectionTool|facebookexternalhit)\b/i;
+
+const hostIn = (host: string | undefined, list: readonly string[]) => host !== undefined && list.some((h) => host === h || host.endsWith(`.${h}`));
+const urlHost = (url: string | undefined) => {
+  try {
+    return url ? new URL(url).hostname.toLowerCase() : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/** What a report alone says about its cause: what was blocked, the code that asked for it, the page it came from. */
+function noiseOf(r: ViolationReport): NoiseKind | undefined {
+  const things = [r.blocked, r.sourceFile ?? ''];
+  if (things.some((t) => EXTENSION.test(t))) return 'extension';
+  if (things.some((t) => BROWSER.test(t))) return 'browser';
+  if (things.some((t) => hostIn(urlHost(t), SOFTWARE))) return 'software';
+  const page = urlHost(r.page);
+  if (hostIn(urlHost(r.blocked), TRANSLATION) || page?.endsWith('.translate.goog')) return 'translation';
+  if (hostIn(page, COPIES) || (r.page !== undefined && /^[a-z][\w+.-]*:/i.test(r.page) && !/^https?:/i.test(r.page))) return 'copy';
+  return undefined;
+}
+
+/** What every report of a problem says about the browsers that sent it: only apps' browsers, or only bots. */
+function agentsOf(reports: ViolationReport[]): NoiseKind | undefined {
+  const agents = reports.map((r) => r.userAgent);
+  if (agents.some((a) => !a)) return undefined;
+  if (agents.every((a) => IN_APP.test(a!))) return 'in-app';
+  if (agents.every((a) => BOT.test(a!))) return 'bot';
+  return undefined;
+}
 
 export interface ReportOptions {
   /** Keys of unknown addresses the visitor knows: their lines go in. */
@@ -113,7 +178,8 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
   const reports = since === undefined ? read.reports : read.reports.filter((r) => r.time !== undefined && r.time >= since);
   const undated = since === undefined ? 0 : read.reports.filter((r) => r.time === undefined).length;
   const before = read.reports.length - reports.length - undated;
-  const origins = new Set(reports.map((r) => originOf(r.page)).filter((o) => o !== undefined));
+  // The site is where its own pages are: not a translator's or a cache's copy of them.
+  const origins = new Set(reports.filter((r) => { const n = noiseOf(r); return n !== 'copy' && n !== 'translation'; }).map((r) => originOf(r.page)).filter((o) => o !== undefined));
   const origin = origins.size === 1 ? [...origins][0]! : undefined;
 
   const policies = policiesOf(reports);
@@ -126,7 +192,7 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     policy: number;
     /** Reports under the newest policy itself, not an older one read against it. */
     current: number;
-    noise?: 'extension';
+    noise?: NoiseKind;
   }
   const pending = new Map<string, Pending>();
   const names = new Map<string, RefusedPolicyName>();
@@ -144,7 +210,7 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
       continue;
     }
     const v = violationOf(r);
-    const noise = EXTENSION.test(r.blocked) || EXTENSION.test(r.sourceFile ?? '') ? ('extension' as const) : undefined;
+    const noise = noiseOf(r);
     const target = v.kind === 'url' ? (originOf(v.url) ?? v.url) : `${v.kind}|${v.sink ?? ''}`;
     // By the policy's text, not its place in the list, which changes with `since`.
     const key = `${r.disposition}|${r.policy ?? ''}|${v.effective ?? v.directive}|${target}|${noise ?? ''}`;
@@ -156,6 +222,8 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
   // Lines only from what the site itself needs: what an extension asked for never goes in, nor an unknown address
   // the visitor hasn't vouched for, nor what the newest policy already allows.
   const options = origin ? { origin } : {};
+  // A problem only apps' browsers or bots reported isn't the site's either.
+  for (const p of pending.values()) p.noise ??= agentsOf(p.reports);
   const site = [...pending.values()].filter((p) => !p.noise);
   const elsewhere = [...pending.values()].filter((p) => p.noise);
   const siteItems = explainItems(site.map((p) => ({ v: p.v, others: [] })), vendors).map((item, i) => {
@@ -168,9 +236,13 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
   const items = [...siteItems.map((s) => s.item), ...explainItems(elsewhere.map((p) => ({ v: p.v, others: [] })), vendors)];
   const all = [...site, ...elsewhere].map((p, i) => {
     const item = items[i]!;
-    // An extension's own code asking for an address: nothing to add to the policy.
+    // Nothing to add to the policy; an extension's own code asking for an address is the extension's.
     const shown: ExplainedViolation =
-      p.noise && item.case !== 'extension' ? { ...item, case: 'extension', host: hostOf(p.reports[0]!.sourceFile ?? p.v.url ?? ''), tools: [], fix: undefined, weaker: undefined } : item;
+      p.noise === 'extension' && item.case !== 'extension'
+        ? { ...item, case: 'extension', host: hostOf(p.reports[0]!.sourceFile ?? p.v.url ?? ''), tools: [], fix: undefined, weaker: undefined }
+        : p.noise
+          ? { ...item, fix: undefined, weaker: undefined }
+          : item;
     const dates = p.reports.map((r) => r.time).filter((t) => t !== undefined);
     const group: ReportGroup = {
       explained: shown,
@@ -194,7 +266,10 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     total: reports.length,
     skipped: read.skipped,
     groups: all.filter((g) => !g.group.noise && !g.allowed).map((g) => g.group).sort(byReports),
-    noise: all.filter((g) => g.group.noise).map((g) => g.group).sort(byReports),
+    noise: all
+      .filter((g) => g.group.noise)
+      .map((g) => g.group)
+      .sort((a, b) => NOISE_KINDS.indexOf(a.noise!) - NOISE_KINDS.indexOf(b.noise!) || byReports(a, b)),
     allowed: all.filter((g) => g.allowed).map((g) => g.group).sort(byReports),
     lines: explained.lines,
     policies,

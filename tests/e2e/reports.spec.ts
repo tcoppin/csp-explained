@@ -15,7 +15,7 @@ test('the example groups the reports by problem, most reports first, with the li
   const errors = watchErrors(page);
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
-  await expect(page.getByRole('heading', { name: 'What the 131 reports say', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What the 138 reports say', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: '6 problems, from your site', level: 3 })).toBeVisible();
 
   const first = page.locator('.violation').first();
@@ -32,10 +32,24 @@ test('the example groups the reports by problem, most reports first, with the li
   // Nothing that weakens the policy for everyone: no 'unsafe-inline' for the style attributes.
   await expect(page.locator('.violation-lines .code-block')).toHaveText([/script-src 'self' 'nonce-r4nd0m' https:\/\/www.googletagmanager.com https:\/\/static.hotjar.com/, /connect-src 'self' https:\/\/\*.google-analytics.com wss:\/\/\*.hotjar.com/]);
 
-  // What extensions caused is folded at the end, and adds no line.
+  // What the site didn't cause is folded at the end, one section per cause, and adds no line.
+  await expect(page.locator('.report-results > p').first()).toContainText("17 reports weren't caused by your site: they are set apart at the end, by cause.");
   const noise = page.locator('.report-noise');
-  await expect(noise.locator('> summary')).toHaveText('Set apart: 2 problems from browser extensions (10 reports)');
+  await expect(noise.locator('> summary')).toHaveText([
+    'Set apart: 2 problems from browser extensions (10 reports)',
+    "Set apart: 1 problem from software on visitors' devices (4 reports)",
+    'Set apart: 1 problem from translation (3 reports)',
+  ]);
   await expect(noise.locator('.violation').first()).toBeHidden();
+  const software = page.locator('.report-noise[data-noise=software]');
+  await software.locator('> summary').click();
+  await expect(software).toContainText('Antivirus software, programs that inject ads and company proxies');
+  // Only what was blocked and the counts: no tool lookup, no line, no "check what it is".
+  const kaspersky = software.locator('.violation');
+  await expect(kaspersky.getByRole('heading')).toHaveText('A script from gc.kis.v2.scr.kaspersky-labs.com');
+  await expect(kaspersky).toHaveClass(/elsewhere/);
+  await expect(kaspersky).not.toContainText('No tool in the catalogue');
+  await expect(kaspersky.locator('.code-block, .violation-weaker')).toHaveCount(0);
 
   // The example isn't counted as reports read.
   expect(sent().filter((q) => q.startsWith('n=read-reports'))).toEqual([]);
@@ -158,7 +172,7 @@ test('text without reports says what a report looks like', async ({ page }) => {
 test('a screen reader hears how many reports were read, and for each problem what happened and how often', async ({ page }) => {
   await openReader(page);
   const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
-  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 131 reports read.']);
+  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 138 reports read.']);
   // The colour of the block says "blocked"; the words say it too, with the counts.
   const heard = (await readAloud(page, '.violation:nth-child(2)')).join(' ');
   expect(heard).toContain('heading, A connection to region1.google-analytics.com, level 3');
@@ -190,7 +204,7 @@ test("inline code gets the safe way first; 'unsafe-inline' only when asked, with
 test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();
-  await expect(page.getByRole('heading', { name: 'Ce que disent les 131 rapports' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ce que disent les 138 rapports' })).toBeVisible();
   const first = page.locator('.violation').first();
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/fr/vendors/hotjar');

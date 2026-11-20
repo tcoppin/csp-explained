@@ -36,6 +36,8 @@ needs our own server comes last, because it changes the site's promise that the 
       And "A quicker way, less safe" (2026-11-20), under a style attribute in the reports example and under `eval` in
       the console example: it is heard after the safe way, says it is collapsed or expanded, and once open the warning
       is heard before the line to copy.
+      And the "Set apart" sections at the end of the reports example (2026-11-20): one per cause (extensions,
+      software on visitors' devices, translation), each heard as its own collapsed group with its title and counts.
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
@@ -44,9 +46,6 @@ needs our own server comes last, because it changes the site's promise that the 
       - Report counts aren't importance: one visitor reloading, or a bot, makes many reports, and browsers limit and
         deduplicate them differently. A blocked inline script on `/checkout` matters more than an analytics tool
         blocked everywhere. Weigh by pages that matter (checkout, sign-in) or by distinct pages and browsers.
-      - More noise than extensions: in-app browsers (Instagram, Facebook), Google Translate, antivirus software and
-        proxies that rewrite pages, Safari extensions without a scheme, `about:blank`. Today they land in the site's
-        problems.
       - "Is it safe to enforce?": most reports come from a report-only policy being tried out. Answer that question
         for a report-only batch: what would break, what can be ignored.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
@@ -257,7 +256,11 @@ Interface:
       address or code, under the same rule and policy, are one problem, most reports first, with their pages (without
       query strings) and browsers. Each is explained like a console message (the tool, the case, the fix), but on
       the whole policy the report carries: one line per rule and policy, and the fixed policy opens in the comparator.
-      What browser extensions caused is set apart and adds no line; Safari's older reports, which don't say whether
+      What the site didn't cause is set apart and adds no line, one folded section per cause: browser extensions,
+      software on visitors' devices (antivirus, adware, company proxies: the hosts from Sentry's list of CSP noise),
+      translation (Chrome's, or a page shown through `translate.goog`), problems only apps' built-in browsers or
+      only bots reported, copies of the pages (a search engine's cache, an archive, a saved file) and the
+      browser's own addresses (`about:`, `chrome://`…). Safari's older reports, which don't say whether
       the policy was enforced, are marked. Nothing leaves the device or is kept: not in the address, not in storage.
       An address no catalogue tool uses, outside the site's own domain, could be injected code as well as a forgotten
       tool: it is explained with how to check it, and left out of the lines until the visitor ticks "I know what

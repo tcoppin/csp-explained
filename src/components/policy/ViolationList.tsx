@@ -67,7 +67,8 @@ export function Lines({ lines, title, intro, children }: { lines: PolicyLine[]; 
 /**
  * One problem: what was blocked, by which rule, what it means and the fix. `children` go under the status line (the
  * reports reader says there how many reports, pages and browsers); `after` goes after the explanation. `unknown`:
- * an address outside the site that no tool uses (reports only).
+ * an address outside the site that no tool uses (reports only). `setApart`: not the site's doing (reports only): its
+ * section says why, so only what was blocked and the counts are shown.
  */
 export function ViolationItem({
   e,
@@ -76,6 +77,7 @@ export function ViolationItem({
   children,
   after,
   unknown = false,
+  setApart = false,
 }: {
   e: ExplainedViolation;
   index: number;
@@ -83,6 +85,7 @@ export function ViolationItem({
   children?: ComponentChildren;
   after?: ComponentChildren;
   unknown?: boolean;
+  setApart?: boolean;
 }) {
   const t = useT();
   const v = e.violation;
@@ -100,7 +103,7 @@ export function ViolationItem({
 
   return (
     // The rule's colour says what happened, and the status line says it in words.
-    <li class={`violation ${e.case === 'extension' || e.case === 'ancestors' ? 'elsewhere' : v.reportOnly ? 'reported' : 'blocked'}`}>
+    <li class={`violation ${setApart || e.case === 'extension' || e.case === 'ancestors' ? 'elsewhere' : v.reportOnly ? 'reported' : 'blocked'}`}>
       <h3>
         <Rich msg={`violations.what.${heading}`} vars={{ host: e.host ?? '', count: e.count }} />
       </h3>
@@ -118,14 +121,14 @@ export function ViolationItem({
         </p>
       )}
       {children}
-      <Body e={e} source={source} unknown={unknown} />
+      {(!setApart || e.case === 'extension') && <Body e={e} source={source} unknown={unknown} />}
       {after}
       {e.fix && !e.fix.inLines && v.reportOnly && (
         <p class="muted">
           <Rich msg="violations.reportOnlyFix" />
         </p>
       )}
-      {e.case === 'inline' && !e.fix && <HashOffer id={`violation-${index}`} e={e} />}
+      {e.case === 'inline' && !e.fix && !setApart && <HashOffer id={`violation-${index}`} e={e} />}
       {/* After the safe way, hash generator included. */}
       <Weaker e={e} />
     </li>
