@@ -912,7 +912,7 @@
     "none": "No reports found.",
     "noneLong": "No CSP violation report found in this text. A report says what was blocked (a `blockedURL` or `blocked-uri` field, or a column of that name in a CSV export) and under which rule: paste them as your collector stored or exported them.",
     "title": { "one": "What the report says", "other": "What the {count} reports say" },
-    "lead": "Reports about the same thing, under the same rule, are read together: the problems come most reports first.",
+    "lead": "Reports about the same thing, under the same rule, are read together. The riskiest problems come first, not the ones with the most reports: an address no known tool uses, a page where visitors pay or sign in, code blocked for your visitors.",
     "noiseLead": {
       "one": "1 report wasn't caused by your site: it is set apart at the end, with why.",
       "other": "{count} reports weren't caused by your site: they are set apart at the end, by cause."
@@ -1014,6 +1014,22 @@
       "seen": "First on {first}, last on {last}.",
       "seenOnce": "On {date}.",
       "more": { "one": "and 1 more page", "other": "and {count} more pages" }
+    },
+    "risk": {
+      "level": {
+        "high": "Check first",
+        "medium": "Then",
+        "low": "Less urgent"
+      },
+      "line": "**{level}**: {reasons}.",
+      "unknown": "an address no known tool uses",
+      "sensitive": "on {page}, where visitors pay or sign in",
+      "enforced": "blocked for your visitors",
+      "reported": "only reported, nothing is blocked yet",
+      "code": "it runs code or sends data",
+      "look": "it only changes how the page looks",
+      "new": "new since {date}",
+      "stopped": "not seen since {date}, maybe already fixed"
     }
   }
 }

@@ -11,15 +11,32 @@ test.use({ timezoneId: 'Europe/Paris' });
 
 const box = (page: import('@playwright/test').Page) => page.getByRole('textbox', { name: 'Paste your reports' });
 
-test('the example groups the reports by problem, most reports first, with the lines to change', async ({ page, sent }) => {
+test('the example groups the reports by problem, riskiest first, with the lines to change', async ({ page, sent }) => {
   const errors = watchErrors(page);
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
   await expect(page.getByRole('heading', { name: 'What the 138 reports say', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: '6 problems, from your site', level: 3 })).toBeVisible();
 
-  const first = page.locator('.violation').first();
-  await expect(first.getByRole('heading', { level: 3 })).toHaveText('A script from static.hotjar.com');
+  // Riskiest first, whatever the counts: the look-alike jQuery (5 reports), the checkout's inline script (4), then
+  // the tools blocked everywhere, then a look.
+  await expect(page.locator('.violation-list').first().locator('> .violation > h3')).toHaveText([
+    'A script from cdn.jquery-libs.example',
+    'A script written in the page',
+    'A script from static.hotjar.com',
+    'A connection to region1.google-analytics.com',
+    'A connection to ws.hotjar.com',
+    'A style attribute',
+  ]);
+  await expect(page.locator('.violation-list').first().locator('.report-risk')).toHaveText([
+    'Check first: an address no known tool uses, on /checkout, where visitors pay or sign in, blocked for your visitors, it runs code or sends data, and new since Nov 17, 2026.',
+    'Check first: on /checkout, where visitors pay or sign in, blocked for your visitors, and it runs code or sends data.',
+    'Then: blocked for your visitors and it runs code or sends data.',
+    'Then: blocked for your visitors and it runs code or sends data.',
+    'Then: blocked for your visitors and it runs code or sends data.',
+    'Less urgent: blocked for your visitors and it only changes how the page looks.',
+  ]);
+  const first = page.locator('.violation', { has: page.getByRole('heading', { name: 'A script from static.hotjar.com' }) });
   await expect(first.locator('.violation-status')).toHaveText('Blocked by script-src.');
   await expect(first.locator('.report-stats > p')).toHaveText('46 reports on 6 pages from Chrome, Edge, Safari, and Firefox. First on Nov 13, 2026, last on Nov 19, 2026.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/vendors/hotjar');
@@ -174,8 +191,10 @@ test('a screen reader hears how many reports were read, and for each problem wha
   const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
   expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 138 reports read.']);
   // The colour of the block says "blocked"; the words say it too, with the counts.
-  const heard = (await readAloud(page, '.violation:nth-child(2)')).join(' ');
+  const heard = (await readAloud(page, '.violation:nth-child(4)')).join(' ');
   expect(heard).toContain('heading, A connection to region1.google-analytics.com, level 3');
+  // How urgent it is, in words, right under what happened.
+  expect(heard).toMatch(/Then end of strong : blocked for your visitors and it runs code or sends data|Then: blocked for your visitors/);
   expect(heard).toMatch(/Blocked by (?:code )?default-src/);
   expect(heard).toContain('31 reports on 6 pages from');
   expect(heard).toMatch(/Your policy has no (?:code )?connect-src|line above allows it/);
@@ -205,7 +224,8 @@ test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();
   await expect(page.getByRole('heading', { name: 'Ce que disent les 138 rapports' })).toBeVisible();
-  const first = page.locator('.violation').first();
+  await expect(page.locator('.report-risk').first()).toHaveText(/^À voir en premier : une adresse qu'aucun outil connu n'utilise, sur \/checkout, où les visiteurs paient ou se connectent,/);
+  const first = page.locator('.violation', { has: page.getByRole('heading', { name: 'Un script de static.hotjar.com' }) });
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/fr/vendors/hotjar');
   await expect(first.locator('.report-stats > p')).toHaveText(/^46 rapports sur 6 pages depuis Chrome, Edge, Safari et Firefox\. Premier le 13 nov\. 2026, dernier le 19 nov\. 2026\.$/);

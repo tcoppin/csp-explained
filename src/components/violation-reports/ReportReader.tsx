@@ -283,6 +283,7 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
                 unknown={g.unknown}
                 after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
               >
+                <RiskLine g={g} />
                 {stats(g)}
               </ViolationItem>
             ))}
@@ -420,6 +421,25 @@ function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; on
         <input type="checkbox" checked={trusted} onChange={(e) => onTrust(g.key, g.explained.host ?? '', e.currentTarget.checked)} /> {t('reportsReader.trust')}
       </label>
     </>
+  );
+}
+
+/** How urgent a problem is, and why, in words: "Check first: an address no known tool uses, on `/checkout`…". */
+function RiskLine({ g }: { g: ReportGroup }) {
+  const t = useT();
+  if (!g.risk) return null;
+  const level = t(`reportsReader.risk.level.${g.risk.level}`);
+  const reasons = g.risk.reasons.map((r) =>
+    r.kind === 'sensitive'
+      ? t('reportsReader.risk.sensitive', { page: r.page })
+      : r.kind === 'new' || r.kind === 'stopped'
+        ? t(`reportsReader.risk.${r.kind}`, { date: dayName(t.locale, r.since) })
+        : t(`reportsReader.risk.${r.kind}`),
+  );
+  return (
+    <p class={`report-risk ${g.risk.level}`}>
+      <Rich msg="reportsReader.risk.line" vars={{ level, reasons: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons) }} />
+    </p>
   );
 }
 

@@ -42,6 +42,30 @@ export interface ReportGroup {
   unknown?: true;
   /** Not the site's doing: set apart, with no line. */
   noise?: NoiseKind;
+  /** How urgent it is, and why (problems of the site only). */
+  risk?: Risk;
+}
+
+/**
+ * Why a problem comes before another: report counts say how busy a page is, not how much is at stake. An address no
+ * tool uses may be injected code; a page where visitors pay or sign in is where a skimmer goes, and where something
+ * broken costs most; code blocked for visitors breaks a feature, a style only a look.
+ */
+export type RiskReason =
+  | { kind: 'unknown' }
+  | { kind: 'sensitive'; page: string }
+  | { kind: 'enforced' }
+  | { kind: 'reported' }
+  | { kind: 'code' }
+  | { kind: 'look' }
+  | { kind: 'new'; since: number }
+  | { kind: 'stopped'; since: number };
+
+export interface Risk {
+  level: 'high' | 'medium' | 'low';
+  /** Higher first; ties go to the problem with more reports. */
+  score: number;
+  reasons: RiskReason[];
 }
 
 /**
@@ -87,7 +111,7 @@ export interface ExplainedReports {
   total: number;
   /** Lines that held something else. */
   skipped: number;
-  /** Problems, most reports first. */
+  /** Problems, riskiest first (`risk`), then most reports first. */
   groups: ReportGroup[];
   /** Set apart: not caused by the site, by cause in the order of `NOISE_KINDS`, then most reports first. */
   noise: ReportGroup[];
@@ -262,10 +286,12 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     if (policy) policy.fixed = fixed;
   }
   const byReports = (a: ReportGroup, b: ReportGroup) => b.reports - a.reports;
+  const groups = all.filter((g) => !g.group.noise && !g.allowed).map((g) => g.group);
+  for (const g of groups) g.risk = riskOf(g, trusted, period);
   return {
     total: reports.length,
     skipped: read.skipped,
-    groups: all.filter((g) => !g.group.noise && !g.allowed).map((g) => g.group).sort(byReports),
+    groups: groups.sort((a, b) => b.risk!.score - a.risk!.score || byReports(a, b)),
     noise: all
       .filter((g) => g.group.noise)
       .map((g) => g.group)
@@ -279,6 +305,64 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     before,
     undated,
   };
+}
+
+/**
+ * Words in a page's address that say visitors pay, sign in or give personal details there (English, French, German,
+ * Spanish, Italian). Read word by word, so that `/display` isn't `pay`.
+ */
+const SENSITIVE = new Set(
+  (
+    'checkout cart basket payment payments pay billing order orders purchase login signin logon account myaccount register signup password ' +
+    'auth oauth sso wallet panier commande paiement connexion compte inscription caisse kasse warenkorb bezahlen anmelden konto ' +
+    'carrito pago cuenta carrello pagamento'
+  ).split(' '),
+);
+const SENSITIVE_PAIRS = ['sign in', 'log in', 'sign up'];
+
+/** Is `page` one where visitors pay, sign in or give personal details? */
+export function isSensitive(page: string): boolean {
+  let path = page;
+  try {
+    path = new URL(page, PLACEHOLDER_ORIGIN).pathname;
+  } catch {
+    // As written.
+  }
+  const words = path.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w !== '');
+  return words.some((w) => SENSITIVE.has(w)) || words.some((w, i) => SENSITIVE_PAIRS.includes(`${w} ${words[i + 1]}`));
+}
+
+const DAY = 24 * 60 * 60 * 1000;
+/** What runs code or sends data, against what only changes the look. */
+const CODE_TYPES = new Set(['script', 'worker', 'connect', 'frame', 'form', 'object', 'base', 'eval', 'inline-script', 'inline-handler']);
+const LOOK_TYPES = new Set(['style', 'img', 'font', 'media', 'inline-style', 'style-attr']);
+
+/** How urgent a problem of the site is: what it is, where, whether visitors are affected, and when. */
+function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: number; to: number } | undefined): Risk {
+  const e = g.explained;
+  const reasons: RiskReason[] = [];
+  let score = 0;
+  const add = (reason: RiskReason, points: number) => {
+    reasons.push(reason);
+    score += points;
+  };
+  if (g.unknown && !trusted.has(g.key)) add({ kind: 'unknown' }, 100);
+  // Mostly on such pages: something blocked everywhere is about the whole site, not the checkout.
+  const sensitive = g.pages.filter((p) => isSensitive(p.page));
+  if (sensitive.length > 0 && sensitive.length * 2 >= g.pages.length) add({ kind: 'sensitive', page: sensitive[0]!.page }, 40);
+  add({ kind: e.violation.reportOnly ? 'reported' : 'enforced' }, e.violation.reportOnly ? 0 : 20);
+  const type = e.case === 'trusted-types' || e.case === 'handler' ? 'inline-handler' : e.case === 'eval' ? 'eval' : e.violation.type;
+  if (CODE_TYPES.has(type)) add({ kind: 'code' }, 15);
+  else if (LOOK_TYPES.has(type)) add({ kind: 'look' }, -5);
+  // Over a few days: new well after the reports start, or gone well before they end.
+  if (period && g.first !== undefined && g.last !== undefined && period.to - period.from >= 3 * DAY) {
+    const span = period.to - period.from;
+    if (g.first - period.from >= Math.max(DAY, 0.4 * span)) add({ kind: 'new', since: g.first }, 15);
+    else if (period.to - g.last >= Math.max(DAY, 0.25 * span)) add({ kind: 'stopped', since: g.last }, -20);
+  }
+  // Seen on more pages: more likely everywhere. A few points, never more than a reason.
+  score += Math.min(g.pages.length, 10);
+  return { level: score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low', score, reasons };
 }
 
 /**

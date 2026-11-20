@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parseVendor } from './catalogue/schema';
-import { explainReports, siteOf } from './violation-reports';
+import { explainReports, isSensitive, siteOf } from './violation-reports';
 
 const vendorDir = join(import.meta.dirname, '../../catalogue/vendors');
 const vendors = readdirSync(vendorDir).map((f) => parseVendor(readFileSync(join(vendorDir, f), 'utf8')));
@@ -174,6 +174,43 @@ describe('explainReports', () => {
     expect(e.lines.map((l) => l.line)).toEqual(["script-src 'self' 'nonce-abc' https://cdn.us.heap-api.com", "connect-src 'self' https://*.google-analytics.com"]);
   });
 
+  it('ranks problems by risk, not by count: an unknown address, then what is mostly on checkout or sign-in pages, then code blocked, then looks', () => {
+    const at = (path: string, body: Record<string, unknown>, day = 13) =>
+      JSON.stringify({ timestamp: Date.UTC(2026, 10, day), ...JSON.parse(report({ documentURL: `https://shop.example.com${path}`, ...body })) });
+    const hotjar = { blockedURL: 'https://static.hotjar.com/c/hotjar-1.js', effectiveDirective: 'script-src-elem' };
+    const font = { blockedURL: 'https://fonts.gstatic.com/s/a.woff2', effectiveDirective: 'font-src' };
+    const input = [
+      // Busy, blocked everywhere (the checkout too, but not mostly).
+      ...['/', '/a', '/b', '/checkout', '/c', '/d'].flatMap((p) => [at(p, hotjar), at(p, hotjar, 19)]),
+      ...['/', '/a', '/b'].flatMap((p) => [at(p, font), at(p, font, 19)]),
+      // Few reports, on the checkout only.
+      at('/checkout/payment', { blockedURL: 'inline', effectiveDirective: 'script-src-elem' }, 14),
+      at('/checkout/payment', { blockedURL: 'inline', effectiveDirective: 'script-src-elem' }, 18),
+      // New, no tool uses it.
+      at('/login', { blockedURL: 'https://cdn.evil.example/x.js', effectiveDirective: 'script-src-elem' }, 18),
+      // Gone well before the end.
+      at('/', { blockedURL: 'https://cdn.us.heap-api.com/js/heap.js', effectiveDirective: 'script-src-elem' }, 13),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    expect(e.groups.map((g) => [g.explained.host ?? g.explained.case, g.risk?.level, g.risk?.reasons.map((r) => r.kind).join(' ')])).toEqual([
+      ['cdn.evil.example', 'high', 'unknown sensitive enforced code new'],
+      ['inline', 'high', 'sensitive enforced code'],
+      ['static.hotjar.com', 'medium', 'enforced code'],
+      // A font still missing over a tool no longer reported.
+      ['fonts.gstatic.com', 'low', 'enforced look'],
+      ['cdn.us.heap-api.com', 'low', 'enforced code stopped'],
+    ]);
+    // Vouched for: no longer unknown, still on the sign-in page.
+    const evil = e.groups[0]!;
+    const trusted = explainReports(input, vendors, { trusted: new Set([evil.key]) });
+    expect(trusted.groups.find((g) => g.key === evil.key)!.risk!.reasons.map((r) => r.kind)).toEqual(['sensitive', 'enforced', 'code', 'new']);
+  });
+
+  it('tells pages where visitors pay or sign in, word by word', () => {
+    expect(['/checkout?step=2', '/fr/panier', '/account/orders', '/sign-in', '/de/warenkorb', 'https://shop.example.com/login'].every(isSensitive)).toBe(true);
+    expect(['/', '/display', '/products/payload-bag', '/blog/signing-off', '/cartoons'].some(isSensitive)).toBe(false);
+  });
+
   it('tells a domain from its subdomains', () => {
     expect(siteOf('cdn.shop.example.com')).toBe('example.com');
     expect(siteOf('www.shop.co.uk')).toBe('shop.co.uk');
@@ -218,8 +255,8 @@ describe('explainReports', () => {
     expect(e.lines).toEqual([]);
     expect(e.policies[0]!.fixed).toBeUndefined();
     expect(e.groups.map((g) => [g.explained.case, g.explained.weaker?.line])).toEqual([
-      ['style-attr', "style-src-attr 'unsafe-inline'"],
       ['eval', "script-src 'self' 'nonce-abc' 'unsafe-eval'"],
+      ['style-attr', "style-src-attr 'unsafe-inline'"],
     ]);
   });
 

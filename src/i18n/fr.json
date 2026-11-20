@@ -912,7 +912,7 @@
     "none": "Aucun rapport trouvé.",
     "noneLong": "Aucun rapport de violation CSP dans ce texte. Un rapport dit ce qui a été bloqué (un champ `blockedURL` ou `blocked-uri`, ou une colonne de ce nom dans un export CSV) et sous quelle règle : collez-les tels que votre collecteur les a enregistrés ou exportés.",
     "title": { "one": "Ce que dit le rapport", "other": "Ce que disent les {count} rapports" },
-    "lead": "Les rapports sur la même chose, sous la même règle, sont lus ensemble : les problèmes viennent du plus signalé au moins signalé.",
+    "lead": "Les rapports sur la même chose, sous la même règle, sont lus ensemble. Les problèmes les plus risqués viennent en premier, pas ceux qui ont le plus de rapports : une adresse qu'aucun outil connu n'utilise, une page où les visiteurs paient ou se connectent, du code bloqué pour vos visiteurs.",
     "noiseLead": {
       "one": "1 rapport ne vient pas de votre site : il est mis à part à la fin, avec la raison.",
       "other": "{count} rapports ne viennent pas de votre site : ils sont mis à part à la fin, par cause."
@@ -1014,6 +1014,22 @@
       "seen": "Premier le {first}, dernier le {last}.",
       "seenOnce": "Le {date}.",
       "more": { "one": "et 1 autre page", "other": "et {count} autres pages" }
+    },
+    "risk": {
+      "level": {
+        "high": "À voir en premier",
+        "medium": "Ensuite",
+        "low": "Moins urgent"
+      },
+      "line": "**{level}** : {reasons}.",
+      "unknown": "une adresse qu'aucun outil connu n'utilise",
+      "sensitive": "sur {page}, où les visiteurs paient ou se connectent",
+      "enforced": "bloqué pour vos visiteurs",
+      "reported": "seulement signalé, rien n'est encore bloqué",
+      "code": "cela exécute du code ou envoie des données",
+      "look": "cela ne change que l'apparence de la page",
+      "new": "nouveau depuis le {date}",
+      "stopped": "plus vu depuis le {date}, peut-être déjà corrigé"
     }
   }
 }

@@ -133,3 +133,7 @@
     min-height: 0;
   }
 }
+/* How urgent a problem is, and why: in words, the first line under its status */
+.report-risk {
+  margin: 0 0 0.35rem;
+}

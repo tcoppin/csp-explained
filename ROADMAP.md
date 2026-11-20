@@ -38,14 +38,13 @@ needs our own server comes last, because it changes the site's promise that the 
       is heard before the line to copy.
       And the "Set apart" sections at the end of the reports example (2026-11-20): one per cause (extensions,
       software on visitors' devices, translation), each heard as its own collapsed group with its title and counts.
+      And each problem's "Check first / Then / Less urgent" line (2026-11-20): heard right after "Blocked by…",
+      the level stressed, the reasons as one list that makes sense spoken.
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
       export from someone who uses one would settle it; add it to `src/lib/csp/violation-reports/` as a fixture.
 - [ ] Reports reader, what the review of 2026-11-20 left for later:
-      - Report counts aren't importance: one visitor reloading, or a bot, makes many reports, and browsers limit and
-        deduplicate them differently. A blocked inline script on `/checkout` matters more than an analytics tool
-        blocked everywhere. Weigh by pages that matter (checkout, sign-in) or by distinct pages and browsers.
       - "Is it safe to enforce?": most reports come from a report-only policy being tried out. Answer that question
         for a report-only batch: what would break, what can be ignored.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
@@ -253,8 +252,10 @@ Interface:
 
 - [x] **Read violation reports** (`/reports`, 2026-11-20): paste or open a batch of reports (`report-to` or
       `report-uri`, a JSON export, one per line, inside log lines or a collector's wrapper). Reports about the same
-      address or code, under the same rule and policy, are one problem, most reports first, with their pages (without
-      query strings) and browsers. Each is explained like a console message (the tool, the case, the fix), but on
+      address or code, under the same rule and policy, are one problem, with their pages (without query strings) and
+      browsers. Problems come riskiest first, not most reports first ("Check first", "Then", "Less urgent", with
+      why): an address no tool uses, a problem mostly on pages where visitors pay or sign in (by the words in their
+      address, in five languages), code or data blocked for visitors before a look, new before gone. Each is explained like a console message (the tool, the case, the fix), but on
       the whole policy the report carries: one line per rule and policy, and the fixed policy opens in the comparator.
       What the site didn't cause is set apart and adds no line, one folded section per cause: browser extensions,
       software on visitors' devices (antivirus, adware, company proxies: the hosts from Sentry's list of CSP noise),
