@@ -885,7 +885,7 @@
   "reportsReader": {
     "inputLabel": "Your reports",
     "pasteLabel": "Paste your reports",
-    "hint": "JSON as browsers send it (report-to or report-uri), one report per line from your logs, or a whole export. Or drop the file here.",
+    "hint": "JSON as browsers send it (report-to or report-uri), one report per line from your logs, or your collector's export in JSON or CSV. Or drop the file here.",
     "openFile": "Open a file",
     "fileOpen": "**{name}** ({size}) is open.",
     "error": {
@@ -894,7 +894,7 @@
     },
     "announce": { "one": "1 report read.", "other": "{count} reports read." },
     "none": "No reports found.",
-    "noneLong": "No CSP violation report found in this text. Reports are JSON with a `blockedURL` or `blocked-uri` field: paste them as your collector stored them.",
+    "noneLong": "No CSP violation report found in this text. A report says what was blocked (a `blockedURL` or `blocked-uri` field, or a column of that name in a CSV export) and under which rule: paste them as your collector stored or exported them.",
     "title": { "one": "What the report says", "other": "What the {count} reports say" },
     "lead": "Reports about the same thing, under the same rule, are read together: the problems come most reports first.",
     "noiseLead": { "one": "1 report came from a browser extension: it is set apart at the end.", "other": "{count} reports came from browser extensions: they are set apart at the end." },

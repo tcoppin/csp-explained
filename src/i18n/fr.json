@@ -885,7 +885,7 @@
   "reportsReader": {
     "inputLabel": "Vos rapports",
     "pasteLabel": "Collez vos rapports",
-    "hint": "Le JSON tel que l'envoient les navigateurs (report-to ou report-uri), un rapport par ligne depuis vos logs, ou un export complet. Ou déposez le fichier ici.",
+    "hint": "Le JSON tel que l'envoient les navigateurs (report-to ou report-uri), un rapport par ligne depuis vos logs, ou l'export de votre collecteur en JSON ou CSV. Ou déposez le fichier ici.",
     "openFile": "Ouvrir un fichier",
     "fileOpen": "**{name}** ({size}) est ouvert.",
     "error": {
@@ -894,7 +894,7 @@
     },
     "announce": { "one": "1 rapport lu.", "other": "{count} rapports lus." },
     "none": "Aucun rapport trouvé.",
-    "noneLong": "Aucun rapport de violation CSP dans ce texte. Les rapports sont du JSON avec un champ `blockedURL` ou `blocked-uri` : collez-les tels que votre collecteur les a enregistrés.",
+    "noneLong": "Aucun rapport de violation CSP dans ce texte. Un rapport dit ce qui a été bloqué (un champ `blockedURL` ou `blocked-uri`, ou une colonne de ce nom dans un export CSV) et sous quelle règle : collez-les tels que votre collecteur les a enregistrés ou exportés.",
     "title": { "one": "Ce que dit le rapport", "other": "Ce que disent les {count} rapports" },
     "lead": "Les rapports sur la même chose, sous la même règle, sont lus ensemble : les problèmes viennent du plus signalé au moins signalé.",
     "noiseLead": { "one": "1 rapport vient d'une extension du navigateur : il est mis à part à la fin.", "other": "{count} rapports viennent d'extensions du navigateur : ils sont mis à part à la fin." },

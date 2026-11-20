@@ -106,6 +106,68 @@ describe('readReports', () => {
     expect(skipped).toBe(1);
   });
 
+  // Collector services don't publish their export formats: these are the spellings exports use, not one service's.
+  it("reads a collector's own spelling of the fields, nested anywhere", () => {
+    const event = {
+      id: 'e1',
+      dateCreated: '2026-11-20T10:00:00Z',
+      csp: { blocked_uri: 'https://static.hotjar.com/c/hotjar-1.js', effective_directive: 'script-src-elem', document_uri: 'https://www.example.com/', disposition: 'enforce' },
+      request: { headers: [['User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0']] },
+    };
+    const tagged = { tags: [{ key: 'blocked-uri', value: 'eval' }, { key: 'effective-directive', value: 'script-src' }, { key: 'disposition', value: 'report-only' }] };
+    const { reports } = readReports(JSON.stringify([event, tagged]));
+    expect(reports).toEqual([
+      {
+        blocked: 'https://static.hotjar.com/c/hotjar-1.js',
+        directive: 'script-src-elem',
+        page: 'https://www.example.com/',
+        disposition: 'enforce',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0',
+      },
+      { blocked: 'eval', directive: 'script-src', disposition: 'report' },
+    ]);
+  });
+
+  it('counts once a report a record keeps twice: as raw text, and as parsed fields', () => {
+    const raw = { 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src', 'document-uri': 'https://www.example.com/' } };
+    const record = {
+      message: JSON.stringify(raw),
+      '@csp-report.blocked-uri': 'eval',
+      '@csp-report.effective-directive': 'script-src',
+      '@csp-report.document-uri': 'https://www.example.com/',
+      '@http.useragent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+    };
+    const { reports } = readReports([record, record].map((r) => JSON.stringify(r)).join('\n'));
+    expect(reports.map((r) => [r.blocked, browserOf(r.userAgent)])).toEqual([
+      ['eval', 'Chrome'],
+      ['eval', 'Chrome'],
+    ]);
+  });
+
+  it('reads a CSV or TSV export with a header row, quoted cells included', () => {
+    const csv = [
+      'Date,Blocked URI,Effective Directive,Document URI,Original Policy,Script Sample',
+      `2026-11-20 10:00,https://static.hotjar.com/c/hotjar-1.js,script-src-elem,https://www.example.com/,"${ENFORCED}",`,
+      '2026-11-20 10:01,inline,script-src-elem,https://www.example.com/,"default-src \'self\'","console.log(""hi, there"")\nlog()"',
+      ',,,,,',
+    ].join('\r\n');
+    const { reports, skipped } = readReports(csv);
+    expect(reports.map((r) => [r.blocked, r.directive, r.policy, r.sample])).toEqual([
+      ['https://static.hotjar.com/c/hotjar-1.js', 'script-src-elem', ENFORCED, undefined],
+      ['inline', 'script-src-elem', "default-src 'self'", 'console.log("hi, there")\nlog()'],
+    ]);
+    expect(skipped).toBe(0);
+
+    const tsv = 'tags[blocked-uri]\ttags[violated-directive]\turl\nhttps://example.net/x.png\timg-src \'self\'\thttps://www.example.com/a\n';
+    expect(readReports(tsv).reports).toEqual([{ blocked: 'https://example.net/x.png', directive: 'img-src', disposition: 'enforce', guessed: true }]);
+  });
+
+  it('reads a CSV export whose cell holds the whole report, and counts rows without one', () => {
+    const report = JSON.stringify({ 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src' } }).replaceAll('"', '""');
+    const csv = `Date,Host,Message\n2026-11-20,web-1,"${report}"\n2026-11-20,web-1,started\n`;
+    expect(readReports(csv)).toMatchObject({ reports: [{ blocked: 'eval', directive: 'script-src' }], skipped: 1 });
+  });
+
   it('reads a part of an array copied without its brackets', () => {
     const one = '{ "csp-report": { "blocked-uri": "eval", "violated-directive": "script-src \'self\'" } }';
     expect(readReports(`${one},\n${one},`).reports.map((r) => r.directive)).toEqual(['script-src', 'script-src']);

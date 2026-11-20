@@ -102,6 +102,19 @@ test('a file is opened, not shown in the box, and Clear gives the box back with 
   await expect(page.locator('.report-results')).toHaveCount(0);
 });
 
+test("a collector's CSV export is read by its column names", async ({ page }) => {
+  await openReader(page);
+  const csv = [
+    'Date,Blocked URI,Effective Directive,Document URI,Original Policy',
+    `2026-11-20 10:00,https://static.hotjar.com/c/hotjar-1.js,script-src-elem,https://www.example.com/,"default-src 'self'"`,
+    `2026-11-20 10:05,https://static.hotjar.com/c/hotjar-1.js,script-src-elem,https://www.example.com/cart,"default-src 'self'"`,
+  ].join('\n');
+  await page.locator('input[type="file"]').setInputFiles({ name: 'export.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await expect(page.getByRole('heading', { name: 'What the 2 reports say' })).toBeVisible();
+  await expect(page.locator('.violation').first().getByRole('heading', { level: 3 })).toHaveText('A script from static.hotjar.com');
+  await expect(page.locator('.violation-lines .code-block')).toHaveText([/script-src 'self' https:\/\/static\.hotjar\.com/]);
+});
+
 test('text without reports says what a report looks like', async ({ page }) => {
   await openReader(page);
   await box(page).fill("default-src 'self'");

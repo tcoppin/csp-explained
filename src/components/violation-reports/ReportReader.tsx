@@ -160,7 +160,7 @@ export default function ReportReader({ content, locale }: Props) {
               ref={fileInput}
               type="file"
               hidden
-              accept=".json,.ndjson,.jsonl,.log,.txt,application/json,application/reports+json,application/csp-report,text/plain"
+              accept=".json,.ndjson,.jsonl,.log,.txt,.csv,.tsv,application/json,application/reports+json,application/csp-report,text/plain,text/csv,text/tab-separated-values"
               onChange={(e) => {
                 void open(e.currentTarget.files?.[0]);
                 e.currentTarget.value = '';

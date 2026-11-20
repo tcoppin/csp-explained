@@ -32,6 +32,10 @@ needs our own server comes last, because it changes the site's promise that the 
       read, its name is heard; "Clear" puts the focus back in the box. Under "A script from cdn.jquery-libs.example",
       the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
       the focus stays on it.
+- [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
+      export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
+      `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
+      export from someone who uses one would settle it; add it to `src/lib/csp/violation-reports/` as a fixture.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -244,7 +248,8 @@ Interface:
       the policy was enforced, are marked. Nothing leaves the device or is kept: not in the address, not in storage.
       An address no catalogue tool uses, outside the site's own domain, could be injected code as well as a forgotten
       tool: it is explained with how to check it, and left out of the lines until the visitor ticks "I know what
-      this is".
+      this is". Collectors' exports are read by their field names, in JSON or in CSV and TSV with a header row
+      (a record keeping a report twice, raw and parsed, counts once).
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole
