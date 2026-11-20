@@ -155,12 +155,12 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
 
   // Lines only from what the site itself needs: what an extension asked for never goes in, nor an unknown address
   // the visitor hasn't vouched for, nor what the newest policy already allows.
-  const options = { whole: true, ...(origin ? { origin } : {}) };
+  const options = origin ? { origin } : {};
   const site = [...pending.values()].filter((p) => !p.noise);
   const elsewhere = [...pending.values()].filter((p) => p.noise);
   const siteItems = explainItems(site.map((p) => ({ v: p.v, others: [] })), vendors).map((item, i) => {
     const p = site[i]!;
-    if (p.current === 0 && allowedBy(item, origin ?? PLACEHOLDER_ORIGIN)) return { item: { ...item, fix: undefined }, unknown: false, allowed: true };
+    if (p.current === 0 && allowedBy(item, origin ?? PLACEHOLDER_ORIGIN)) return { item: { ...item, fix: undefined, weaker: undefined }, unknown: false, allowed: true };
     const unknown = isUnknown(item, p.reports, origin);
     return { item: unknown && !trusted.has(p.key) ? { ...item, fix: undefined } : item, unknown, allowed: false };
   });
@@ -170,7 +170,7 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     const item = items[i]!;
     // An extension's own code asking for an address: nothing to add to the policy.
     const shown: ExplainedViolation =
-      p.noise && item.case !== 'extension' ? { ...item, case: 'extension', host: hostOf(p.reports[0]!.sourceFile ?? p.v.url ?? ''), tools: [], fix: undefined } : item;
+      p.noise && item.case !== 'extension' ? { ...item, case: 'extension', host: hostOf(p.reports[0]!.sourceFile ?? p.v.url ?? ''), tools: [], fix: undefined, weaker: undefined } : item;
     const dates = p.reports.map((r) => r.time).filter((t) => t !== undefined);
     const group: ReportGroup = {
       explained: shown,
@@ -237,10 +237,11 @@ function policiesOf(reports: ViolationReport[]): ReportPolicy[] {
 /** The newest policy (the one the item now carries) allows what an older one blocked: an address, or eval. */
 function allowedBy(item: ExplainedViolation, origin: string): boolean {
   const v = item.violation;
-  if (!v.value || !item.fix || (item.case !== 'address' && item.case !== 'eval')) return false;
+  const source = item.fix?.add[0] ?? item.weaker?.add[0];
+  if (!v.value || !source || (item.case !== 'address' && item.case !== 'eval')) return false;
   const parsed = { input: v.value, policies: [parseSinglePolicy(v.value)], issues: [] };
   const type = item.case === 'eval' ? 'eval' : v.type;
-  return checkRequirement(parsed, { type, source: item.fix.add[0]!, ...(v.url && item.case === 'address' ? { probe: v.url } : {}), reason: '' }, origin).verdict !== 'blocked';
+  return checkRequirement(parsed, { type, source, ...(v.url && item.case === 'address' ? { probe: v.url } : {}), reason: '' }, origin).verdict !== 'blocked';
 }
 
 /**

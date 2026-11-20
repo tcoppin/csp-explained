@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 import type { InlineHash } from '../../lib/csp/hash';
-import type { ExplainedMessages, ExplainedViolation, PolicyLine, ToolUse } from '../../lib/violations';
+import type { ExplainedMessages, ExplainedViolation, PolicyLine, ToolUse, WeakerFix } from '../../lib/violations';
 import { HashTool } from './HashTool';
 import { CodeBox } from '../ui/CodeBox';
 import { useT } from '../ui/i18n';
@@ -126,6 +126,8 @@ export function ViolationItem({
         </p>
       )}
       {e.case === 'inline' && !e.fix && <HashOffer id={`violation-${index}`} e={e} />}
+      {/* After the safe way, hash generator included. */}
+      <Weaker e={e} />
     </li>
   );
 }
@@ -154,12 +156,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
         </>
       );
     case 'style-attr':
-      return (
-        <>
-          <p><Rich msg="violations.styleAttr" /></p>
-          <Fix e={e} />
-        </>
-      );
+      return <p><Rich msg="violations.styleAttr" /></p>;
     case 'inline':
       return (
         <>
@@ -171,7 +168,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
       return (
         <>
           {e.tools.length > 0 && <p>{t('violations.evalTools', { tools: listOf(t.locale, e.tools.map((u) => `${u.vendor.name} (${u.feature.label})`)) })}</p>}
-          <Fix e={e} />
+          <p><Rich msg="violations.evalBest" /></p>
         </>
       );
     case 'address':
@@ -179,6 +176,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
         <>
           {e.tools.length > 0 ? <Tools uses={e.tools} /> : <p>{t(unknown ? 'violations.noToolReport' : 'violations.noTool')}</p>}
           <Fix e={e} />
+          {e.weaker && <p><Rich msg="violations.schemeBest" /></p>}
         </>
       );
   }
@@ -208,24 +206,51 @@ function Tools({ uses }: { uses: ToolUse[] }) {
 function Fix({ e }: { e: ExplainedViolation }) {
   const fix = e.fix;
   if (!fix) return null;
-  const add = fix.add.join(' ');
   return (
-    <>
-      <p>
-        {fix.inLines ? (
-          <Rich msg="violations.inLines" vars={{ directive: fix.directive, count: e.count }} />
-        ) : (
-          <Rich msg={fix.created ? 'violations.fixAddCreated' : 'violations.fixAdd'} vars={{ add, directive: fix.directive }} />
-        )}
-      </p>
-      {fix.risky && (
-        <p class="violation-risk">
-          <Rich msg={fix.add.includes("'unsafe-eval'") ? 'violations.riskEval' : 'violations.riskScheme'} vars={{ add, directive: fix.directive }} />
-        </p>
+    <p>
+      {fix.inLines ? (
+        <Rich msg="violations.inLines" vars={{ directive: fix.directive, count: e.count }} />
+      ) : (
+        <Rich msg={fix.created ? 'violations.fixAddCreated' : 'violations.fixAdd'} vars={{ add: fix.add.join(' '), directive: fix.directive }} />
       )}
-    </>
+    </p>
   );
 }
+
+/**
+ * A value that weakens the policy for everyone: after the safe way, folded, and with what it costs before the line.
+ * When a nonce or a hash makes browsers ignore it, only that is said.
+ */
+function Weaker({ e }: { e: ExplainedViolation }) {
+  const t = useT();
+  const w = e.weaker;
+  if (!w) return null;
+  if (w.ignored) {
+    return (
+      <p>
+        <Rich msg="violations.inlineIgnored" vars={{ directive: w.directive }} />
+      </p>
+    );
+  }
+  const add = w.add.join(' ');
+  return (
+    <details class="violation-weaker">
+      <summary>{t('violations.weaker.show')}</summary>
+      <p class="violation-risk">
+        <Rich msg={`violations.weaker.risk.${w.risk}`} vars={{ add, directive: w.directive }} />
+      </p>
+      {w.line ? (
+        <CodeBox caption={t(`violations.weaker.${captionOf(w)}${e.violation.reportOnly ? 'ReportOnly' : ''}`, { directive: w.directive })} copyText={w.line} />
+      ) : (
+        <p>
+          <Rich msg={w.created ? 'violations.fixAddCreated' : 'violations.fixAdd'} vars={{ add, directive: w.directive }} />
+        </p>
+      )}
+    </details>
+  );
+}
+
+const captionOf = (w: WeakerFix) => (w.created ? 'add' : 'replace');
 
 /** Safari gives no hash for blocked inline code: the generator makes one from the code itself. */
 function HashOffer({ id, e }: { id: string; e: ExplainedViolation }) {

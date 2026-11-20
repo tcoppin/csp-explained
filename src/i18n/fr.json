@@ -851,15 +851,13 @@
     "fixAdd": "Ajoutez `{add}` à votre règle `{directive}`.",
     "fixAddCreated": "Ajoutez une règle `{directive}` à votre politique : les valeurs de votre `default-src`, puis `{add}`.",
     "reportOnlyFix": "Faites ce changement dans votre politique en mode rapport seul, pour qu'elle ne bloque pas ceci une fois appliquée.",
-    "riskEval": "`'unsafe-eval'` permet à la page d'exécuter du code construit à partir de texte, ce qui facilite aussi l'exécution d'un script injecté. Ne l'ajoutez que pour un outil de confiance qui n'a pas d'autre moyen.",
-    "riskScheme": "`{add}` dans `{directive}` autorise des scripts venant de contenu créé dans la page, qu'un attaquant peut créer aussi. Préférez l'adresse de l'outil lui-même s'il en a une.",
     "evalTools": "Dans le catalogue, ceux-ci en ont besoin : {tools}.",
     "hash": "Le navigateur a donné l'empreinte de ce code. L'ajouter autorise exactement ce code et rien d'autre : si le code change, il est de nouveau bloqué. Pour du code qui change à chaque page, [utilisez plutôt un nonce](/nonces).",
     "noHash": "Ce navigateur ne donne pas l'empreinte du code. Collez le code ci-dessous pour l'obtenir, ou [utilisez un nonce](/nonces).",
     "noHashReport": "Les rapports ne contiennent pas l'empreinte du code, et leur extrait s'arrête à 40 caractères. Collez le code ci-dessous pour l'obtenir, ou [utilisez un nonce](/nonces).",
     "hashCaption": "À ajouter à votre règle {directive}",
-    "styleAttr": "Une règle `style-src-attr` autorise les attributs de style seuls : les blocs de style et les scripts restent protégés, et un attribut de style ne peut pas exécuter de code. Ou déplacez ces styles dans votre feuille de style.",
-    "handler": "Votre politique ne peut pas autoriser ceci sans risque : `'unsafe-inline'` laisserait aussi s'exécuter tout script glissé dans la page. Déplacez le code dans un script et attachez-le avec `addEventListener`.",
+    "styleAttr": "Le plus sûr est de déplacer ces styles dans votre feuille de style, sous forme de classes : rien n'est alors à changer dans votre politique. Les styles qu'un script définit (`element.style.color = …`) ne sont pas bloqués non plus.",
+    "handler": "Le plus sûr est de déplacer ce code dans un script et de l'attacher avec `addEventListener` : rien n'est alors à changer dans votre politique.",
     "extension": "`{host}` est une extension installée dans le navigateur où ce message est apparu, pas une partie de votre site. Rien à changer dans votre politique.",
     "extensionReport": "`{host}` est une extension installée dans le navigateur d'un de vos visiteurs, pas une partie de votre site. Rien à changer dans votre politique.",
     "ancestors": "La page {host} n'autorise pas d'autres sites à l'afficher dans un cadre (sa règle `frame-ancestors`). Seul son propriétaire peut changer cela : votre politique n'y est pour rien.",
@@ -880,7 +878,25 @@
     },
     "tt": "Votre politique exige les Trusted Types (`require-trusted-types-for`) : le code ne peut pas confier {what} au navigateur en texte brut, seulement par une politique Trusted Types qui le vérifie d'abord. Le code qui a fait cela, le vôtre ou celui d'un outil, doit en utiliser une. Il n'y a rien à ajouter à votre politique pour cela : [comment fonctionnent les Trusted Types](/trusted-types).",
     "ttSink": "Où : `{sink}`.",
-    "ttTool": "Le texte collé contient une adresse utilisée par [{vendor}](/vendors/{id}). Si c'est son code qui est bloqué, demandez à {vendor} s'il prend en charge les Trusted Types."
+    "ttTool": "Le texte collé contient une adresse utilisée par [{vendor}](/vendors/{id}). Si c'est son code qui est bloqué, demandez à {vendor} s'il prend en charge les Trusted Types.",
+    "evalBest": "Le plus sûr est un code qui ne construit pas de code à partir de texte : vérifiez si la bibliothèque ou l'outil a une version sans `eval`, ou demandez à ceux qui le font.",
+    "schemeBest": "Le plus sûr est de charger ce code depuis un fichier à une adresse, sur votre site ou celui de l'outil : rien de ce qui est créé dans la page ne peut alors s'exécuter comme script.",
+    "inlineIgnored": "Votre règle `{directive}` contient un nonce ou une empreinte, donc les navigateurs y ignorent `'unsafe-inline'` : une empreinte ou un nonce est le seul moyen d'autoriser ce code.",
+    "weaker": {
+      "show": "Une solution plus rapide, moins sûre",
+      "risk": {
+        "eval": "`'unsafe-eval'` permet à tous les scripts de la page d'exécuter du code construit à partir de texte, ce qui facilite aussi l'exécution d'un script injecté. Ne l'utilisez que pour un outil de confiance qui n'a pas d'autre moyen.",
+        "scheme": "`{add}` dans `{directive}` autorise des scripts venant de contenu créé dans la page, qu'un attaquant qui glisse du texte dans la page peut créer aussi.",
+        "inline-script": "`'unsafe-inline'` dans `{directive}` laisse s'exécuter tous les scripts écrits dans la page, y compris celui qu'un attaquant glisse par un formulaire, un commentaire ou un outil piraté : cela désactive l'essentiel de ce que votre politique protège. Ne l'utilisez que le temps d'avoir des empreintes ou un nonce.",
+        "inline-style": "`'unsafe-inline'` dans `{directive}` applique tous les styles écrits dans la page, y compris ceux qu'un attaquant glisse, qui peuvent cacher ou imiter des parties de la page et faire fuiter ce qu'elle affiche. Les scripts restent protégés.",
+        "style-attr": "Cela applique tous les attributs `style`, y compris celui qu'un attaquant glisse, qui peut cacher ou imiter des parties de la page. Les scripts et les blocs de style restent protégés, et un attribut de style ne peut pas exécuter de code.",
+        "handler": "Cela laisse s'exécuter tous les gestionnaires d'événements écrits dans la page, y compris celui qu'un attaquant glisse (`<img onerror=\"…\">`) : c'est ainsi que s'exécute la plupart du code injecté. Les blocs `<script>` restent protégés."
+      },
+      "replace": "Si vous l'acceptez, remplacez votre règle {directive} par",
+      "add": "Si vous l'acceptez, ajoutez cette règle à votre politique",
+      "replaceReportOnly": "Si vous l'acceptez, dans votre politique en mode rapport seul, remplacez votre règle {directive} par",
+      "addReportOnly": "Si vous l'acceptez, ajoutez cette règle à votre politique en mode rapport seul"
+    }
   },
   "reportsReader": {
     "inputLabel": "Vos rapports",

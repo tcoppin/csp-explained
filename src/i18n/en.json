@@ -851,15 +851,13 @@
     "fixAdd": "Add `{add}` to your `{directive}` rule.",
     "fixAddCreated": "Add a `{directive}` rule to your policy: the values of your `default-src`, then `{add}`.",
     "reportOnlyFix": "Make this change in your report-only policy, so that it doesn't block this once you enforce it.",
-    "riskEval": "`'unsafe-eval'` lets the page run code built from text, which also makes an injected script easier to run. Add it only for a tool you trust that has no other way.",
-    "riskScheme": "`{add}` in `{directive}` lets scripts come from content made in the page, which an attacker can make too. Prefer the tool's own address if it has one.",
     "evalTools": "In the catalogue, these need it: {tools}.",
     "hash": "The browser gave this code's hash. Adding it allows this exact code and nothing else: if the code changes, it's blocked again. For code that changes on each page, [use a nonce](/nonces) instead.",
     "noHash": "This browser doesn't give the code's hash. Paste the code below to get it, or [use a nonce](/nonces).",
     "noHashReport": "Reports don't carry the code's hash, and their sample is cut at 40 characters. Paste the code below to get it, or [use a nonce](/nonces).",
     "hashCaption": "Add to your {directive} rule",
-    "styleAttr": "A `style-src-attr` rule allows style attributes on their own: style blocks and scripts stay protected, and a style attribute can't run code. Or move these styles into your stylesheet.",
-    "handler": "Your policy can't allow this safely: `'unsafe-inline'` would let any script slipped into the page run too. Move the code into a script and attach it with `addEventListener`.",
+    "styleAttr": "The safest way is to move these styles into your stylesheet, as classes: then nothing in your policy has to change. Styles a script sets (`element.style.color = …`) aren't blocked either.",
+    "handler": "The safest way is to move this code into a script and attach it with `addEventListener`: then nothing in your policy has to change.",
     "extension": "`{host}` is a browser extension installed where this message appeared, not part of your site. Nothing to change in your policy.",
     "extensionReport": "`{host}` is a browser extension installed by one of your visitors, not part of your site. Nothing to change in your policy.",
     "ancestors": "The page at {host} doesn't allow other sites to show it in a frame (its `frame-ancestors` rule). Only its owner can change that: your policy has nothing to do with it.",
@@ -880,7 +878,25 @@
     },
     "tt": "Your policy requires Trusted Types (`require-trusted-types-for`): code can't hand the browser {what} as plain text, only through a Trusted Types policy that checks it first. The code that did this, your own or a tool's, has to use one. There is nothing to add to your policy for it: [how Trusted Types work](/trusted-types).",
     "ttSink": "Where it happened: `{sink}`.",
-    "ttTool": "The text you pasted has an address used by [{vendor}](/vendors/{id}). If its code is the one blocked, ask {vendor} whether it supports Trusted Types."
+    "ttTool": "The text you pasted has an address used by [{vendor}](/vendors/{id}). If its code is the one blocked, ask {vendor} whether it supports Trusted Types.",
+    "evalBest": "The safest way is code that doesn't build code from text: check whether the library or tool has a version without `eval`, or ask the people who make it.",
+    "schemeBest": "The safest way is to load this code from a file at an address, on your site or the tool's: then nothing made in the page can run as a script.",
+    "inlineIgnored": "Your `{directive}` rule has a nonce or a hash, so browsers ignore `'unsafe-inline'` there: a hash or a nonce is the only way to allow this code.",
+    "weaker": {
+      "show": "A quicker way, less safe",
+      "risk": {
+        "eval": "`'unsafe-eval'` lets every script on the page run code built from text, which also makes an injected script easier to run. Use it only for a tool you trust that has no other way.",
+        "scheme": "`{add}` in `{directive}` lets scripts come from content made in the page, which an attacker who slips text into the page can make too.",
+        "inline-script": "`'unsafe-inline'` in `{directive}` lets every script written in the page run, including one an attacker slips in through a form, a comment or a hacked tool: it turns off most of what your policy protects against. Use it only for a short while, until you have hashes or a nonce.",
+        "inline-style": "`'unsafe-inline'` in `{directive}` lets every style written in the page apply, including styles an attacker slips in, which can hide or fake parts of the page and leak what it shows. Scripts stay protected.",
+        "style-attr": "This lets every `style` attribute apply, including one an attacker slips in, which can hide or fake parts of the page. Scripts and style blocks stay protected, and a style attribute can't run code.",
+        "handler": "This lets every event handler written in the page run, including one an attacker slips in (`<img onerror=\"…\">`): that's how most injected code runs. `<script>` blocks stay protected."
+      },
+      "replace": "If you accept that, replace your {directive} rule with",
+      "add": "If you accept that, add this rule to your policy",
+      "replaceReportOnly": "If you accept that, replace your {directive} rule in your report-only policy with",
+      "addReportOnly": "If you accept that, add this rule to your report-only policy"
+    }
   },
   "reportsReader": {
     "inputLabel": "Your reports",

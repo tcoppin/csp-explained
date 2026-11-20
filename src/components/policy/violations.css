@@ -42,3 +42,22 @@
   border-left: 3px solid var(--warn);
   padding-left: 0.75rem;
 }
+/* A quicker way that weakens the policy: folded under the safe way, its cost said before its line */
+.violation-weaker {
+  margin-block: 0.75rem;
+}
+.violation-weaker > summary {
+  cursor: pointer;
+  color: var(--action);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+@media (pointer: fine) {
+  .violation-weaker > summary {
+    min-height: 0;
+  }
+}
+.violation-weaker > .violation-risk {
+  margin-top: 0.75rem;
+}

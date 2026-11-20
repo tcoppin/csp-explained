@@ -33,6 +33,9 @@ needs our own server comes last, because it changes the site's promise that the 
       the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
       the focus stays on it. "Only the reports since" is a date field: picking a day says "N reports since…";
       "Already allowed by your newest policy" opens and closes like "Set apart".
+      And "A quicker way, less safe" (2026-11-20), under a style attribute in the reports example and under `eval` in
+      the console example: it is heard after the safe way, says it is collapsed or expanded, and once open the warning
+      is heard before the line to copy.
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
@@ -46,8 +49,6 @@ needs our own server comes last, because it changes the site's promise that the 
         problems.
       - "Is it safe to enforce?": most reports come from a report-only policy being tried out. Answer that question
         for a report-only batch: what would break, what can be ignored.
-      - Inline code leads to `'unsafe-inline'`: `style-src-attr 'unsafe-inline'` is the first line of the example,
-        added to the fixed policy on its own. Say what it costs, and offer moving the styles first.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -272,7 +273,10 @@ Interface:
       catalogue tool behind the address, and which line allows it. The lines come first, one per rule, with
       everything the messages need (the tool's documented value, the hashes the browser gave), so copying one never
       drops another; a new rule when `default-src` applied. Inline blocks of one kind are read together, Safari's
-      get the hash generator, style attributes their own rule, `eval` its cost. Trusted Types messages say what the
+      get the hash generator. What weakens the policy for everyone (`'unsafe-inline'`, `'unsafe-eval'`, `data:` or
+      `blob:` for scripts) is never in the lines: the safe way comes first (move the styles or the handler, a hash or
+      a nonce, a version without `eval`), and the weaker value waits under "A quicker way, less safe", its cost said
+      before its line; not offered where a nonce or a hash makes browsers ignore it. Trusted Types messages say what the
       code has to change, with the tool behind an address pasted with them; extensions and frames refused by
       another site are set apart. The wordings come from the browsers themselves: Chromium and WebKit through Playwright, Firefox
       copied by hand from a test page (whole consoles kept in `src/lib/csp/console-messages/`).

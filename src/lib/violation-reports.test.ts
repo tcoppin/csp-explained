@@ -144,23 +144,23 @@ describe('explainReports', () => {
   });
 
   it('keeps each policy apart: enforced and report-only, and an older one', () => {
-    const eval_ = { blockedURL: 'eval', effectiveDirective: 'script-src' };
+    const ga = { blockedURL: 'https://region1.google-analytics.com/g/collect', effectiveDirective: 'connect-src' };
     const input = [
-      report(eval_),
-      report({ ...eval_, disposition: 'report', originalPolicy: "script-src 'self'" }),
-      report({ ...eval_, originalPolicy: "script-src 'self' https://old.example.com" }),
+      report(ga),
+      report({ ...ga, disposition: 'report', originalPolicy: "connect-src 'self'" }),
+      report({ ...ga, originalPolicy: "connect-src 'self' https://old.example.com" }),
     ].join('\n');
     const e = explainReports(input, vendors);
     expect(e.policies.map((p) => [p.text, p.reportOnly])).toEqual([
       [POLICY, false],
-      ["script-src 'self'", true],
-      ["script-src 'self' https://old.example.com", false],
+      ["connect-src 'self'", true],
+      ["connect-src 'self' https://old.example.com", false],
     ]);
     expect(e.groups.map((g) => g.policy).sort()).toEqual([0, 1, 2]);
     expect(e.lines.map((l) => [l.line, l.reportOnly, l.policy])).toEqual([
-      ["script-src 'self' 'nonce-abc' 'unsafe-eval'", false, POLICY],
-      ["script-src 'self' 'unsafe-eval'", true, "script-src 'self'"],
-      ["script-src 'self' https://old.example.com 'unsafe-eval'", false, "script-src 'self' https://old.example.com"],
+      ["connect-src 'self' https://*.google-analytics.com", false, POLICY],
+      ["connect-src 'self' https://*.google-analytics.com", true, "connect-src 'self'"],
+      ["connect-src 'self' https://old.example.com https://*.google-analytics.com", false, "connect-src 'self' https://old.example.com"],
     ]);
   });
 
@@ -175,10 +175,14 @@ describe('explainReports', () => {
     expect(e.names).toEqual([{ name: 'dompurify', reports: 2, policy: 0 }]);
   });
 
-  it("adds a style attribute's own rule to the fixed policy", () => {
-    const e = explainReports(report({ blockedURL: 'inline', effectiveDirective: 'style-src-attr' }), vendors);
-    expect(e.lines.map((l) => l.line)).toEqual(["style-src-attr 'unsafe-inline'"]);
-    expect(e.policies[0]!.fixed?.after).toBe(`${POLICY}; style-src-attr 'unsafe-inline'`);
+  it("keeps what weakens the policy out of the lines and the fixed policy: a style attribute's 'unsafe-inline', eval", () => {
+    const e = explainReports([report({ blockedURL: 'inline', effectiveDirective: 'style-src-attr' }), report({ blockedURL: 'eval', effectiveDirective: 'script-src' })].join('\n'), vendors);
+    expect(e.lines).toEqual([]);
+    expect(e.policies[0]!.fixed).toBeUndefined();
+    expect(e.groups.map((g) => [g.explained.case, g.explained.weaker?.line])).toEqual([
+      ['style-attr', "style-src-attr 'unsafe-inline'"],
+      ['eval', "script-src 'self' 'nonce-abc' 'unsafe-eval'"],
+    ]);
   });
 
   it("explains every browser's reports the same way", () => {

@@ -109,15 +109,11 @@ test('a pasted console is explained message by message, with the tool behind eac
   // One line per rule first, with everything the messages under it need: copying one never drops another.
   const lines = page.locator('.violation-lines');
   await expect(lines.getByRole('heading', { name: 'What to change in your policy' })).toBeVisible();
-  await expect(lines.locator('figcaption > span')).toHaveText([
-    'Replace your script-src rule with',
-    'Add this rule to your policy',
-    'In your report-only policy, replace your script-src rule with',
-  ]);
+  // Never 'unsafe-eval': it weakens the policy for everyone, so it waits under its message, folded.
+  await expect(lines.locator('figcaption > span')).toHaveText(['Replace your script-src rule with', 'Add this rule to your policy']);
   await expect(lines.locator('pre')).toHaveText([
     "script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='",
     "connect-src 'self' https://*.google-analytics.com",
-    "script-src 'self' 'nonce-n0nce' 'unsafe-eval'",
   ]);
   await lines.getByRole('button', { name: 'Copy this' }).first().click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
@@ -138,7 +134,12 @@ test('a pasted console is explained message by message, with the tool behind eac
   await expect(item('A script written in the page').first()).toContainText('The script-src line above allows it.');
   const evalItem = item('Code built from text (eval)');
   await expect(evalItem.locator('.violation-status')).toHaveText('Not blocked: your report-only policy reported it under script-src.');
-  await expect(evalItem.locator('.violation-risk')).toContainText("'unsafe-eval' lets the page run code built from text");
+  await expect(evalItem).toContainText("The safest way is code that doesn't build code from text");
+  await expect(evalItem.locator('.violation-risk')).toBeHidden();
+  await evalItem.getByText('A quicker way, less safe').click();
+  await expect(evalItem.locator('.violation-risk')).toContainText("'unsafe-eval' lets every script on the page run code built from text");
+  await expect(evalItem.locator('figcaption > span')).toHaveText('If you accept that, replace your script-src rule in your report-only policy with');
+  await expect(evalItem.locator('pre')).toHaveText("script-src 'self' 'nonce-n0nce' 'unsafe-eval'");
   await expect(item('A browser extension')).toContainText('Nothing to change in your policy.');
   await expect(item('A browser extension').locator('.code-block')).toHaveCount(0);
 
@@ -219,7 +220,8 @@ test('a screen reader hears how many messages were explained, and what each one 
   const heard = (await readAloud(page, '.violation:nth-child(4)')).join(' ');
   expect(heard).toContain('heading, Code built from text (eval), level 3');
   expect(heard).toMatch(/Not blocked: your report-only policy reported it under (?:code )?script-src/);
-  expect(heard).toMatch(/'unsafe-eval' (?:end of code )?lets the page run code built from text/);
+  // The safe way first, then the fold with what the quicker way costs before its line.
+  expect(heard).toMatch(/The safest way.*A quicker way, less safe.*'unsafe-eval' (?:end of code )?lets every script on the page run code built from text.*'unsafe-eval' end of code end of figure/);
 });
 
 test('restores the analysis from a share link', async ({ page }) => {

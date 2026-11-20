@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parseVendor } from './catalogue/schema';
-import { explainViolations } from './violations';
+import { explainGroups, explainViolations } from './violations';
 
 const dir = join(import.meta.dirname, '../../catalogue/vendors');
 const vendors = readdirSync(dir).map((f) => parseVendor(readFileSync(join(dir, f), 'utf8')));
@@ -19,7 +19,7 @@ describe('explainViolations', () => {
     expect(e.case).toBe('address');
     expect(e.host).toBe('cdn.us.heap-api.com');
     expect(e.tools.map((t) => `${t.vendor.name} › ${t.feature.id}`)).toEqual(['Contentsquare › product-analytics-us', 'Contentsquare › product-analytics-eu']);
-    expect(e.fix).toEqual({ add: ['https://cdn.us.heap-api.com'], directive: 'script-src', created: false, risky: false, inLines: true });
+    expect(e.fix).toEqual({ add: ['https://cdn.us.heap-api.com'], directive: 'script-src', created: false, inLines: true });
     expect(e.lines).toEqual(["script-src 'self' 'nonce-n0nce' https://cdn.us.heap-api.com"]);
   });
 
@@ -33,11 +33,11 @@ describe('explainViolations', () => {
   it('allows the address itself when no tool is known, and names the rule when the browser gave no value (Safari)', () => {
     const e = explainOne(`Refused to load https://cdn.unknown.test:8443/a.js because it appears in neither the script-src directive nor the default-src directive of the Content Security Policy.`);
     expect(e.tools).toEqual([]);
-    expect(e.fix).toEqual({ add: ['https://cdn.unknown.test:8443'], directive: 'script-src', created: true, risky: false, inLines: false });
+    expect(e.fix).toEqual({ add: ['https://cdn.unknown.test:8443'], directive: 'script-src', created: true, inLines: false });
     expect(e.lines).toEqual([]);
   });
 
-  it('adds the hash the browser computed for inline code, and gives style attributes their own rule', () => {
+  it('adds the hash the browser computed for inline code; a style attribute gets its own rule only as the weaker way', () => {
     const script = explainOne(`Executing inline script violates the following Content Security Policy directive 'script-src 'self' 'nonce-n0nce''. Either the 'unsafe-inline' keyword, a hash ('sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.`);
     expect(script.case).toBe('inline');
     expect(script.lines).toEqual(["script-src 'self' 'nonce-n0nce' 'sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='"]);
@@ -45,19 +45,40 @@ describe('explainViolations', () => {
     expect(explainOne(`Refused to execute a script because its hash, its nonce, or 'unsafe-inline' does not appear in the script-src directive of the Content Security Policy.`).fix).toBeUndefined();
     const attr = explainOne(`Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-AsBing+OROn4oj79i1McYY1lPcuhBPrT15PfKUjuHIY='), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.`);
     expect(attr.case).toBe('style-attr');
-    expect(attr.fix).toMatchObject({ directive: 'style-src-attr', risky: false, inLines: true });
-    expect(attr.lines).toEqual(["style-src-attr 'unsafe-inline'"]);
+    expect(attr.fix).toBeUndefined();
+    expect(attr.lines).toEqual([]);
+    expect(attr.weaker).toEqual({ risk: 'style-attr', add: ["'unsafe-inline'"], directive: 'style-src-attr', created: true, line: "style-src-attr 'unsafe-inline'" });
   });
 
-  it("offers 'unsafe-eval' as risky, with the catalogue tools known to need it, and nothing for event handlers", () => {
+  it("offers 'unsafe-inline' for inline code without a hash only as the weaker way, and not where a nonce makes browsers ignore it", () => {
+    const message = (rule: string) =>
+      `Executing inline script violates the following Content Security Policy directive '${rule}'. Either the 'unsafe-inline' keyword, a hash ('sha256-+8XQnhHQWnHaF/HSXaiQd7BngX+tkgoz78JBKQfBTRg='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.`;
+    // The hash is the safe way, the only one offered.
+    expect(explainOne(message("script-src 'self'")).weaker).toBeUndefined();
+    // Safari, no hash: 'unsafe-inline' as the weaker way, without a line (the rule wasn't quoted).
+    const safari = explainOne(`Refused to execute a script because its hash, its nonce, or 'unsafe-inline' does not appear in the script-src directive of the Content Security Policy.`);
+    expect(safari.weaker).toEqual({ risk: 'inline-script', add: ["'unsafe-inline'"], directive: 'script-src', created: false });
+    // From a report (no hash): a line of its own, or nothing where a nonce is.
+    const { items } = explainGroups([{ v: { kind: 'inline-script', type: 'inline-script', text: '', directive: 'script-src', effective: 'script-src-elem', value: "script-src 'self'", reportOnly: false, count: 1 }, others: [] }], vendors);
+    expect(items[0]!.weaker).toMatchObject({ line: "script-src 'self' 'unsafe-inline'" });
+    const nonce = explainGroups([{ v: { kind: 'inline-script', type: 'inline-script', text: '', directive: 'script-src', value: "script-src 'self' 'nonce-abc'", reportOnly: false, count: 1 }, others: [] }], vendors);
+    expect(nonce.items[0]!.weaker).toMatchObject({ ignored: true });
+    expect(nonce.items[0]!.weaker?.line).toBeUndefined();
+    expect(nonce.lines).toEqual([]);
+  });
+
+  it("offers 'unsafe-eval' and event handlers' 'unsafe-inline' only as the weaker way, never in the lines", () => {
     const e = explainOne(`Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: "script-src 'self'". The action has been blocked.`);
     expect(e.case).toBe('eval');
-    expect(e.fix).toMatchObject({ add: ["'unsafe-eval'"], risky: true });
-    expect(e.lines).toEqual(["script-src 'self' 'unsafe-eval'"]);
+    expect(e.fix).toBeUndefined();
+    expect(e.lines).toEqual([]);
+    expect(e.weaker).toEqual({ risk: 'eval', add: ["'unsafe-eval'"], directive: 'script-src', created: false, line: "script-src 'self' 'unsafe-eval'" });
     expect(e.tools.map((t) => t.vendor.name)).toEqual(expect.arrayContaining(['Google Tag Manager', 'Optimizely Web Experimentation', 'Contentsquare']));
     const handler = explainOne(`Executing inline event handler violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.`);
     expect(handler.case).toBe('handler');
     expect(handler.fix).toBeUndefined();
+    expect(handler.lines).toEqual([]);
+    expect(handler.weaker).toMatchObject({ risk: 'handler', directive: 'script-src-attr', created: true, line: "script-src-attr 'unsafe-inline'" });
   });
 
   it('sets browser extensions and frames refused by another site apart: nothing to change in this policy', () => {
@@ -67,11 +88,15 @@ describe('explainViolations', () => {
     expect(framed.fix).toBeUndefined();
   });
 
-  it('allows data: and blob: by scheme, risky for scripts only', () => {
+  it('allows data: and blob: by scheme, and for scripts only as the weaker way', () => {
     const data = explainOne(`Loading the image 'data:image/png;base64,iVBORw0KGgo=' violates the following Content Security Policy directive: "img-src 'self'". The action has been blocked.`);
-    expect(data.fix).toMatchObject({ add: ['data:'], risky: false });
+    expect(data.fix).toMatchObject({ add: ['data:'] });
+    expect(data.weaker).toBeUndefined();
     expect(data.lines).toEqual(["img-src 'self' data:"]);
-    expect(explainOne(`Loading the script 'blob:https://site.example/1b2c' violates the following Content Security Policy directive: "script-src 'self'". The action has been blocked.`).fix).toMatchObject({ add: ['blob:'], risky: true });
+    const blob = explainOne(`Loading the script 'blob:https://site.example/1b2c' violates the following Content Security Policy directive: "script-src 'self'". The action has been blocked.`);
+    expect(blob.fix).toBeUndefined();
+    expect(blob.lines).toEqual([]);
+    expect(blob.weaker).toMatchObject({ risk: 'scheme', add: ['blob:'], line: "script-src 'self' blob:" });
   });
 
   it('reads inline blocks of one kind as one item, and gives one line per rule that allows every message at once', () => {

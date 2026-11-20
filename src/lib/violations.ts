@@ -16,9 +16,9 @@ const ORIGIN = 'https://your-site.example';
  * - `address`: something loaded from an address: the tool behind it and the value that allows it;
  * - `extension`: a browser extension of the person who saw the message: nothing to change in the policy;
  * - `inline`: `<script>` or `<style>` blocks: their hashes when the browser gave them, otherwise how to get them;
- * - `style-attr`: a `style="…"` attribute: its own rule, which keeps scripts protected;
- * - `handler`: an `onclick="…"` attribute: the code has to move, the policy can't allow it safely;
- * - `eval`: code built from text: `'unsafe-eval'`, with what it costs;
+ * - `style-attr`: a `style="…"` attribute: the styles move into the stylesheet;
+ * - `handler`: an `onclick="…"` attribute: the code moves into a script;
+ * - `eval`: code built from text: code that doesn't, or a version of the tool that doesn't;
  * - `trusted-types`: code handed the browser plain text where the policy requires Trusted Types: the code has to
  *   change, not the policy;
  * - `ancestors`: another site's page refused to be shown in a frame of this one: only that site can change it.
@@ -32,6 +32,7 @@ export interface ToolUse {
   source: string;
 }
 
+/** A value that allows only what was blocked: an address, a hash, `data:` for images. */
 export interface ViolationFix {
   /** The values to add: one, or the hashes of several inline blocks. */
   add: string[];
@@ -39,10 +40,25 @@ export interface ViolationFix {
   directive: string;
   /** The rule doesn't exist yet (the browser fell back to default-src): it is created from default-src's values. */
   created: boolean;
-  /** The value weakens the policy ('unsafe-eval', data: or blob: for scripts): say what it costs. */
-  risky: boolean;
   /** One of the lines that allow everything at once covers it (the browser quoted the rule). */
   inLines: boolean;
+}
+
+/**
+ * What weakens the policy for everyone, not only for what was blocked: `'unsafe-inline'`, `'unsafe-eval'`, `data:` or
+ * `blob:` for scripts. Never in the lines: the safe way comes first, and this is shown only when asked, with what it
+ * costs.
+ */
+export interface WeakerFix {
+  /** What it lets in, which decides the warning. */
+  risk: 'eval' | 'scheme' | 'inline-script' | 'inline-style' | 'style-attr' | 'handler';
+  add: string[];
+  directive: string;
+  created: boolean;
+  /** The rule with the value, to copy on its own, when the browser quoted the rule. */
+  line?: string;
+  /** The rule has a nonce or a hash: browsers ignore `'unsafe-inline'` there, so it wouldn't change anything. */
+  ignored?: true;
 }
 
 export interface ExplainedViolation {
@@ -59,6 +75,7 @@ export interface ExplainedViolation {
    */
   tools: ToolUse[];
   fix?: ViolationFix;
+  weaker?: WeakerFix;
 }
 
 /** A rule as it should read once everything the messages name is allowed. */
@@ -106,9 +123,9 @@ export function explainViolations(input: string, vendors: Vendor[]): ExplainedMe
 }
 
 /** Each group explained (in the same order), and the lines that allow everything they name. */
-export function explainGroups(groups: ViolationGroup[], vendors: Vendor[], { input = '', origin = ORIGIN, whole = false }: ExplainOptions = {}): ExplainedMessages {
+export function explainGroups(groups: ViolationGroup[], vendors: Vendor[], { input = '', origin = ORIGIN }: ExplainOptions = {}): ExplainedMessages {
   const items = explainItems(groups, vendors, input);
-  return { items, ...linesFor(items, origin, whole) };
+  return { items, ...linesFor(items, origin) };
 }
 
 /** Each group explained, in the same order, without the lines: for a caller that leaves some items out of them. */
@@ -117,8 +134,8 @@ export function explainItems(groups: ViolationGroup[], vendors: Vendor[], input 
 }
 
 /** The lines that allow what `items` name, and the policies they change (marks the items they cover). */
-export function linesOf(items: ExplainedViolation[], { origin = ORIGIN, whole = false }: Omit<ExplainOptions, 'input'> = {}): Pick<ExplainedMessages, 'lines' | 'fixed'> {
-  return linesFor(items, origin, whole);
+export function linesOf(items: ExplainedViolation[], { origin = ORIGIN }: Omit<ExplainOptions, 'input'> = {}): Pick<ExplainedMessages, 'lines' | 'fixed'> {
+  return linesFor(items, origin);
 }
 
 export interface ExplainOptions {
@@ -126,8 +143,6 @@ export interface ExplainOptions {
   input?: string;
   /** The site's origin, when known ('self'). */
   origin?: string;
-  /** Each violation's `value` is a whole policy (from a report), not a single rule. */
-  whole?: boolean;
 }
 
 /** Inline code of the same kind, under the same rule, read as one item. */
@@ -147,19 +162,23 @@ function explain(v: Violation, others: Violation[], vendors: Vendor[], input: st
   if (v.directive === 'frame-ancestors') return { ...base, case: 'ancestors', ...(v.url ? { host: hostOf(v.url) } : {}) };
   switch (v.kind) {
     case 'inline-handler':
-      return { ...base, case: 'handler' };
+      return { ...base, case: 'handler', weaker: weakerFor('handler', 'script-src-attr', "'unsafe-inline'", v.directive !== 'script-src-attr') };
     case 'trusted-types':
       // The message doesn't say what the code was loading; an address pasted with it (the code that was run) may.
       return { ...base, case: 'trusted-types', tools: mentioned(input, vendors) };
     case 'style-attr':
-      return { ...base, case: 'style-attr', fix: { add: ["'unsafe-inline'"], directive: 'style-src-attr', created: v.directive !== 'style-src-attr', risky: false, inLines: false } };
+      return { ...base, case: 'style-attr', weaker: weakerFor('style-attr', 'style-src-attr', "'unsafe-inline'", v.directive !== 'style-src-attr') };
     case 'inline-script':
     case 'inline-style': {
       const hashes = [...new Set([v, ...others].map((o) => o.hash).filter((h) => h !== undefined))];
-      return { ...base, case: 'inline', ...(hashes.length > 0 ? { fix: fixFor(v, v.type, hashes) } : {}) };
+      if (hashes.length > 0) return { ...base, case: 'inline', fix: fixFor(v, v.type, hashes) };
+      const { directive, created } = fixFor(v, v.type, []);
+      return { ...base, case: 'inline', weaker: weakerFor(v.kind, directive, "'unsafe-inline'", created) };
     }
-    case 'eval':
-      return { ...base, case: 'eval', tools: usesOf(vendors, (r) => r.type === 'eval'), fix: fixFor(v, 'eval', ["'unsafe-eval'"]) };
+    case 'eval': {
+      const { directive, created } = fixFor(v, 'eval', []);
+      return { ...base, case: 'eval', tools: usesOf(vendors, (r) => r.type === 'eval'), weaker: weakerFor('eval', directive, "'unsafe-eval'", created) };
+    }
     case 'url':
       return explainAddress(v, base, vendors);
   }
@@ -171,6 +190,11 @@ function explainAddress(v: Violation, base: Pick<ExplainedViolation, 'violation'
   const local = LOCAL_SCHEME.exec(raw);
   if (local) {
     const scheme = `${local[1]!.toLowerCase()}:`;
+    // Content made in the page, which an attacker can make too: for code, that's as good as any script.
+    if (v.type === 'script' || v.type === 'worker') {
+      const { directive, created } = fixFor(v, v.type, []);
+      return { ...base, case: 'address', host: scheme, weaker: weakerFor('scheme', directive, scheme, created) };
+    }
     return { ...base, case: 'address', host: scheme, fix: fixFor(v, v.type, [scheme]) };
   }
   const address = addressOf(raw);
@@ -204,38 +228,34 @@ function mentioned(input: string, vendors: Vendor[]): ToolUse[] {
 
 /** Where the values go: the rule the browser named, or the rule of their own kind when it fell back to default-src. */
 function fixFor(v: Violation, type: ResourceType, add: string[]): ViolationFix {
-  const risky = add.some((a) => a === "'unsafe-eval'" || (/^(?:data|blob):$/.test(a) && (type === 'script' || type === 'worker')));
   return {
     add,
     directive: v.directive && v.directive !== 'default-src' ? v.directive : CANONICAL_DIRECTIVE[type],
     created: v.directive === 'default-src',
-    risky,
     inLines: false,
   };
 }
 
+const weakerFor = (risk: WeakerFix['risk'], directive: string, add: string, created: boolean): WeakerFix => ({ risk, add: [add], directive, created });
+
+/** The requirement a weaker value answers, for the patch that adds it. */
+const WEAKER_TYPE: Record<'eval' | 'inline-script' | 'inline-style', ResourceType> = { eval: 'eval', 'inline-script': 'inline-script', 'inline-style': 'inline-style' };
+/** Attributes get a rule of their own, so that `<script>` and `<style>` blocks stay protected. */
+const ATTR_LINE = { 'style-attr': "style-src-attr 'unsafe-inline'", handler: "script-src-attr 'unsafe-inline'" } as const;
+
 /**
  * The rules to change, computed the way the analyzer does on each rule the browser quoted, with every value the
  * messages under it need: a rule that fell back to default-src gets its own rule (copying default-src) instead of
- * widening default-src. Marks the items these lines cover. With `whole`, each value is a whole policy (from reports):
- * a `style="…"` attribute's line belongs to its policy, and goes into the fixed policy too.
+ * widening default-src. Marks the items these lines cover. Only safe values go in (`fix`); a weaker one gets its own
+ * line, shown apart.
  */
-function linesFor(items: ExplainedViolation[], origin: string, whole: boolean): Pick<ExplainedMessages, 'lines' | 'fixed'> {
+function linesFor(items: ExplainedViolation[], origin: string): Pick<ExplainedMessages, 'lines' | 'fixed'> {
   const lines: PolicyLine[] = [];
   const fixed: FixedPolicy[] = [];
   const byRule = new Map<string, ExplainedViolation[]>();
   for (const item of items) {
-    if (!item.fix) continue;
-    if (item.case === 'style-attr') {
-      const reportOnly = item.violation.reportOnly;
-      const policy = whole ? (item.violation.value ?? '') : '';
-      if (!lines.some((l) => l.directive === 'style-src-attr' && l.reportOnly === reportOnly && (!whole || l.policy === policy))) {
-        lines.push({ directive: 'style-src-attr', created: item.fix.created, line: STYLE_ATTR_LINE, reportOnly, policy: item.violation.value ?? '' });
-      }
-      item.fix.inLines = true;
-      if (!whole) continue;
-    }
-    if (!item.violation.value) continue;
+    if (item.weaker && item.violation.value) weakerLine(item.weaker, item, origin);
+    if (!item.fix || !item.violation.value) continue;
     const key = `${item.violation.value}|${item.violation.reportOnly}`;
     byRule.set(key, [...(byRule.get(key) ?? []), item]);
   }
@@ -243,35 +263,41 @@ function linesFor(items: ExplainedViolation[], origin: string, whole: boolean): 
   for (const group of byRule.values()) {
     const value = group[0]!.violation.value!;
     const reportOnly = group[0]!.violation.reportOnly;
-    const parsed: ParseResult = { input: value, policies: [parseSinglePolicy(value)], issues: [] };
-    const results: [ExplainedViolation, RequirementResult][] = group
-      .filter((item) => item.case !== 'style-attr')
-      .flatMap((item) =>
-        item.fix!.add.map((source) => [item, checkRequirement(parsed, { type: item.case === 'eval' ? 'eval' : item.violation.type, source, reason: '' }, origin)] as [ExplainedViolation, RequirementResult]),
-      );
+    const parsed = parsedOf(value);
+    const results: [ExplainedViolation, RequirementResult][] = group.flatMap((item) =>
+      item.fix!.add.map((source) => [item, checkRequirement(parsed, { type: item.violation.type, source, reason: '' }, origin)] as [ExplainedViolation, RequirementResult]),
+    );
     const blocked = results.filter(([, r]) => r.verdict === 'blocked');
     for (const [item] of blocked) item.fix!.inLines = true;
     const patch = buildPatches(parsed, blocked.map(([, r]) => r), origin)[0];
     for (const change of patch?.changes ?? []) {
       lines.push({ directive: change.directive, created: change.created, line: change.after, reportOnly, policy: value });
     }
-    const styleAttr = group.some((item) => item.case === 'style-attr');
-    if (styleAttr || (patch && patch.changes.length > 0)) {
-      const after = patch && patch.changes.length > 0 ? patch.after : value;
-      fixed.push({ before: value, after: styleAttr ? withRule(after, STYLE_ATTR_LINE) : after, reportOnly });
-    }
+    if (patch && patch.changes.length > 0) fixed.push({ before: value, after: patch.after, reportOnly });
   }
   return { lines, fixed };
 }
 
-const STYLE_ATTR_LINE = "style-src-attr 'unsafe-inline'";
+const parsedOf = (value: string): ParseResult => ({ input: value, policies: [parseSinglePolicy(value)], issues: [] });
 
-/** `policy` with `line` in place of the rule of the same name, or added at the end. */
-function withRule(policy: string, line: string): string {
-  const name = line.split(' ')[0]!;
-  const rules = policy.split(';').map((r) => r.trim()).filter((r) => r !== '');
-  const at = rules.findIndex((r) => r.split(/\s+/)[0]!.toLowerCase() === name);
-  if (at >= 0) rules[at] = line;
-  else rules.push(line);
-  return rules.join('; ');
+/** The rule with the weaker value in it, on its own; or `ignored`, when a nonce or a hash makes browsers ignore it. */
+function weakerLine(weaker: WeakerFix, item: ExplainedViolation, origin: string) {
+  const value = item.violation.value!;
+  const policy = parseSinglePolicy(value);
+  if (weaker.risk === 'style-attr' || weaker.risk === 'handler') {
+    weaker.line = ATTR_LINE[weaker.risk];
+    weaker.created = !policy.directives.some((d) => d.name === weaker.directive);
+    return;
+  }
+  const type = weaker.risk === 'scheme' ? item.violation.type : WEAKER_TYPE[weaker.risk];
+  const result = checkRequirement(parsedOf(value), { type, source: weaker.add[0]!, reason: '' }, origin);
+  if (result.verdict === 'allowed') return;
+  const change = result.verdict === 'blocked' ? buildPatches(parsedOf(value), [result], origin)[0]?.changes[0] : undefined;
+  if (!change) {
+    weaker.ignored = true;
+    return;
+  }
+  weaker.line = change.after;
+  weaker.directive = change.directive;
+  weaker.created = change.created;
 }

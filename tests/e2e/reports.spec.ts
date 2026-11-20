@@ -29,7 +29,8 @@ test('the example groups the reports by problem, most reports first, with the li
   await expect(first.locator('.report-pages')).not.toContainText('utm_source');
 
   // A rule created from default-src for the connections, never widening default-src.
-  await expect(page.locator('.violation-lines .code-block')).toHaveText([/style-src-attr 'unsafe-inline'/, /script-src 'self' 'nonce-r4nd0m' https:\/\/www.googletagmanager.com https:\/\/static.hotjar.com/, /connect-src 'self' https:\/\/\*.google-analytics.com wss:\/\/\*.hotjar.com/]);
+  // Nothing that weakens the policy for everyone: no 'unsafe-inline' for the style attributes.
+  await expect(page.locator('.violation-lines .code-block')).toHaveText([/script-src 'self' 'nonce-r4nd0m' https:\/\/www.googletagmanager.com https:\/\/static.hotjar.com/, /connect-src 'self' https:\/\/\*.google-analytics.com wss:\/\/\*.hotjar.com/]);
 
   // What extensions caused is folded at the end, and adds no line.
   const noise = page.locator('.report-noise');
@@ -104,7 +105,7 @@ test('the whole policy with the changes opens in the comparator', async ({ page 
   await expect(page).toHaveURL(/\/compare#b=/);
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
   await expect(page.getByRole('textbox', { name: 'Before' })).toHaveValue(/report-to csp$/);
-  await expect(page.getByRole('textbox', { name: 'After' })).toHaveValue(/connect-src 'self' https:\/\/\*\.google-analytics\.com wss:\/\/\*\.hotjar\.com; style-src-attr 'unsafe-inline'$/);
+  await expect(page.getByRole('textbox', { name: 'After' })).toHaveValue(/connect-src 'self' https:\/\/\*\.google-analytics\.com wss:\/\/\*\.hotjar\.com$/);
 });
 
 test('pasted reports are read, counted once without what they hold, and kept nowhere', async ({ page, sent }) => {
@@ -164,6 +165,26 @@ test('a screen reader hears how many reports were read, and for each problem wha
   expect(heard).toMatch(/Blocked by (?:code )?default-src/);
   expect(heard).toContain('31 reports on 6 pages from');
   expect(heard).toMatch(/Your policy has no (?:code )?connect-src|line above allows it/);
+});
+
+test("inline code gets the safe way first; 'unsafe-inline' only when asked, with what it costs before the line", async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  const attr = page.locator('.violation', { has: page.getByRole('heading', { name: 'A style attribute' }) });
+  await expect(attr).toContainText('The safest way is to move these styles into your stylesheet, as classes');
+  const fold = attr.locator('.violation-weaker');
+  await expect(fold.locator('.code-block')).toBeHidden();
+  await fold.getByText('A quicker way, less safe').click();
+  await expect(fold.locator('.violation-risk')).toContainText('This lets every style attribute apply, including one an attacker slips in');
+  await expect(fold.locator('figcaption > span')).toHaveText('If you accept that, add this rule to your policy');
+  await expect(fold.locator('pre')).toHaveText("style-src-attr 'unsafe-inline'");
+  // Heard in that order: the safe way, the fold, what it costs, then the line.
+  const heard = (await readAloud(page, '.violation:has(.violation-weaker)')).join(' ');
+  expect(heard).toMatch(/The safest way.*A quicker way, less safe.*This lets every (?:code )?style.*style-src-attr 'unsafe-inline'/);
+  // The checkout's inline script, under a rule with a nonce: 'unsafe-inline' would be ignored, so it isn't offered.
+  const inline = page.locator('.violation', { has: page.getByRole('heading', { name: 'A script written in the page' }) });
+  await expect(inline).toContainText("Your script-src rule has a nonce or a hash, so browsers ignore 'unsafe-inline' there");
+  await expect(inline.locator('.violation-weaker')).toHaveCount(0);
 });
 
 test('reports are read in French on French pages', async ({ page }) => {
