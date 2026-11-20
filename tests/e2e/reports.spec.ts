@@ -116,7 +116,8 @@ test('dated reports tell what an older policy blocked that the newest allows, an
   await expect(page.locator('.report-period')).toContainText(/Received Nov 13\s*–\s*19, 2026\./);
   // The policy changed on the 15th: the older one is listed, and gets no lines of its own.
   await expect(page.locator('.report-policies li summary').first()).toHaveText(/^Policy 1, an older version: \d+ reports, until Nov 14, 2026$/);
-  await expect(page.getByRole('heading', { name: 'What to change in your policy' })).toBeVisible();
+  // The lines say which policy they're built on: the newest in the reports, from its first report.
+  await expect(page.getByRole('heading', { name: 'What to change in the policy sent from Nov 14, 2026' })).toBeVisible();
   // Google Tag Manager was only blocked by the older one: the change worked.
   // Last in the list, allowed since the newer policy started coming (not "fixed": the reports can't say it's still
   // the one sent), with a green edge and the words for it.

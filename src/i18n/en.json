@@ -1091,6 +1091,8 @@
     },
     "rowMeta": "{level}, {reports}",
     "fixed": "Allowed since {date}",
-    "fixedIntro": "The policy your pages sent from {date} allows it, and no report about it came after that. If it's still the policy your site sends, there's nothing to do. If more reports come, some pages or browsers still get the older one."
+    "fixedIntro": "The policy your pages sent from {date} allows it, and no report about it came after that. If it's still the policy your site sends, there's nothing to do. If more reports come, some pages or browsers still get the older one.",
+    "linesFrom": "What to change in the policy sent from {date}",
+    "linesForFrom": "What to change in policy {n}, sent from {date}"
   }
 }

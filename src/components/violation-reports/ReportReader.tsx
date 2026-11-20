@@ -314,7 +314,16 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
           <Lines
             key={i}
             lines={lines}
-            title={several ? t('reportsReader.linesFor', { n: i + 1 }) : t('violations.lines.title')}
+            // With dates, which policy the lines are built on: the one sent from its first report on.
+            title={
+              p.first === undefined
+                ? several
+                  ? t('reportsReader.linesFor', { n: i + 1 })
+                  : t('violations.lines.title')
+                : several
+                  ? t('reportsReader.linesForFrom', { n: i + 1, date: dayName(t.locale, p.first) })
+                  : t('reportsReader.linesFrom', { date: dayName(t.locale, p.first) })
+            }
             intro={<p>{t('reportsReader.linesIntro')}</p>}
           >
             <PolicyNotes p={p} />

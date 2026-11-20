@@ -1091,6 +1091,8 @@
     },
     "rowMeta": "{level}, {reports}",
     "fixed": "Autorisé depuis le {date}",
-    "fixedIntro": "La politique que vos pages envoyaient à partir du {date} l'autorise, et aucun rapport à ce sujet n'est arrivé ensuite. Si c'est toujours la politique que votre site envoie, il n'y a rien à faire. S'il arrive encore des rapports, certaines pages ou certains navigateurs reçoivent toujours l'ancienne."
+    "fixedIntro": "La politique que vos pages envoyaient à partir du {date} l'autorise, et aucun rapport à ce sujet n'est arrivé ensuite. Si c'est toujours la politique que votre site envoie, il n'y a rien à faire. S'il arrive encore des rapports, certaines pages ou certains navigateurs reçoivent toujours l'ancienne.",
+    "linesFrom": "Ce qu'il faut changer dans la politique envoyée depuis le {date}",
+    "linesForFrom": "Ce qu'il faut changer dans la politique {n}, envoyée depuis le {date}"
   }
 }
