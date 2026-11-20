@@ -77,7 +77,7 @@
       }
     },
     "countTitle": "Ce que nous comptons",
-    "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser ou comparer des politiques, expliquer un message de la console, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier le snippet, copier, imprimer ou télécharger un rapport, construire une politique et la copier. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique, l'adresse de votre site ni les messages que vous collez.",
+    "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser ou comparer des politiques, expliquer un message de la console ou un lot de rapports, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier le snippet, copier, imprimer ou télécharger un rapport, construire une politique et la copier. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique, l'adresse de votre site ni les messages et rapports que vous collez.",
     "sourcesTitle": "D'où viennent les informations",
     "sourceSpec": "Le comportement des directives suit la spécification [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/).",
     "sourceEvaluator": "Les constats de sécurité viennent de la bibliothèque [CSP Evaluator](https://github.com/google/csp-evaluator) de Google (Apache-2.0), les mêmes vérifications que csp-evaluator.withgoogle.com.",
@@ -315,6 +315,7 @@
     },
     "reading": {
       "title": "Les lire",
+      "reader": "Vous en avez déjà un lot ? [Lisez-les ici](/reports) : regroupés par problème, avec l'outil derrière chaque adresse et les lignes à changer.",
       "items": [
         {
           "term": "L'adresse d'un outil que vous utilisez",
@@ -631,6 +632,13 @@
     "title": "Comparer deux politiques",
     "description": "Comparez deux versions d'une Content-Security-Policy et voyez, en langage clair, ce que le changement autorise, bloque ou corrige, et quels outils il touche.",
     "lead": "Collez la politique que vous avez et celle que vous prévoyez. Voyez ce que le changement autorise, bloque ou corrige, en langage clair."
+  },
+  "reports": {
+    "title": "Lire vos rapports de violation CSP",
+    "description": "Collez ou ouvrez les rapports de violation de Content-Security-Policy reçus par votre site : regroupés, expliqués simplement, avec l'outil derrière chaque adresse et les lignes à changer. Ils ne quittent jamais votre navigateur.",
+    "heading": "Lire vos rapports de violation",
+    "lead": "Collez les rapports reçus par votre site, ou ouvrez le fichier exporté par votre collecteur. Voyez de quoi ils parlent, quel outil se cache derrière chaque adresse, et quoi changer dans votre politique.",
+    "private": "Les rapports peuvent contenir les adresses des pages de vos visiteurs et des extraits de code. Ils sont lus ici, dans votre navigateur : rien n'est envoyé, et rien n'est gardé une fois la page quittée. [Comment les recevoir](/reporting)."
   },
   "build": {
     "title": "Construire une politique",

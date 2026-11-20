@@ -8,6 +8,7 @@
       "build": "Construire",
       "compare": "Comparer",
       "find": "Trouver ma CSP",
+      "reports": "Lire des rapports",
       "learn": "Comprendre",
       "vendors": "Catalogue des outils",
       "about": "À propos",
@@ -26,6 +27,7 @@
         "build": "Partez de zéro ou de votre politique, et ajoutez vos outils.",
         "compare": "Deux versions d'une politique : ce que le changement autorise, bloque ou corrige.",
         "find": "Récupérez la politique de votre site, pas à pas.",
+        "reports": "Collez ou ouvrez un lot de rapports de violation : ce qu'ils disent, et quoi changer.",
         "whatIs": "Les bases, et les mots que vous entendrez.",
         "directives": "Chaque règle d'une politique, expliquée.",
         "nonces": "Remplacez 'unsafe-inline' par une solution plus sûre.",
@@ -82,7 +84,7 @@
     "noPolicy": "Vous n'avez pas votre politique sous la main ?",
     "findLink": "Voici comment la trouver",
     "noPolicyYet": "Pas encore de politique ?",
-    "newHere": "Vous découvrez le sujet ?",
+    "haveReports": "Vous recevez déjà des rapports de violation ?",
     "otherStarts": "Autres façons de commencer",
     "noPolicyFound": "Ce site n'envoie pas encore de politique : il n'y a rien à expliquer. [Construisez-en une à partir d'une politique vierge](/build), avec les outils que votre site doit autoriser.",
     "siteLabel": "Adresse de votre site (facultatif)",
@@ -853,10 +855,12 @@
     "evalTools": "Dans le catalogue, ceux-ci en ont besoin : {tools}.",
     "hash": "Le navigateur a donné l'empreinte de ce code. L'ajouter autorise exactement ce code et rien d'autre : si le code change, il est de nouveau bloqué. Pour du code qui change à chaque page, [utilisez plutôt un nonce](/nonces).",
     "noHash": "Ce navigateur ne donne pas l'empreinte du code. Collez le code ci-dessous pour l'obtenir, ou [utilisez un nonce](/nonces).",
+    "noHashReport": "Les rapports ne contiennent pas l'empreinte du code, et leur extrait s'arrête à 40 caractères. Collez le code ci-dessous pour l'obtenir, ou [utilisez un nonce](/nonces).",
     "hashCaption": "À ajouter à votre règle {directive}",
     "styleAttr": "Une règle `style-src-attr` autorise les attributs de style seuls : les blocs de style et les scripts restent protégés, et un attribut de style ne peut pas exécuter de code. Ou déplacez ces styles dans votre feuille de style.",
     "handler": "Votre politique ne peut pas autoriser ceci sans risque : `'unsafe-inline'` laisserait aussi s'exécuter tout script glissé dans la page. Déplacez le code dans un script et attachez-le avec `addEventListener`.",
     "extension": "`{host}` est une extension installée dans le navigateur où ce message est apparu, pas une partie de votre site. Rien à changer dans votre politique.",
+    "extensionReport": "`{host}` est une extension installée dans le navigateur d'un de vos visiteurs, pas une partie de votre site. Rien à changer dans votre politique.",
     "ancestors": "La page {host} n'autorise pas d'autres sites à l'afficher dans un cadre (sa règle `frame-ancestors`). Seul son propriétaire peut changer cela : votre politique n'y est pour rien.",
     "lines": {
       "title": "Ce qu'il faut changer dans votre politique",
@@ -876,5 +880,53 @@
     "tt": "Votre politique exige les Trusted Types (`require-trusted-types-for`) : le code ne peut pas confier {what} au navigateur en texte brut, seulement par une politique Trusted Types qui le vérifie d'abord. Le code qui a fait cela, le vôtre ou celui d'un outil, doit en utiliser une. Il n'y a rien à ajouter à votre politique pour cela : [comment fonctionnent les Trusted Types](/trusted-types).",
     "ttSink": "Où : `{sink}`.",
     "ttTool": "Le texte collé contient une adresse utilisée par [{vendor}](/vendors/{id}). Si c'est son code qui est bloqué, demandez à {vendor} s'il prend en charge les Trusted Types."
+  },
+  "reportsReader": {
+    "inputLabel": "Vos rapports",
+    "pasteLabel": "Collez vos rapports",
+    "hint": "Le JSON tel que l'envoient les navigateurs (report-to ou report-uri), un rapport par ligne depuis vos logs, ou un export complet. Ou déposez le fichier ici.",
+    "openFile": "Ouvrir un fichier",
+    "fileOpen": "**{name}** ({size}) est ouvert.",
+    "error": {
+      "tooLarge": "Ce fichier est trop gros pour être lu ici (plus de {max}). Exportez moins de jours, ou seulement les rapports `csp-violation`.",
+      "unreadable": "Impossible de lire ce fichier. Est-ce bien un fichier texte ?"
+    },
+    "announce": { "one": "1 rapport lu.", "other": "{count} rapports lus." },
+    "none": "Aucun rapport trouvé.",
+    "noneLong": "Aucun rapport de violation CSP dans ce texte. Les rapports sont du JSON avec un champ `blockedURL` ou `blocked-uri` : collez-les tels que votre collecteur les a enregistrés.",
+    "title": { "one": "Ce que dit le rapport", "other": "Ce que disent les {count} rapports" },
+    "lead": "Les rapports sur la même chose, sous la même règle, sont lus ensemble : les problèmes viennent du plus signalé au moins signalé.",
+    "noiseLead": { "one": "1 rapport vient d'une extension du navigateur : il est mis à part à la fin.", "other": "{count} rapports viennent d'extensions du navigateur : ils sont mis à part à la fin." },
+    "skipped": { "one": "1 ligne contenait autre chose qu'un rapport et a été laissée de côté.", "other": "{count} lignes contenaient autre chose qu'un rapport et ont été laissées de côté." },
+    "linesFor": "Ce qu'il faut changer dans la politique {n}",
+    "linesIntro": "Chaque ligne remplace la règle du même nom dans la politique qui a envoyé les rapports. Ensemble, elles autorisent ce que les rapports signalent comme bloqué, et rien d'autre.",
+    "compare": "Voir la politique entière avec ces changements, dans le comparateur",
+    "guessed": "Les anciens rapports de Safari ne disent pas si la politique était appliquée ou en mode rapport seul : ils sont comptés comme appliqués.",
+    "problems": { "one": "1 problème, venant de votre site", "other": "{count} problèmes, venant de votre site" },
+    "noise": { "one": "Mis à part : 1 problème venant d'extensions ({reports} rapports)", "other": "Mis à part : {count} problèmes venant d'extensions ({reports} rapports)" },
+    "noiseIntro": "Les extensions installées par vos visiteurs ajoutent du code aux pages qu'ils visitent, et votre politique le bloque. C'est votre politique qui fait son travail : il n'y a rien à autoriser.",
+    "names": {
+      "title": "Politiques Trusted Types refusées par votre règle",
+      "text": "Du code a essayé de créer des politiques Trusted Types nommées {names}, que votre règle `trusted-types` ne liste pas. Si elles sont à vous ou à un outil de confiance, ajoutez leurs noms à cette règle ([comment fonctionnent les Trusted Types](/trusted-types))."
+    },
+    "policies": {
+      "title": { "one": "La politique de ces rapports", "other": "Les {count} politiques de ces rapports" },
+      "intro": "Les rapports contiennent la politique entière envoyée avec la page. Plusieurs politiques : une appliquée et une en mode rapport seul, des pages qui ont la leur, ou une ancienne version encore dans certains navigateurs.",
+      "enforced": { "one": "Politique {n}, appliquée : 1 rapport", "other": "Politique {n}, appliquée : {count} rapports" },
+      "reportOnly": { "one": "Politique {n}, en mode rapport seul : 1 rapport", "other": "Politique {n}, en mode rapport seul : {count} rapports" },
+      "guessed": { "one": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : 1 rapport", "other": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : {count} rapports" },
+      "missing": "Les rapports ne contenaient pas la politique."
+    },
+    "stats": {
+      "reports": { "one": "1 rapport", "other": "{count} rapports" },
+      "onePage": "sur `{page}`",
+      "pages": { "one": "sur 1 page", "other": "sur {count} pages" },
+      "browsers": "depuis {browsers}",
+      "end": ".",
+      "policy": "(politique {n})",
+      "showPages": { "one": "La page", "other": "Les {count} pages" },
+      "pageCount": { "one": "(1 rapport)", "other": "({count} rapports)" },
+      "more": { "one": "et 1 autre page", "other": "et {count} autres pages" }
+    }
   }
 }

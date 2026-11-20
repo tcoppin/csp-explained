@@ -1,0 +1,34 @@
+---
+import ReportReader from '../../components/violation-reports/ReportReader';
+import { Rich } from '../../components/ui/Rich';
+import Base from '../../layouts/Base.astro';
+import { localeOf, localeParams, translatorFor } from '../../i18n';
+import { contentFor } from '../../lib/site-content';
+
+export function getStaticPaths() {
+  return localeParams();
+}
+
+const t = translatorFor(Astro);
+const locale = localeOf(Astro.currentLocale);
+---
+
+<Base title={t('pages.reports.title')} description={t('pages.reports.description')}>
+  <div class="wrap">
+    <h1>{t('pages.reports.heading')}</h1>
+    <p class="lead"><Rich t={t} msg="pages.reports.lead" /></p>
+    <p class="private"><Rich t={t} msg="pages.reports.private" /></p>
+    <ReportReader client:load content={contentFor(locale)} locale={locale} />
+  </div>
+</Base>
+
+<style>
+  .lead {
+    font-size: var(--step-1);
+    max-width: var(--measure);
+  }
+  .private {
+    max-width: var(--measure);
+    color: var(--ink-soft);
+  }
+</style>

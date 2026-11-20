@@ -26,6 +26,10 @@ needs our own server comes last, because it changes the site's promise that the 
       And the console-message explainer (2026-11-17): paste a few console messages in the analyzer; "6 messages
       explained" is heard once; each message reads as a heading, then whether it was blocked or only reported, then
       the tool and the line; the hash generator under a Safari message is easy to reach and its result is heard.
+      And the reports reader (`/reports`, 2026-11-20): with "Try an example", "112 reports read" is heard once; each
+      problem reads as a heading, then blocked or only reported, then "46 reports on 6 pages from…"; the pages list
+      and "Set apart" open and close with Enter and say so; "Open a file" opens the file picker and, once a file is
+      read, its name is heard; "Clear" puts the focus back in the box.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -90,14 +94,6 @@ Internal tooling, never part of the public site.
 
 Everything here runs on the visitor's device, like the analyzer: nothing typed, pasted or dropped is sent anywhere.
 
-- [ ] **Read violation reports** (2026-11-05): paste or drop a batch of reports (`report-to` or `report-uri`
-      format, or a log export). The console-message explainer (`src/lib/violations.ts`) already names the tool and
-      builds the fix for one blocked address; reports give the same facts as fields. Group them by blocked address, directive and page; set noise apart (browser
-      extensions, code injected on the visitor's device, the same visitor's repeats); name the catalogue tool
-      behind each group and build the fix with the patch engine. Raw reports are noisy and can hold personal data
-      (page addresses with query strings, referrers, code samples), so this one stays on the device too. Our angle
-      is the plain-language explanation, the link to the catalogue and the ready fix, not storage: report
-      collectors and error-tracking tools already accept CSP reports.
 - [ ] **Import a HAR file** (2026-11-12; DevTools › Network › Save all as HAR): list every address the page
       loaded, by kind of content, recognise the catalogue tools, and build the policy from it in the builder. The
       file stays on the device; say so, since a HAR can hold cookies and personal data. Most of what "Check my
@@ -237,6 +233,15 @@ Interface:
 
 ### Features
 
+- [x] **Read violation reports** (`/reports`, 2026-11-20): paste or open a batch of reports (`report-to` or
+      `report-uri`, a JSON export, one per line, inside log lines or a collector's wrapper). Reports about the same
+      address or code, under the same rule and policy, are one problem, most reports first, with their pages (without
+      query strings) and browsers. Each is explained like a console message (the tool, the case, the fix), but on
+      the whole policy the report carries: one line per rule and policy, and the fixed policy opens in the comparator.
+      What browser extensions caused is set apart and adds no line; Safari's older reports, which don't say whether
+      the policy was enforced, are marked. Nothing leaves the device or is kept: not in the address, not in storage.
+      Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
+      Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole
       console works) in the analyzer. Each one says what was blocked (or only reported), the rule that did it, the
       catalogue tool behind the address, and which line allows it. The lines come first, one per rule, with

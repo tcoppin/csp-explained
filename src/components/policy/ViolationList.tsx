@@ -1,10 +1,12 @@
+import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 import type { InlineHash } from '../../lib/csp/hash';
 import type { ExplainedMessages, ExplainedViolation, PolicyLine, ToolUse } from '../../lib/violations';
-import { HashTool } from '../policy/HashTool';
+import { HashTool } from './HashTool';
 import { CodeBox } from '../ui/CodeBox';
 import { useT } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
+import './violations.css';
 
 /**
  * Console messages pasted in place of a policy: first the lines that allow everything they name at once (so that
@@ -31,13 +33,20 @@ export function ViolationList({ explained }: { explained: ExplainedMessages }) {
   );
 }
 
-function Lines({ lines }: { lines: PolicyLine[] }) {
+/** Where the messages or reports come from: the wording of a few explanations depends on it. */
+export type ViolationSource = 'console' | 'reports';
+
+/**
+ * The lines that allow everything at once. `title` and `intro` replace the default ones (the reports reader gives
+ * one set per policy); `children` go after the lines.
+ */
+export function Lines({ lines, title, intro, children }: { lines: PolicyLine[]; title?: string; intro?: ComponentChildren; children?: ComponentChildren }) {
   const t = useT();
   const fromDefault = lines.find((l) => l.created && l.directive !== 'style-src-attr');
   return (
     <div class="violation-lines">
-      <h3>{t('violations.lines.title')}</h3>
-      <p>{t('violations.lines.intro')}</p>
+      <h3>{title ?? t('violations.lines.title')}</h3>
+      {intro ?? <p>{t('violations.lines.intro')}</p>}
       {lines.map((l) => (
         <CodeBox
           key={`${l.reportOnly}|${l.directive}`}
@@ -50,11 +59,16 @@ function Lines({ lines }: { lines: PolicyLine[] }) {
           <Rich msg="violations.createdNote" vars={{ directive: fromDefault.directive }} />
         </p>
       )}
+      {children}
     </div>
   );
 }
 
-function ViolationItem({ e, index }: { e: ExplainedViolation; index: number }) {
+/**
+ * One problem: what was blocked, by which rule, what it means and the fix. `children` go under the status line (the
+ * reports reader says there how many reports, pages and browsers).
+ */
+export function ViolationItem({ e, index, source = 'console', children }: { e: ExplainedViolation; index: number; source?: ViolationSource; children?: ComponentChildren }) {
   const t = useT();
   const v = e.violation;
   const heading =
@@ -88,7 +102,8 @@ function ViolationItem({ e, index }: { e: ExplainedViolation; index: number }) {
           {repeats > 1 && <> {t('violations.seen', { count: repeats })}</>}
         </p>
       )}
-      <Body e={e} />
+      {children}
+      <Body e={e} source={source} />
       {e.fix && !e.fix.inLines && v.reportOnly && (
         <p class="muted">
           <Rich msg="violations.reportOnlyFix" />
@@ -100,12 +115,12 @@ function ViolationItem({ e, index }: { e: ExplainedViolation; index: number }) {
 }
 
 /** What the message means for this case, and where the fix is. */
-function Body({ e }: { e: ExplainedViolation }) {
+function Body({ e, source }: { e: ExplainedViolation; source: ViolationSource }) {
   const t = useT();
   const v = e.violation;
   switch (e.case) {
     case 'extension':
-      return <p><Rich msg="violations.extension" vars={{ host: e.host ?? '' }} /></p>;
+      return <p><Rich msg={source === 'reports' ? 'violations.extensionReport' : 'violations.extension'} vars={{ host: e.host ?? '' }} /></p>;
     case 'ancestors':
       return <p><Rich msg="violations.ancestors" vars={{ host: e.host ?? v.url ?? '' }} /></p>;
     case 'handler':
@@ -132,7 +147,7 @@ function Body({ e }: { e: ExplainedViolation }) {
     case 'inline':
       return (
         <>
-          <p><Rich msg={e.fix ? 'violations.hash' : 'violations.noHash'} /></p>
+          <p><Rich msg={e.fix ? 'violations.hash' : source === 'reports' ? 'violations.noHashReport' : 'violations.noHash'} /></p>
           {e.fix && <Fix e={e} />}
         </>
       );

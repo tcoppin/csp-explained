@@ -1,6 +1,6 @@
 /** Every page: header, theme, links, metadata, our own CSP, phone widths and accessibility. */
 import type { Page } from '@playwright/test';
-import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, CONSOLE, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, CONSOLE, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE, openReader } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
   // About 150 pages: more than the default 30 seconds on CI's two-core runners.
@@ -10,7 +10,7 @@ test('no word is glued to a link or inline code on any page', async ({ page }) =
   const vendorPages = await page.locator('main a[href^="/vendors/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
   await page.goto('/directives');
   const directivePages = await page.locator('main a[href^="/directives/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')!));
-  const paths = ['/404', ...inEveryLanguage(['/', '/build', '/compare', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
+  const paths = ['/404', ...inEveryLanguage(['/', '/build', '/compare', '/reports', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/directives', '/about', ...vendorPages, ...directivePages])];
 
   const glued: string[] = [];
   for (const path of paths) {
@@ -107,7 +107,7 @@ test('search engines get a sitemap of the pages, and robots.txt points to it', a
 
 test('every page loads without errors under our own CSP', async ({ page }) => {
   const errors = watchErrors(page);
-  for (const path of inEveryLanguage(['/', '/build', '/compare', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
     expect(res?.ok(), path).toBe(true);
     await expect(page.locator('h1')).toBeVisible();
@@ -118,7 +118,7 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
 test('text fits a 360px phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   // Optimizely has the longest tool name, the learn page a long host in its example policy.
-  for (const path of inEveryLanguage(['/', '/build', '/compare', COMPARE_EXAMPLE, `${COMPARE_EXAMPLE}&t=tools`, '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', COMPARE_EXAMPLE, `${COMPARE_EXAMPLE}&t=tools`, '/build#b=allowlist&v=hotjar:tracking&step=tools', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/optimizely', '/directives', '/directives/script-src', '/about'])) {
     await page.goto(path);
     // Islands render their results once hydrated: check what the visitor ends up seeing, not the first paint.
     await page.waitForFunction(() => !document.querySelector('astro-island[ssr]'));
@@ -146,7 +146,7 @@ test('text fits a 360px phone screen', async ({ page }) => {
 
 test('links to other websites open in a new tab and say so', async ({ page }) => {
   let checked = 0;
-  for (const path of inEveryLanguage(['/', '/build', '/compare', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/about', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src'])) {
     await page.goto(path);
     const links = page.locator('a[href^="http"]:not([href^="http://localhost"])');
     for (const link of await links.all()) {
@@ -187,7 +187,7 @@ test('the footer reports an issue about the page, never about a shared policy', 
  * builder's last step and the open menu: `check` runs on each, named by `where`.
  */
 async function everyView(page: Page, check: (where: string) => Promise<void>) {
-  const pages = inEveryLanguage(['/', '/build', '/compare', '/find-my-csp', '/learn', '/directives', '/directives/script-src', '/nonces', '/reporting', '/trusted-types', '/vendors', '/vendors/hotjar', '/about']);
+  const pages = inEveryLanguage(['/', '/build', '/compare', '/reports', '/find-my-csp', '/learn', '/directives', '/directives/script-src', '/nonces', '/reporting', '/trusted-types', '/vendors', '/vendors/hotjar', '/about']);
   for (const path of pages) {
     await page.goto(path);
     await check(path);
@@ -202,6 +202,14 @@ async function everyView(page: Page, check: (where: string) => Promise<void>) {
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(CONSOLE);
   await page.locator('.violations').waitFor();
   await check('analyzer explaining console messages');
+  // A batch of violation reports read, with what extensions caused unfolded.
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await page.locator('.report-noise > summary').click();
+  await page.locator('.report-pages summary').first().click();
+  // From the top, like the other views: scrolled, the sticky header covers whatever is under it.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await check('reports read');
   await openAnalyzer(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
   for (const tab of ['Read it', 'What it allows', 'Will my tools work?', 'Report']) {

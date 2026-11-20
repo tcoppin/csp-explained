@@ -77,7 +77,7 @@
       }
     },
     "countTitle": "What we count",
-    "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, explaining a console message, trying the example, opening a share link, adding a tool, copying the snippet, copying, printing or downloading a report, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy, your site address or the messages you paste.",
+    "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, explaining a console message or a batch of reports, trying the example, opening a share link, adding a tool, copying the snippet, copying, printing or downloading a report, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy, your site address or the messages and reports you paste.",
     "sourcesTitle": "Where the information comes from",
     "sourceSpec": "Directive behaviour follows the [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) specification.",
     "sourceEvaluator": "Security findings come from Google's [CSP Evaluator](https://github.com/google/csp-evaluator) library (Apache-2.0), the same checks as csp-evaluator.withgoogle.com.",
@@ -315,6 +315,7 @@
     },
     "reading": {
       "title": "Reading them",
+      "reader": "Have a batch already? [Read them here](/reports): grouped by problem, with the tool behind each address and the lines to change.",
       "items": [
         {
           "term": "An address of a tool you use",
@@ -631,6 +632,13 @@
     "title": "Compare two policies",
     "description": "Compare two versions of a Content-Security-Policy and see, in plain language, what the change allows, blocks or fixes, and which of your tools it affects.",
     "lead": "Paste the policy you have and the one you plan to use. See what the change allows, blocks or fixes, in plain language."
+  },
+  "reports": {
+    "title": "Read your CSP violation reports",
+    "description": "Paste or open the Content-Security-Policy violation reports your site received: grouped, explained in plain language, with the tool behind each address and the lines to change. They never leave your browser.",
+    "heading": "Read your violation reports",
+    "lead": "Paste the reports your site received, or open the file your collector exported. See what they are about, which tool is behind each address, and what to change in your policy.",
+    "private": "Reports can hold your visitors' page addresses and code samples. They are read here, in your browser: nothing is sent, and nothing is kept once you leave the page. [How to collect them](/reporting)."
   },
   "build": {
     "title": "Build a policy",

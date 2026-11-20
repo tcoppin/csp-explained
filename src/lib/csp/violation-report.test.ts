@@ -1,0 +1,123 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { browserOf, readReports } from './violation-report';
+
+/**
+ * Reports sent by the browsers themselves (2026) to a test page's endpoint, addresses replaced with
+ * www.example.com: an enforced and a report-only policy, each refusing an inline style, a style attribute, an image,
+ * an inline script, eval, a fetch, a script and an event handler (16 reports per file).
+ */
+const dir = join(import.meta.dirname, 'violation-reports');
+const fixture = (name: string) => readFileSync(join(dir, name), 'utf8');
+
+const ENFORCED = "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-uri https://reports.example.com/csp";
+
+describe('readReports', () => {
+  it.each(readdirSync(dir))('reads every report in %s', (name) => {
+    const { reports, skipped } = readReports(fixture(name));
+    expect(reports).toHaveLength(16);
+    expect(skipped).toBe(0);
+    expect(new Set(reports.map((r) => r.directive))).toEqual(
+      new Set(['style-src-elem', 'style-src-attr', 'img-src', 'script-src-elem', 'script-src', 'connect-src', 'script-src-attr']),
+    );
+    expect(reports.every((r) => r.page === 'https://www.example.com/page?utm_source=mail&email=someone%40example.com')).toBe(true);
+  });
+
+  it('reads the older format, with what was blocked, the rule, the policy and the sample', () => {
+    const { reports } = readReports(fixture('chromium-report-uri.ndjson'));
+    expect(reports[0]).toEqual({
+      page: 'https://www.example.com/page?utm_source=mail&email=someone%40example.com',
+      blocked: 'inline',
+      directive: 'style-src-elem',
+      policy: ENFORCED,
+      disposition: 'enforce',
+      sourceFile: 'https://www.example.com/page',
+      sample: 'body{color:red}',
+    });
+    expect(reports.filter((r) => r.disposition === 'report')).toHaveLength(8);
+  });
+
+  it('reads the Reporting API format, with the browser beside the body', () => {
+    const { reports } = readReports(fixture('firefox-reporting-api.json'));
+    expect(reports[0]).toMatchObject({ blocked: 'inline', directive: 'style-src-elem', disposition: 'enforce', sample: 'body{color:red}' });
+    expect(browserOf(reports[0]!.userAgent)).toBe('Firefox');
+  });
+
+  it("takes Safari's older reports, which don't say, as enforced, and says it guessed", () => {
+    const { reports } = readReports(fixture('webkit-report-uri.ndjson'));
+    expect(reports.every((r) => r.disposition === 'enforce' && r.guessed)).toBe(true);
+  });
+
+  it('learns whether a policy is report-only from another report under the same policy', () => {
+    const report = (disposition?: string) => JSON.stringify({ 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src', 'original-policy': "script-src 'self'", ...(disposition ? { disposition } : {}) } });
+    const { reports } = readReports(`${report('report')}\n${report()}`);
+    expect(reports.map((r) => [r.disposition, r.guessed])).toEqual([['report', undefined], ['report', undefined]]);
+  });
+
+  it("reads Chromium's Reporting API reports, as documented, and leaves out other kinds of report", () => {
+    const batch = [
+      {
+        age: 120,
+        type: 'csp-violation',
+        url: 'https://www.example.com/checkout?order=42',
+        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        body: {
+          documentURL: 'https://www.example.com/checkout?order=42',
+          referrer: '',
+          blockedURL: 'trusted-types-sink',
+          effectiveDirective: 'require-trusted-types-for',
+          originalPolicy: "require-trusted-types-for 'script'; report-to csp",
+          disposition: 'report',
+          sample: 'HTMLScriptElement src|https://cdn.example.net/a.js',
+          statusCode: 200,
+        },
+      },
+      { type: 'deprecation', url: 'https://www.example.com/', body: { id: 'X', message: 'Y' } },
+    ];
+    const { reports } = readReports(JSON.stringify(batch));
+    expect(reports).toEqual([
+      {
+        page: 'https://www.example.com/checkout?order=42',
+        blocked: 'trusted-types-sink',
+        directive: 'require-trusted-types-for',
+        policy: "require-trusted-types-for 'script'; report-to csp",
+        disposition: 'report',
+        sample: 'HTMLScriptElement src|https://cdn.example.net/a.js',
+        userAgent: batch[0]!.user_agent,
+      },
+    ]);
+  });
+
+  it('reads log lines and collector wrappers, with the JSON after a prefix or held in a string', () => {
+    const body = { 'csp-report': { 'blocked-uri': 'https://static.hotjar.com/c/hotjar-1.js', 'effective-directive': 'script-src-elem', 'document-uri': 'https://www.example.com/' } };
+    const input = [
+      `2026-11-20T10:00:00Z INFO csp ${JSON.stringify(body)}`,
+      JSON.stringify({ timestamp: 1, userAgent: 'Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1', payload: JSON.stringify(body) }),
+      'GET /health 200',
+      '{"not": "a report"}',
+    ].join('\n');
+    const { reports, skipped } = readReports(input);
+    expect(reports.map((r) => [r.blocked, browserOf(r.userAgent)])).toEqual([
+      ['https://static.hotjar.com/c/hotjar-1.js', undefined],
+      ['https://static.hotjar.com/c/hotjar-1.js', 'Safari'],
+    ]);
+    // The line without JSON isn't counted: it isn't something we failed to read.
+    expect(skipped).toBe(1);
+  });
+
+  it('reads a part of an array copied without its brackets', () => {
+    const one = '{ "csp-report": { "blocked-uri": "eval", "violated-directive": "script-src \'self\'" } }';
+    expect(readReports(`${one},\n${one},`).reports.map((r) => r.directive)).toEqual(['script-src', 'script-src']);
+  });
+});
+
+describe('browserOf', () => {
+  it.each([
+    ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0', 'Edge'],
+    ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'Chrome'],
+    ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0', 'Firefox'],
+    ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.1 Safari/605.1.15', 'Safari'],
+    [undefined, undefined],
+  ])('%s is %s', (ua, name) => expect(browserOf(ua)).toBe(name));
+});

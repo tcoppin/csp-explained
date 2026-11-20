@@ -27,7 +27,7 @@ import { decodeState, encodeState, loadAudience, saveAudience, toOrigin, VIEWS, 
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
 import { VendorChecker } from './VendorChecker';
-import { ViolationList } from './ViolationList';
+import { ViolationList } from '../policy/ViolationList';
 // Shared view styles first, so the analyzer's own rules win when they tie
 import '../ui/panels.css';
 import '../policy/results.css';
@@ -135,7 +135,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
   const policy = parsed.policies[currentIndex];
   // Console messages pasted in place of a policy: explained one by one.
   const violations = useMemo(
-    () => (!hasPolicy && parsed.issues.some((i) => i.code === 'violation-message') ? explainViolations(input, content.vendors) : { items: [], lines: [] }),
+    () => (!hasPolicy && parsed.issues.some((i) => i.code === 'violation-message') ? explainViolations(input, content.vendors) : { items: [], lines: [], fixed: [] }),
     [hasPolicy, parsed, input, content.vendors],
   );
 

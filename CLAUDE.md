@@ -42,6 +42,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/lib/csp/`: pure TypeScript core (parser, fallback, matcher, compat, patch, security). No UI imports.
 - `src/lib/reports/`: one report per audience (simple = IT message, developer, security).
 - `src/lib/analysis.ts`: orchestrates parse → vendor checks → patches → findings.
+- `src/lib/violations.ts`: explains console messages (`csp/violation.ts` reads them) and, through
+  `violation-reports.ts`, violation reports (`csp/violation-report.ts` reads them; real browser samples in
+  `csp/violation-reports/`).
 - `src/components/`: Preact islands (`client:load`) and Astro components, grouped by who uses them. Each test and
   stylesheet stays next to its code; no folders by file type (`hooks/`, `css/`, `tests/`).
   - `analyzer/`: only the analyzer island (home page): `Analyzer` and its panels, the recent analyses list,
@@ -49,26 +52,28 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   - `builder/`: only the builder island (build page): `Builder`, `BuildPanels`, `useBuilder`, `build-state`.
   - `compare/`: only the comparator island (compare page): `Compare` and its views, `diff-layout`,
     `compare.css`.
+  - `violation-reports/`: only the reports reader island (`/reports`): `ReportReader`, its example batch,
+    `reports.css`.
   - `policy/`: CSP-specific pieces used by several islands (`PolicyView`, `Explanation`, `HashTool`, `ToolPicker`,
-    `SiteField`, `FindingList`), the shareable URL states (`state.ts`, `compare-state.ts`) and the recent analyses
-    kept in the browser (`recent.ts`).
+    `SiteField`, `FindingList`, `ViolationList`), the shareable URL states (`state.ts`, `compare-state.ts`) and the
+    recent analyses kept in the browser (`recent.ts`).
   - `ui/`: generic building blocks with no CSP knowledge (`Tabs`, `Segmented`, `CodeBox`, `Rich`, `NewTabLink`,
     `useCopy`, `i18n.ts`). Usable from islands and Astro pages.
   - `site/`: Astro-only components for the static pages and layouts (`SiteHeader`, `CodeBlock`, `DevtoolsSketch`).
-  - Put new code in the narrowest folder that fits. Imports only go "down": `analyzer/`, `builder/` and `compare/` may
-    import `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component folder. The islands
-    never import each other. When code in one island becomes needed by another (or by a page), move
+  - Put new code in the narrowest folder that fits. Imports only go "down": `analyzer/`, `builder/`, `compare/` and
+    `violation-reports/` may import `policy/` and `ui/`; `policy/` may import `ui/`; `ui/` imports no other component
+    folder. The islands never import each other. When code in one island becomes needed by another (or by a page), move
     it with `git mv` to `policy/` (CSP-specific) or `ui/` (generic) instead of importing across or duplicating it;
     likewise move code back down when its last other user goes away.
   - Styles follow the same rule. A component imports its own stylesheet (`Tabs.tsx` → `tabs.css`), so its look
     travels with it. Markup several islands write themselves goes in `ui/panels.css` (panels, buttons row, code
     text areas) or `policy/results.css` (tool requirements, findings), imported by the islands before their own
-    stylesheet so the island's rules win ties. `analyzer.css`, `builder.css` and `compare.css` hold only their
-    island's rules.
-- `tests/e2e/`: one spec per area: `analyzer`, `builder`, `compare`, `guides` (static pages with behaviour of their own),
-  `i18n` and `site` (checks run over every page). Put a test in the area it exercises; one that crosses islands goes
-  with the island it ends on. Shared steps and the usage fixture (`sent`) live in `helpers.ts`: import `test` and
-  `expect` from there, not from `@playwright/test`, so every test answers the usage events.
+    stylesheet so the island's rules win ties. `analyzer.css`, `builder.css`, `compare.css` and `reports.css` hold
+    only their island's rules.
+- `tests/e2e/`: one spec per area: `analyzer`, `builder`, `compare`, `reports`, `guides` (static pages with behaviour
+  of their own), `i18n` and `site` (checks run over every page). Put a test in the area it exercises; one that
+  crosses islands goes with the island it ends on. Shared steps and the usage fixture (`sent`) live in `helpers.ts`:
+  import `test` and `expect` from there, not from `@playwright/test`, so every test answers the usage events.
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from

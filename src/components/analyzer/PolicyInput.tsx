@@ -90,7 +90,7 @@ export function OtherStarts() {
   const starts = [
     { lead: t('analyzer.noPolicy'), key: 'find', href: '/find-my-csp' },
     { lead: t('analyzer.noPolicyYet'), key: 'build', href: '/build' },
-    { lead: t('analyzer.newHere'), key: 'whatIs', href: '/learn' },
+    { lead: t('analyzer.haveReports'), key: 'reports', href: '/reports' },
   ];
   return (
     <section class="other-starts" aria-labelledby="other-starts-title">

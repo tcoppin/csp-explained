@@ -1,0 +1,322 @@
+[
+ {
+  "age": 36,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "style-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": "body{color:red}",
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 2,
+ "columnNumber": 1
+}
+
+ },
+ {
+  "age": 36,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "style-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 2,
+ "columnNumber": 1
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "style-src-attr",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": "color:blue",
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 0,
+ "columnNumber": 1
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "style-src-attr",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 0,
+ "columnNumber": 1
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://static.hotjar.com/pixel.gif",
+ "referrer": null,
+ "effectiveDirective": "img-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": null,
+ "sample": null,
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": null,
+ "columnNumber": null
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://static.hotjar.com/pixel.gif",
+ "referrer": null,
+ "effectiveDirective": "img-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": null,
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": null,
+ "columnNumber": null
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "script-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": "console.log('inline ran')",
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 5,
+ "columnNumber": 9
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "script-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 5,
+ "columnNumber": 9
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "eval",
+ "referrer": null,
+ "effectiveDirective": "script-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": "1+1",
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 7,
+ "columnNumber": 9
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "eval",
+ "referrer": null,
+ "effectiveDirective": "script-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 7,
+ "columnNumber": 9
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://region1.google-analytics.com/g/collect?v=2&tid=G-1&cid=555",
+ "referrer": null,
+ "effectiveDirective": "connect-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 8,
+ "columnNumber": 8
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://region1.google-analytics.com/g/collect?v=2&tid=G-1&cid=555",
+ "referrer": null,
+ "effectiveDirective": "connect-src",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 8,
+ "columnNumber": 8
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://static.hotjar.com/c/hotjar-1.js?sv=6",
+ "referrer": null,
+ "effectiveDirective": "script-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 9,
+ "columnNumber": 117
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "https://static.hotjar.com/c/hotjar-1.js?sv=6",
+ "referrer": null,
+ "effectiveDirective": "script-src-elem",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 9,
+ "columnNumber": 117
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "script-src-attr",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc' 'report-sample'; style-src 'self' 'report-sample'; img-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": "alert(1)",
+ "disposition": "enforce",
+ "statusCode": 200,
+ "lineNumber": 0,
+ "columnNumber": 1
+}
+
+ },
+ {
+  "age": 35,
+  "type": "csp-violation",
+  "url": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+  "body": {
+ "documentURL": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "blockedURL": "inline",
+ "referrer": null,
+ "effectiveDirective": "script-src-attr",
+ "originalPolicy": "default-src 'self'; script-src 'self' 'nonce-abc'; connect-src 'self'; report-to csp",
+ "sourceFile": "https://www.example.com/page?utm_source=mail&email=someone%40example.com",
+ "sample": null,
+ "disposition": "report",
+ "statusCode": 200,
+ "lineNumber": 0,
+ "columnNumber": 1
+}
+
+ }
+]

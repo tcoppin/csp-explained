@@ -69,12 +69,29 @@ export interface PolicyLine {
   line: string;
   /** For the report-only policy. */
   reportOnly: boolean;
+  /** The rule or policy it changes, as quoted by the browser or carried by the report. */
+  policy: string;
+}
+
+/** A policy as it was, and as it reads with every line it needs (reports carry the whole policy). */
+export interface FixedPolicy {
+  before: string;
+  after: string;
+  reportOnly: boolean;
 }
 
 export interface ExplainedMessages {
   items: ExplainedViolation[];
   /** One line per rule to change, for every message whose rule the browser quoted: copying one never drops another. */
   lines: PolicyLine[];
+  /** What each rule or policy the lines change reads like once changed. */
+  fixed: FixedPolicy[];
+}
+
+/** Violations already read together (a message and the inline blocks read with it). */
+export interface ViolationGroup {
+  v: Violation;
+  others: Violation[];
 }
 
 const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:/i;
@@ -85,13 +102,27 @@ const CODE_URL = /(?:=|\()\s*["'`](https?:\/\/[^"'`\s]+)["'`]/gi;
 
 /** Every policy message in `input`, explained with the catalogue, and the lines that allow everything they name. */
 export function explainViolations(input: string, vendors: Vendor[]): ExplainedMessages {
-  const items = group(parseViolations(input)).map(({ v, others }) => explain(v, others, vendors, input));
-  return { items, lines: linesFor(items) };
+  return explainGroups(group(parseViolations(input)), vendors, { input });
+}
+
+/** Each group explained (in the same order), and the lines that allow everything they name. */
+export function explainGroups(groups: ViolationGroup[], vendors: Vendor[], { input = '', origin = ORIGIN, whole = false }: ExplainOptions = {}): ExplainedMessages {
+  const items = groups.map(({ v, others }) => explain(v, others, vendors, input));
+  return { items, ...linesFor(items, origin, whole) };
+}
+
+export interface ExplainOptions {
+  /** What was pasted, for the addresses in code pasted with Trusted Types messages. */
+  input?: string;
+  /** The site's origin, when known ('self'). */
+  origin?: string;
+  /** Each violation's `value` is a whole policy (from a report), not a single rule. */
+  whole?: boolean;
 }
 
 /** Inline code of the same kind, under the same rule, read as one item. */
-function group(violations: Violation[]): { v: Violation; others: Violation[] }[] {
-  const groups = new Map<string, { v: Violation; others: Violation[] }>();
+function group(violations: Violation[]): ViolationGroup[] {
+  const groups = new Map<string, ViolationGroup>();
   violations.forEach((v, i) => {
     const key = v.kind === 'inline-script' || v.kind === 'inline-style' ? `${v.kind}|${v.directive}|${v.value ?? ''}|${v.reportOnly}` : `${i}`;
     const g = groups.get(key);
@@ -176,20 +207,23 @@ function fixFor(v: Violation, type: ResourceType, add: string[]): ViolationFix {
 /**
  * The rules to change, computed the way the analyzer does on each rule the browser quoted, with every value the
  * messages under it need: a rule that fell back to default-src gets its own rule (copying default-src) instead of
- * widening default-src. Marks the items these lines cover.
+ * widening default-src. Marks the items these lines cover. With `whole`, each value is a whole policy (from reports):
+ * a `style="…"` attribute's line belongs to its policy, and goes into the fixed policy too.
  */
-function linesFor(items: ExplainedViolation[]): PolicyLine[] {
+function linesFor(items: ExplainedViolation[], origin: string, whole: boolean): Pick<ExplainedMessages, 'lines' | 'fixed'> {
   const lines: PolicyLine[] = [];
+  const fixed: FixedPolicy[] = [];
   const byRule = new Map<string, ExplainedViolation[]>();
   for (const item of items) {
     if (!item.fix) continue;
     if (item.case === 'style-attr') {
       const reportOnly = item.violation.reportOnly;
-      if (!lines.some((l) => l.directive === 'style-src-attr' && l.reportOnly === reportOnly)) {
-        lines.push({ directive: 'style-src-attr', created: item.fix.created, line: "style-src-attr 'unsafe-inline'", reportOnly });
+      const policy = whole ? (item.violation.value ?? '') : '';
+      if (!lines.some((l) => l.directive === 'style-src-attr' && l.reportOnly === reportOnly && (!whole || l.policy === policy))) {
+        lines.push({ directive: 'style-src-attr', created: item.fix.created, line: STYLE_ATTR_LINE, reportOnly, policy: item.violation.value ?? '' });
       }
       item.fix.inLines = true;
-      continue;
+      if (!whole) continue;
     }
     if (!item.violation.value) continue;
     const key = `${item.violation.value}|${item.violation.reportOnly}`;
@@ -198,16 +232,36 @@ function linesFor(items: ExplainedViolation[]): PolicyLine[] {
 
   for (const group of byRule.values()) {
     const value = group[0]!.violation.value!;
+    const reportOnly = group[0]!.violation.reportOnly;
     const parsed: ParseResult = { input: value, policies: [parseSinglePolicy(value)], issues: [] };
-    const results: [ExplainedViolation, RequirementResult][] = group.flatMap((item) =>
-      item.fix!.add.map((source) => [item, checkRequirement(parsed, { type: item.case === 'eval' ? 'eval' : item.violation.type, source, reason: '' }, ORIGIN)] as [ExplainedViolation, RequirementResult]),
-    );
+    const results: [ExplainedViolation, RequirementResult][] = group
+      .filter((item) => item.case !== 'style-attr')
+      .flatMap((item) =>
+        item.fix!.add.map((source) => [item, checkRequirement(parsed, { type: item.case === 'eval' ? 'eval' : item.violation.type, source, reason: '' }, origin)] as [ExplainedViolation, RequirementResult]),
+      );
     const blocked = results.filter(([, r]) => r.verdict === 'blocked');
     for (const [item] of blocked) item.fix!.inLines = true;
-    const patch = buildPatches(parsed, blocked.map(([, r]) => r), ORIGIN)[0];
+    const patch = buildPatches(parsed, blocked.map(([, r]) => r), origin)[0];
     for (const change of patch?.changes ?? []) {
-      lines.push({ directive: change.directive, created: change.created, line: change.after, reportOnly: group[0]!.violation.reportOnly });
+      lines.push({ directive: change.directive, created: change.created, line: change.after, reportOnly, policy: value });
+    }
+    const styleAttr = group.some((item) => item.case === 'style-attr');
+    if (styleAttr || (patch && patch.changes.length > 0)) {
+      const after = patch && patch.changes.length > 0 ? patch.after : value;
+      fixed.push({ before: value, after: styleAttr ? withRule(after, STYLE_ATTR_LINE) : after, reportOnly });
     }
   }
-  return lines;
+  return { lines, fixed };
+}
+
+const STYLE_ATTR_LINE = "style-src-attr 'unsafe-inline'";
+
+/** `policy` with `line` in place of the rule of the same name, or added at the end. */
+function withRule(policy: string, line: string): string {
+  const name = line.split(' ')[0]!;
+  const rules = policy.split(';').map((r) => r.trim()).filter((r) => r !== '');
+  const at = rules.findIndex((r) => r.split(/\s+/)[0]!.toLowerCase() === name);
+  if (at >= 0) rules[at] = line;
+  else rules.push(line);
+  return rules.join('; ');
 }

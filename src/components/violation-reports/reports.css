@@ -1,0 +1,96 @@
+/* The reports reader: the box (or the opened file), then the problems, most reports first */
+.report-input {
+  border-radius: var(--radius);
+}
+/* A file dragged over the box: the whole input area takes it */
+.report-input.dragging {
+  outline: 3px dashed var(--action);
+  outline-offset: 6px;
+}
+.report-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.report-file {
+  border-left: 4px solid var(--rule);
+  padding: 0.5rem 0 0.5rem 1rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.report-none {
+  margin-top: 2rem;
+}
+
+.report-results {
+  margin-top: 2.5rem;
+}
+.report-results h2 {
+  font-size: var(--step-1);
+}
+.report-results h3 {
+  margin: 0 0 0.35rem;
+}
+.report-results .report-list-title {
+  margin: 2.5rem 0 1.25rem;
+}
+.report-policies,
+.report-names {
+  margin-block: 2rem;
+}
+.report-policies ol {
+  padding-left: 1.25rem;
+}
+.report-policies li {
+  margin-bottom: 0.5rem;
+}
+.report-policy {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--step--1);
+}
+
+/* How many reports, pages and browsers: under the status line, before the explanation */
+.report-stats {
+  margin-bottom: 0.75rem;
+}
+.report-stats p {
+  margin: 0;
+}
+.report-pages {
+  margin-top: 0.35rem;
+}
+.report-pages ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+  overflow-wrap: anywhere;
+}
+.report-results summary {
+  cursor: pointer;
+  color: var(--action);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+@media (pointer: fine) {
+  .report-results summary {
+    min-height: 0;
+  }
+}
+
+/* Set apart: what extensions caused, folded at the end */
+.report-noise {
+  margin-top: 2rem;
+  border-top: 2px solid var(--rule);
+  padding-top: 1rem;
+}
+.report-noise > summary {
+  font-weight: 700;
+}
+.report-noise > p {
+  margin-top: 0.75rem;
+}

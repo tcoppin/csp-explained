@@ -97,6 +97,12 @@ export async function openComparator(page: Page, path = '/compare') {
   await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
 }
 
+/** Waits until the reports reader island is interactive. */
+export async function openReader(page: Page, path = '/reports') {
+  await page.goto(path);
+  await page.locator('astro-island:not([ssr])').waitFor({ state: 'attached' });
+}
+
 // The example from the CSP specification, and its hash.
 export const HELLO = "alert('Hello, world.');";
 

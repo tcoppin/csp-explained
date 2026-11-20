@@ -24,7 +24,10 @@ export interface Violation {
   type: ResourceType;
   /** The rule the browser checked: the one whose value it quotes (often a fallback such as script-src or default-src). */
   directive?: string;
-  /** That rule as the browser quoted it, name included (Chrome and Firefox; Safari doesn't quote it). */
+  /**
+   * That rule as the browser quoted it, name included (Chrome and Firefox; Safari doesn't quote it). From a report,
+   * the whole policy it carries: the line to change is computed on it.
+   */
   value?: string;
   /** The rule meant for this kind of resource, when the browser names it (script-src-elem, img-src…). */
   effective?: string;
@@ -91,7 +94,7 @@ const MESSAGE_AT = /require-trusted-types-for[^“”"]*[“”"]\s+(\S+:\d+):\d
 const REPORT_ONLY = /\[Report Only\]|report-only|\bobserved (?:the|an?|assigning)\b|A CSP report is being sent/i;
 
 /** What a sink takes, for Firefox, which names the sink but not the type: `HTMLScriptElement.src` takes a script URL. */
-function trustedTypeOf(sink: string): TrustedType | undefined {
+export function trustedTypeOf(sink: string): TrustedType | undefined {
   const [owner, member] = sink.split('.') as [string, string];
   if (/^(?:src|href)$/.test(member) && /Script/.test(owner)) return 'TrustedScriptURL';
   if (/^(?:importScripts|Worker|SharedWorker|register)$/.test(member)) return 'TrustedScriptURL';
@@ -100,7 +103,8 @@ function trustedTypeOf(sink: string): TrustedType | undefined {
   return undefined;
 }
 
-const DIRECTIVE_TYPE: Record<string, ResourceType> = {
+/** The kind of resource each rule is for (rules for several kinds left out). */
+export const DIRECTIVE_TYPE: Record<string, ResourceType> = {
   'script-src': 'script',
   'script-src-elem': 'script',
   'style-src': 'style',

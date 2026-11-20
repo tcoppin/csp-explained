@@ -106,6 +106,7 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
     </div>
 
     <h2>{t(m('reading.title'))}</h2>
+    <p><Rich t={t} msg={m('reading.reader')} /></p>
     <dl class="reading">
       {
         t.keys(m('reading.items')).map((item) => (

@@ -12,6 +12,8 @@ export const USAGE_EVENTS = {
   analyze: [],
   /** Console messages pasted in place of a policy were explained (once per page load; never the messages). */
   'explain-error': [],
+  /** Violation reports pasted or opened were read (once per page load; never the reports): `file` or `paste`. */
+  'read-reports': ['from'],
   /** Two policies pasted or typed by the visitor were compared (once per page load; not the example). */
   compare: [],
   /** "Try an example" was clicked. */

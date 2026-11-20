@@ -7,6 +7,7 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 - **Tool compatibility**: "Will Google Tag Manager / AB Tasty / Intercom… work with this policy? If not, which line is missing?"
 - **A policy builder**: start from a blank policy or your current one, add the tools your site should allow (or describe your own), and get a policy where every value says who asked for it.
 - **A policy comparator**: paste two versions (before and after, staging and production) and see what the change allows, blocks or fixes, the security findings it adds or removes, and which of your tools it breaks.
+- **A violation report reader**: paste or open the reports your site received (`report-to` or `report-uri`, as JSON or log lines) and see them grouped by problem, most reports first, with the tool behind each address, the lines to change, and what browser extensions caused set apart.
 - **A report per audience**: a message for IT that people can send as is (email, chat, ticket), a diff plus server snippets for developers, and a security review for security teams.
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).
@@ -21,6 +22,7 @@ To know whether the site is useful, it counts visits and a few actions. That's a
 | `visit` | A page is opened from outside the site | The page |
 | `analyze` | A policy pasted or typed by the visitor is analysed (once per page load; not the example) | None |
 | `explain-error` | Console messages pasted in place of a policy are explained (once per page load) | None |
+| `read-reports` | Violation reports pasted or opened on the Read reports page are read (once per page load; not the example) | Where they came from: `file` or `paste` |
 | `compare` | Two policies pasted or typed by the visitor are compared (once per page load; not the example) | None |
 | `example` | "Try an example" is clicked | None |
 | `shared` | A share link is opened | None |
@@ -31,8 +33,8 @@ To know whether the site is useful, it counts visits and a few actions. That's a
 | `build` | The builder's policy is shown (once per page load) | What it started from: `allowlist`, `nonce` or `policy` |
 | `copy-build` | The built policy is copied | `policy`, or the deploy target (e.g. `nginx`) |
 
-What is never sent: the policy, the site address, the share link, the tools you describe, any identifier. There are no
-cookies, nothing is stored in the browser for counting, and no third-party service is involved.
+What is never sent: the policy, the site address, the console messages or reports pasted, the share link, the tools
+you describe, any identifier. There are no cookies, nothing is stored in the browser for counting, and no third-party service is involved.
 
 How it works, so you can check it:
 

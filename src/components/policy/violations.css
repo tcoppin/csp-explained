@@ -1,0 +1,44 @@
+/* Explained violations (console messages in the analyzer, reports in the reports reader): one block per
+   problem, its rule in the status colour of what happened (blocked, only reported, or nothing to change in this
+   policy) */
+/* The lines that allow everything at once, before the messages they come from */
+.violation-lines {
+  margin-bottom: 2.5rem;
+}
+.violation-lines h3 {
+  margin: 0 0 0.35rem;
+}
+.violation-lines .code-block {
+  margin-block: 0.75rem;
+}
+.violation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.violation {
+  border-left: 4px solid var(--rule);
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin-bottom: 2rem;
+  overflow-wrap: anywhere;
+}
+.violation.blocked {
+  border-left-color: var(--bad);
+}
+.violation.reported {
+  border-left-color: var(--warn);
+}
+.violation h3 {
+  margin: 0 0 0.35rem;
+}
+.violation-status {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+.violation .code-block {
+  margin-block: 0.75rem;
+}
+.violation-risk {
+  border-left: 3px solid var(--warn);
+  padding-left: 0.75rem;
+}

@@ -29,8 +29,9 @@ const learn = [
   item('trustedTypes', '/trusted-types'),
 ];
 const reference = [item('vendors', '/vendors'), item('about', '/about')];
+// Reading reports is a task for fewer people: in the menu, not in the header's row.
 const groups = [
-  { title: t('site.nav.groups.policy'), items: tasks },
+  { title: t('site.nav.groups.policy'), items: [...tasks, item('reports', '/reports')] },
   { title: t('site.nav.learn'), items: learn },
   { title: t('site.nav.groups.reference'), items: reference },
 ];
