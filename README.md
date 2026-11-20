@@ -7,7 +7,7 @@ Understand any Content-Security-Policy, in plain language. Paste a policy and ge
 - **Tool compatibility**: "Will Google Tag Manager / AB Tasty / Intercom… work with this policy? If not, which line is missing?"
 - **A policy builder**: start from a blank policy or your current one, add the tools your site should allow (or describe your own), and get a policy where every value says who asked for it.
 - **A policy comparator**: paste two versions (before and after, staging and production) and see what the change allows, blocks or fixes, the security findings it adds or removes, and which of your tools it breaks.
-- **A violation report reader**: paste or open the reports your site received (`report-to` or `report-uri`, as JSON or log lines) and see them grouped by problem, most reports first, with the tool behind each address, the lines to change, and what browser extensions caused set apart.
+- **A violation report reader**: paste or open the reports your site received (`report-to` or `report-uri`, as JSON or log lines) and see them grouped by problem, most reports first, with the tool behind each address, the lines to change, and what browser extensions caused set apart. An address no known tool uses stays out of the lines until you say you know it: a blocked script can be an attack as well as a forgotten tool.
 - **A report per audience**: a message for IT that people can send as is (email, chat, ticket), a diff plus server snippets for developers, and a security review for security teams.
 
 Everything runs in the browser: the policy is never sent anywhere. Share links keep it in the URL fragment (`#…`).

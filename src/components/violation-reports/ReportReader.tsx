@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { localePath, translator, type Locale } from '../../i18n';
 import type { ContentBundle } from '../../lib/content';
+import { readReports } from '../../lib/csp/violation-report';
 import { explainReports, type ExplainedReports, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
 import { track } from '../../scripts/track';
 import { encodeCompareState } from '../policy/compare-state';
@@ -40,8 +41,29 @@ export default function ReportReader({ content, locale }: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const textArea = useRef<HTMLTextAreaElement>(null);
   const counted = useRef(false);
+  // Unknown addresses the visitor says they know: their lines go in. Forgotten with the reports they came from.
+  const [trusted, setTrusted] = useState<ReadonlySet<string>>(new Set());
+  const [trustNote, setTrustNote] = useState('');
 
-  const result = useMemo(() => (text.trim() === '' ? undefined : explainReports(text, content.vendors)), [text, content.vendors]);
+  // Read once; explained again (quickly) when the visitor vouches for an address.
+  const read = useMemo(() => (text.trim() === '' ? undefined : readReports(text)), [text]);
+  const result = useMemo(() => (read ? explainReports(read, content.vendors, { trusted }) : undefined), [read, content.vendors, trusted]);
+
+  /** New reports: what was vouched for went with the old ones. */
+  function load(next: string, from: Loaded) {
+    setText(next);
+    setLoaded(from);
+    setTrusted(new Set());
+    setTrustNote('');
+  }
+
+  function trust(key: string, host: string, yes: boolean) {
+    const next = new Set(trusted);
+    if (yes) next.add(key);
+    else next.delete(key);
+    setTrusted(next);
+    setTrustNote(t(`reportsReader.trusted.${yes ? 'added' : 'removed'}`, { host }));
+  }
 
   // Count one batch read per page load, never what it holds; not the example.
   useEffect(() => {
@@ -69,9 +91,7 @@ export default function ReportReader({ content, locale }: Props) {
       return;
     }
     try {
-      const read = await file.text();
-      setText(read);
-      setLoaded({ kind: 'file', name: file.name, size: file.size });
+      load(await file.text(), { kind: 'file', name: file.name, size: file.size });
     } catch {
       setError('unreadable');
     }
@@ -79,8 +99,7 @@ export default function ReportReader({ content, locale }: Props) {
 
   function clear() {
     cleared.current = document.activeElement;
-    setText('');
-    setLoaded({ kind: 'none' });
+    load('', { kind: 'none' });
     setError(undefined);
   }
 
@@ -126,10 +145,7 @@ export default function ReportReader({ content, locale }: Props) {
                 autocomplete="off"
                 aria-describedby="reports-hint"
                 value={text}
-                onInput={(e) => {
-                  setText(e.currentTarget.value);
-                  setLoaded({ kind: 'none' });
-                }}
+                onInput={(e) => load(e.currentTarget.value, { kind: 'none' })}
               />
             </>
           )}
@@ -157,8 +173,7 @@ export default function ReportReader({ content, locale }: Props) {
                 onClick={() => {
                   track('example');
                   setError(undefined);
-                  setText(EXAMPLE_REPORTS);
-                  setLoaded({ kind: 'example' });
+                  load(EXAMPLE_REPORTS, { kind: 'example' });
                 }}
               >
                 {t('analyzer.example')}
@@ -172,26 +187,35 @@ export default function ReportReader({ content, locale }: Props) {
           {error && <p class="issue">{t(`reportsReader.error.${error}`, { max: size(MAX_BYTES) })}</p>}
         </section>
 
-        {/* Always in the page, so the result is announced as it appears. */}
+        {/* Always in the page, so the result is announced as it appears; then what the visitor vouched for. */}
         <p class="visually-hidden" role="status">
-          {result && (result.total > 0 ? t('reportsReader.announce', { count: result.total }) : t('reportsReader.none'))}
+          {trustNote || (result && (result.total > 0 ? t('reportsReader.announce', { count: result.total }) : t('reportsReader.none')))}
         </p>
-        {result && (result.total > 0 ? <Results r={result} /> : <p class="issue report-none">{t('reportsReader.noneLong')}</p>)}
+        {result &&
+          (result.total > 0 ? <Results r={result} trusted={trusted} onTrust={trust} /> : <p class="issue report-none">{t('reportsReader.noneLong')}</p>)}
       </div>
     </I18n.Provider>
   );
 }
 
-function Results({ r }: { r: ExplainedReports }) {
+interface ResultsProps {
+  r: ExplainedReports;
+  trusted: ReadonlySet<string>;
+  onTrust: (key: string, host: string, yes: boolean) => void;
+}
+
+function Results({ r, trusted, onTrust }: ResultsProps) {
   const t = useT();
   const several = r.policies.length > 1;
   const noiseReports = r.noise.reduce((n, g) => n + g.reports, 0);
+  const unknown = r.groups.filter((g) => g.unknown && !trusted.has(g.key)).length;
   return (
     <section class="report-results" aria-labelledby="report-results-title">
       <h2 id="report-results-title">{t('reportsReader.title', { count: r.total })}</h2>
       <p>
         {t('reportsReader.lead')}
         {r.noise.length > 0 && <> {t('reportsReader.noiseLead', { count: noiseReports })}</>}
+        {unknown > 0 && <> {t('reportsReader.unknownLead', { count: unknown })}</>}
         {r.skipped > 0 && <> {t('reportsReader.skipped', { count: r.skipped })}</>}
       </p>
 
@@ -226,7 +250,14 @@ function Results({ r }: { r: ExplainedReports }) {
           <h3 class="report-list-title">{t('reportsReader.problems', { count: r.groups.length })}</h3>
           <ol class="violation-list">
             {r.groups.map((g, i) => (
-              <ViolationItem key={i} e={g.explained} index={i} source="reports">
+              <ViolationItem
+                key={i}
+                e={g.explained}
+                index={i}
+                source="reports"
+                unknown={g.unknown}
+                after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
+              >
                 <Stats g={g} policies={several ? r.policies.length : 0} />
               </ViolationItem>
             ))}
@@ -289,6 +320,23 @@ function PolicyNotes({ p }: { p: ReportPolicy }) {
           </a>
         </p>
       )}
+    </>
+  );
+}
+
+/** An address no tool uses, outside the site: why it isn't in the lines, how to check it, and the visitor's word. */
+function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; onTrust: (key: string, host: string, yes: boolean) => void }) {
+  const t = useT();
+  return (
+    <>
+      {!trusted && (
+        <p class="violation-risk">
+          <Rich msg="reportsReader.unknown" vars={{ host: g.explained.host ?? '' }} />
+        </p>
+      )}
+      <label class="report-trust">
+        <input type="checkbox" checked={trusted} onChange={(e) => onTrust(g.key, g.explained.host ?? '', e.currentTarget.checked)} /> {t('reportsReader.trust')}
+      </label>
     </>
   );
 }

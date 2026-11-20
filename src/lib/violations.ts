@@ -107,8 +107,18 @@ export function explainViolations(input: string, vendors: Vendor[]): ExplainedMe
 
 /** Each group explained (in the same order), and the lines that allow everything they name. */
 export function explainGroups(groups: ViolationGroup[], vendors: Vendor[], { input = '', origin = ORIGIN, whole = false }: ExplainOptions = {}): ExplainedMessages {
-  const items = groups.map(({ v, others }) => explain(v, others, vendors, input));
+  const items = explainItems(groups, vendors, input);
   return { items, ...linesFor(items, origin, whole) };
+}
+
+/** Each group explained, in the same order, without the lines: for a caller that leaves some items out of them. */
+export function explainItems(groups: ViolationGroup[], vendors: Vendor[], input = ''): ExplainedViolation[] {
+  return groups.map(({ v, others }) => explain(v, others, vendors, input));
+}
+
+/** The lines that allow what `items` name, and the policies they change (marks the items they cover). */
+export function linesOf(items: ExplainedViolation[], { origin = ORIGIN, whole = false }: Omit<ExplainOptions, 'input'> = {}): Pick<ExplainedMessages, 'lines' | 'fixed'> {
+  return linesFor(items, origin, whole);
 }
 
 export interface ExplainOptions {

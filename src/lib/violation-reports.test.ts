@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parseVendor } from './catalogue/schema';
-import { explainReports } from './violation-reports';
+import { explainReports, siteOf } from './violation-reports';
 
 const vendorDir = join(import.meta.dirname, '../../catalogue/vendors');
 const vendors = readdirSync(vendorDir).map((f) => parseVendor(readFileSync(join(vendorDir, f), 'utf8')));
@@ -70,6 +70,33 @@ describe('explainReports', () => {
       ['extension', 'abcdefghijklmnop'],
     ]);
     expect(e.lines).toEqual([]);
+  });
+
+  it('keeps an address no tool uses, outside the site, out of the lines until the visitor says they know it', () => {
+    const input = [
+      report({ blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem' }),
+      report({ blockedURL: 'https://img.example.com/a.png', effectiveDirective: 'img-src' }),
+      report({ blockedURL: 'data', effectiveDirective: 'img-src' }),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    const skimmer = e.groups.find((g) => g.explained.host === 'cdn.jquery-libs.example')!;
+    expect(skimmer).toMatchObject({ unknown: true });
+    expect(skimmer.explained.fix).toBeUndefined();
+    // The site's own domain, and a local scheme, aren't unknown.
+    expect(e.groups.filter((g) => g.unknown)).toHaveLength(1);
+    expect(e.lines.map((l) => l.line)).toEqual(["img-src 'self' https://img.example.com data:"]);
+    expect(e.policies[0]!.fixed?.after).not.toContain('jquery-libs');
+
+    const vouched = explainReports(input, vendors, { trusted: new Set([skimmer.key]) });
+    expect(vouched.groups.find((g) => g.key === skimmer.key)).toMatchObject({ unknown: true, explained: { fix: { inLines: true } } });
+    expect(vouched.lines.map((l) => l.line)).toContain("script-src 'self' 'nonce-abc' https://cdn.jquery-libs.example");
+  });
+
+  it('tells a domain from its subdomains', () => {
+    expect(siteOf('cdn.shop.example.com')).toBe('example.com');
+    expect(siteOf('www.shop.co.uk')).toBe('shop.co.uk');
+    expect(siteOf('example.com')).toBe('example.com');
+    expect(siteOf('127.0.0.1')).toBe('127.0.0.1');
   });
 
   it('keeps each policy apart: enforced and report-only, and an older one', () => {

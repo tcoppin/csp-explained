@@ -66,9 +66,24 @@ export function Lines({ lines, title, intro, children }: { lines: PolicyLine[]; 
 
 /**
  * One problem: what was blocked, by which rule, what it means and the fix. `children` go under the status line (the
- * reports reader says there how many reports, pages and browsers).
+ * reports reader says there how many reports, pages and browsers); `after` goes after the explanation. `unknown`:
+ * an address outside the site that no tool uses (reports only).
  */
-export function ViolationItem({ e, index, source = 'console', children }: { e: ExplainedViolation; index: number; source?: ViolationSource; children?: ComponentChildren }) {
+export function ViolationItem({
+  e,
+  index,
+  source = 'console',
+  children,
+  after,
+  unknown = false,
+}: {
+  e: ExplainedViolation;
+  index: number;
+  source?: ViolationSource;
+  children?: ComponentChildren;
+  after?: ComponentChildren;
+  unknown?: boolean;
+}) {
   const t = useT();
   const v = e.violation;
   const heading =
@@ -103,7 +118,8 @@ export function ViolationItem({ e, index, source = 'console', children }: { e: E
         </p>
       )}
       {children}
-      <Body e={e} source={source} />
+      <Body e={e} source={source} unknown={unknown} />
+      {after}
       {e.fix && !e.fix.inLines && v.reportOnly && (
         <p class="muted">
           <Rich msg="violations.reportOnlyFix" />
@@ -115,7 +131,7 @@ export function ViolationItem({ e, index, source = 'console', children }: { e: E
 }
 
 /** What the message means for this case, and where the fix is. */
-function Body({ e, source }: { e: ExplainedViolation; source: ViolationSource }) {
+function Body({ e, source, unknown }: { e: ExplainedViolation; source: ViolationSource; unknown: boolean }) {
   const t = useT();
   const v = e.violation;
   switch (e.case) {
@@ -161,7 +177,7 @@ function Body({ e, source }: { e: ExplainedViolation; source: ViolationSource })
     case 'address':
       return (
         <>
-          {e.tools.length > 0 ? <Tools uses={e.tools} /> : <p>{t('violations.noTool')}</p>}
+          {e.tools.length > 0 ? <Tools uses={e.tools} /> : <p>{t(unknown ? 'violations.noToolReport' : 'violations.noTool')}</p>}
           <Fix e={e} />
         </>
       );

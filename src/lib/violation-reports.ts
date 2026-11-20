@@ -2,13 +2,17 @@ import type { Vendor } from './catalogue/schema';
 import { resolve } from './csp/fallback';
 import { parseSinglePolicy } from './csp/parser';
 import { DIRECTIVE_TYPE, trustedTypeOf, type BlockedKind, type Violation } from './csp/violation';
-import { browserOf, readReports, type ViolationReport } from './csp/violation-report';
-import { explainGroups, type ExplainedViolation, type FixedPolicy, type PolicyLine } from './violations';
+import { browserOf, readReports, type ReadReports, type ViolationReport } from './csp/violation-report';
+import { explainItems, linesOf, type ExplainedViolation, type FixedPolicy, type PolicyLine } from './violations';
 
 /**
  * Violation reports read together: grouped by what was blocked, under which rule and policy; each group explained
  * the way a console message is (the tool behind it, the line that allows it), with how many reports, pages and
  * browsers it stands for. What doesn't come from the site (browser extensions) is set apart.
+ *
+ * A report says something was blocked, not that it should be allowed: a script injected into the page, or a tool
+ * that was hacked, is blocked the same way as a tool someone forgot. So an address no catalogue tool uses, outside
+ * the site's own domain, is unknown: explained, but kept out of the lines until the visitor says they know it.
  */
 
 /** One problem: reports about the same thing, under the same rule of the same policy. */
@@ -21,6 +25,13 @@ export interface ReportGroup {
   browsers: string[];
   /** Index in `policies`. */
   policy: number;
+  /** Identifies the problem from one reading to the next (for `trusted`). */
+  key: string;
+  /**
+   * An address no catalogue tool uses, outside the site's own domain: a forgotten tool, or injected code. Its line
+   * is left out unless the visitor said they know it (`trusted`); then `fix` is set and covered by the lines.
+   */
+  unknown?: true;
   /** Not the site's doing: a browser extension (the address, or the code that asked for it). */
   noise?: 'extension';
 }
@@ -62,9 +73,14 @@ export interface ExplainedReports {
 const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension:/i;
 const INLINE = new Set(['inline', '', 'self']);
 
-/** The reports in `input`, grouped and explained with the catalogue. */
-export function explainReports(input: string, vendors: Vendor[]): ExplainedReports {
-  const { reports, skipped } = readReports(input);
+export interface ReportOptions {
+  /** Keys of unknown addresses the visitor knows: their lines go in. */
+  trusted?: ReadonlySet<string>;
+}
+
+/** The reports in `input` (text, or reports already read), grouped and explained with the catalogue. */
+export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set() }: ReportOptions = {}): ExplainedReports {
+  const { reports, skipped } = typeof input === 'string' ? readReports(input) : input;
   const origins = new Set(reports.map((r) => originOf(r.page)).filter((o) => o !== undefined));
   const origin = origins.size === 1 ? [...origins][0]! : undefined;
 
@@ -79,6 +95,7 @@ export function explainReports(input: string, vendors: Vendor[]): ExplainedRepor
   };
 
   interface Pending {
+    key: string;
     v: Violation;
     reports: ViolationReport[];
     policy: number;
@@ -102,15 +119,20 @@ export function explainReports(input: string, vendors: Vendor[]): ExplainedRepor
     const key = `${policy}|${v.effective ?? v.directive}|${target}|${noise ?? ''}`;
     const group = pending.get(key);
     if (group) group.reports.push(r);
-    else pending.set(key, { v, reports: [r], policy, ...(noise ? { noise } : {}) });
+    else pending.set(key, { key, v, reports: [r], policy, ...(noise ? { noise } : {}) });
   }
 
-  // Lines only from what the site itself needs: what an extension asked for never goes in.
+  // Lines only from what the site itself needs: what an extension asked for never goes in, nor an unknown address
+  // the visitor hasn't vouched for.
   const options = { whole: true, ...(origin ? { origin } : {}) };
   const site = [...pending.values()].filter((p) => !p.noise);
   const elsewhere = [...pending.values()].filter((p) => p.noise);
-  const explained = explainGroups(site.map((p) => ({ v: p.v, others: [] })), vendors, options);
-  const items = [...explained.items, ...explainGroups(elsewhere.map((p) => ({ v: p.v, others: [] })), vendors, options).items];
+  const siteItems = explainItems(site.map((p) => ({ v: p.v, others: [] })), vendors).map((item, i) => {
+    const unknown = isUnknown(item, site[i]!.reports, origin);
+    return { item: unknown && !trusted.has(site[i]!.key) ? { ...item, fix: undefined } : item, unknown };
+  });
+  const explained = linesOf(siteItems.map((s) => s.item), options);
+  const items = [...siteItems.map((s) => s.item), ...explainItems(elsewhere.map((p) => ({ v: p.v, others: [] })), vendors)];
   const all: ReportGroup[] = [...site, ...elsewhere].map((p, i) => {
     const item = items[i]!;
     // An extension's own code asking for an address: nothing to add to the policy.
@@ -122,6 +144,8 @@ export function explainReports(input: string, vendors: Vendor[]): ExplainedRepor
       pages: ranked(p.reports.map((r) => pageOf(r.page, origin))).map(([page, reports]) => ({ page, reports })),
       browsers: ranked(p.reports.map((r) => browserOf(r.userAgent))).map(([b]) => b),
       policy: p.policy,
+      key: p.key,
+      ...(siteItems[i]?.unknown ? { unknown: true as const } : {}),
       ...(p.noise ? { noise: p.noise } : {}),
     };
   });
@@ -140,6 +164,35 @@ export function explainReports(input: string, vendors: Vendor[]): ExplainedRepor
     names: [...names.values()].sort((a, b) => b.reports - a.reports),
     ...(origin ? { origin } : {}),
   };
+}
+
+/**
+ * An address no catalogue tool uses, on a host outside the domain of the pages that reported it. Local schemes
+ * (`data:`, `blob:`) aren't addresses anyone can serve from elsewhere: they keep their own warning.
+ */
+function isUnknown(item: ExplainedViolation, reports: ViolationReport[], origin: string | undefined): boolean {
+  if (item.case !== 'address' || item.tools.length > 0 || !item.violation.url) return false;
+  let host: string;
+  try {
+    const u = new URL(item.violation.url);
+    if (!/^(?:https?|wss?):$/.test(u.protocol)) return false;
+    host = u.hostname;
+  } catch {
+    return false;
+  }
+  const sites = new Set([origin, ...reports.map((r) => originOf(r.page))].filter((o) => o !== undefined).map((o) => siteOf(new URL(o).hostname)));
+  return !sites.has(siteOf(host));
+}
+
+/** Second-level suffixes a registrable domain sits under (`shop.co.uk`): close enough without the public suffix list. */
+const SECOND_LEVEL = new Set(['co', 'com', 'org', 'net', 'gov', 'ac', 'edu', 'ne', 'or', 'go', 'gob', 'gouv']);
+
+/** The domain a host belongs to (`cdn.shop.example.com` → `example.com`), so a site's own subdomains count as its own. */
+export function siteOf(host: string): string {
+  const labels = host.toLowerCase().replace(/\.$/, '').split('.');
+  if (labels.length <= 2 || /^[\d.]+$/.test(host) || host.includes(':')) return labels.join('.');
+  const n = labels.at(-1)!.length === 2 && SECOND_LEVEL.has(labels.at(-2)!) ? 3 : 2;
+  return labels.slice(-n).join('.');
 }
 
 /** A report as a console message would have told it: what was blocked, under which rule, of which policy. */

@@ -12,8 +12,8 @@ test('the example groups the reports by problem, most reports first, with the li
   const errors = watchErrors(page);
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
-  await expect(page.getByRole('heading', { name: 'What the 112 reports say', level: 2 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '5 problems, from your site', level: 3 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What the 117 reports say', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 problems, from your site', level: 3 })).toBeVisible();
 
   const first = page.locator('.violation').first();
   await expect(first.getByRole('heading', { level: 3 })).toHaveText('A script from static.hotjar.com');
@@ -37,6 +37,31 @@ test('the example groups the reports by problem, most reports first, with the li
   expect(sent().filter((q) => q.startsWith('n=read-reports'))).toEqual([]);
   expect(sent()).toContain('n=example');
   expect(errors).toEqual([]);
+});
+
+test("an address no tool uses stays out of the lines until the visitor says they know it", async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await expect(page.locator('.report-results > p').first()).toContainText("1 address we don't know is left out of the lines until you check it.");
+  const skimmer = page.locator('.violation', { has: page.getByRole('heading', { name: 'A script from cdn.jquery-libs.example' }) });
+  await expect(skimmer.locator('.violation-risk')).toContainText('search your site\'s code and your tag manager for cdn.jquery-libs.example');
+  const script = page.locator('.violation-lines .code-block', { hasText: 'script-src' });
+  await expect(script).not.toContainText('jquery-libs');
+
+  // Said in words, not only by the warning's border; the change to the lines is announced.
+  const heard = (await readAloud(page, '.violation:has(.report-trust)')).join(' ');
+  expect(heard).toContain("No tool in the catalogue uses this address, and it isn't on your site's domain.");
+  expect(heard).toContain("checkbox, I know what this is: allow it in the lines, not checked");
+  const box = skimmer.getByRole('checkbox', { name: 'I know what this is: allow it in the lines' });
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  expect(await live(() => box.check())).toContain('polite: cdn.jquery-libs.example added to the lines.');
+  await expect(box).toBeFocused();
+  await expect(script).toContainText('https://cdn.jquery-libs.example');
+  await expect(skimmer).toContainText('The script-src line above allows it.');
+  await expect(skimmer.locator('.violation-risk')).toHaveCount(0);
+
+  expect(await live(() => box.uncheck())).toContain('polite: cdn.jquery-libs.example taken out of the lines.');
+  await expect(script).not.toContainText('jquery-libs');
 });
 
 test('the whole policy with the changes opens in the comparator', async ({ page }) => {
@@ -86,7 +111,7 @@ test('text without reports says what a report looks like', async ({ page }) => {
 test('a screen reader hears how many reports were read, and for each problem what happened and how often', async ({ page }) => {
   await openReader(page);
   const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
-  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 112 reports read.']);
+  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 117 reports read.']);
   // The colour of the block says "blocked"; the words say it too, with the counts.
   const heard = (await readAloud(page, '.violation:nth-child(2)')).join(' ');
   expect(heard).toContain('heading, A connection to region1.google-analytics.com, level 3');
@@ -98,7 +123,7 @@ test('a screen reader hears how many reports were read, and for each problem wha
 test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();
-  await expect(page.getByRole('heading', { name: 'Ce que disent les 112 rapports' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ce que disent les 117 rapports' })).toBeVisible();
   const first = page.locator('.violation').first();
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/fr/vendors/hotjar');

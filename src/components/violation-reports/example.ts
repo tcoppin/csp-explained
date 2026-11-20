@@ -1,7 +1,8 @@
 /**
  * "Try an example": a week of reports from a small shop, one per line as a collector logs them (Reporting API
  * format). Hotjar and Google Analytics are blocked across pages and browsers, a product page uses style attributes,
- * the checkout has an inline script, and some visitors' extensions add their own noise.
+ * the checkout has an inline script, a look-alike "jQuery" no tool uses turns up on the cart and checkout (what a
+ * card skimmer looks like), and some visitors' extensions add their own noise.
  */
 
 const SITE = 'https://shop.example.com';
@@ -39,6 +40,8 @@ const KINDS: Kind[] = [
   { times: 4, blockedURL: 'inline', effectiveDirective: 'script-src-elem', pages: [4], sample: 'window.dataLayer = window.dataLayer || [' },
   { times: 7, blockedURL: 'chrome-extension://gighmmpiobklfepjocnamgkkbiglidom/content.js', effectiveDirective: 'script-src-elem', browsers: [0] },
   { times: 3, blockedURL: 'inline', effectiveDirective: 'style-src-elem', browsers: [2], sourceFile: 'moz-extension://5b3c9e1a-1f4e-4d2b-9a77-0c2f6d8e4b10/inject.js' },
+  // Last, so the kinds above keep their pages and browsers.
+  { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4] },
 ];
 
 export const EXAMPLE_REPORTS = KINDS.flatMap((k, n) =>

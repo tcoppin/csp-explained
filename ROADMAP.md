@@ -26,10 +26,12 @@ needs our own server comes last, because it changes the site's promise that the 
       And the console-message explainer (2026-11-17): paste a few console messages in the analyzer; "6 messages
       explained" is heard once; each message reads as a heading, then whether it was blocked or only reported, then
       the tool and the line; the hash generator under a Safari message is easy to reach and its result is heard.
-      And the reports reader (`/reports`, 2026-11-20): with "Try an example", "112 reports read" is heard once; each
+      And the reports reader (`/reports`, 2026-11-20): with "Try an example", "117 reports read" is heard once; each
       problem reads as a heading, then blocked or only reported, then "46 reports on 6 pages from…"; the pages list
       and "Set apart" open and close with Enter and say so; "Open a file" opens the file picker and, once a file is
-      read, its name is heard; "Clear" puts the focus back in the box.
+      read, its name is heard; "Clear" puts the focus back in the box. Under "A script from cdn.jquery-libs.example",
+      the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
+      the focus stays on it.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -240,6 +242,9 @@ Interface:
       the whole policy the report carries: one line per rule and policy, and the fixed policy opens in the comparator.
       What browser extensions caused is set apart and adds no line; Safari's older reports, which don't say whether
       the policy was enforced, are marked. Nothing leaves the device or is kept: not in the address, not in storage.
+      An address no catalogue tool uses, outside the site's own domain, could be injected code as well as a forgotten
+      tool: it is explained with how to check it, and left out of the lines until the visitor ticks "I know what
+      this is".
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole
