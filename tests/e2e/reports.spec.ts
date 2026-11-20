@@ -220,6 +220,37 @@ test("inline code gets the safe way first; 'unsafe-inline' only when asked, with
   await expect(inline.locator('.violation-weaker')).toHaveCount(0);
 });
 
+test('a report-only policy says whether it can be enforced: not yet, ready since the fix, too soon over two days', async ({ page }) => {
+  await openReader(page);
+  // A trial policy: Hotjar blocked until the 3rd (then allowed in production, not here), an extension all along.
+  const TRIAL = "default-src 'self'; script-src 'self'; report-to csp";
+  const at = (day: number, blockedURL: string) =>
+    JSON.stringify({ timestamp: Date.UTC(2026, 10, day, 12), type: 'csp-violation', body: { documentURL: 'https://shop.example.com/', blockedURL, effectiveDirective: 'script-src-elem', originalPolicy: TRIAL, disposition: 'report' } });
+  const lines = [1, 2, 3].map((d) => at(d, 'https://static.hotjar.com/c/hotjar-1.js'));
+  for (let d = 1; d <= 12; d++) lines.push(at(d, 'chrome-extension://abc/content.js'));
+  await box(page).fill(lines.join('\n'));
+  const verdict = page.locator('.report-enforce');
+  await expect(verdict.getByRole('heading', { level: 3 })).toHaveText('Can you enforce it?');
+  await expect(verdict).toContainText('Not yet. Once enforced, this report-only policy would block 1 thing your site uses: the problem below. The lines below allow all of them.');
+  // Said in words, not only by the colour of its border.
+  const heard = (await readAloud(page, '.report-enforce')).join(' ');
+  expect(heard).toContain('Can you enforce it?');
+  expect(heard).toMatch(/Not yet\./);
+
+  await page.getByLabel('Only the reports since').fill('2026-11-05');
+  await expect(verdict).toContainText("It looks ready. Over 7 days, its reports show nothing your site uses that it would block. The 8 reports left are set apart below: not your site's doing.");
+  await expect(verdict.locator('li')).toHaveCount(3);
+  await expect(verdict).toHaveClass(/ready/);
+
+  await page.getByLabel('Only the reports since').fill('2026-11-10');
+  await expect(verdict).toContainText("Nothing your site uses would be blocked, but it's too soon to say. These reports cover 2 days.");
+
+  // An enforced policy has nothing to decide.
+  await box(page).fill(CHROMIUM.split('\n').filter((l) => !l.includes('"disposition":"report"')).join('\n'));
+  await expect(page.getByRole('heading', { name: /What the \d+ reports? says?/ })).toBeVisible();
+  await expect(page.locator('.report-enforce')).toHaveCount(0);
+});
+
 test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();

@@ -137,3 +137,25 @@
 .report-risk {
   margin: 0 0 0.35rem;
 }
+/* "Can you enforce it?": the verdict in words, its colour repeating it (blocked, warning, allowed) */
+.report-enforce {
+  border-left: 4px solid var(--rule);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  margin-block: 2rem;
+}
+.report-enforce.not-yet {
+  border-left-color: var(--bad);
+}
+.report-enforce.too-soon {
+  border-left-color: var(--warn);
+}
+.report-enforce.ready {
+  border-left-color: var(--ok);
+}
+.report-enforce p {
+  margin: 0 0 0.6rem;
+}
+.report-enforce ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}

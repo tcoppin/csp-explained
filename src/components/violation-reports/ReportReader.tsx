@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/ho
 import { localePath, translator, type Locale } from '../../i18n';
 import type { ContentBundle } from '../../lib/content';
 import { readReports } from '../../lib/csp/violation-report';
-import { explainReports, NOISE_KINDS, type ExplainedReports, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
+import { explainReports, NOISE_KINDS, type ExplainedReports, type Readiness, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
 import { track } from '../../scripts/track';
 import { encodeCompareState } from '../policy/compare-state';
 import { Lines, ViolationItem } from '../policy/ViolationList';
@@ -243,6 +243,10 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
       {r.period && <Period r={r} since={since} onSince={onSince} />}
       {r.total === 0 && <p class="issue">{t('reportsReader.since.none')}</p>}
 
+      {r.readiness.map((ready) => (
+        <Enforce key={ready.policy} ready={ready} n={r.policies.length > 1 ? ready.policy + 1 : undefined} />
+      ))}
+
       {r.policies.length > 1 && <PolicyList policies={r.policies} />}
 
       {r.policies.map((p, i) => {
@@ -324,6 +328,55 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
           </details>
         );
       })}
+    </section>
+  );
+}
+
+/**
+ * "Can you enforce it?", for a report-only policy: not yet (what it would block, how much the lines settle), too soon
+ * to say, or ready, with what to do next. The verdict is said in words; its colour only repeats it.
+ */
+function Enforce({ ready, n }: { ready: Readiness; n: number | undefined }) {
+  const t = useT();
+  const days =
+    ready.days === undefined ? '' : ready.days < 1 ? t('reportsReader.enforce.lessThanDay') : t('reportsReader.enforce.days', { count: Math.round(ready.days) });
+  const rest = ready.blocking - ready.inLines;
+  return (
+    <section class={`report-enforce ${ready.verdict}`} aria-labelledby={`report-enforce-${ready.policy}`}>
+      <h3 id={`report-enforce-${ready.policy}`}>{n === undefined ? t('reportsReader.enforce.title') : t('reportsReader.enforce.titleN', { n })}</h3>
+      {ready.verdict === 'not-yet' && (
+        <>
+          <p>
+            <Rich msg="reportsReader.enforce.notYet" vars={{ count: ready.blocking }} />
+            {ready.inLines > 0 && (
+              <> {ready.inLines === ready.blocking ? t('reportsReader.enforce.allInLines') : t('reportsReader.enforce.inLines', { count: ready.inLines })}</>
+            )}
+            {rest > 0 && <> {t('reportsReader.enforce.needsWork', { count: rest })}</>}
+          </p>
+          <p>{t('reportsReader.enforce.notYetNext')}</p>
+        </>
+      )}
+      {ready.verdict === 'too-soon' && (
+        <p>
+          <Rich msg="reportsReader.enforce.tooSoon" />{' '}
+          {ready.days === undefined ? t('reportsReader.enforce.tooSoonUndated') : t('reportsReader.enforce.tooSoonDays', { days })}
+        </p>
+      )}
+      {ready.verdict === 'ready' && (
+        <>
+          <p>
+            <Rich msg="reportsReader.enforce.ready" vars={{ days }} />
+            {ready.noise > 0 && <> {t('reportsReader.enforce.readyNoise', { count: ready.noise })}</>}
+          </p>
+          <ol>
+            {(['header', 'unseen', 'next'] as const).map((step) => (
+              <li key={step}>
+                <Rich msg={`reportsReader.enforce.readySteps.${step}`} />
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
     </section>
   );
 }

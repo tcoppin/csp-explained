@@ -1030,6 +1030,42 @@
       "look": "it only changes how the page looks",
       "new": "new since {date}",
       "stopped": "not seen since {date}, maybe already fixed"
+    },
+    "enforce": {
+      "title": "Can you enforce it?",
+      "titleN": "Can you enforce policy {n}?",
+      "notYet": {
+        "one": "**Not yet.** Once enforced, this report-only policy would block 1 thing your site uses: the problem below.",
+        "other": "**Not yet.** Once enforced, this report-only policy would block {count} things your site uses: the problems below."
+      },
+      "inLines": {
+        "one": "The lines below allow 1 of them.",
+        "other": "The lines below allow {count} of them."
+      },
+      "allInLines": "The lines below allow all of them.",
+      "needsWork": {
+        "one": "1 needs a change in your code or a check first: it says how.",
+        "other": "{count} need a change in your code or a check first: each one says how."
+      },
+      "notYetNext": "Put the lines in your report-only policy, deal with the rest, then collect reports again for a week. When only what's set apart comes in, it's ready.",
+      "tooSoon": "**Nothing your site uses would be blocked, but it's too soon to say.**",
+      "tooSoonDays": "These reports cover {days}. Collect them for at least a week: pages people open less often (account pages, campaigns, a monthly email) may not have spoken yet.",
+      "tooSoonUndated": "These reports have no dates, so there's no telling how long they cover. Collect them for at least a week: pages people open less often (account pages, campaigns, a monthly email) may not have spoken yet.",
+      "ready": "**It looks ready.** Over {days}, its reports show nothing your site uses that it would block.",
+      "readyNoise": {
+        "one": "The 1 report left is set apart below: not your site's doing.",
+        "other": "The {count} reports left are set apart below: not your site's doing."
+      },
+      "readySteps": {
+        "header": "Send it as `Content-Security-Policy` instead of `Content-Security-Policy-Report-Only`, with the same `report-to`, so you still hear about anything missed.",
+        "unseen": "Check by hand what reports can't speak for: pages nobody opened in these days, like an admin area or a rare form.",
+        "next": "Keep a report-only copy for your next change, and try it there first."
+      },
+      "days": {
+        "one": "1 day",
+        "other": "{count} days"
+      },
+      "lessThanDay": "less than a day"
     }
   }
 }

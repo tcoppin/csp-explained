@@ -90,7 +90,8 @@ export interface ReportPolicy {
   reports: number;
   /** The policy with every line its reports need, when some do. */
   fixed?: FixedPolicy;
-  /** Its last report's date, when the collector kept dates. */
+  /** Its first and last report's dates, when the collector kept dates. */
+  first?: number;
   last?: number;
   /**
    * Index of the newer policy that replaced it (same disposition, every report of which came after this one's last):
@@ -128,7 +129,30 @@ export interface ExplainedReports {
   names: RefusedPolicyName[];
   /** The site's origin, when every report comes from the same one. */
   origin?: string;
+  /** For each report-only policy still in use: can it be enforced? */
+  readiness: Readiness[];
 }
+
+/**
+ * Whether a report-only policy can be enforced, from its reports: `not-yet` while it reports something the site
+ * uses (it would block it), `too-soon` when nothing is left but the reports cover less than a week or have no dates
+ * (the pages people open less often may not have spoken), `ready` otherwise.
+ */
+export interface Readiness {
+  policy: number;
+  verdict: 'not-yet' | 'too-soon' | 'ready';
+  /** Problems of the site it would block once enforced. */
+  blocking: number;
+  /** Of those, the ones its lines allow. */
+  inLines: number;
+  /** Days its reports cover, when dated. */
+  days?: number;
+  /** Its reports set apart (not the site's doing): what's left once ready. */
+  noise: number;
+}
+
+/** A week covers what happens weekly (newsletters, reports, weekend traffic) and pages people open less often. */
+export const ENOUGH_DAYS = 7;
 
 const EXTENSION = /^(?:chrome|moz|safari(?:-web)?|ms-browser)-extension(?::|$)/i;
 const INLINE = new Set(['inline', '', 'self']);
@@ -304,6 +328,21 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     ...(period ? { period } : {}),
     before,
     undated,
+    readiness: policies.flatMap((p, i) => (p.reportOnly && p.replacedBy === undefined ? [readinessOf(i, p, groups, all.filter((g) => g.group.noise).map((g) => g.group))] : [])),
+  };
+}
+
+function readinessOf(policy: number, p: ReportPolicy, groups: ReportGroup[], noise: ReportGroup[]): Readiness {
+  const own = groups.filter((g) => g.policy === policy);
+  const days = p.first !== undefined && p.last !== undefined ? (p.last - p.first) / DAY : undefined;
+  const verdict = own.length > 0 ? 'not-yet' : days === undefined || days < ENOUGH_DAYS ? 'too-soon' : 'ready';
+  return {
+    policy,
+    verdict,
+    blocking: own.length,
+    inLines: own.filter((g) => g.explained.fix?.inLines).length,
+    ...(days !== undefined ? { days } : {}),
+    noise: noise.filter((g) => g.policy === policy).reduce((n, g) => n + g.reports, 0),
   };
 }
 
@@ -370,7 +409,7 @@ function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: nu
  * the first report of a newer one (same disposition) was replaced by it: the newest of those it can be.
  */
 function policiesOf(reports: ViolationReport[]): ReportPolicy[] {
-  const policies: (ReportPolicy & { first?: number })[] = [];
+  const policies: ReportPolicy[] = [];
   for (const r of reports) {
     const text = r.policy ?? '';
     const reportOnly = r.disposition === 'report';
@@ -390,7 +429,7 @@ function policiesOf(reports: ViolationReport[]): ReportPolicy[] {
     if (!newest) continue;
     for (const p of same) if (p !== newest && p.last! < newest.first!) p.replacedBy = policies.indexOf(newest);
   }
-  return policies.map(({ first: _, ...p }) => p);
+  return policies;
 }
 
 /** The newest policy (the one the item now carries) allows what an older one blocked: an address, or eval. */

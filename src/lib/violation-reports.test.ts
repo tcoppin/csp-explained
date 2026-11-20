@@ -211,6 +211,30 @@ describe('explainReports', () => {
     expect(['/', '/display', '/products/payload-bag', '/blog/signing-off', '/cartoons'].some(isSensitive)).toBe(false);
   });
 
+  it('says whether a report-only policy can be enforced: not yet, too soon to say, or ready', () => {
+    const TRIAL = "default-src 'self'; script-src 'self'; report-to csp";
+    const at = (day: number, body: Record<string, unknown>) =>
+      JSON.stringify({ timestamp: Date.UTC(2026, 10, day), ...JSON.parse(report({ disposition: 'report', originalPolicy: TRIAL, ...body })) });
+    const hotjar = { blockedURL: 'https://static.hotjar.com/c/hotjar-1.js', effectiveDirective: 'script-src-elem' };
+    const handler = { blockedURL: 'inline', effectiveDirective: 'script-src-attr' };
+    const extension = { blockedURL: 'chrome-extension://abc/content.js', effectiveDirective: 'script-src-elem' };
+
+    // Something the site uses: the lines settle one, the event handler needs the code to change.
+    const notYet = explainReports([at(1, hotjar), at(9, handler), at(9, extension), report(hotjar)].join('\n'), vendors);
+    expect(notYet.readiness).toEqual([{ policy: 0, verdict: 'not-yet', blocking: 2, inLines: 1, days: 8, noise: 1 }]);
+    // The enforced policy has nothing to decide.
+    expect(notYet.policies.map((p) => p.reportOnly)).toEqual([true, false]);
+
+    // Only what the site didn't cause: ready after a week, too soon before, or without dates.
+    expect(explainReports([at(1, extension), at(9, extension)].join('\n'), vendors).readiness).toEqual([{ policy: 0, verdict: 'ready', blocking: 0, inLines: 0, days: 8, noise: 2 }]);
+    expect(explainReports([at(1, extension), at(3, extension)].join('\n'), vendors).readiness[0]).toMatchObject({ verdict: 'too-soon', days: 2 });
+    const undated = explainReports(report({ ...extension, disposition: 'report', originalPolicy: TRIAL }), vendors).readiness[0]!;
+    expect(undated.verdict).toBe('too-soon');
+    expect(undated.days).toBeUndefined();
+    // An unknown address left out of the lines still keeps it from being ready.
+    expect(explainReports([at(1, { blockedURL: 'https://cdn.evil.example/x.js', effectiveDirective: 'script-src-elem' }), at(9, extension)].join('\n'), vendors).readiness[0]).toMatchObject({ verdict: 'not-yet', blocking: 1, inLines: 0 });
+  });
+
   it('tells a domain from its subdomains', () => {
     expect(siteOf('cdn.shop.example.com')).toBe('example.com');
     expect(siteOf('www.shop.co.uk')).toBe('shop.co.uk');

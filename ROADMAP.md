@@ -40,13 +40,13 @@ needs our own server comes last, because it changes the site's promise that the 
       software on visitors' devices, translation), each heard as its own collapsed group with its title and counts.
       And each problem's "Check first / Then / Less urgent" line (2026-11-20): heard right after "Blocked by…",
       the level stressed, the reasons as one list that makes sense spoken.
+      And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
+      "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
+      since", the new verdict can be found again easily (it is above the lines, not announced by itself).
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
       export from someone who uses one would settle it; add it to `src/lib/csp/violation-reports/` as a fixture.
-- [ ] Reports reader, what the review of 2026-11-20 left for later:
-      - "Is it safe to enforce?": most reports come from a report-only policy being tried out. Answer that question
-        for a report-only batch: what would break, what can be ignored.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -255,7 +255,10 @@ Interface:
       address or code, under the same rule and policy, are one problem, with their pages (without query strings) and
       browsers. Problems come riskiest first, not most reports first ("Check first", "Then", "Less urgent", with
       why): an address no tool uses, a problem mostly on pages where visitors pay or sign in (by the words in their
-      address, in five languages), code or data blocked for visitors before a look, new before gone. Each is explained like a console message (the tool, the case, the fix), but on
+      address, in five languages), code or data blocked for visitors before a look, new before gone. For each
+      report-only policy, "Can you enforce it?": not yet (what it would block, how much the lines settle, what needs
+      the code to change), too soon to say (less than a week of reports, or no dates), or ready, with how to switch;
+      read from a day on, it answers "is it ready since the fix?". Each is explained like a console message (the tool, the case, the fix), but on
       the whole policy the report carries: one line per rule and policy, and the fixed policy opens in the comparator.
       What the site didn't cause is set apart and adds no line, one folded section per cause: browser extensions,
       software on visitors' devices (antivirus, adware, company proxies: the hosts from Sentry's list of CSP noise),

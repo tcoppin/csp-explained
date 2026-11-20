@@ -1030,6 +1030,42 @@
       "look": "cela ne change que l'apparence de la page",
       "new": "nouveau depuis le {date}",
       "stopped": "plus vu depuis le {date}, peut-être déjà corrigé"
+    },
+    "enforce": {
+      "title": "Pouvez-vous l'appliquer ?",
+      "titleN": "Pouvez-vous appliquer la politique {n} ?",
+      "notYet": {
+        "one": "**Pas encore.** Une fois appliquée, cette politique en mode rapport seul bloquerait 1 chose que votre site utilise : le problème ci-dessous.",
+        "other": "**Pas encore.** Une fois appliquée, cette politique en mode rapport seul bloquerait {count} choses que votre site utilise : les problèmes ci-dessous."
+      },
+      "inLines": {
+        "one": "Les lignes ci-dessous en autorisent 1.",
+        "other": "Les lignes ci-dessous en autorisent {count}."
+      },
+      "allInLines": "Les lignes ci-dessous les autorisent toutes.",
+      "needsWork": {
+        "one": "1 demande un changement dans votre code ou une vérification d'abord : il dit comment.",
+        "other": "{count} demandent un changement dans votre code ou une vérification d'abord : chacun dit comment."
+      },
+      "notYetNext": "Mettez les lignes dans votre politique en mode rapport seul, traitez le reste, puis collectez de nouveau des rapports pendant une semaine. Quand il n'arrive plus que ce qui est mis à part, elle est prête.",
+      "tooSoon": "**Rien de ce que votre site utilise ne serait bloqué, mais il est trop tôt pour le dire.**",
+      "tooSoonDays": "Ces rapports couvrent {days}. Collectez-les pendant au moins une semaine : les pages qu'on ouvre moins souvent (pages de compte, campagnes, un e-mail mensuel) ne se sont peut-être pas encore manifestées.",
+      "tooSoonUndated": "Ces rapports n'ont pas de date, donc impossible de savoir quelle période ils couvrent. Collectez-les pendant au moins une semaine : les pages qu'on ouvre moins souvent (pages de compte, campagnes, un e-mail mensuel) ne se sont peut-être pas encore manifestées.",
+      "ready": "**Elle semble prête.** Sur {days}, ses rapports ne montrent rien de ce que votre site utilise qu'elle bloquerait.",
+      "readyNoise": {
+        "one": "Le seul rapport restant est mis à part ci-dessous : il ne vient pas de votre site.",
+        "other": "Les {count} rapports restants sont mis à part ci-dessous : ils ne viennent pas de votre site."
+      },
+      "readySteps": {
+        "header": "Envoyez-la en `Content-Security-Policy` au lieu de `Content-Security-Policy-Report-Only`, avec le même `report-to`, pour être toujours prévenu de ce qui aurait échappé.",
+        "unseen": "Vérifiez à la main ce dont les rapports ne peuvent pas parler : les pages que personne n'a ouvertes pendant ces jours, comme un espace d'administration ou un formulaire rare.",
+        "next": "Gardez une copie en mode rapport seul pour votre prochain changement, et essayez-le là d'abord."
+      },
+      "days": {
+        "one": "1 jour",
+        "other": "{count} jours"
+      },
+      "lessThanDay": "moins d'un jour"
     }
   }
 }
