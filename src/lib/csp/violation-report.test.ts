@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { browserOf, readReports } from './violation-report';
+import { browserOf, readReports, timeOf } from './violation-report';
 
 /**
  * Reports sent by the browsers themselves (2026) to a test page's endpoint, addresses replaced with
@@ -123,6 +123,7 @@ describe('readReports', () => {
         page: 'https://www.example.com/',
         disposition: 'enforce',
         userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0',
+        time: Date.UTC(2026, 10, 20, 10),
       },
       { blocked: 'eval', directive: 'script-src', disposition: 'report' },
     ]);
@@ -166,6 +167,28 @@ describe('readReports', () => {
     const report = JSON.stringify({ 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src' } }).replaceAll('"', '""');
     const csv = `Date,Host,Message\n2026-11-20,web-1,"${report}"\n2026-11-20,web-1,started\n`;
     expect(readReports(csv)).toMatchObject({ reports: [{ blocked: 'eval', directive: 'script-src' }], skipped: 1 });
+  });
+
+  it("keeps the date a collector kept: a field, a CSV column, or the start of a log line", () => {
+    const body = { 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src' } };
+    const lines = [
+      `2026-11-20T10:00:00Z INFO csp ${JSON.stringify(body)}`,
+      `[19/Nov/2026:08:30:00 +0000] ${JSON.stringify(body)}`,
+      JSON.stringify({ '@timestamp': 1795000000, ...body }),
+      JSON.stringify(body),
+    ].join('\n');
+    expect(readReports(lines).reports.map((r) => r.time)).toEqual([Date.UTC(2026, 10, 20, 10), Date.UTC(2026, 10, 19, 8, 30), 1795000000000, undefined]);
+    const csv = 'timestamp,blocked-uri,effective-directive\n1795000000123,eval,script-src\n';
+    expect(readReports(csv).reports[0]!.time).toBe(1795000000123);
+  });
+
+  it('reads times in seconds, milliseconds or as dates, and nothing that is only a number', () => {
+    expect(timeOf('2026-11-20T10:00:00.5Z')).toBe(Date.UTC(2026, 10, 20, 10, 0, 0, 500));
+    expect(timeOf('2026-11-20 10:00:00+01:00')).toBe(Date.UTC(2026, 10, 20, 9));
+    expect(timeOf('1795000000')).toBe(1795000000000);
+    expect(timeOf('1795000000000000')).toBe(1795000000000);
+    expect(timeOf('3')).toBeUndefined();
+    expect(timeOf('yesterday')).toBeUndefined();
   });
 
   it('reads a part of an array copied without its brackets', () => {

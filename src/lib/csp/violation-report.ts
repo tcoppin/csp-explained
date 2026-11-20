@@ -32,6 +32,12 @@ export interface ViolationReport {
   sample?: string;
   /** The browser, when the report or its collector kept it. */
   userAgent?: string;
+  /**
+   * When it was received (milliseconds since 1970), when the collector kept it: a field (`timestamp`, `date`,
+   * `@timestamp`…), a CSV column, or the date that starts a log line. Browsers only say how old a report was when
+   * sent (`age`), which says nothing without the time it arrived.
+   */
+  time?: number;
 }
 
 export interface ReadReports {
@@ -49,7 +55,7 @@ const str = (v: Json | undefined) => (typeof v === 'string' && v !== '' ? v : un
 /** The fields of one report, in either spelling. */
 type Read = Omit<ViolationReport, 'disposition'> & { disposition?: 'enforce' | 'report' };
 
-type Field = 'blocked' | 'effective' | 'violated' | 'page' | 'policy' | 'disposition' | 'sourceFile' | 'sample' | 'userAgent';
+type Field = 'blocked' | 'effective' | 'violated' | 'page' | 'policy' | 'disposition' | 'sourceFile' | 'sample' | 'userAgent' | 'time';
 
 /** A report's fields by their name without case or separators: the browsers' own spellings and collectors' ones. */
 const FIELDS: Record<string, Field> = {
@@ -66,6 +72,15 @@ const FIELDS: Record<string, Field> = {
   scriptsample: 'sample',
   useragent: 'userAgent',
   ua: 'userAgent',
+  timestamp: 'time',
+  time: 'time',
+  date: 'time',
+  datetime: 'time',
+  eventtime: 'time',
+  receivedat: 'time',
+  datereceived: 'time',
+  datecreated: 'time',
+  createdat: 'time',
 };
 
 /**
@@ -81,11 +96,12 @@ function fieldOf(key: string): Field | undefined {
   return undefined;
 }
 
-/** An object's fields that a report can have: the first value for each, when it is text. */
+/** An object's fields that a report can have: the first value for each, when it is text (or a number, for a time). */
 function fieldsOf(o: Obj): Partial<Record<Field, string>> {
   const out: Partial<Record<Field, string>> = {};
-  for (const [key, value] of Object.entries(o)) {
+  for (const [key, raw] of Object.entries(o)) {
     const field = fieldOf(key);
+    const value = field === 'time' && typeof raw === 'number' ? String(raw) : raw;
     // An empty blocked address means inline code in some browsers: kept.
     if (field && out[field] === undefined && typeof value === 'string' && (value !== '' || field === 'blocked')) out[field] = value;
   }
@@ -99,6 +115,7 @@ function fromBody(body: Obj, around: Obj[]): Read | undefined {
   const directive = f.effective ?? f.violated?.trim().split(/\s+/)[0];
   if (!directive || f.blocked === undefined) return undefined;
   const disposition = DISPOSITION[(f.disposition ?? '').toLowerCase().replace(/[^a-z]/g, '')];
+  const time = [f.time, ...around.map((o) => fieldsOf(o).time)].map(timeOf).find((t) => t !== undefined);
   // The browser is beside the body (Reporting API), or kept by the collector, at any level around it or elsewhere in
   // its record (a request's headers).
   const userAgent = f.userAgent ?? around.map((o) => fieldsOf(o).userAgent).find((v) => v) ?? (around.length > 0 ? userAgentIn(around.at(-1)!, 4) : undefined);
@@ -111,7 +128,36 @@ function fromBody(body: Obj, around: Obj[]): Read | undefined {
     ...(f.sourceFile ? { sourceFile: f.sourceFile } : {}),
     ...(f.sample ? { sample: f.sample } : {}),
     ...(userAgent ? { userAgent } : {}),
+    ...(time !== undefined ? { time } : {}),
   };
+}
+
+/** Earliest and latest times believed: anything else is a counter or a mistake, not a date. */
+const EARLIEST = Date.UTC(2010, 0, 1);
+const LATEST = Date.UTC(2100, 0, 1);
+
+/**
+ * A time from a collector: seconds or milliseconds since 1970 (as a number or digits), or a date as text (ISO 8601,
+ * `2026-11-20 10:00:00`, a log's `20/Nov/2026:10:00:00 +0000`). Without a time zone, the visitor's own.
+ */
+export function timeOf(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const text = value.trim();
+  let t: number;
+  if (/^\d+(?:\.\d+)?$/.test(text)) {
+    const n = Number(text);
+    t = n > 1e14 ? n / 1000 : n > 1e11 ? n : n * 1000;
+  } else {
+    const clf = /^(\d{1,2})\/([A-Z][a-z]{2})\/(\d{4}):(\d{2}:\d{2}:\d{2})\s*([+-]\d{4})?$/.exec(text);
+    t = clf ? Date.parse(`${clf[2]} ${clf[1]} ${clf[3]} ${clf[4]} ${clf[5] ? `GMT${clf[5]}` : ''}`) : Date.parse(text.replace(/^(\d{4}-\d{2}-\d{2}) (?=\d)/, '$1T'));
+  }
+  return Number.isFinite(t) && t >= EARLIEST && t < LATEST ? t : undefined;
+}
+
+/** The date that starts a log line (`2026-11-20T10:00:00Z INFO …`, `[20/Nov/2026:10:00:00 +0000] …`). */
+function lineTime(prefix: string): number | undefined {
+  const m = /^\s*\[?(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:[.,]\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?|\d{1,2}\/[A-Z][a-z]{2}\/\d{4}:\d{2}:\d{2}:\d{2}(?: [+-]\d{4})?)/.exec(prefix);
+  return m ? timeOf(m[1]!.replace(',', '.')) : undefined;
 }
 
 /** A user agent anywhere in a record, a few levels deep (tag lists included). */
@@ -207,9 +253,9 @@ export function readReports(input: string): ReadReports {
   let skipped = 0;
   // One JSON value per line (a collector's log), sometimes after a timestamp or a log level.
   for (const line of input.split(/\r?\n/)) {
-    const start = line.search(/[[{]/);
-    if (start < 0) continue;
-    const value = parseJson(line.slice(start));
+    const found = jsonIn(line);
+    if (!found) continue;
+    const { start, value } = found;
     if (value === undefined) {
       if (line.trim() !== '') skipped++;
       continue;
@@ -217,6 +263,8 @@ export function readReports(input: string): ReadReports {
     const before = reports.length;
     collect(value, [], reports);
     if (reports.length === before) skipped++;
+    const time = lineTime(line.slice(0, start));
+    if (time !== undefined) for (const r of reports.slice(before)) r.time ??= time;
   }
   // A JSON document spread over several lines that isn't valid as a whole (a pasted part of an array): read it
   // object by object.
@@ -225,6 +273,22 @@ export function readReports(input: string): ReadReports {
     if (reports.length > 0) skipped = 0;
   }
   return { reports: withDisposition(reports), skipped };
+}
+
+/**
+ * The JSON a log line ends with, after whatever prefix (`[20/Nov/2026:10:00:00 +0000] {…}`): tried from each bracket
+ * in turn. `value` is undefined when no bracket starts valid JSON; nothing when the line has no bracket.
+ */
+function jsonIn(line: string): { start: number; value: Json | undefined } | undefined {
+  let first: number | undefined;
+  for (let i = line.search(/[[{]/), tries = 0; i >= 0 && tries < 8; tries++) {
+    first ??= i;
+    const value = parseJson(line.slice(i));
+    if (value !== undefined) return { start: i, value };
+    const next = line.slice(i + 1).search(/[[{]/);
+    i = next < 0 ? -1 : i + 1 + next;
+  }
+  return first === undefined ? undefined : { start: first, value: undefined };
 }
 
 /**

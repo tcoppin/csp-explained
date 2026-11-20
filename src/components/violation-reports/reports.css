@@ -83,15 +83,18 @@
 }
 
 /* Set apart: what extensions caused, folded at the end */
-.report-noise {
+.report-noise,
+.report-allowed {
   margin-top: 2rem;
   border-top: 2px solid var(--rule);
   padding-top: 1rem;
 }
-.report-noise > summary {
+.report-noise > summary,
+.report-allowed > summary {
   font-weight: 700;
 }
-.report-noise > p {
+.report-noise > p,
+.report-allowed > p {
   margin-top: 0.75rem;
 }
 /* "I know what this is", under an unknown address */
@@ -103,5 +106,30 @@
 @media (pointer: coarse) {
   .report-trust {
     min-height: 2.75rem;
+  }
+}
+/* When the reports were received, and "Only the reports since" */
+.report-period {
+  margin-bottom: 1.5rem;
+}
+.report-period p {
+  margin: 0.25rem 0;
+}
+.report-since input {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.5rem;
+  min-height: 2.75rem;
+}
+.report-since input:focus {
+  border-color: var(--action);
+  outline: none;
+}
+@media (pointer: fine) {
+  .report-since input {
+    min-height: 0;
   }
 }

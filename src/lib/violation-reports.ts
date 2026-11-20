@@ -1,4 +1,5 @@
 import type { Vendor } from './catalogue/schema';
+import { checkRequirement } from './csp/compat';
 import { resolve } from './csp/fallback';
 import { parseSinglePolicy } from './csp/parser';
 import { DIRECTIVE_TYPE, trustedTypeOf, type BlockedKind, type Violation } from './csp/violation';
@@ -13,6 +14,10 @@ import { explainItems, linesOf, type ExplainedViolation, type FixedPolicy, type 
  * A report says something was blocked, not that it should be allowed: a script injected into the page, or a tool
  * that was hacked, is blocked the same way as a tool someone forgot. So an address no catalogue tool uses, outside
  * the site's own domain, is unknown: explained, but kept out of the lines until the visitor says they know it.
+ *
+ * When the collector kept dates, a batch tells a story: a policy whose last report came before the newest one's first
+ * is an older version. Its reports are read against the newest policy: what it allows now is set apart (the change
+ * worked), the rest are problems of the newest policy.
  */
 
 /** One problem: reports about the same thing, under the same rule of the same policy. */
@@ -23,8 +28,11 @@ export interface ReportGroup {
   pages: { page: string; reports: number }[];
   /** The browsers that sent it, most reports first; reports without a browser aren't counted. */
   browsers: string[];
-  /** Index in `policies`. */
+  /** Index in `policies`: the newest version, for reports from an older one. */
   policy: number;
+  /** The first and last report's dates, when the collector kept them. */
+  first?: number;
+  last?: number;
   /** Identifies the problem from one reading to the next (for `trusted`). */
   key: string;
   /**
@@ -44,6 +52,13 @@ export interface ReportPolicy {
   reports: number;
   /** The policy with every line its reports need, when some do. */
   fixed?: FixedPolicy;
+  /** Its last report's date, when the collector kept dates. */
+  last?: number;
+  /**
+   * Index of the newer policy that replaced it (same disposition, every report of which came after this one's last):
+   * its reports are read against that one, and it gets no lines of its own.
+   */
+  replacedBy?: number;
 }
 
 /** A Trusted Types policy name the `trusted-types` rule doesn't list. */
@@ -62,6 +77,13 @@ export interface ExplainedReports {
   groups: ReportGroup[];
   /** Set apart: not caused by the site. */
   noise: ReportGroup[];
+  /** Set apart: reported under an older policy, and the newest one allows it. */
+  allowed: ReportGroup[];
+  /** The first and last dates of all the reports read (before `since`), when the collector kept dates. */
+  period?: { from: number; to: number };
+  /** With `since`: reports left out for being older, and for having no date. */
+  before: number;
+  undated: number;
   /** One line per rule to change, per policy. */
   lines: PolicyLine[];
   policies: ReportPolicy[];
@@ -76,35 +98,43 @@ const INLINE = new Set(['inline', '', 'self']);
 export interface ReportOptions {
   /** Keys of unknown addresses the visitor knows: their lines go in. */
   trusted?: ReadonlySet<string>;
+  /** Only the reports received from then on (milliseconds since 1970). */
+  since?: number;
 }
 
+/** 'self', when the reports don't say which site they're from. */
+const PLACEHOLDER_ORIGIN = 'https://your-site.example';
+
 /** The reports in `input` (text, or reports already read), grouped and explained with the catalogue. */
-export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set() }: ReportOptions = {}): ExplainedReports {
-  const { reports, skipped } = typeof input === 'string' ? readReports(input) : input;
+export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set(), since }: ReportOptions = {}): ExplainedReports {
+  const read = typeof input === 'string' ? readReports(input) : input;
+  const times = read.reports.map((r) => r.time).filter((t) => t !== undefined);
+  const period = times.length > 0 ? { from: Math.min(...times), to: Math.max(...times) } : undefined;
+  const reports = since === undefined ? read.reports : read.reports.filter((r) => r.time !== undefined && r.time >= since);
+  const undated = since === undefined ? 0 : read.reports.filter((r) => r.time === undefined).length;
+  const before = read.reports.length - reports.length - undated;
   const origins = new Set(reports.map((r) => originOf(r.page)).filter((o) => o !== undefined));
   const origin = origins.size === 1 ? [...origins][0]! : undefined;
 
-  const policies: ReportPolicy[] = [];
-  const policyIndex = (r: ViolationReport) => {
-    const text = r.policy ?? '';
-    const reportOnly = r.disposition === 'report';
-    let i = policies.findIndex((p) => p.text === text && p.reportOnly === reportOnly);
-    if (i < 0) i = policies.push({ text, reportOnly, guessed: r.guessed === true, reports: 0 }) - 1;
-    policies[i]!.reports++;
-    return i;
-  };
+  const policies = policiesOf(reports);
+  const policyIndex = (r: ViolationReport) => policies.findIndex((p) => p.text === (r.policy ?? '') && p.reportOnly === (r.disposition === 'report'));
 
   interface Pending {
     key: string;
     v: Violation;
     reports: ViolationReport[];
     policy: number;
+    /** Reports under the newest policy itself, not an older one read against it. */
+    current: number;
     noise?: 'extension';
   }
   const pending = new Map<string, Pending>();
   const names = new Map<string, RefusedPolicyName>();
-  for (const r of reports) {
-    const policy = policyIndex(r);
+  for (const sent of reports) {
+    const own = policyIndex(sent);
+    const policy = policies[own]!.replacedBy ?? own;
+    // An older policy's report, as the newest one would have seen it.
+    const r = policy === own ? sent : { ...sent, policy: policies[policy]!.text };
     if (r.blocked === 'trusted-types-policy') {
       const name = r.sample?.trim() || '?';
       const key = `${policy}|${name}`;
@@ -116,54 +146,101 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
     const v = violationOf(r);
     const noise = EXTENSION.test(r.blocked) || EXTENSION.test(r.sourceFile ?? '') ? ('extension' as const) : undefined;
     const target = v.kind === 'url' ? (originOf(v.url) ?? v.url) : `${v.kind}|${v.sink ?? ''}`;
-    const key = `${policy}|${v.effective ?? v.directive}|${target}|${noise ?? ''}`;
-    const group = pending.get(key);
-    if (group) group.reports.push(r);
-    else pending.set(key, { key, v, reports: [r], policy, ...(noise ? { noise } : {}) });
+    // By the policy's text, not its place in the list, which changes with `since`.
+    const key = `${r.disposition}|${r.policy ?? ''}|${v.effective ?? v.directive}|${target}|${noise ?? ''}`;
+    const group = pending.get(key) ?? pending.set(key, { key, v, reports: [], policy, current: 0, ...(noise ? { noise } : {}) }).get(key)!;
+    group.reports.push(r);
+    if (policy === own) group.current++;
   }
 
   // Lines only from what the site itself needs: what an extension asked for never goes in, nor an unknown address
-  // the visitor hasn't vouched for.
+  // the visitor hasn't vouched for, nor what the newest policy already allows.
   const options = { whole: true, ...(origin ? { origin } : {}) };
   const site = [...pending.values()].filter((p) => !p.noise);
   const elsewhere = [...pending.values()].filter((p) => p.noise);
   const siteItems = explainItems(site.map((p) => ({ v: p.v, others: [] })), vendors).map((item, i) => {
-    const unknown = isUnknown(item, site[i]!.reports, origin);
-    return { item: unknown && !trusted.has(site[i]!.key) ? { ...item, fix: undefined } : item, unknown };
+    const p = site[i]!;
+    if (p.current === 0 && allowedBy(item, origin ?? PLACEHOLDER_ORIGIN)) return { item: { ...item, fix: undefined }, unknown: false, allowed: true };
+    const unknown = isUnknown(item, p.reports, origin);
+    return { item: unknown && !trusted.has(p.key) ? { ...item, fix: undefined } : item, unknown, allowed: false };
   });
   const explained = linesOf(siteItems.map((s) => s.item), options);
   const items = [...siteItems.map((s) => s.item), ...explainItems(elsewhere.map((p) => ({ v: p.v, others: [] })), vendors)];
-  const all: ReportGroup[] = [...site, ...elsewhere].map((p, i) => {
+  const all = [...site, ...elsewhere].map((p, i) => {
     const item = items[i]!;
     // An extension's own code asking for an address: nothing to add to the policy.
     const shown: ExplainedViolation =
       p.noise && item.case !== 'extension' ? { ...item, case: 'extension', host: hostOf(p.reports[0]!.sourceFile ?? p.v.url ?? ''), tools: [], fix: undefined } : item;
-    return {
+    const dates = p.reports.map((r) => r.time).filter((t) => t !== undefined);
+    const group: ReportGroup = {
       explained: shown,
       reports: p.reports.length,
       pages: ranked(p.reports.map((r) => pageOf(r.page, origin))).map(([page, reports]) => ({ page, reports })),
       browsers: ranked(p.reports.map((r) => browserOf(r.userAgent))).map(([b]) => b),
       policy: p.policy,
+      ...(dates.length > 0 ? { first: Math.min(...dates), last: Math.max(...dates) } : {}),
       key: p.key,
       ...(siteItems[i]?.unknown ? { unknown: true as const } : {}),
       ...(p.noise ? { noise: p.noise } : {}),
     };
+    return { group, allowed: siteItems[i]?.allowed === true };
   });
   for (const fixed of explained.fixed) {
-    const policy = policies.find((p) => p.text === fixed.before && p.reportOnly === fixed.reportOnly);
+    const policy = policies.find((p) => p.replacedBy === undefined && p.text === fixed.before && p.reportOnly === fixed.reportOnly);
     if (policy) policy.fixed = fixed;
   }
   const byReports = (a: ReportGroup, b: ReportGroup) => b.reports - a.reports;
   return {
     total: reports.length,
-    skipped,
-    groups: all.filter((g) => !g.noise).sort(byReports),
-    noise: all.filter((g) => g.noise).sort(byReports),
+    skipped: read.skipped,
+    groups: all.filter((g) => !g.group.noise && !g.allowed).map((g) => g.group).sort(byReports),
+    noise: all.filter((g) => g.group.noise).map((g) => g.group).sort(byReports),
+    allowed: all.filter((g) => g.allowed).map((g) => g.group).sort(byReports),
     lines: explained.lines,
     policies,
     names: [...names.values()].sort((a, b) => b.reports - a.reports),
     ...(origin ? { origin } : {}),
+    ...(period ? { period } : {}),
+    before,
+    undated,
   };
+}
+
+/**
+ * The policies the reports carry, in order of appearance. With dates, a policy every report of which came before
+ * the first report of a newer one (same disposition) was replaced by it: the newest of those it can be.
+ */
+function policiesOf(reports: ViolationReport[]): ReportPolicy[] {
+  const policies: (ReportPolicy & { first?: number })[] = [];
+  for (const r of reports) {
+    const text = r.policy ?? '';
+    const reportOnly = r.disposition === 'report';
+    let p = policies.find((q) => q.text === text && q.reportOnly === reportOnly);
+    if (!p) policies.push((p = { text, reportOnly, guessed: r.guessed === true, reports: 0 }));
+    p.reports++;
+    if (r.time !== undefined) {
+      p.first = Math.min(p.first ?? r.time, r.time);
+      p.last = Math.max(p.last ?? r.time, r.time);
+    }
+  }
+  // Only the newest policy of each disposition takes over older ones: a policy still in use on some pages, or
+  // overlapping in time, stays a policy of its own.
+  for (const reportOnly of [false, true]) {
+    const same = policies.filter((p) => p.reportOnly === reportOnly && p.text !== '' && p.last !== undefined);
+    const newest = same.reduce<(typeof same)[number] | undefined>((a, p) => (!a || p.last! > a.last! ? p : a), undefined);
+    if (!newest) continue;
+    for (const p of same) if (p !== newest && p.last! < newest.first!) p.replacedBy = policies.indexOf(newest);
+  }
+  return policies.map(({ first: _, ...p }) => p);
+}
+
+/** The newest policy (the one the item now carries) allows what an older one blocked: an address, or eval. */
+function allowedBy(item: ExplainedViolation, origin: string): boolean {
+  const v = item.violation;
+  if (!v.value || !item.fix || (item.case !== 'address' && item.case !== 'eval')) return false;
+  const parsed = { input: v.value, policies: [parseSinglePolicy(v.value)], issues: [] };
+  const type = item.case === 'eval' ? 'eval' : v.type;
+  return checkRequirement(parsed, { type, source: item.fix.add[0]!, ...(v.url && item.case === 'address' ? { probe: v.url } : {}), reason: '' }, origin).verdict !== 'blocked';
 }
 
 /**

@@ -910,6 +910,16 @@
     "problems": { "one": "1 problem, from your site", "other": "{count} problems, from your site" },
     "noise": { "one": "Set apart: 1 problem from browser extensions ({reports} reports)", "other": "Set apart: {count} problems from browser extensions ({reports} reports)" },
     "noiseIntro": "Extensions your visitors installed add code to the pages they visit, and your policy blocks it. That's your policy doing its job: there is nothing to allow.",
+    "period": "Received {range}.",
+    "since": {
+      "label": "Only the reports since",
+      "left": { "one": "1 older report left out.", "other": "{count} older reports left out." },
+      "undated": { "one": "1 report without a date left out.", "other": "{count} reports without a date left out." },
+      "none": "No report since that day.",
+      "announce": { "one": "1 report since {date}.", "other": "{count} reports since {date}." }
+    },
+    "allowed": { "one": "Already allowed by your newest policy: 1 problem ({reports} reports)", "other": "Already allowed by your newest policy: {count} problems ({reports} reports)" },
+    "allowedIntro": "An older version of your policy blocked these, and the newest one allows them: the change worked. If more come, some pages or browsers still have the older policy.",
     "names": {
       "title": "Trusted Types policies your rule refuses",
       "text": "Code tried to create Trusted Types policies named {names}, which your `trusted-types` rule doesn't list. If they are yours or a tool's you trust, add their names to that rule ([how Trusted Types work](/trusted-types))."
@@ -918,6 +928,8 @@
       "title": { "one": "The policy in these reports", "other": "The {count} policies in these reports" },
       "intro": "Reports carry the whole policy the page was sent. Several policies: an enforced and a report-only one, pages with their own, or an older version still in some browsers.",
       "enforced": { "one": "Policy {n}, enforced: 1 report", "other": "Policy {n}, enforced: {count} reports" },
+      "replaced": { "one": "Policy {n}, an older version: 1 report, until {date}", "other": "Policy {n}, an older version: {count} reports, until {date}" },
+      "replacedIntro": "Reports from an older version are read against the newest policy: what it allows now is set apart at the end.",
       "reportOnly": { "one": "Policy {n}, report-only: 1 report", "other": "Policy {n}, report-only: {count} reports" },
       "guessed": { "one": "Policy {n}, enforced or report-only (Safari didn't say): 1 report", "other": "Policy {n}, enforced or report-only (Safari didn't say): {count} reports" },
       "missing": "The reports didn't include the policy."
@@ -931,6 +943,8 @@
       "policy": "(policy {n})",
       "showPages": { "one": "The page", "other": "The {count} pages" },
       "pageCount": { "one": "(1 report)", "other": "({count} reports)" },
+      "seen": "First on {first}, last on {last}.",
+      "seenOnce": "On {date}.",
       "more": { "one": "and 1 more page", "other": "and {count} more pages" }
     }
   }

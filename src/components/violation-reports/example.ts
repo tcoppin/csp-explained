@@ -1,6 +1,7 @@
 /**
- * "Try an example": a week of reports from a small shop, one per line as a collector logs them (Reporting API
- * format). Hotjar and Google Analytics are blocked across pages and browsers, a product page uses style attributes,
+ * "Try an example": a week of reports from a small shop, one per line after the date the collector logged it
+ * (Reporting API format). Until the evening of 14 November the policy didn't allow Google Tag Manager, which was
+ * blocked then. Hotjar and Google Analytics are blocked across pages and browsers, a product page uses style attributes,
  * the checkout has an inline script, a look-alike "jQuery" no tool uses turns up on the cart and checkout (what a
  * card skimmer looks like), and some visitors' extensions add their own noise.
  */
@@ -11,6 +12,15 @@ export const EXAMPLE_REPORTS_POLICY =
   "default-src 'self'; script-src 'self' 'nonce-r4nd0m' https://www.googletagmanager.com; " +
   "style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; " +
   "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; report-to csp";
+
+/** The week before, without Google Tag Manager: its reports show what the change fixed. */
+const OLDER_POLICY = EXAMPLE_REPORTS_POLICY.replace(' https://www.googletagmanager.com', '');
+
+/** The week: from 13 November 06:00 UTC, 6.5 days (the same days in most time zones). */
+const START = Date.UTC(2026, 10, 13, 6);
+const WEEK = 6.5 * 24 * 60;
+/** When the policy changed: the evening of the 14th (still the 14th in most time zones). */
+const CHANGE = Date.UTC(2026, 10, 14, 18);
 
 const BROWSERS = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
@@ -30,6 +40,9 @@ interface Kind {
   browsers?: number[];
   sourceFile?: string;
   sample?: string;
+  /** Only from then on, or until then, in minutes from the start. */
+  from?: number;
+  until?: number;
 }
 
 const KINDS: Kind[] = [
@@ -41,7 +54,9 @@ const KINDS: Kind[] = [
   { times: 7, blockedURL: 'chrome-extension://gighmmpiobklfepjocnamgkkbiglidom/content.js', effectiveDirective: 'script-src-elem', browsers: [0] },
   { times: 3, blockedURL: 'inline', effectiveDirective: 'style-src-elem', browsers: [2], sourceFile: 'moz-extension://5b3c9e1a-1f4e-4d2b-9a77-0c2f6d8e4b10/inject.js' },
   // Last, so the kinds above keep their pages and browsers.
-  { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4] },
+  // New on the 17th: no tool uses it, and nothing on the site changed then.
+  { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4], from: 4 * 24 * 60 - 6 * 60 },
+  { times: 14, blockedURL: 'https://www.googletagmanager.com/gtm.js?id=GTM-X1Y2Z3', effectiveDirective: 'script-src-elem', until: (CHANGE - START) / 60000 },
 ];
 
 export const EXAMPLE_REPORTS = KINDS.flatMap((k, n) =>
@@ -49,7 +64,10 @@ export const EXAMPLE_REPORTS = KINDS.flatMap((k, n) =>
     const pages = k.pages ?? PAGES.map((_, p) => p);
     const browsers = k.browsers ?? BROWSERS.map((_, b) => b);
     const page = `${SITE}${PAGES[pages[(i + n) % pages.length]!]}`;
-    return JSON.stringify({
+    // Spread over the week (or the days before the change), the same on every load.
+    const from = k.from ?? 0;
+    const time = START + (from + ((i * 7919 + n * 104729) % ((k.until ?? WEEK) - from))) * 60000;
+    const report = JSON.stringify({
       age: 1000 * (i + 1),
       type: 'csp-violation',
       url: page,
@@ -58,12 +76,16 @@ export const EXAMPLE_REPORTS = KINDS.flatMap((k, n) =>
         documentURL: page,
         blockedURL: k.blockedURL,
         effectiveDirective: k.effectiveDirective,
-        originalPolicy: EXAMPLE_REPORTS_POLICY,
+        originalPolicy: time < CHANGE ? OLDER_POLICY : EXAMPLE_REPORTS_POLICY,
         disposition: 'enforce',
         statusCode: 200,
         ...(k.sourceFile ? { sourceFile: k.sourceFile } : {}),
         ...(k.sample ? { sample: k.sample } : {}),
       },
     });
+    return { time, line: `${new Date(time).toISOString()} ${report}` };
   }),
-).join('\n');
+)
+  .sort((a, b) => a.time - b.time)
+  .map((r) => r.line)
+  .join('\n');

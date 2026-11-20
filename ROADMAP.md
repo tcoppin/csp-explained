@@ -31,7 +31,8 @@ needs our own server comes last, because it changes the site's promise that the 
       and "Set apart" open and close with Enter and say so; "Open a file" opens the file picker and, once a file is
       read, its name is heard; "Clear" puts the focus back in the box. Under "A script from cdn.jquery-libs.example",
       the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
-      the focus stays on it.
+      the focus stays on it. "Only the reports since" is a date field: picking a day says "N reports since…";
+      "Already allowed by your newest policy" opens and closes like "Set apart".
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
       export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
       `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
@@ -249,7 +250,10 @@ Interface:
       An address no catalogue tool uses, outside the site's own domain, could be injected code as well as a forgotten
       tool: it is explained with how to check it, and left out of the lines until the visitor ticks "I know what
       this is". Collectors' exports are read by their field names, in JSON or in CSV and TSV with a header row
-      (a record keeping a report twice, raw and parsed, counts once).
+      (a record keeping a report twice, raw and parsed, counts once). Dated reports (a collector's field or column,
+      or the date starting a log line) give each problem its first and last day and can be read from a day on; a
+      policy every report of which came before the newest one's first is an older version: its reports are read
+      against the newest, and what that one allows is set apart as already fixed.
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole

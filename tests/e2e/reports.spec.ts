@@ -6,19 +6,22 @@ import { test, expect, openReader, announced, readAloud, watchErrors } from './h
 /** Chromium's own reports (report-uri format, one per line): 16 of them, from an enforced and a report-only policy. */
 const CHROMIUM = readFileSync(join(import.meta.dirname, '../../src/lib/csp/violation-reports/chromium-report-uri.ndjson'), 'utf8');
 
+// The example's dates, as a visitor in Paris reads them (the same days in most time zones).
+test.use({ timezoneId: 'Europe/Paris' });
+
 const box = (page: import('@playwright/test').Page) => page.getByRole('textbox', { name: 'Paste your reports' });
 
 test('the example groups the reports by problem, most reports first, with the lines to change', async ({ page, sent }) => {
   const errors = watchErrors(page);
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
-  await expect(page.getByRole('heading', { name: 'What the 117 reports say', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What the 131 reports say', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: '6 problems, from your site', level: 3 })).toBeVisible();
 
   const first = page.locator('.violation').first();
   await expect(first.getByRole('heading', { level: 3 })).toHaveText('A script from static.hotjar.com');
   await expect(first.locator('.violation-status')).toHaveText('Blocked by script-src.');
-  await expect(first.locator('.report-stats > p')).toHaveText('46 reports on 6 pages from Chrome, Edge, Safari, and Firefox.');
+  await expect(first.locator('.report-stats > p')).toHaveText('46 reports on 6 pages from Chrome, Edge, Safari, and Firefox. First on Nov 13, 2026, last on Nov 19, 2026.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/vendors/hotjar');
   // Page addresses without their query strings.
   await first.locator('.report-pages summary').click();
@@ -62,6 +65,36 @@ test("an address no tool uses stays out of the lines until the visitor says they
 
   expect(await live(() => box.uncheck())).toContain('polite: cdn.jquery-libs.example taken out of the lines.');
   await expect(script).not.toContainText('jquery-libs');
+});
+
+test('dated reports tell what an older policy blocked that the newest allows, and can be read from a day on', async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await expect(page.locator('.report-period')).toContainText(/Received Nov 13\s*–\s*19, 2026\./);
+  // The policy changed on the 15th: the older one is listed, and gets no lines of its own.
+  await expect(page.locator('.report-policies summary').first()).toHaveText(/^Policy 1, an older version: \d+ reports, until Nov 14, 2026$/);
+  await expect(page.getByRole('heading', { name: 'What to change in your policy' })).toBeVisible();
+  // Google Tag Manager was only blocked by the older one: the change worked.
+  const allowed = page.locator('.report-allowed');
+  await expect(allowed.locator('> summary')).toHaveText('Already allowed by your newest policy: 1 problem (14 reports)');
+  await allowed.locator('> summary').click();
+  await expect(allowed.getByRole('heading', { name: 'A script from www.googletagmanager.com' })).toBeVisible();
+  // What's new shows in its dates.
+  const skimmer = page.locator('.violation', { has: page.getByRole('heading', { name: 'A script from cdn.jquery-libs.example' }) });
+  await expect(skimmer.locator('.report-stats > p')).toContainText('On Nov 17, 2026.');
+
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  const heard = await live(() => page.getByLabel('Only the reports since').fill('2026-11-17'));
+  expect(heard.at(-1)).toMatch(/^polite: \d+ reports since Nov 17, 2026\.$/);
+  await expect(page.locator('.report-period')).toContainText(/\d+ older reports left out\./);
+  await expect(page.locator('.report-allowed')).toHaveCount(0);
+  await expect(page.locator('.report-policies')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '6 problems, from your site' })).toBeVisible();
+
+  // A day after the last report: nothing, said so, and the box stays to pick another.
+  await page.getByLabel('Only the reports since').fill('2026-11-20');
+  await expect(page.getByText('No report since that day.')).toBeVisible();
+  await expect(page.getByLabel('Only the reports since')).toBeVisible();
 });
 
 test('the whole policy with the changes opens in the comparator', async ({ page }) => {
@@ -124,7 +157,7 @@ test('text without reports says what a report looks like', async ({ page }) => {
 test('a screen reader hears how many reports were read, and for each problem what happened and how often', async ({ page }) => {
   await openReader(page);
   const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
-  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 117 reports read.']);
+  expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 131 reports read.']);
   // The colour of the block says "blocked"; the words say it too, with the counts.
   const heard = (await readAloud(page, '.violation:nth-child(2)')).join(' ');
   expect(heard).toContain('heading, A connection to region1.google-analytics.com, level 3');
@@ -136,9 +169,9 @@ test('a screen reader hears how many reports were read, and for each problem wha
 test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();
-  await expect(page.getByRole('heading', { name: 'Ce que disent les 117 rapports' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ce que disent les 131 rapports' })).toBeVisible();
   const first = page.locator('.violation').first();
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/fr/vendors/hotjar');
-  await expect(first.locator('.report-stats > p')).toHaveText(/^46 rapports sur 6 pages depuis Chrome, Edge, Safari et Firefox\.$/);
+  await expect(first.locator('.report-stats > p')).toHaveText(/^46 rapports sur 6 pages depuis Chrome, Edge, Safari et Firefox\. Premier le 13 nov\. 2026, dernier le 19 nov\. 2026\.$/);
 });

@@ -910,6 +910,16 @@
     "problems": { "one": "1 problème, venant de votre site", "other": "{count} problèmes, venant de votre site" },
     "noise": { "one": "Mis à part : 1 problème venant d'extensions ({reports} rapports)", "other": "Mis à part : {count} problèmes venant d'extensions ({reports} rapports)" },
     "noiseIntro": "Les extensions installées par vos visiteurs ajoutent du code aux pages qu'ils visitent, et votre politique le bloque. C'est votre politique qui fait son travail : il n'y a rien à autoriser.",
+    "period": "Reçus : {range}.",
+    "since": {
+      "label": "Seulement les rapports depuis le",
+      "left": { "one": "1 rapport plus ancien laissé de côté.", "other": "{count} rapports plus anciens laissés de côté." },
+      "undated": { "one": "1 rapport sans date laissé de côté.", "other": "{count} rapports sans date laissés de côté." },
+      "none": "Aucun rapport depuis ce jour.",
+      "announce": { "one": "1 rapport depuis le {date}.", "other": "{count} rapports depuis le {date}." }
+    },
+    "allowed": { "one": "Déjà autorisé par votre politique la plus récente : 1 problème ({reports} rapports)", "other": "Déjà autorisé par votre politique la plus récente : {count} problèmes ({reports} rapports)" },
+    "allowedIntro": "Une ancienne version de votre politique les bloquait, et la plus récente les autorise : le changement a marché. S'il en arrive encore, certaines pages ou certains navigateurs ont toujours l'ancienne politique.",
     "names": {
       "title": "Politiques Trusted Types refusées par votre règle",
       "text": "Du code a essayé de créer des politiques Trusted Types nommées {names}, que votre règle `trusted-types` ne liste pas. Si elles sont à vous ou à un outil de confiance, ajoutez leurs noms à cette règle ([comment fonctionnent les Trusted Types](/trusted-types))."
@@ -918,6 +928,8 @@
       "title": { "one": "La politique de ces rapports", "other": "Les {count} politiques de ces rapports" },
       "intro": "Les rapports contiennent la politique entière envoyée avec la page. Plusieurs politiques : une appliquée et une en mode rapport seul, des pages qui ont la leur, ou une ancienne version encore dans certains navigateurs.",
       "enforced": { "one": "Politique {n}, appliquée : 1 rapport", "other": "Politique {n}, appliquée : {count} rapports" },
+      "replaced": { "one": "Politique {n}, une ancienne version : 1 rapport, jusqu'au {date}", "other": "Politique {n}, une ancienne version : {count} rapports, jusqu'au {date}" },
+      "replacedIntro": "Les rapports d'une ancienne version sont lus avec la politique la plus récente : ce qu'elle autorise déjà est mis à part à la fin.",
       "reportOnly": { "one": "Politique {n}, en mode rapport seul : 1 rapport", "other": "Politique {n}, en mode rapport seul : {count} rapports" },
       "guessed": { "one": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : 1 rapport", "other": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : {count} rapports" },
       "missing": "Les rapports ne contenaient pas la politique."
@@ -931,6 +943,8 @@
       "policy": "(politique {n})",
       "showPages": { "one": "La page", "other": "Les {count} pages" },
       "pageCount": { "one": "(1 rapport)", "other": "({count} rapports)" },
+      "seen": "Premier le {first}, dernier le {last}.",
+      "seenOnce": "Le {date}.",
       "more": { "one": "et 1 autre page", "other": "et {count} autres pages" }
     }
   }

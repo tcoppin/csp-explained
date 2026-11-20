@@ -92,6 +92,50 @@ describe('explainReports', () => {
     expect(vouched.lines.map((l) => l.line)).toContain("script-src 'self' 'nonce-abc' https://cdn.jquery-libs.example");
   });
 
+  it('reads an older policy against the newest one: what it allows now is set apart, the rest is a problem of the newest', () => {
+    const OLD = "default-src 'self'; script-src 'self'";
+    const NEW = "default-src 'self'; script-src 'self' https://static.hotjar.com";
+    const at = (day: number) => ({ timestamp: Date.UTC(2026, 10, day) });
+    const dated = (day: number, body: Record<string, unknown>) => JSON.stringify({ ...at(day), ...JSON.parse(report(body)) });
+    const hotjar = { blockedURL: 'https://static.hotjar.com/c/hotjar-1.js', effectiveDirective: 'script-src-elem' };
+    const ga = { blockedURL: 'https://region1.google-analytics.com/g/collect', effectiveDirective: 'connect-src' };
+    const input = [
+      dated(10, { ...hotjar, originalPolicy: OLD }),
+      dated(11, { ...hotjar, originalPolicy: OLD }),
+      dated(11, { ...ga, originalPolicy: OLD }),
+      dated(14, { ...ga, originalPolicy: NEW }),
+      dated(15, { ...ga, originalPolicy: NEW }),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    expect(e.period).toEqual({ from: Date.UTC(2026, 10, 10), to: Date.UTC(2026, 10, 15) });
+    expect(e.policies.map((p) => [p.text, p.replacedBy, p.last])).toEqual([
+      [OLD, 1, Date.UTC(2026, 10, 11)],
+      [NEW, undefined, Date.UTC(2026, 10, 15)],
+    ]);
+    // Hotjar's script was blocked by the old policy only: the new one allows it.
+    expect(e.allowed.map((g) => [g.explained.host, g.reports, g.policy])).toEqual([['static.hotjar.com', 2, 1]]);
+    // Analytics, blocked by both, is one problem of the new policy, from its first report to its last.
+    expect(e.groups.map((g) => [g.explained.host, g.reports, g.policy, g.first, g.last])).toEqual([
+      ['region1.google-analytics.com', 3, 1, Date.UTC(2026, 10, 11), Date.UTC(2026, 10, 15)],
+    ]);
+    expect(e.lines.map((l) => [l.policy, l.line])).toEqual([[NEW, "connect-src 'self' https://*.google-analytics.com"]]);
+    expect(e.policies[1]!.fixed?.before).toBe(NEW);
+
+    // Since the 14th: only the new policy's reports.
+    const since = explainReports(input, vendors, { since: Date.UTC(2026, 10, 14) });
+    expect([since.total, since.before, since.undated, since.policies.length, since.allowed.length]).toEqual([2, 3, 0, 1, 0]);
+    expect(since.period).toEqual(e.period);
+  });
+
+  it('keeps policies that overlap in time apart: neither replaced the other', () => {
+    const A = "default-src 'self'; img-src 'self'";
+    const B = "default-src 'self'";
+    const dated = (day: number, policy: string) => JSON.stringify({ timestamp: Date.UTC(2026, 10, day), ...JSON.parse(report({ blockedURL: 'eval', effectiveDirective: 'script-src', originalPolicy: policy })) });
+    const e = explainReports([dated(10, A), dated(12, B), dated(13, A)].join('\n'), vendors);
+    expect(e.policies.map((p) => p.replacedBy)).toEqual([undefined, undefined]);
+    expect(e.groups).toHaveLength(2);
+  });
+
   it('tells a domain from its subdomains', () => {
     expect(siteOf('cdn.shop.example.com')).toBe('example.com');
     expect(siteOf('www.shop.co.uk')).toBe('shop.co.uk');

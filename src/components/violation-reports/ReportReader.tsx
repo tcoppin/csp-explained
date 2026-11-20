@@ -44,16 +44,28 @@ export default function ReportReader({ content, locale }: Props) {
   // Unknown addresses the visitor says they know: their lines go in. Forgotten with the reports they came from.
   const [trusted, setTrusted] = useState<ReadonlySet<string>>(new Set());
   const [trustNote, setTrustNote] = useState('');
+  // "Only the reports since": a day (`YYYY-MM-DD`), from its start in the visitor's time zone.
+  const [since, setSince] = useState('');
+  const sinceTime = since ? new Date(`${since}T00:00`).getTime() : undefined;
 
-  // Read once; explained again (quickly) when the visitor vouches for an address.
+  // Read once; explained again (quickly) when the visitor vouches for an address or picks a day.
   const read = useMemo(() => (text.trim() === '' ? undefined : readReports(text)), [text]);
-  const result = useMemo(() => (read ? explainReports(read, content.vendors, { trusted }) : undefined), [read, content.vendors, trusted]);
+  const result = useMemo(
+    () => (read ? explainReports(read, content.vendors, { trusted, ...(sinceTime !== undefined && Number.isFinite(sinceTime) ? { since: sinceTime } : {}) }) : undefined),
+    [read, content.vendors, trusted, sinceTime],
+  );
 
   /** New reports: what was vouched for went with the old ones. */
   function load(next: string, from: Loaded) {
     setText(next);
     setLoaded(from);
     setTrusted(new Set());
+    setTrustNote('');
+    setSince('');
+  }
+
+  function pickSince(day: string) {
+    setSince(day);
     setTrustNote('');
   }
 
@@ -67,10 +79,10 @@ export default function ReportReader({ content, locale }: Props) {
 
   // Count one batch read per page load, never what it holds; not the example.
   useEffect(() => {
-    if (counted.current || !result || result.total === 0 || loaded.kind === 'example') return;
+    if (counted.current || !read || read.reports.length === 0 || loaded.kind === 'example') return;
     counted.current = true;
     track('read-reports', { from: loaded.kind === 'file' ? 'file' : 'paste' });
-  }, [result, loaded]);
+  }, [read, loaded]);
 
   // "Clear" goes away with what it cleared: the focus goes to the box, if it was lost or is still on the button
   // (which can become "Try an example").
@@ -189,10 +201,15 @@ export default function ReportReader({ content, locale }: Props) {
 
         {/* Always in the page, so the result is announced as it appears; then what the visitor vouched for. */}
         <p class="visually-hidden" role="status">
-          {trustNote || (result && (result.total > 0 ? t('reportsReader.announce', { count: result.total }) : t('reportsReader.none')))}
+          {trustNote ||
+            (read && result && (read.reports.length === 0 ? t('reportsReader.none') : since ? t('reportsReader.since.announce', { count: result.total, date: dayName(t.locale, sinceTime!) }) : t('reportsReader.announce', { count: result.total })))}
         </p>
-        {result &&
-          (result.total > 0 ? <Results r={result} trusted={trusted} onTrust={trust} /> : <p class="issue report-none">{t('reportsReader.noneLong')}</p>)}
+        {read && result &&
+          (read.reports.length > 0 ? (
+            <Results r={result} trusted={trusted} onTrust={trust} since={since} onSince={pickSince} />
+          ) : (
+            <p class="issue report-none">{t('reportsReader.noneLong')}</p>
+          ))}
       </div>
     </I18n.Provider>
   );
@@ -202,12 +219,17 @@ interface ResultsProps {
   r: ExplainedReports;
   trusted: ReadonlySet<string>;
   onTrust: (key: string, host: string, yes: boolean) => void;
+  since: string;
+  onSince: (day: string) => void;
 }
 
-function Results({ r, trusted, onTrust }: ResultsProps) {
+function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
   const t = useT();
-  const several = r.policies.length > 1;
+  // Older versions get no lines of their own: their reports were read against the newest.
+  const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
   const noiseReports = r.noise.reduce((n, g) => n + g.reports, 0);
+  const allowedReports = r.allowed.reduce((n, g) => n + g.reports, 0);
+  const stats = (g: ReportGroup) => <Stats g={g} policies={several ? r.policies.length : 0} />;
   const unknown = r.groups.filter((g) => g.unknown && !trusted.has(g.key)).length;
   return (
     <section class="report-results" aria-labelledby="report-results-title">
@@ -218,10 +240,13 @@ function Results({ r, trusted, onTrust }: ResultsProps) {
         {unknown > 0 && <> {t('reportsReader.unknownLead', { count: unknown })}</>}
         {r.skipped > 0 && <> {t('reportsReader.skipped', { count: r.skipped })}</>}
       </p>
+      {r.period && <Period r={r} since={since} onSince={onSince} />}
+      {r.total === 0 && <p class="issue">{t('reportsReader.since.none')}</p>}
 
-      {several && <PolicyList policies={r.policies} />}
+      {r.policies.length > 1 && <PolicyList policies={r.policies} />}
 
       {r.policies.map((p, i) => {
+        if (p.replacedBy !== undefined) return null;
         const lines = r.lines.filter((l) => l.policy === p.text && l.reportOnly === p.reportOnly);
         if (lines.length === 0) return null;
         return (
@@ -258,11 +283,25 @@ function Results({ r, trusted, onTrust }: ResultsProps) {
                 unknown={g.unknown}
                 after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
               >
-                <Stats g={g} policies={several ? r.policies.length : 0} />
+                {stats(g)}
               </ViolationItem>
             ))}
           </ol>
         </>
+      )}
+
+      {r.allowed.length > 0 && (
+        <details class="report-allowed">
+          <summary>{t('reportsReader.allowed', { count: r.allowed.length, reports: allowedReports })}</summary>
+          <p>{t('reportsReader.allowedIntro')}</p>
+          <ol class="violation-list">
+            {r.allowed.map((g, i) => (
+              <ViolationItem key={i} e={g.explained} index={r.groups.length + i} source="reports">
+                {stats(g)}
+              </ViolationItem>
+            ))}
+          </ol>
+        </details>
       )}
 
       {r.noise.length > 0 && (
@@ -271,8 +310,8 @@ function Results({ r, trusted, onTrust }: ResultsProps) {
           <p>{t('reportsReader.noiseIntro')}</p>
           <ol class="violation-list">
             {r.noise.map((g, i) => (
-              <ViolationItem key={i} e={g.explained} index={r.groups.length + i} source="reports">
-                <Stats g={g} policies={several ? r.policies.length : 0} />
+              <ViolationItem key={i} e={g.explained} index={r.groups.length + r.allowed.length + i} source="reports">
+                {stats(g)}
               </ViolationItem>
             ))}
           </ol>
@@ -288,13 +327,18 @@ function PolicyList({ policies }: { policies: ReportPolicy[] }) {
   return (
     <div class="report-policies">
       <h3>{t('reportsReader.policies.title', { count: policies.length })}</h3>
-      <p>{t('reportsReader.policies.intro')}</p>
+      <p>
+        {t('reportsReader.policies.intro')}
+        {policies.some((p) => p.replacedBy !== undefined) && <> {t('reportsReader.policies.replacedIntro')}</>}
+      </p>
       <ol>
         {policies.map((p, i) => (
           <li key={i}>
             <details>
               <summary>
-                {t(`reportsReader.policies.${p.reportOnly ? 'reportOnly' : p.guessed ? 'guessed' : 'enforced'}`, { n: i + 1, count: p.reports })}
+                {p.replacedBy !== undefined
+                  ? t('reportsReader.policies.replaced', { n: i + 1, count: p.reports, date: dayName(t.locale, p.last!) })
+                  : t(`reportsReader.policies.${p.reportOnly ? 'reportOnly' : p.guessed ? 'guessed' : 'enforced'}`, { n: i + 1, count: p.reports })}
               </summary>
               <pre class="report-policy" tabIndex={0}>
                 <code>{p.text || t('reportsReader.policies.missing')}</code>
@@ -323,6 +367,38 @@ function PolicyNotes({ p }: { p: ReportPolicy }) {
     </>
   );
 }
+
+/** When the reports were received, and the day to read them from. */
+function Period({ r, since, onSince }: { r: ExplainedReports; since: string; onSince: (day: string) => void }) {
+  const t = useT();
+  const { from, to } = r.period!;
+  const range = new Intl.DateTimeFormat(t.locale, { dateStyle: 'medium' }).formatRange(from, to);
+  return (
+    <div class="report-period">
+      <p class="muted">{t('reportsReader.period', { range })}</p>
+      <p class="report-since">
+        <label for="reports-since">{t('reportsReader.since.label')}</label>{' '}
+        <input id="reports-since" type="date" value={since} min={dayValue(from)} max={dayValue(to)} onInput={(e) => onSince(e.currentTarget.value)} />
+      </p>
+      {(r.before > 0 || r.undated > 0) && (
+        <p class="muted">
+          {r.before > 0 && t('reportsReader.since.left', { count: r.before })}
+          {r.before > 0 && r.undated > 0 && ' '}
+          {r.undated > 0 && t('reportsReader.since.undated', { count: r.undated })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** A day as people read it ("Nov 13, 2026"), in the visitor's time zone. */
+const dayName = (locale: string, time: number) => new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(time);
+/** A day as a date field takes it (`2026-11-13`), in the visitor's time zone. */
+function dayValue(time: number): string {
+  const d = new Date(time);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+const sameDay = (a: number, b: number) => dayValue(a) === dayValue(b);
 
 /** An address no tool uses, outside the site: why it isn't in the lines, how to check it, and the visitor's word. */
 function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; onTrust: (key: string, host: string, yes: boolean) => void }) {
@@ -360,6 +436,14 @@ function Stats({ g, policies }: { g: ReportGroup; policies: number }) {
         {g.browsers.length > 0 && <> {t('reportsReader.stats.browsers', { browsers: list(g.browsers) })}</>}
         {policies > 0 && <> {t('reportsReader.stats.policy', { n: g.policy + 1 })}</>}
         {t('reportsReader.stats.end')}
+        {g.first !== undefined && g.last !== undefined && (
+          <>
+            {' '}
+            {sameDay(g.first, g.last)
+              ? t('reportsReader.stats.seenOnce', { date: dayName(t.locale, g.first) })
+              : t('reportsReader.stats.seen', { first: dayName(t.locale, g.first), last: dayName(t.locale, g.last) })}
+          </>
+        )}
       </p>
       {g.pages.length > 1 && (
         <details class="report-pages">
