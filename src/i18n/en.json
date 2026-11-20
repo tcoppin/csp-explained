@@ -896,7 +896,13 @@
       "add": "If you accept that, add this rule to your policy",
       "replaceReportOnly": "If you accept that, replace your {directive} rule in your report-only policy with",
       "addReportOnly": "If you accept that, add this rule to your report-only policy"
-    }
+    },
+    "hashFold": "Get the hash from the code",
+    "inLinesBelow": {
+      "one": "The `{directive}` line below allows it.",
+      "other": "The `{directive}` line below allows them."
+    },
+    "blockedUntil": "Blocked by `{directive}` until {date}."
   },
   "reportsReader": {
     "inputLabel": "Your reports",
@@ -912,15 +918,14 @@
     "none": "No reports found.",
     "noneLong": "No CSP violation report found in this text. A report says what was blocked (a `blockedURL` or `blocked-uri` field, or a column of that name in a CSV export) and under which rule: paste them as your collector stored or exported them.",
     "title": { "one": "What the report says", "other": "What the {count} reports say" },
-    "lead": "Reports about the same thing, under the same rule, are read together. The riskiest problems come first, not the ones with the most reports: an address no known tool uses, a page where visitors pay or sign in, code blocked for your visitors.",
+    "lead": "Riskiest first, not the ones with the most reports. Open one to see what it is and what to do.",
     "noiseLead": {
       "one": "1 report wasn't caused by your site: it is set apart at the end, with why.",
       "other": "{count} reports weren't caused by your site: they are set apart at the end, by cause."
     },
-    "unknownLead": { "one": "1 address we don't know is left out of the lines until you check it.", "other": "{count} addresses we don't know are left out of the lines until you check them." },
     "skipped": { "one": "1 line held something other than a report and was left out.", "other": "{count} lines held something other than a report and were left out." },
     "linesFor": "What to change in policy {n}",
-    "linesIntro": "Each line replaces the rule of the same name in the policy that sent the reports. Together they allow the problems below that point to them, and nothing else.",
+    "linesIntro": "Each line replaces the rule of the same name in the policy that sent the reports. Together they allow the problems above that point to them, and nothing else.",
     "compare": "See the whole policy with these changes, in the comparator",
     "unknown": "It could be a tool someone added without telling you, or code slipped into your pages: a hacked plugin or tool, or malware on a visitor's device. So it isn't in the lines. Before allowing it, find what loads it: search your site's code and your tag manager for `{host}`.",
     "trust": "I know what this is: allow it in the lines",
@@ -986,8 +991,6 @@
       "none": "No report since that day.",
       "announce": { "one": "1 report since {date}.", "other": "{count} reports since {date}." }
     },
-    "allowed": { "one": "Already allowed by your newest policy: 1 problem ({reports} reports)", "other": "Already allowed by your newest policy: {count} problems ({reports} reports)" },
-    "allowedIntro": "An older version of your policy blocked these, and the newest one allows them: the change worked. If more come, some pages or browsers still have the older policy.",
     "names": {
       "title": "Trusted Types policies your rule refuses",
       "text": "Code tried to create Trusted Types policies named {names}, which your `trusted-types` rule doesn't list. If they are yours or a tool's you trust, add their names to that rule ([how Trusted Types work](/trusted-types))."
@@ -997,7 +1000,7 @@
       "intro": "Reports carry the whole policy the page was sent. Several policies: an enforced and a report-only one, pages with their own, or an older version still in some browsers.",
       "enforced": { "one": "Policy {n}, enforced: 1 report", "other": "Policy {n}, enforced: {count} reports" },
       "replaced": { "one": "Policy {n}, an older version: 1 report, until {date}", "other": "Policy {n}, an older version: {count} reports, until {date}" },
-      "replacedIntro": "Reports from an older version are read against the newest policy: what it allows now is set apart at the end.",
+      "replacedIntro": "Reports from an older version are read against the newest policy in these reports: what it allows is marked “Allowed since” in the list.",
       "reportOnly": { "one": "Policy {n}, report-only: 1 report", "other": "Policy {n}, report-only: {count} reports" },
       "guessed": { "one": "Policy {n}, enforced or report-only (Safari didn't say): 1 report", "other": "Policy {n}, enforced or report-only (Safari didn't say): {count} reports" },
       "missing": "The reports didn't include the policy."
@@ -1066,6 +1069,28 @@
         "other": "{count} days"
       },
       "lessThanDay": "less than a day"
-    }
+    },
+    "summary": "In short, from your site: {levels}.",
+    "levels": {
+      "high": {
+        "one": "1 to check first",
+        "other": "{count} to check first"
+      },
+      "medium": {
+        "one": "1 to look at next",
+        "other": "{count} to look at next"
+      },
+      "low": {
+        "one": "1 less urgent",
+        "other": "{count} less urgent"
+      },
+      "fixed": {
+        "one": "1 allowed since a policy change",
+        "other": "{count} allowed since a policy change"
+      }
+    },
+    "rowMeta": "{level}, {reports}",
+    "fixed": "Allowed since {date}",
+    "fixedIntro": "The policy your pages sent from {date} allows it, and no report about it came after that. If it's still the policy your site sends, there's nothing to do. If more reports come, some pages or browsers still get the older one."
   }
 }

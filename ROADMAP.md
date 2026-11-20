@@ -32,14 +32,15 @@ needs our own server comes last, because it changes the site's promise that the 
       read, its name is heard; "Clear" puts the focus back in the box. Under "A script from cdn.jquery-libs.example",
       the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
       the focus stays on it. "Only the reports since" is a date field: picking a day says "N reports since…";
-      "Already allowed by your newest policy" opens and closes like "Set apart".
       And "A quicker way, less safe" (2026-11-20), under a style attribute in the reports example and under `eval` in
       the console example: it is heard after the safe way, says it is collapsed or expanded, and once open the warning
       is heard before the line to copy.
       And the "Set apart" sections at the end of the reports example (2026-11-20): one per cause (extensions,
       software on visitors' devices, translation), each heard as its own collapsed group with its title and counts.
-      And each problem's "Check first / Then / Less urgent" line (2026-11-20): heard right after "Blocked by…",
-      the level stressed, the reasons as one list that makes sense spoken.
+      And the problems as rows (2026-11-20): each row is heard as one control with what was blocked, its level and
+      its count ("A script from cdn.jquery-libs.example, Check first, 5 reports, collapsed"), says expanded once
+      opened, and its detail reads in order (the reasons it ranks there, the counts, the explanation, the warning
+      before the checkbox). The arrows on folds aren't read.
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).
@@ -253,8 +254,10 @@ Interface:
 - [x] **Read violation reports** (`/reports`, 2026-11-20): paste or open a batch of reports (`report-to` or
       `report-uri`, a JSON export, one per line, inside log lines or a collector's wrapper). Reports about the same
       address or code, under the same rule and policy, are one problem, with their pages (without query strings) and
-      browsers. Problems come riskiest first, not most reports first ("Check first", "Then", "Less urgent", with
-      why): an address no tool uses, a problem mostly on pages where visitors pay or sign in (by the words in their
+      browsers. Under a one-sentence summary ("2 to check first, 3 to look at next…"), each problem is a folded
+      row (what was blocked, its level, its count, an arrow), and the lines come after the problems, so the
+      warnings come before the copy buttons. Problems come riskiest first, not most reports first ("Check first",
+      "Then", "Less urgent", with why): an address no tool uses, a problem mostly on pages where visitors pay or sign in (by the words in their
       address, in five languages), code or data blocked for visitors before a look, new before gone. For each
       report-only policy, "Can you enforce it?": not yet (what it would block, how much the lines settle, what needs
       the code to change), too soon to say (less than a week of reports, or no dates), or ready, with how to switch;
@@ -272,7 +275,7 @@ Interface:
       (a record keeping a report twice, raw and parsed, counts once). Dated reports (a collector's field or column,
       or the date starting a log line) give each problem its first and last day and can be read from a day on; a
       policy every report of which came before the newest one's first is an older version: its reports are read
-      against the newest, and what that one allows is set apart as already fixed.
+      against the newest, and what that one allows is the list's last row, marked "Allowed since" the day that policy started coming (not "fixed": the reports can't say it is still the one the site sends).
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole

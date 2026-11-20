@@ -896,7 +896,13 @@
       "add": "Si vous l'acceptez, ajoutez cette règle à votre politique",
       "replaceReportOnly": "Si vous l'acceptez, dans votre politique en mode rapport seul, remplacez votre règle {directive} par",
       "addReportOnly": "Si vous l'acceptez, ajoutez cette règle à votre politique en mode rapport seul"
-    }
+    },
+    "hashFold": "Obtenir l'empreinte à partir du code",
+    "inLinesBelow": {
+      "one": "La ligne `{directive}` ci-dessous l'autorise.",
+      "other": "La ligne `{directive}` ci-dessous les autorise."
+    },
+    "blockedUntil": "Bloqué par `{directive}` jusqu'au {date}."
   },
   "reportsReader": {
     "inputLabel": "Vos rapports",
@@ -912,15 +918,14 @@
     "none": "Aucun rapport trouvé.",
     "noneLong": "Aucun rapport de violation CSP dans ce texte. Un rapport dit ce qui a été bloqué (un champ `blockedURL` ou `blocked-uri`, ou une colonne de ce nom dans un export CSV) et sous quelle règle : collez-les tels que votre collecteur les a enregistrés ou exportés.",
     "title": { "one": "Ce que dit le rapport", "other": "Ce que disent les {count} rapports" },
-    "lead": "Les rapports sur la même chose, sous la même règle, sont lus ensemble. Les problèmes les plus risqués viennent en premier, pas ceux qui ont le plus de rapports : une adresse qu'aucun outil connu n'utilise, une page où les visiteurs paient ou se connectent, du code bloqué pour vos visiteurs.",
+    "lead": "Les plus risqués d'abord, pas ceux qui ont le plus de rapports. Ouvrez-en un pour voir ce que c'est et quoi faire.",
     "noiseLead": {
       "one": "1 rapport ne vient pas de votre site : il est mis à part à la fin, avec la raison.",
       "other": "{count} rapports ne viennent pas de votre site : ils sont mis à part à la fin, par cause."
     },
-    "unknownLead": { "one": "1 adresse inconnue reste hors des lignes tant que vous ne l'avez pas vérifiée.", "other": "{count} adresses inconnues restent hors des lignes tant que vous ne les avez pas vérifiées." },
     "skipped": { "one": "1 ligne contenait autre chose qu'un rapport et a été laissée de côté.", "other": "{count} lignes contenaient autre chose qu'un rapport et ont été laissées de côté." },
     "linesFor": "Ce qu'il faut changer dans la politique {n}",
-    "linesIntro": "Chaque ligne remplace la règle du même nom dans la politique qui a envoyé les rapports. Ensemble, elles autorisent les problèmes ci-dessous qui y renvoient, et rien d'autre.",
+    "linesIntro": "Chaque ligne remplace la règle du même nom dans la politique qui a envoyé les rapports. Ensemble, elles autorisent les problèmes ci-dessus qui y renvoient, et rien d'autre.",
     "compare": "Voir la politique entière avec ces changements, dans le comparateur",
     "unknown": "Ce peut être un outil ajouté sans vous prévenir, ou du code glissé dans vos pages : un module ou un outil piraté, ou un logiciel malveillant chez un visiteur. Elle n'est donc pas dans les lignes. Avant de l'autoriser, trouvez ce qui la charge : cherchez `{host}` dans le code de votre site et dans votre gestionnaire de balises.",
     "trust": "Je sais ce que c'est : l'autoriser dans les lignes",
@@ -986,8 +991,6 @@
       "none": "Aucun rapport depuis ce jour.",
       "announce": { "one": "1 rapport depuis le {date}.", "other": "{count} rapports depuis le {date}." }
     },
-    "allowed": { "one": "Déjà autorisé par votre politique la plus récente : 1 problème ({reports} rapports)", "other": "Déjà autorisé par votre politique la plus récente : {count} problèmes ({reports} rapports)" },
-    "allowedIntro": "Une ancienne version de votre politique les bloquait, et la plus récente les autorise : le changement a marché. S'il en arrive encore, certaines pages ou certains navigateurs ont toujours l'ancienne politique.",
     "names": {
       "title": "Politiques Trusted Types refusées par votre règle",
       "text": "Du code a essayé de créer des politiques Trusted Types nommées {names}, que votre règle `trusted-types` ne liste pas. Si elles sont à vous ou à un outil de confiance, ajoutez leurs noms à cette règle ([comment fonctionnent les Trusted Types](/trusted-types))."
@@ -997,7 +1000,7 @@
       "intro": "Les rapports contiennent la politique entière envoyée avec la page. Plusieurs politiques : une appliquée et une en mode rapport seul, des pages qui ont la leur, ou une ancienne version encore dans certains navigateurs.",
       "enforced": { "one": "Politique {n}, appliquée : 1 rapport", "other": "Politique {n}, appliquée : {count} rapports" },
       "replaced": { "one": "Politique {n}, une ancienne version : 1 rapport, jusqu'au {date}", "other": "Politique {n}, une ancienne version : {count} rapports, jusqu'au {date}" },
-      "replacedIntro": "Les rapports d'une ancienne version sont lus avec la politique la plus récente : ce qu'elle autorise déjà est mis à part à la fin.",
+      "replacedIntro": "Les rapports d'une ancienne version sont lus avec la politique la plus récente de ces rapports : ce qu'elle autorise est marqué « Autorisé depuis » dans la liste.",
       "reportOnly": { "one": "Politique {n}, en mode rapport seul : 1 rapport", "other": "Politique {n}, en mode rapport seul : {count} rapports" },
       "guessed": { "one": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : 1 rapport", "other": "Politique {n}, appliquée ou en rapport seul (Safari ne l'a pas dit) : {count} rapports" },
       "missing": "Les rapports ne contenaient pas la politique."
@@ -1066,6 +1069,28 @@
         "other": "{count} jours"
       },
       "lessThanDay": "moins d'un jour"
-    }
+    },
+    "summary": "En bref, venant de votre site : {levels}.",
+    "levels": {
+      "high": {
+        "one": "1 à voir en premier",
+        "other": "{count} à voir en premier"
+      },
+      "medium": {
+        "one": "1 à voir ensuite",
+        "other": "{count} à voir ensuite"
+      },
+      "low": {
+        "one": "1 moins urgent",
+        "other": "{count} moins urgents"
+      },
+      "fixed": {
+        "one": "1 autorisé depuis un changement de politique",
+        "other": "{count} autorisés depuis un changement de politique"
+      }
+    },
+    "rowMeta": "{level}, {reports}",
+    "fixed": "Autorisé depuis le {date}",
+    "fixedIntro": "La politique que vos pages envoyaient à partir du {date} l'autorise, et aucun rapport à ce sujet n'est arrivé ensuite. Si c'est toujours la politique que votre site envoie, il n'y a rien à faire. S'il arrive encore des rapports, certaines pages ou certains navigateurs reçoivent toujours l'ancienne."
   }
 }

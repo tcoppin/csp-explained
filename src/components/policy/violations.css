@@ -28,6 +28,11 @@
 .violation.reported {
   border-left-color: var(--warn);
 }
+/* Inside a row that names it already (reports): no edge of its own */
+.violation.bare {
+  border-left: 0;
+  margin: 0;
+}
 .violation h3 {
   margin: 0 0 0.35rem;
 }
@@ -56,6 +61,29 @@
 @media (pointer: fine) {
   .violation-weaker > summary {
     min-height: 0;
+  }
+}
+/* An arrow: pointing right while closed, down once open */
+.violation-weaker > summary::-webkit-details-marker {
+  display: none;
+}
+.violation-weaker > summary::before {
+  content: '';
+  flex: none;
+  width: 0.4em;
+  height: 0.4em;
+  margin: 0 0.75em 0 0.1em;
+  border: solid currentColor;
+  border-width: 0 0.13em 0.13em 0;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.violation-weaker[open] > summary::before {
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .violation-weaker > summary::before {
+    transition: none;
   }
 }
 .violation-weaker > .violation-risk {

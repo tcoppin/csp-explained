@@ -68,7 +68,8 @@ export function Lines({ lines, title, intro, children }: { lines: PolicyLine[]; 
  * One problem: what was blocked, by which rule, what it means and the fix. `children` go under the status line (the
  * reports reader says there how many reports, pages and browsers); `after` goes after the explanation. `unknown`:
  * an address outside the site that no tool uses (reports only). `setApart`: not the site's doing (reports only): its
- * section says why, so only what was blocked and the counts are shown.
+ * section says why, so only what was blocked and the counts are shown. `bare`: inside a row that already names it
+ * (reports only): no list item and no heading of its own.
  */
 export function ViolationItem({
   e,
@@ -78,6 +79,8 @@ export function ViolationItem({
   after,
   unknown = false,
   setApart = false,
+  bare = false,
+  until,
 }: {
   e: ExplainedViolation;
   index: number;
@@ -86,30 +89,28 @@ export function ViolationItem({
   after?: ComponentChildren;
   unknown?: boolean;
   setApart?: boolean;
+  bare?: boolean;
+  /** Blocked until then only (reports: a newer policy allows it): the day, as people read it. */
+  until?: string;
 }) {
   const t = useT();
   const v = e.violation;
-  const heading =
-    e.case === 'extension' || e.case === 'ancestors'
-      ? e.case
-      : e.case === 'trusted-types'
-        ? `trusted.${v.trustedType ?? 'unknown'}`
-        : v.kind === 'url'
-          ? v.type
-          : v.kind;
   const directive = v.directive ?? v.effective ?? '';
   // Repeats of one message; a group of inline blocks counts its blocks in the heading instead.
   const repeats = e.count === 1 ? v.count : 0;
 
+  const Tag = bare ? 'div' : 'li';
   return (
     // The rule's colour says what happened, and the status line says it in words.
-    <li class={`violation ${setApart || e.case === 'extension' || e.case === 'ancestors' ? 'elsewhere' : v.reportOnly ? 'reported' : 'blocked'}`}>
-      <h3>
-        <Rich msg={`violations.what.${heading}`} vars={{ host: e.host ?? '', count: e.count }} />
-      </h3>
+    <Tag class={`violation ${bare ? 'bare ' : ''}${setApart || e.case === 'extension' || e.case === 'ancestors' ? 'elsewhere' : v.reportOnly ? 'reported' : 'blocked'}`}>
+      {!bare && (
+        <h3>
+          <ViolationWhat e={e} />
+        </h3>
+      )}
       {directive && e.case !== 'extension' && e.case !== 'ancestors' && (
         <p class="violation-status">
-          <Rich msg={v.reportOnly ? 'violations.reported' : 'violations.blocked'} vars={{ directive }} />
+          <Rich msg={until ? 'violations.blockedUntil' : v.reportOnly ? 'violations.reported' : 'violations.blocked'} vars={{ directive, date: until ?? '' }} />
           {/* Said once: the note under a created rule says it already. */}
           {v.directive === 'default-src' && v.effective && !e.fix?.inLines && (
             <>
@@ -128,11 +129,25 @@ export function ViolationItem({
           <Rich msg="violations.reportOnlyFix" />
         </p>
       )}
-      {e.case === 'inline' && !e.fix && !setApart && <HashOffer id={`violation-${index}`} e={e} />}
+      {e.case === 'inline' && !e.fix && !setApart && <HashOffer id={`violation-${index}`} e={e} folded={source === 'reports'} />}
       {/* After the safe way, hash generator included. */}
       <Weaker e={e} />
-    </li>
+    </Tag>
   );
+}
+
+/** What was blocked, in a few words ("A script from static.hotjar.com"): an item's heading, or a row's name. */
+export function ViolationWhat({ e }: { e: ExplainedViolation }) {
+  const v = e.violation;
+  const heading =
+    e.case === 'extension' || e.case === 'ancestors'
+      ? e.case
+      : e.case === 'trusted-types'
+        ? `trusted.${v.trustedType ?? 'unknown'}`
+        : v.kind === 'url'
+          ? v.type
+          : v.kind;
+  return <Rich msg={`violations.what.${heading}`} vars={{ host: e.host ?? '', count: e.count }} />;
 }
 
 /** What the message means for this case, and where the fix is. */
@@ -164,7 +179,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
       return (
         <>
           <p><Rich msg={e.fix ? 'violations.hash' : source === 'reports' ? 'violations.noHashReport' : 'violations.noHash'} /></p>
-          {e.fix && <Fix e={e} />}
+          {e.fix && <Fix e={e} source={source} />}
         </>
       );
     case 'eval':
@@ -178,7 +193,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
       return (
         <>
           {e.tools.length > 0 ? <Tools uses={e.tools} /> : <p>{t(unknown ? 'violations.noToolReport' : 'violations.noTool')}</p>}
-          <Fix e={e} />
+          <Fix e={e} source={source} />
           {e.weaker && <p><Rich msg="violations.schemeBest" /></p>}
         </>
       );
@@ -206,13 +221,14 @@ function Tools({ uses }: { uses: ToolUse[] }) {
 }
 
 /** Which line above allows it; when the browser didn't quote the rule (Safari), what to add and where. */
-function Fix({ e }: { e: ExplainedViolation }) {
+function Fix({ e, source }: { e: ExplainedViolation; source: ViolationSource }) {
   const fix = e.fix;
   if (!fix) return null;
   return (
     <p>
       {fix.inLines ? (
-        <Rich msg="violations.inLines" vars={{ directive: fix.directive, count: e.count }} />
+        // The reports reader shows the lines after the problems.
+        <Rich msg={source === 'reports' ? 'violations.inLinesBelow' : 'violations.inLines'} vars={{ directive: fix.directive, count: e.count }} />
       ) : (
         <Rich msg={fix.created ? 'violations.fixAddCreated' : 'violations.fixAdd'} vars={{ add: fix.add.join(' '), directive: fix.directive }} />
       )}
@@ -255,17 +271,28 @@ function Weaker({ e }: { e: ExplainedViolation }) {
 
 const captionOf = (w: WeakerFix) => (w.created ? 'add' : 'replace');
 
-/** Safari gives no hash for blocked inline code: the generator makes one from the code itself. */
-function HashOffer({ id, e }: { id: string; e: ExplainedViolation }) {
+/**
+ * Safari gives no hash for blocked inline code, nor do reports: the generator makes one from the code itself. Folded
+ * under the reports, where most problems don't need it.
+ */
+function HashOffer({ id, e, folded }: { id: string; e: ExplainedViolation; folded: boolean }) {
   const t = useT();
   const [hashes, setHashes] = useState<InlineHash[]>([]);
   const kind = e.violation.kind === 'inline-style' ? 'style' : 'script';
   const directive = e.violation.directive && e.violation.directive !== 'default-src' ? e.violation.directive : `${kind}-src`;
-  return (
+  const tool = (
     <>
       <HashTool id={id} kind={kind} hashes={hashes} onChange={setHashes} />
       {hashes.length > 0 && <CodeBox caption={t('violations.hashCaption', { directive })} copyText={hashes.map((h) => h.source).join(' ')} />}
     </>
+  );
+  return folded ? (
+    <details class="violation-weaker violation-hash">
+      <summary>{t('violations.hashFold')}</summary>
+      {tool}
+    </details>
+  ) : (
+    tool
   );
 }
 

@@ -1,4 +1,4 @@
-/* The reports reader: the box (or the opened file), then the problems, most reports first */
+/* The reports reader: the box (or the opened file), then the problems as rows, riskiest first, then the lines */
 .report-input {
   border-radius: var(--radius);
 }
@@ -32,7 +32,53 @@
   margin: 0 0 0.35rem;
 }
 .report-results .report-list-title {
-  margin: 2.5rem 0 1.25rem;
+  margin: 2.5rem 0 0.25rem;
+}
+.report-list-title + .muted {
+  margin: 0 0 1rem;
+}
+
+/* One row per problem: what it is, how urgent and how many reports; it opens to the detail. The edge says blocked
+   or only reported, as the problem's own rule did; the level is said in words. */
+.report-rows {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+.report-row {
+  border-bottom: 1px solid var(--rule);
+  border-left: 4px solid var(--rule);
+}
+.report-row.blocked {
+  border-left-color: var(--bad);
+}
+.report-row.reported {
+  border-left-color: var(--warn);
+}
+/* Already allowed by the newest policy: the change worked */
+.report-row.fixed {
+  border-left-color: var(--ok);
+}
+.report-results .report-row > details > summary {
+  padding: 0.6rem 0.75rem;
+  color: var(--ink-soft);
+}
+/* Name and level side by side, the level under the name when there's no room: both right of the arrow */
+.report-row-text {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.15rem 1rem;
+}
+.report-row-what {
+  flex: 1 1 14rem;
+  font-weight: 700;
+  color: var(--action);
+}
+.report-row > details > .violation {
+  padding: 0 0.75rem 1rem 2rem;
 }
 .report-policies,
 .report-names {
@@ -81,20 +127,40 @@
     min-height: 0;
   }
 }
+/* Every fold has an arrow: pointing right while closed, down once open */
+.report-results summary::-webkit-details-marker {
+  display: none;
+}
+.report-results summary::before {
+  content: '';
+  flex: none;
+  width: 0.4em;
+  height: 0.4em;
+  margin: 0 0.75em 0 0.1em;
+  border: solid currentColor;
+  border-width: 0 0.13em 0.13em 0;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+.report-results details[open] > summary::before {
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .report-results summary::before {
+    transition: none;
+  }
+}
 
-/* Set apart: what extensions caused, folded at the end */
-.report-noise,
-.report-allowed {
+/* Set apart: what the site didn't cause, folded at the end */
+.report-noise {
   margin-top: 2rem;
   border-top: 2px solid var(--rule);
   padding-top: 1rem;
 }
-.report-noise > summary,
-.report-allowed > summary {
+.report-noise > summary {
   font-weight: 700;
 }
-.report-noise > p,
-.report-allowed > p {
+.report-noise > p {
   margin-top: 0.75rem;
 }
 /* "I know what this is", under an unknown address */

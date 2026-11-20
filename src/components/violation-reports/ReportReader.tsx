@@ -5,7 +5,7 @@ import { readReports } from '../../lib/csp/violation-report';
 import { explainReports, NOISE_KINDS, type ExplainedReports, type Readiness, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
 import { track } from '../../scripts/track';
 import { encodeCompareState } from '../policy/compare-state';
-import { Lines, ViolationItem } from '../policy/ViolationList';
+import { Lines, ViolationItem, ViolationWhat } from '../policy/ViolationList';
 import { I18n, useT } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
 import { EXAMPLE_REPORTS } from './example';
@@ -223,21 +223,68 @@ interface ResultsProps {
   onSince: (day: string) => void;
 }
 
+const LEVELS = ['high', 'medium', 'low'] as const;
+
+/**
+ * What the reports come to: a sentence of counts and the verdict on enforcing; then the problems, one row each,
+ * riskiest first, opening to their detail (the warnings come before the lines), and last what an older policy blocked
+ * that the newest one in the reports allows, since the day it started coming (the reports can't say it is still the
+ * one the site sends); then the lines that allow them; and what the site didn't cause, folded at
+ * the end.
+ */
 function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
   const t = useT();
   // Older versions get no lines of their own: their reports were read against the newest.
   const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
   const noiseReports = r.noise.reduce((n, g) => n + g.reports, 0);
-  const allowedReports = r.allowed.reduce((n, g) => n + g.reports, 0);
   const stats = (g: ReportGroup) => <Stats g={g} policies={several ? r.policies.length : 0} />;
-  const unknown = r.groups.filter((g) => g.unknown && !trusted.has(g.key)).length;
+  const list = (items: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(items);
+  const levels = [
+    ...LEVELS.map((level) => [level, r.groups.filter((g) => g.risk?.level === level).length] as const),
+    ['fixed', r.allowed.length] as const,
+  ].filter(([, n]) => n > 0);
+  // When the newest policy started coming: what the reports show, not what the site sends today.
+  const changedOn = (g: ReportGroup) => {
+    const from = r.policies[g.policy]?.first;
+    return from === undefined ? '' : dayName(t.locale, from);
+  };
+  const row = (g: ReportGroup, i: number, fixed: boolean) => (
+    <li key={g.key} class={`report-row ${fixed ? 'fixed' : g.explained.violation.reportOnly ? 'reported' : 'blocked'}`}>
+      <details>
+        <summary>
+          <span class="report-row-text">
+            <span class="report-row-what">
+              <ViolationWhat e={g.explained} />
+            </span>{' '}
+            <span class="report-row-meta">
+              {t('reportsReader.rowMeta', {
+                level: fixed ? t('reportsReader.fixed', { date: changedOn(g) }) : t(`reportsReader.risk.level.${g.risk?.level ?? 'low'}`),
+                reports: t('reportsReader.stats.reports', { count: g.reports }),
+              })}
+            </span>
+          </span>
+        </summary>
+        <ViolationItem
+          bare
+          {...(fixed ? { until: changedOn(g) } : {})}
+          e={g.explained}
+          index={i}
+          source="reports"
+          unknown={g.unknown}
+          after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
+        >
+          {fixed ? <p class="report-risk">{t('reportsReader.fixedIntro', { date: changedOn(g) })}</p> : <RiskLine g={g} />}
+          {stats(g)}
+        </ViolationItem>
+      </details>
+    </li>
+  );
   return (
     <section class="report-results" aria-labelledby="report-results-title">
       <h2 id="report-results-title">{t('reportsReader.title', { count: r.total })}</h2>
       <p>
-        {t('reportsReader.lead')}
+        {levels.length > 0 && t('reportsReader.summary', { levels: list(levels.map(([level, count]) => t(`reportsReader.levels.${level}`, { count }))) })}
         {r.noise.length > 0 && <> {t('reportsReader.noiseLead', { count: noiseReports })}</>}
-        {unknown > 0 && <> {t('reportsReader.unknownLead', { count: unknown })}</>}
         {r.skipped > 0 && <> {t('reportsReader.skipped', { count: r.skipped })}</>}
       </p>
       {r.period && <Period r={r} since={since} onSince={onSince} />}
@@ -247,7 +294,17 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
         <Enforce key={ready.policy} ready={ready} n={r.policies.length > 1 ? ready.policy + 1 : undefined} />
       ))}
 
-      {r.policies.length > 1 && <PolicyList policies={r.policies} />}
+      {r.groups.length + r.allowed.length > 0 && (
+        <>
+          <h3 class="report-list-title">{t('reportsReader.problems', { count: r.groups.length + r.allowed.length })}</h3>
+          <p class="muted">{t('reportsReader.lead')}</p>
+          {/* Last, what the newest policy already allows: in the list, marked fixed. */}
+          <ol class="report-rows">
+            {r.groups.map((g, i) => row(g, i, false))}
+            {r.allowed.map((g, i) => row(g, r.groups.length + i, true))}
+          </ol>
+        </>
+      )}
 
       {r.policies.map((p, i) => {
         if (p.replacedBy !== undefined) return null;
@@ -274,40 +331,7 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
         </div>
       )}
 
-      {r.groups.length > 0 && (
-        <>
-          <h3 class="report-list-title">{t('reportsReader.problems', { count: r.groups.length })}</h3>
-          <ol class="violation-list">
-            {r.groups.map((g, i) => (
-              <ViolationItem
-                key={i}
-                e={g.explained}
-                index={i}
-                source="reports"
-                unknown={g.unknown}
-                after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
-              >
-                <RiskLine g={g} />
-                {stats(g)}
-              </ViolationItem>
-            ))}
-          </ol>
-        </>
-      )}
-
-      {r.allowed.length > 0 && (
-        <details class="report-allowed">
-          <summary>{t('reportsReader.allowed', { count: r.allowed.length, reports: allowedReports })}</summary>
-          <p>{t('reportsReader.allowedIntro')}</p>
-          <ol class="violation-list">
-            {r.allowed.map((g, i) => (
-              <ViolationItem key={i} e={g.explained} index={r.groups.length + i} source="reports">
-                {stats(g)}
-              </ViolationItem>
-            ))}
-          </ol>
-        </details>
-      )}
+      {r.policies.length > 1 && <PolicyList policies={r.policies} />}
 
       {/* What isn't the site's doing, folded at the end: one section per cause, each saying why. */}
       {NOISE_KINDS.map((kind) => {
@@ -385,8 +409,8 @@ function Enforce({ ready, n }: { ready: Readiness; n: number | undefined }) {
 function PolicyList({ policies }: { policies: ReportPolicy[] }) {
   const t = useT();
   return (
-    <div class="report-policies">
-      <h3>{t('reportsReader.policies.title', { count: policies.length })}</h3>
+    <details class="report-policies">
+      <summary>{t('reportsReader.policies.title', { count: policies.length })}</summary>
       <p>
         {t('reportsReader.policies.intro')}
         {policies.some((p) => p.replacedBy !== undefined) && <> {t('reportsReader.policies.replacedIntro')}</>}
@@ -407,7 +431,7 @@ function PolicyList({ policies }: { policies: ReportPolicy[] }) {
           </li>
         ))}
       </ol>
-    </div>
+    </details>
   );
 }
 
@@ -477,21 +501,26 @@ function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; on
   );
 }
 
-/** How urgent a problem is, and why, in words: "Check first: an address no known tool uses, on `/checkout`…". */
+/**
+ * Why a problem is ranked where it is, when something sets it apart: an unknown address, a checkout or sign-in page,
+ * new or gone. Its level is in its row; "blocked" and "a script" are in its status and name already.
+ */
+const TELLING = new Set(['unknown', 'sensitive', 'new', 'stopped']);
 function RiskLine({ g }: { g: ReportGroup }) {
   const t = useT();
-  if (!g.risk) return null;
-  const level = t(`reportsReader.risk.level.${g.risk.level}`);
-  const reasons = g.risk.reasons.map((r) =>
-    r.kind === 'sensitive'
-      ? t('reportsReader.risk.sensitive', { page: r.page })
-      : r.kind === 'new' || r.kind === 'stopped'
-        ? t(`reportsReader.risk.${r.kind}`, { date: dayName(t.locale, r.since) })
-        : t(`reportsReader.risk.${r.kind}`),
-  );
+  const reasons = (g.risk?.reasons ?? [])
+    .filter((r) => TELLING.has(r.kind))
+    .map((r) =>
+      r.kind === 'sensitive'
+        ? t('reportsReader.risk.sensitive', { page: r.page })
+        : r.kind === 'new' || r.kind === 'stopped'
+          ? t(`reportsReader.risk.${r.kind}`, { date: dayName(t.locale, r.since) })
+          : t(`reportsReader.risk.${r.kind}`),
+    );
+  if (reasons.length === 0) return null;
   return (
-    <p class={`report-risk ${g.risk.level}`}>
-      <Rich msg="reportsReader.risk.line" vars={{ level, reasons: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons) }} />
+    <p class="report-risk">
+      <Rich msg="reportsReader.risk.line" vars={{ level: t(`reportsReader.risk.level.${g.risk!.level}`), reasons: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons) }} />
     </p>
   );
 }
