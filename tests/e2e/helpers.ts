@@ -232,3 +232,19 @@ export async function announced(page: Page, action: () => Promise<void>): Promis
 
 /** Hidden notes start with a comma; the virtual reader puts a space before it, which no one hears. */
 const spoken = (phrase: string) => phrase.replace(/\s+,/g, ',');
+
+/** Replaces the browser's print window: records what would be printed, then closes it unless `keepOpen`. */
+export async function stubPrint(page: Page, keepOpen = false) {
+  await page.evaluate((keep) => {
+    window.print = () => {
+      const w = window as unknown as { printed: object };
+      w.printed = {
+        text: document.querySelector<HTMLElement>('.print-host')?.innerText ?? '',
+        title: document.title,
+        printing: document.documentElement.classList.contains('printing'),
+      };
+      if (!keep) dispatchEvent(new Event('afterprint'));
+    };
+  }, keepOpen);
+}
+export const printed = (page: Page) => page.evaluate(() => (window as unknown as { printed?: { text: string; title: string; printing: boolean } }).printed);

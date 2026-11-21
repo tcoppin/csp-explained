@@ -1,4 +1,4 @@
-import { render, type VNode } from 'preact';
+import type { VNode } from 'preact';
 import { SITE_URL } from '../../config';
 import { localePath, type Locale, type Translate } from '../../i18n';
 import { patchedPolicies, type Analysis } from '../../lib/analysis';
@@ -6,11 +6,14 @@ import type { DirectiveDoc } from '../../lib/content';
 import type { Audience } from '../../lib/csp/model';
 import type { SecurityFinding } from '../../lib/csp/security';
 import { deploySnippet, headerName, headersBesideMeta, metaBesideHeaders, policyDiff, reportOnlyNote, type Target } from '../../lib/reports/developer';
-import { escapeHtml, type ExportOptions } from '../../lib/reports/export';
+import type { ExportOptions } from '../../lib/reports/export';
 import { findingText, summaryLine, toolNote } from '../../lib/reports/security';
-// Applied to the page for printing, and written into the .html file as text.
+import { documentFile, printDocument } from '../ui/document';
+// Applied to the page for printing, and written into the .html file as text (the paper itself: ui/document.css).
 import './report-document.css';
 import css from './report-document.css?raw';
+
+export { printDocument };
 
 export interface ReportDocumentProps {
   t: Translate;
@@ -235,50 +238,5 @@ export function ReportDocument(props: ReportDocumentProps) {
   );
 }
 
-/**
- * Prints a document instead of the page: it's rendered at the end of the body, alone on paper (report-document.css),
- * and removed once the print window closes. The page title becomes the PDF's suggested file name meanwhile.
- */
-export function printDocument(doc: VNode, title: string) {
-  document.querySelector('.print-host')?.remove();
-  const host = document.createElement('div');
-  host.className = 'print-host';
-  document.body.append(host);
-  render(doc, host);
-  const root = document.documentElement;
-  const pageTitle = document.title;
-  root.classList.add('printing');
-  document.title = title;
-  const done = () => {
-    removeEventListener('afterprint', done);
-    root.classList.remove('printing');
-    document.title = pageTitle;
-    render(null, host);
-    host.remove();
-  };
-  addEventListener('afterprint', done);
-  print();
-}
-
-/** The same document as a standalone .html file, its styles inside, that opens in any browser. */
-export function documentFile(doc: VNode, title: string, lang: string): string {
-  const host = document.createElement('div');
-  render(doc, host);
-  const body = host.innerHTML;
-  render(null, host);
-  return [
-    '<!doctype html>',
-    `<html lang="${escapeHtml(lang)}">`,
-    '<head>',
-    '<meta charset="utf-8">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escapeHtml(title)}</title>`,
-    `<style>\n${css}</style>`,
-    '</head>',
-    '<body>',
-    body,
-    '</body>',
-    '</html>',
-    '',
-  ].join('\n');
-}
+/** The report as a standalone .html file, its styles inside. */
+export const reportFile = (doc: VNode, title: string, lang: string) => documentFile(doc, title, lang, css);

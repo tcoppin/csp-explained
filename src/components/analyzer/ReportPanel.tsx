@@ -17,7 +17,8 @@ import { Rich } from '../ui/Rich';
 import { Segmented } from '../ui/Segmented';
 import { useT } from '../ui/i18n';
 import { useCopy } from '../ui/useCopy';
-import { documentFile, documentTitle, printDocument, ReportDocument } from './ReportDocument';
+import { downloadFile } from '../ui/document';
+import { documentTitle, printDocument, reportFile, ReportDocument } from './ReportDocument';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 
@@ -33,14 +34,7 @@ function CopyButton({ text, label, onCopy }: { text: string; label?: string; onC
 
 const TYPES: Record<Exclude<ExportFormat, 'pdf'>, string> = { md: 'text/markdown', txt: 'text/plain', html: 'text/html' };
 
-function download(name: string, text: string, format: Exclude<ExportFormat, 'pdf'>) {
-  const url = URL.createObjectURL(new Blob([text], { type: `${TYPES[format]};charset=utf-8` }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+const download = (name: string, text: string, format: Exclude<ExportFormat, 'pdf'>) => downloadFile(name, text, TYPES[format]);
 
 /**
  * Saving the report: printed or saved as PDF, or downloaded as a file. The choices of what to include apply to the PDF
@@ -88,7 +82,7 @@ function SaveCopy({ audience, site, options, setOptions, doc, text }: SaveProps)
           class="button quiet"
           onClick={() => {
             saved('html');
-            download(exportFileName(audience, 'html'), documentFile(doc(options), title, t.locale), 'html');
+            download(exportFileName(audience, 'html'), reportFile(doc(options), title, t.locale), 'html');
           }}
         >
           {t('report.export.html')}

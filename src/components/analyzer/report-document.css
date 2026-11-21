@@ -1,110 +1,5 @@
-/*
- * A report as a document: printed (or saved as PDF) from the page, and written into the .html file as is.
- * Paper is always white: the document carries the light tokens of global.css, whatever the page's theme, and
- * names its own fonts so the .html file works without the site's stylesheet.
- */
-.report-doc {
-  color-scheme: light;
-  --doc-paper: #ffffff;
-  --doc-ink: #2a1d2e;
-  --doc-ink-soft: #625568;
-  --doc-rule: #e4dce6;
-  --doc-action: #b0175f;
-  --doc-highlight: #ffe66d;
-  --doc-ok: #1e7a3c;
-  --doc-bad: #c2361f;
-  --doc-warn: #8a5800;
-
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: 2.5rem 1rem;
-  background: var(--doc-paper);
-  color: var(--doc-ink);
-  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-size: 11pt;
-  line-height: 1.5;
-}
-/* The .html file on its own: the paper fills the window. */
-body:has(> .report-doc) {
-  margin: 0;
-  background: #ffffff;
-}
-.report-doc a {
-  color: var(--doc-action);
-}
-.report-doc h1,
-.report-doc h2 {
-  line-height: 1.2;
-  break-after: avoid;
-}
-/* The site's one bold element, on paper too: the title is highlighted. */
-.report-doc h1 {
-  display: inline;
-  margin: 0;
-  font-size: 22pt;
-  font-weight: 800;
-  background: linear-gradient(transparent 58%, var(--doc-highlight) 58%, var(--doc-highlight) 92%, transparent 92%);
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
-}
-.report-doc h2 {
-  margin: 1.75rem 0 0.5rem;
-  font-size: 13pt;
-}
-.report-doc code,
-.report-doc pre {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
-  font-size: 9.5pt;
-}
-/* The box is the figure around it: the site's own pre box is undone. */
-.report-doc pre {
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-  background: none;
-  overflow: visible;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.report-doc header {
-  border-bottom: 2px solid var(--doc-ink);
-  padding-bottom: 1rem;
-}
-.doc-brand {
-  margin: 0 0 0.75rem;
-  font-weight: 700;
-}
-.doc-brand a {
-  color: var(--doc-ink-soft);
-  text-decoration: none;
-}
-.doc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 2rem;
-  margin: 1.25rem 0 0;
-}
-.doc-meta dt {
-  color: var(--doc-ink-soft);
-  font-size: 9pt;
-}
-.doc-meta dd {
-  margin: 0;
-  font-weight: 700;
-}
-.doc-code {
-  margin: 0.5rem 0 1rem;
-  border: 1px solid var(--doc-rule);
-  border-radius: 6px;
-  padding: 0.6rem 0.75rem;
-  break-inside: avoid;
-}
-.doc-code figcaption {
-  margin-bottom: 0.35rem;
-  color: var(--doc-ink-soft);
-  font-size: 9pt;
-}
+/* The analyzer's reports on paper: findings, the diff, the IT message, the rules explained (the paper itself is in
+   ui/document.css) */
 /* Added and removed lines keep their + and -: the colour only repeats it. */
 .doc-diff .add {
   color: var(--doc-ok);
@@ -115,13 +10,6 @@ body:has(> .report-doc) {
 .doc-message p {
   white-space: pre-wrap;
   margin: 0 0 0.9em;
-}
-.doc-lead {
-  font-size: 13pt;
-  font-weight: 700;
-}
-.doc-note {
-  color: var(--doc-ink-soft);
 }
 .doc-findings {
   padding: 0;
@@ -145,9 +33,6 @@ body:has(> .report-doc) {
 .doc-findings .level-medium .doc-level {
   color: var(--doc-warn);
 }
-.doc-tag {
-  color: var(--doc-ink-soft);
-}
 .doc-rules > div {
   margin-bottom: 0.75rem;
   break-inside: avoid;
@@ -157,37 +42,4 @@ body:has(> .report-doc) {
 }
 .doc-rules dd {
   margin: 0;
-}
-.report-doc footer {
-  margin-top: 2rem;
-  border-top: 1px solid var(--doc-rule);
-  padding-top: 0.75rem;
-  color: var(--doc-ink-soft);
-  font-size: 9pt;
-}
-
-/* On the site, the document only exists while printing, and is all that's printed. */
-@media screen {
-  .print-host {
-    display: none;
-  }
-}
-@media print {
-  @page {
-    margin: 16mm 15mm;
-  }
-  html.printing {
-    color-scheme: light;
-  }
-  html.printing body {
-    background: none;
-  }
-  html.printing body > :not(.print-host) {
-    display: none !important;
-  }
-  /* The link to the analysis stays clickable in the PDF; its address (the whole policy, encoded) isn't printed. */
-  .report-doc {
-    max-width: none;
-    padding: 0;
-  }
 }

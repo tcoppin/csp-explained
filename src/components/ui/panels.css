@@ -117,3 +117,33 @@ textarea.code:focus {
 .panel-head p {
   margin: 0;
 }
+/* "Save a copy": a quiet block of formats and what to include, separated by a rule (analyzer, reports reader) */
+.save-copy {
+  margin: 2rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  padding: 1.25rem 0 0;
+}
+.save-copy legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-weight: 700;
+}
+.save-options {
+  clear: left;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+.save-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+@media (pointer: coarse) {
+  .save-options label {
+    min-height: 2.75rem;
+  }
+}

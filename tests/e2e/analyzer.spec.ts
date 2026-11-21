@@ -1,7 +1,7 @@
 /** The analyzer (home page): reading a policy, its views, tools, reports, links and history. */
 import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, CONSOLE, POLICY, HELLO, HELLO_HASH } from './helpers';
+import { test, expect, watchErrors, openAnalyzer, pickTool, policyAction, readAloud, announced, paste, stubPrint, printed, CONSOLE, POLICY, HELLO, HELLO_HASH } from './helpers';
 
 test('explains a policy, checks a tool and writes the IT request', async ({ page }) => {
   const errors = watchErrors(page);
@@ -683,22 +683,6 @@ test('a history kept before it became opt-in carries on, unless it was turned of
   // The button is in the server-rendered page; the old key goes once the island's effects have run.
   await expect.poll(() => page.evaluate(() => Object.keys(localStorage))).toEqual([]);
 });
-
-/** Replaces the browser's print window: records what would be printed, then closes it unless `keepOpen`. */
-async function stubPrint(page: Page, keepOpen = false) {
-  await page.evaluate((keep) => {
-    window.print = () => {
-      const w = window as unknown as { printed: object };
-      w.printed = {
-        text: document.querySelector<HTMLElement>('.print-host')?.innerText ?? '',
-        title: document.title,
-        printing: document.documentElement.classList.contains('printing'),
-      };
-      if (!keep) dispatchEvent(new Event('afterprint'));
-    };
-  }, keepOpen);
-}
-const printed = (page: Page) => page.evaluate(() => (window as unknown as { printed?: { text: string; title: string; printing: boolean } }).printed);
 
 test('a report prints alone, with what the visitor chose to include, and the page comes back after', async ({ page, sent }) => {
   const errors = watchErrors(page);

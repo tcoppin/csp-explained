@@ -285,36 +285,6 @@ textarea.message {
   line-height: 1.55;
   white-space: pre-wrap;
 }
-/* Saving the report: a quiet block under the copy button, separated by a rule */
-.save-copy {
-  margin: 2rem 0 0;
-  border: 0;
-  border-top: 1px solid var(--rule);
-  padding: 1.25rem 0 0;
-}
-.save-copy legend {
-  float: left;
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0;
-  font-weight: 700;
-}
-.save-options {
-  clear: left;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.5rem;
-}
-.save-options label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-@media (pointer: coarse) {
-  .save-options label {
-    min-height: 2.75rem;
-  }
-}
 .diff .add {
   color: var(--ok);
 }
