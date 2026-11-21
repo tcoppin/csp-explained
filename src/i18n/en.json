@@ -1015,7 +1015,11 @@
       "look": "it only changes how the page looks",
       "new": "new since {date}",
       "stopped": "not seen since {date}, maybe already fixed",
-      "why": "Why it ranks here: {reasons}."
+      "why": "Why it ranks here: {reasons}.",
+      "unknownWide": {
+        "one": "an address no known tool uses, but on 1 page since the reports start",
+        "other": "an address no known tool uses, but on {count} pages since the reports start: more likely a tool someone added than code slipped in"
+      }
     },
     "enforce": {
       "title": "Can you enforce it?",
@@ -1115,8 +1119,17 @@
         "footer": "Read in the browser with {site}: the reports never left it.",
         "link": "Read your own reports",
         "readValue": "{source}, {reports}",
-        "pages": "Pages: {pages}."
+        "pages": "Pages: {pages}.",
+        "own": {
+          "one": "1 domain counted as the site's own: {sites}.",
+          "other": "{count} domains counted as the site's own: {sites}."
+        }
       }
+    },
+    "ownLabel": "{site} is one of my domains",
+    "own": {
+      "added": "{site} counted as one of your domains: its addresses are in the lines.",
+      "removed": "{site} no longer counted as one of your domains."
     }
   }
 }

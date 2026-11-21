@@ -207,6 +207,48 @@ describe('explainReports', () => {
     expect(trusted.groups.find((g) => g.key === evil.key)!.risk!.reasons.map((r) => r.kind)).toEqual(['sensitive', 'enforced', 'code', 'new']);
   });
 
+  it('ranks an unknown address on most pages since the start below one that is new, narrow or on the checkout', () => {
+    const at = (path: string, url: string, day: number) =>
+      JSON.stringify({ timestamp: Date.UTC(2026, 10, day), ...JSON.parse(report({ documentURL: `https://shop.example.com${path}`, blockedURL: url, effectiveDirective: 'script-src-elem' })) });
+    const pages = ['/', '/a', '/b', '/c', '/d', '/checkout'];
+    const input = [
+      // Everywhere since the first day: a tool someone added, most likely.
+      ...pages.flatMap((p) => [at(p, 'https://cdn.forgotten-tool.example/t.js', 1), at(p, 'https://cdn.forgotten-tool.example/t.js', 20)]),
+      // Everywhere, but only from the 15th: new.
+      ...pages.flatMap((p) => [at(p, 'https://cdn.new-thing.example/n.js', 15), at(p, 'https://cdn.new-thing.example/n.js', 20)]),
+      // From the start, on two pages only.
+      at('/a', 'https://cdn.narrow.example/x.js', 1),
+      at('/b', 'https://cdn.narrow.example/x.js', 20),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    const kinds = (host: string) => e.groups.find((g) => g.explained.host === host)!.risk!;
+    expect(kinds('cdn.forgotten-tool.example')).toMatchObject({ level: 'medium', reasons: [{ kind: 'unknownWide', pages: 6 }, { kind: 'enforced' }, { kind: 'code' }] });
+    expect(kinds('cdn.new-thing.example').level).toBe('high');
+    expect(kinds('cdn.new-thing.example').reasons.map((r) => r.kind)).toContain('unknown');
+    expect(kinds('cdn.narrow.example').level).toBe('high');
+    // Still unknown: out of the lines either way.
+    expect(e.groups.every((g) => g.unknown && !g.explained.fix)).toBe(true);
+    expect(e.lines).toEqual([]);
+  });
+
+  it("counts a domain the visitor says is theirs as the site's: every address on it out of the unknown, into the lines", () => {
+    const input = [
+      report({ blockedURL: 'https://img.shop-cdn.example/a.js', effectiveDirective: 'script-src-elem' }),
+      report({ blockedURL: 'https://static.shop-cdn.example/b.js', effectiveDirective: 'script-src-elem' }),
+      report({ blockedURL: 'https://cdn.other.example/c.js', effectiveDirective: 'script-src-elem' }),
+    ].join('\n');
+    const before = explainReports(input, vendors);
+    expect(before.groups.map((g) => [g.explained.host, g.site, g.unknown])).toEqual([
+      ['img.shop-cdn.example', 'shop-cdn.example', true],
+      ['static.shop-cdn.example', 'shop-cdn.example', true],
+      ['cdn.other.example', 'other.example', true],
+    ]);
+    const after = explainReports(input, vendors, { own: new Set(['shop-cdn.example']) });
+    expect(after.groups.filter((g) => g.own).map((g) => g.explained.host).sort()).toEqual(['img.shop-cdn.example', 'static.shop-cdn.example']);
+    expect(after.groups.find((g) => g.explained.host === 'cdn.other.example')!.unknown).toBe(true);
+    expect(after.lines.map((l) => l.line)).toEqual(["script-src 'self' 'nonce-abc' https://img.shop-cdn.example https://static.shop-cdn.example"]);
+  });
+
   it('tells pages where visitors pay or sign in, word by word', () => {
     expect(['/checkout?step=2', '/fr/panier', '/account/orders', '/sign-in', '/de/warenkorb', 'https://shop.example.com/login'].every(isSensitive)).toBe(true);
     expect(['/', '/display', '/products/payload-bag', '/blog/signing-off', '/cartoons'].some(isSensitive)).toBe(false);

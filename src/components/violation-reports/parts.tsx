@@ -85,7 +85,7 @@ export function Enforce({ ready, n }: { ready: Readiness; n: number | undefined 
  * Why a problem is ranked where it is, when something sets it apart: an unknown address, a checkout or sign-in page,
  * new or gone. Its level is in its row; "blocked" and "a script" are in its status and name already.
  */
-const TELLING = new Set(['unknown', 'sensitive', 'new', 'stopped']);
+const TELLING = new Set(['unknown', 'unknownWide', 'sensitive', 'new', 'stopped']);
 export function RiskLine({ g }: { g: ReportGroup }) {
   const t = useT();
   const reasons = (g.risk?.reasons ?? [])
@@ -93,6 +93,8 @@ export function RiskLine({ g }: { g: ReportGroup }) {
     .map((r) =>
       r.kind === 'sensitive'
         ? t('reportsReader.risk.sensitive', { page: r.page })
+        : r.kind === 'unknownWide'
+          ? t('reportsReader.risk.unknownWide', { count: r.pages })
         : r.kind === 'new' || r.kind === 'stopped'
           ? t(`reportsReader.risk.${r.kind}`, { date: dayName(t.locale, r.since) })
           : t(`reportsReader.risk.${r.kind}`),

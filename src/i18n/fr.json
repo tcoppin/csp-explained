@@ -1015,7 +1015,11 @@
       "look": "cela ne change que l'apparence de la page",
       "new": "nouveau depuis le {date}",
       "stopped": "plus vu depuis le {date}, peut-être déjà corrigé",
-      "why": "Pourquoi à ce rang : {reasons}."
+      "why": "Pourquoi à ce rang : {reasons}.",
+      "unknownWide": {
+        "one": "une adresse qu'aucun outil connu n'utilise, mais sur 1 page depuis le début des rapports",
+        "other": "une adresse qu'aucun outil connu n'utilise, mais sur {count} pages depuis le début des rapports : plus probablement un outil ajouté par quelqu'un que du code glissé"
+      }
     },
     "enforce": {
       "title": "Pouvez-vous l'appliquer ?",
@@ -1115,8 +1119,17 @@
         "footer": "Lu dans le navigateur avec {site} : les rapports ne l'ont jamais quitté.",
         "link": "Lire vos propres rapports",
         "readValue": "{source}, {reports}",
-        "pages": "Pages : {pages}."
+        "pages": "Pages : {pages}.",
+        "own": {
+          "one": "1 domaine compté comme celui du site : {sites}.",
+          "other": "{count} domaines comptés comme ceux du site : {sites}."
+        }
       }
+    },
+    "ownLabel": "{site} est l'un de mes domaines",
+    "own": {
+      "added": "{site} compté comme l'un de vos domaines : ses adresses sont dans les lignes.",
+      "removed": "{site} n'est plus compté comme l'un de vos domaines."
     }
   }
 }

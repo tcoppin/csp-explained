@@ -50,6 +50,10 @@ export default function ReportReader({ content, locale }: Props) {
   const counted = useRef(false);
   // Unknown addresses the visitor says they know: their lines go in. Forgotten with the reports they came from.
   const [trusted, setTrusted] = useState<ReadonlySet<string>>(new Set());
+  // Domains the visitor says are theirs (a CDN of their own): every address on them goes in. Forgotten likewise.
+  const [own, setOwn] = useState<ReadonlySet<string>>(new Set());
+  // The checkbox just changed: its row can move in the list, and the focus must not be lost with it.
+  const refocus = useRef<string | undefined>(undefined);
   const [trustNote, setTrustNote] = useState('');
   // "Only the reports since": a day (`YYYY-MM-DD`), from its start in the visitor's time zone.
   const [since, setSince] = useState('');
@@ -60,8 +64,8 @@ export default function ReportReader({ content, locale }: Props) {
   // Read once; explained again (quickly) when the visitor vouches for an address or picks a day.
   const read = useMemo(() => (text.trim() === '' ? undefined : readReports(text)), [text]);
   const result = useMemo(
-    () => (read ? explainReports(read, content.vendors, { trusted, ...(sinceTime !== undefined && Number.isFinite(sinceTime) ? { since: sinceTime } : {}) }) : undefined),
-    [read, content.vendors, trusted, sinceTime],
+    () => (read ? explainReports(read, content.vendors, { trusted, own, ...(sinceTime !== undefined && Number.isFinite(sinceTime) ? { since: sinceTime } : {}) }) : undefined),
+    [read, content.vendors, trusted, own, sinceTime],
   );
 
   /** New reports: what was vouched for went with the old ones. `fold`: a whole batch at once (not typing). */
@@ -70,6 +74,7 @@ export default function ReportReader({ content, locale }: Props) {
     setLoaded(from);
     if (fold) setEditing(false);
     setTrusted(new Set());
+    setOwn(new Set());
     setTrustNote('');
     setSince('');
   }
@@ -84,8 +89,27 @@ export default function ReportReader({ content, locale }: Props) {
     if (yes) next.add(key);
     else next.delete(key);
     setTrusted(next);
+    refocus.current = document.activeElement?.id;
     setTrustNote(t(`reportsReader.trusted.${yes ? 'added' : 'removed'}`, { host }));
   }
+
+  function ownSite(site: string, yes: boolean) {
+    const next = new Set(own);
+    if (yes) next.add(site);
+    else next.delete(site);
+    setOwn(next);
+    refocus.current = document.activeElement?.id;
+    setTrustNote(t(`reportsReader.own.${yes ? 'added' : 'removed'}`, { site }));
+  }
+
+  // After vouching for an address or a domain, its row may have moved: the focus goes back to the checkbox if lost.
+  useLayoutEffect(() => {
+    const id = refocus.current;
+    refocus.current = undefined;
+    if (!id) return;
+    const active = document.activeElement;
+    if (!active || active === document.body) document.getElementById(id)?.focus();
+  });
 
   // Count one batch read per page load, never what it holds; not the example.
   useEffect(() => {
@@ -277,6 +301,8 @@ export default function ReportReader({ content, locale }: Props) {
               r={result}
               trusted={trusted}
               onTrust={trust}
+              onOwn={ownSite}
+              own={own}
               since={since}
               onSince={pickSince}
               period={!folded}
@@ -295,6 +321,8 @@ interface ResultsProps {
   r: ExplainedReports;
   trusted: ReadonlySet<string>;
   onTrust: (key: string, host: string, yes: boolean) => void;
+  own: ReadonlySet<string>;
+  onOwn: (site: string, yes: boolean) => void;
   since: string;
   onSince: (day: string) => void;
   /** When the reports were received, here: the bar shows it once the box is folded. */
@@ -313,7 +341,7 @@ const LEVELS = ['high', 'medium', 'low'] as const;
  * one the site sends); then the lines that allow them; and what the site didn't cause, folded at
  * the end.
  */
-function Results({ r, trusted, onTrust, since, onSince, period, source, sinceTime }: ResultsProps) {
+function Results({ r, trusted, onTrust, own, onOwn, since, onSince, period, source, sinceTime }: ResultsProps) {
   const t = useT();
   // Older versions get no lines of their own: their reports were read against the newest.
   const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
@@ -356,7 +384,7 @@ function Results({ r, trusted, onTrust, since, onSince, period, source, sinceTim
           index={i}
           source="reports"
           unknown={g.unknown}
-          after={g.unknown && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} />}
+          after={(g.unknown || g.own) && <Unknown g={g} trusted={trusted.has(g.key)} onTrust={onTrust} onOwn={onOwn} />}
         >
           {fixed ? <p class="report-risk">{t('reportsReader.fixedIntro', { date: changedOn(g) })}</p> : <RiskLine g={g} />}
           {stats(g)}
@@ -456,7 +484,7 @@ function Results({ r, trusted, onTrust, since, onSince, period, source, sinceTim
         </details>
       )}
 
-      <SaveResults r={r} source={source} since={sinceTime} trusted={trusted} />
+      <SaveResults r={r} source={source} since={sinceTime} trusted={trusted} own={own} />
     </section>
   );
 }
@@ -465,11 +493,11 @@ function Results({ r, trusted, onTrust, since, onSince, period, source, sinceTim
  * Saving the results to share with a team or keep: printed or saved as PDF, a standalone .html file, or Markdown
  * (a file, or copied for a ticket or a chat). Made on the device from what the page shows; never the reports.
  */
-function SaveResults({ r, source, since, trusted }: { r: ExplainedReports; source: string; since: number | undefined; trusted: ReadonlySet<string> }) {
+function SaveResults({ r, source, since, trusted, own }: { r: ExplainedReports; source: string; since: number | undefined; trusted: ReadonlySet<string>; own: ReadonlySet<string> }) {
   const t = useT();
   const [options, setOptions] = useState<SaveOptions>(DEFAULT_SAVE);
   const { copied, copy } = useCopy(() => track('export-reports', { format: 'copy' }));
-  const doc = () => <ReportsDocument t={t} r={r} options={options} source={source} {...(since !== undefined ? { since } : {})} trusted={trusted} date={new Date()} />;
+  const doc = () => <ReportsDocument t={t} r={r} options={options} source={source} {...(since !== undefined ? { since } : {})} trusted={trusted} own={own} date={new Date()} />;
   const title = reportsDocumentTitle(t);
   const name = (ext: string) => `csp-violation-reports-${dayValue(Date.now())}.${ext}`;
   const option = (key: keyof SaveOptions) => (
@@ -595,18 +623,38 @@ function Period({ r, since, onSince }: { r: ExplainedReports; since: string; onS
 }
 
 /** An address no tool uses, outside the site: why it isn't in the lines, how to check it, and the visitor's word. */
-function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; onTrust: (key: string, host: string, yes: boolean) => void }) {
+function Unknown({
+  g,
+  trusted,
+  onTrust,
+  onOwn,
+}: {
+  g: ReportGroup;
+  trusted: boolean;
+  onTrust: (key: string, host: string, yes: boolean) => void;
+  onOwn: (site: string, yes: boolean) => void;
+}) {
   const t = useT();
+  // Ids, so that the focus can find its checkbox again once the row has moved.
+  const id = (kind: string) => `${kind}-${g.key.replace(/[^\w-]/g, '_')}`;
   return (
     <>
-      {!trusted && (
+      {g.unknown && !trusted && (
         <p class="violation-risk">
           <Rich msg="reportsReader.unknown" vars={{ host: g.explained.host ?? '' }} />
         </p>
       )}
-      <label class="report-trust">
-        <input type="checkbox" checked={trusted} onChange={(e) => onTrust(g.key, g.explained.host ?? '', e.currentTarget.checked)} /> {t('reportsReader.trust')}
-      </label>
+      {g.unknown && (
+        <label class="report-trust">
+          <input id={id('trust')} type="checkbox" checked={trusted} onChange={(e) => onTrust(g.key, g.explained.host ?? '', e.currentTarget.checked)} /> {t('reportsReader.trust')}
+        </label>
+      )}
+      {g.site && (
+        <label class="report-trust">
+          <input id={id('own')} type="checkbox" checked={g.own === true} onChange={(e) => onOwn(g.site!, e.currentTarget.checked)} />{' '}
+          {t('reportsReader.ownLabel', { site: g.site })}
+        </label>
+      )}
     </>
   );
 }

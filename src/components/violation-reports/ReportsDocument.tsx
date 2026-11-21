@@ -27,6 +27,8 @@ export interface ReportsDocumentProps {
   since?: number;
   /** Unknown addresses the visitor said they know. */
   trusted: ReadonlySet<string>;
+  /** Domains the visitor said are theirs. */
+  own?: ReadonlySet<string>;
   date: Date;
 }
 
@@ -38,7 +40,7 @@ export const reportsDocumentTitle = (t: Translate) => t('reportsReader.save.docu
  * The results as a document for paper, a file or a ticket: what the page shows, unfolded and without anything to fill
  * in. Built from the same pieces as the page, so the two never say different things. Never the reports themselves.
  */
-export function ReportsDocument({ t, r, options, source, since, trusted, date }: ReportsDocumentProps) {
+export function ReportsDocument({ t, r, options, source, since, trusted, own = new Set(), date }: ReportsDocumentProps) {
   const list = (items: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(items);
   const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
   const levels = [
@@ -97,11 +99,15 @@ export function ReportsDocument({ t, r, options, source, since, trusted, date }:
             <Meta label={t('report.document.date')} value={new Intl.DateTimeFormat(t.locale, { dateStyle: 'long' }).format(date)} />
           </dl>
           {/* What shaped this copy: the day picked, the addresses vouched for. */}
-          {(since !== undefined || vouched > 0) && (
+          {(since !== undefined || vouched > 0 || own.size > 0) && (
             <p class="doc-note">
-              {since !== undefined && t('reportsReader.since.announce', { count: r.total, date: dayName(t.locale, since) })}
-              {since !== undefined && vouched > 0 && ' '}
-              {vouched > 0 && t('reportsReader.save.document.vouched', { count: vouched })}
+              {[
+                since !== undefined && t('reportsReader.since.announce', { count: r.total, date: dayName(t.locale, since) }),
+                vouched > 0 && t('reportsReader.save.document.vouched', { count: vouched }),
+                own.size > 0 && t('reportsReader.save.document.own', { count: own.size, sites: list([...own].sort()) }),
+              ]
+                .filter(Boolean)
+                .join(' ')}
             </p>
           )}
         </header>

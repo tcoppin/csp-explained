@@ -116,6 +116,30 @@ test("an address no tool uses stays out of the lines until the visitor says they
   await expect(script).not.toContainText('jquery-libs');
 });
 
+test("a domain the visitor says is theirs takes every address on it out of the unknown, said and undone the same way", async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  const skimmer = row(page, 'cdn.jquery-libs.example');
+  await open(skimmer);
+  const mine = skimmer.getByRole('checkbox', { name: 'jquery-libs.example is one of my domains' });
+  await expect(mine).not.toBeChecked();
+  const script = page.locator('.violation-lines .code-block', { hasText: 'script-src' });
+  const live = async (action: () => Promise<void>) => (await announced(page, action)).filter((p) => /^(polite|assertive):/.test(p));
+  expect(await live(() => mine.check())).toContain('polite: jquery-libs.example counted as one of your domains: its addresses are in the lines.');
+  // Its row may move; the focus stays on the box.
+  await expect(mine).toBeFocused();
+  await expect(script).toContainText('https://cdn.jquery-libs.example');
+  // No longer unknown: no warning, no "I know what this is", and the reason it ranked first goes.
+  await expect(skimmer.locator('.violation-risk')).toHaveCount(0);
+  await expect(skimmer.getByRole('checkbox', { name: 'I know what this is: allow it in the lines' })).toHaveCount(0);
+  await expect(skimmer.locator('.report-risk')).not.toContainText('no known tool');
+
+  expect(await live(() => mine.uncheck())).toContain('polite: jquery-libs.example no longer counted as one of your domains.');
+  await expect(mine).toBeFocused();
+  await expect(script).not.toContainText('jquery-libs');
+  await expect(skimmer.locator('.violation-risk')).toBeVisible();
+});
+
 test('dated reports tell what an older policy blocked that the newest allows, and can be read from a day on', async ({ page }) => {
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();

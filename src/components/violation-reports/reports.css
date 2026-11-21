@@ -237,11 +237,13 @@
 .report-noise-cause > p {
   margin: 0 0 0.75rem;
 }
-/* "I know what this is", under an unknown address */
+/* "I know what this is" and "… is one of my domains", under an unknown address: one per line */
 .report-trust {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.4rem;
+  width: fit-content;
+  margin-top: 0.35rem;
 }
 @media (pointer: coarse) {
   .report-trust {

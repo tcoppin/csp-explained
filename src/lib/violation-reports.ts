@@ -40,6 +40,13 @@ export interface ReportGroup {
    * is left out unless the visitor said they know it (`trusted`); then `fix` is set and covered by the lines.
    */
   unknown?: true;
+  /**
+   * The domain of an address no catalogue tool uses, outside the domain of the pages (`cdn-shop.net`): for the
+   * visitor to say it is theirs. Set whether it is unknown or counted as theirs (`own`).
+   */
+  site?: string;
+  /** The visitor said `site` is one of their domains: not unknown, its line goes in. */
+  own?: true;
   /** Not the site's doing: set apart, with no line. */
   noise?: NoiseKind;
   /** How urgent it is, and why (problems of the site only). */
@@ -53,6 +60,8 @@ export interface ReportGroup {
  */
 export type RiskReason =
   | { kind: 'unknown' }
+  /** Unknown, but on most pages since the reports start: more likely a forgotten tool than code slipped in. */
+  | { kind: 'unknownWide'; pages: number }
   | { kind: 'sensitive'; page: string }
   | { kind: 'enforced' }
   | { kind: 'reported' }
@@ -211,6 +220,8 @@ function agentsOf(reports: ViolationReport[]): NoiseKind | undefined {
 export interface ReportOptions {
   /** Keys of unknown addresses the visitor knows: their lines go in. */
   trusted?: ReadonlySet<string>;
+  /** Domains the visitor said are theirs (`cdn-shop.net`): their addresses aren't unknown. */
+  own?: ReadonlySet<string>;
   /** Only the reports received from then on (milliseconds since 1970). */
   since?: number;
 }
@@ -219,7 +230,7 @@ export interface ReportOptions {
 const PLACEHOLDER_ORIGIN = 'https://your-site.example';
 
 /** The reports in `input` (text, or reports already read), grouped and explained with the catalogue. */
-export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set(), since }: ReportOptions = {}): ExplainedReports {
+export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set(), own = new Set(), since }: ReportOptions = {}): ExplainedReports {
   const read = typeof input === 'string' ? readReports(input) : input;
   const times = read.reports.map((r) => r.time).filter((t) => t !== undefined);
   const period = rangeOf(times);
@@ -277,8 +288,9 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
   const siteItems = explainItems(site.map((p) => ({ v: p.v, others: [] })), vendors).map((item, i) => {
     const p = site[i]!;
     if (p.current === 0 && allowedBy(item, origin ?? PLACEHOLDER_ORIGIN)) return { item: { ...item, fix: undefined, weaker: undefined }, unknown: false, allowed: true };
-    const unknown = isUnknown(item, p.reports, origin);
-    return { item: unknown && !trusted.has(p.key) ? { ...item, fix: undefined } : item, unknown, allowed: false };
+    const outside = outsideSite(item, p.reports, origin);
+    const unknown = outside !== undefined && !own.has(outside);
+    return { item: unknown && !trusted.has(p.key) ? { ...item, fix: undefined } : item, unknown, ...(outside ? { site: outside } : {}), allowed: false };
   });
   const explained = linesOf(siteItems.map((s) => s.item), options);
   const items = [...siteItems.map((s) => s.item), ...explainItems(elsewhere.map((p) => ({ v: p.v, others: [] })), vendors)];
@@ -304,6 +316,8 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
       })(),
       key: p.key,
       ...(siteItems[i]?.unknown ? { unknown: true as const } : {}),
+      ...(siteItems[i]?.site ? { site: siteItems[i]!.site } : {}),
+      ...(siteItems[i]?.site && !siteItems[i]?.unknown ? { own: true as const } : {}),
       ...(p.noise ? { noise: p.noise } : {}),
     };
     return { group, allowed: siteItems[i]?.allowed === true };
@@ -314,7 +328,9 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
   }
   const byReports = (a: ReportGroup, b: ReportGroup) => b.reports - a.reports;
   const groups = all.filter((g) => !g.group.noise && !g.allowed).map((g) => g.group);
-  for (const g of groups) g.risk = riskOf(g, trusted, period);
+  // How many of the site's pages sent reports: an unknown address on most of them is more likely a forgotten tool.
+  const sitePages = new Set(groups.flatMap((g) => g.pages.map((p) => p.page))).size;
+  for (const g of groups) g.risk = riskOf(g, trusted, period, sitePages);
   return {
     total: reports.length,
     skipped: read.skipped,
@@ -380,7 +396,7 @@ const CODE_TYPES = new Set(['script', 'worker', 'connect', 'frame', 'form', 'obj
 const LOOK_TYPES = new Set(['style', 'img', 'font', 'media', 'inline-style', 'style-attr']);
 
 /** How urgent a problem of the site is: what it is, where, whether visitors are affected, and when. */
-function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: number; to: number } | undefined): Risk {
+function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: number; to: number } | undefined, sitePages: number): Risk {
   const e = g.explained;
   const reasons: RiskReason[] = [];
   let score = 0;
@@ -388,20 +404,27 @@ function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: nu
     reasons.push(reason);
     score += points;
   };
-  if (g.unknown && !trusted.has(g.key)) add({ kind: 'unknown' }, 100);
   // Mostly on such pages: something blocked everywhere is about the whole site, not the checkout.
   const sensitive = g.pages.filter((p) => isSensitive(p.page));
-  if (sensitive.length > 0 && sensitive.length * 2 >= g.pages.length) add({ kind: 'sensitive', page: sensitive[0]!.page }, 40);
+  const mostlySensitive = sensitive.length > 0 && sensitive.length * 2 >= g.pages.length;
+  const span = period ? period.to - period.from : 0;
+  const dated = period !== undefined && g.first !== undefined && g.last !== undefined && span >= 3 * DAY;
+  const isNew = dated && g.first! - period!.from >= Math.max(DAY, 0.4 * span);
+  if (g.unknown && !trusted.has(g.key)) {
+    // Injected code shows up somewhere, some day: on a few pages, the checkout, or from a day on. An unknown address
+    // on most pages from the start looks like a tool someone added: still kept out of the lines, but not first.
+    const wide = g.pages.length >= 3 && g.pages.length * 2 >= sitePages;
+    if (wide && !isNew && !mostlySensitive) add({ kind: 'unknownWide', pages: g.pages.length }, 10);
+    else add({ kind: 'unknown' }, 100);
+  }
+  if (mostlySensitive) add({ kind: 'sensitive', page: sensitive[0]!.page }, 40);
   add({ kind: e.violation.reportOnly ? 'reported' : 'enforced' }, e.violation.reportOnly ? 0 : 20);
   const type = e.case === 'trusted-types' || e.case === 'handler' ? 'inline-handler' : e.case === 'eval' ? 'eval' : e.violation.type;
   if (CODE_TYPES.has(type)) add({ kind: 'code' }, 15);
   else if (LOOK_TYPES.has(type)) add({ kind: 'look' }, -5);
   // Over a few days: new well after the reports start, or gone well before they end.
-  if (period && g.first !== undefined && g.last !== undefined && period.to - period.from >= 3 * DAY) {
-    const span = period.to - period.from;
-    if (g.first - period.from >= Math.max(DAY, 0.4 * span)) add({ kind: 'new', since: g.first }, 15);
-    else if (period.to - g.last >= Math.max(DAY, 0.25 * span)) add({ kind: 'stopped', since: g.last }, -20);
-  }
+  if (isNew) add({ kind: 'new', since: g.first! }, 15);
+  else if (dated && period!.to - g.last! >= Math.max(DAY, 0.25 * span)) add({ kind: 'stopped', since: g.last! }, -20);
   // Seen on more pages: more likely everywhere. A few points, never more than a reason.
   score += Math.min(g.pages.length, 10);
   return { level: score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low', score, reasons };
@@ -461,21 +484,23 @@ function allowedBy(item: ExplainedViolation, origin: string): boolean {
 }
 
 /**
- * An address no catalogue tool uses, on a host outside the domain of the pages that reported it. Local schemes
- * (`data:`, `blob:`) aren't addresses anyone can serve from elsewhere: they keep their own warning.
+ * The domain of an address no catalogue tool uses, when it is outside the domain of the pages that reported it.
+ * Local schemes (`data:`, `blob:`) aren't addresses anyone can serve from elsewhere: they keep their own warning.
  */
-function isUnknown(item: ExplainedViolation, reports: ViolationReport[], origin: string | undefined): boolean {
-  if (item.case !== 'address' || item.tools.length > 0 || !item.violation.url) return false;
+function outsideSite(item: ExplainedViolation, reports: ViolationReport[], origin: string | undefined): string | undefined {
+  if (item.case !== 'address' || item.tools.length > 0 || !item.violation.url) return undefined;
   let host: string;
   try {
     const u = new URL(item.violation.url);
-    if (!/^(?:https?|wss?):$/.test(u.protocol)) return false;
+    if (!/^(?:https?|wss?):$/.test(u.protocol)) return undefined;
     host = u.hostname;
   } catch {
-    return false;
+    return undefined;
   }
-  const sites = new Set([origin, ...reports.map((r) => originOf(r.page))].filter((o) => o !== undefined).map((o) => siteOf(new URL(o).hostname)));
-  return !sites.has(siteOf(host));
+  const origins = new Set([origin, ...reports.map((r) => originOf(r.page))].filter((o) => o !== undefined));
+  const sites = new Set([...origins].map((o) => siteOf(new URL(o).hostname)));
+  const site = siteOf(host);
+  return sites.has(site) ? undefined : site;
 }
 
 /** Second-level suffixes a registrable domain sits under (`shop.co.uk`): close enough without the public suffix list. */
