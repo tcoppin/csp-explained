@@ -5,17 +5,19 @@ import { encodeCompareState } from '../policy/compare-state';
 import { ViolationItem, ViolationWhat } from '../policy/ViolationList';
 import { I18n } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
-import { dayName, Enforce, RiskLine, Stats, Summary } from './parts';
+import { dayName, Enforce, Quotes, RiskLine, Stats, Summary } from './parts';
 
 /** What a saved copy of the results carries besides the problems and the lines. */
 export interface SaveOptions {
   /** The pages each problem happened on (addresses without their query strings). */
   pages: boolean;
+  /** What the reports quoted of the code, and the scripts that asked for it: clues, but they can hold data. */
+  samples: boolean;
   /** The policies the reports carried, in full. */
   policies: boolean;
 }
 
-export const DEFAULT_SAVE: SaveOptions = { pages: true, policies: false };
+export const DEFAULT_SAVE: SaveOptions = { pages: true, samples: false, policies: false };
 
 export interface ReportsDocumentProps {
   t: Translate;
@@ -79,6 +81,7 @@ export function ReportsDocument({ t, r, options, source, since, trusted, own = n
       >
         {fixed ? <p>{t('reportsReader.fixedIntro', { date: changedOn(g) })}</p> : <RiskLine g={g} />}
         <Stats g={g} policies={several ? r.policies.length : 0} paper={{ pages: options.pages }} />
+        {options.samples ? <Quotes g={g} paper /> : !g.samples && !g.sources && <Quotes g={g} paper />}
       </ViolationItem>
     </li>
   );

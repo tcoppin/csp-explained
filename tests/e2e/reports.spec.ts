@@ -140,6 +140,32 @@ test("a domain the visitor says is theirs takes every address on it out of the u
   await expect(skimmer.locator('.violation-risk')).toBeVisible();
 });
 
+test('a problem shows what the reports quoted, folded: the start of the code, the script that asked for it', async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  // The look-alike jQuery: loaded by the theme's own script, without its query string.
+  const skimmer = row(page, 'cdn.jquery-libs.example');
+  await open(skimmer);
+  const quoted = skimmer.locator('.report-quotes');
+  await expect(quoted.locator('> summary')).toHaveText('What the reports quoted (1)');
+  await expect(quoted.locator('.report-quotes-list')).toBeHidden();
+  await quoted.locator('> summary').click();
+  await expect(quoted).toContainText('The script that was running when it happened:');
+  await expect(quoted.locator('.report-quotes-list code')).toHaveText(['https://shop.example.com/assets/theme.js']);
+  // The checkout's inline script: the start of its code.
+  const inline = row(page, 'A script written in the page');
+  await open(inline);
+  await inline.locator('.report-quotes > summary').click();
+  await expect(inline.locator('.report-quotes-list').first()).toHaveText('window.dataLayer = window.dataLayer || [ (4 reports)');
+
+  // No sample, under a rule that doesn't ask for one: how to get it next time.
+  await page.locator('.report-bar').getByRole('button', { name: 'Clear' }).click();
+  await box(page).fill(JSON.stringify({ 'csp-report': { 'document-uri': 'https://shop.example.com/', 'blocked-uri': 'inline', 'effective-directive': 'script-src-elem', 'original-policy': "script-src 'self'" } }));
+  const lone = page.locator('.report-row').first();
+  await open(lone);
+  await expect(lone.locator('.report-quotes-none')).toHaveText("These reports don't quote the blocked code: add 'report-sample' to your script-src rule, and the next ones will show its first 40 characters, enough to tell your own code from code slipped in.");
+});
+
 test('dated reports tell what an older policy blocked that the newest allows, and can be read from a day on', async ({ page }) => {
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
@@ -296,6 +322,9 @@ test('the results save as PDF, .html and Markdown, with what the visitor chose, 
   // Never the reports: no browser string, no raw field.
   expect(doc.text).not.toMatch(/Mozilla|blockedURL|csp-violation/);
   expect(doc.text).not.toContain('The 2 policies in these reports');
+  // What the reports quoted stays out unless asked for: a sample can hold data.
+  await expect(save.getByRole('checkbox', { name: 'Include what the reports quoted of the code' })).not.toBeChecked();
+  expect(doc.text).not.toContain('window.dataLayer');
   await expect.poll(sent).toContain('n=export-reports&format=pdf');
   // The print window closed: the page as it was, the focus still on the button.
   await expect(page.locator('.print-host')).toHaveCount(0);
@@ -305,6 +334,7 @@ test('the results save as PDF, .html and Markdown, with what the visitor chose, 
   // Without the pages, with the policies: a standalone .html file whose links point to the site.
   await save.getByRole('checkbox', { name: 'Include the pages of each problem' }).uncheck();
   await save.getByRole('checkbox', { name: 'Include the policies in the reports' }).check();
+  await save.getByRole('checkbox', { name: 'Include what the reports quoted of the code' }).check();
   const [html] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .html' }).click()]);
   expect(html.suggestedFilename()).toMatch(/^csp-violation-reports-\d{4}-\d{2}-\d{2}\.html$/);
   const file = readFileSync((await html.path())!, 'utf8');
@@ -312,6 +342,8 @@ test('the results save as PDF, .html and Markdown, with what the visitor chose, 
   expect(file).toMatch(/<style>[^<]*\.report-doc \{[^<]*\.reports-doc \{/);
   expect(file).not.toContain('Pages: /');
   expect(file).toContain('The 2 policies in these reports');
+  expect(file).toContain('window.dataLayer = window.dataLayer || [');
+  expect(file).toContain('https://shop.example.com/assets/theme.js');
   expect(file).toContain('href="https://csp-explained.com/vendors/hotjar"');
   const opened = await page.context().newPage();
   await opened.setContent(file);

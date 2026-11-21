@@ -170,3 +170,51 @@ export function Stats({ g, policies, paper }: { g: ReportGroup; policies: number
     </div>
   );
 }
+
+/**
+ * What the reports quoted: the start of the blocked code and the scripts that asked for it, folded on the page, listed
+ * on paper. Clues to tell the site's own code from code slipped in. With none, how to get them next time.
+ */
+export function Quotes({ g, paper = false }: { g: ReportGroup; paper?: boolean }) {
+  const t = useT();
+  if (!g.samples && !g.sources) {
+    return g.sampleRule ? (
+      <p class="muted report-quotes-none">
+        <Rich msg="reportsReader.quotes.none" vars={{ directive: g.sampleRule }} />
+      </p>
+    ) : null;
+  }
+  const list = (items: { text: string; reports: number }[]) => (
+    <ul class="report-quotes-list">
+      {items.map((q) => (
+        <li key={q.text}>
+          <code>{q.text}</code> {t('reportsReader.stats.pageCount', { count: q.reports })}
+        </li>
+      ))}
+    </ul>
+  );
+  const body = (
+    <>
+      {g.samples && (
+        <>
+          <p>{t('reportsReader.quotes.samples')}</p>
+          {list(g.samples)}
+          <p class="muted">{t('reportsReader.quotes.note')}</p>
+        </>
+      )}
+      {g.sources && (
+        <>
+          <p>{t('reportsReader.quotes.sources')}</p>
+          {list(g.sources.map((s) => ({ text: s.file, reports: s.reports })))}
+        </>
+      )}
+    </>
+  );
+  if (paper) return <div class="doc-quotes">{body}</div>;
+  return (
+    <details class="report-quotes">
+      <summary>{t('reportsReader.quotes.title', { count: (g.samples?.length ?? 0) + (g.sources?.length ?? 0) })}</summary>
+      {body}
+    </details>
+  );
+}

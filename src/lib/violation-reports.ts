@@ -47,6 +47,18 @@ export interface ReportGroup {
   site?: string;
   /** The visitor said `site` is one of their domains: not unknown, its line goes in. */
   own?: true;
+  /**
+   * What the reports quoted of the blocked code (`'report-sample'`: its first 40 characters), most reports first, the
+   * first few only.
+   */
+  samples?: { text: string; reports: number }[];
+  /** The scripts that asked for it (`source-file`, without query string or `#` part), most reports first. */
+  sources?: { file: string; reports: number }[];
+  /**
+   * Code was blocked but no report quoted it, and the rule doesn't ask for samples: the rule to add
+   * `'report-sample'` to.
+   */
+  sampleRule?: string;
   /** Not the site's doing: set apart, with no line. */
   noise?: NoiseKind;
   /** How urgent it is, and why (problems of the site only). */
@@ -315,6 +327,7 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
         return range ? { first: range.from, last: range.to } : {};
       })(),
       key: p.key,
+      ...quotes(p.reports, shown),
       ...(siteItems[i]?.unknown ? { unknown: true as const } : {}),
       ...(siteItems[i]?.site ? { site: siteItems[i]!.site } : {}),
       ...(siteItems[i]?.site && !siteItems[i]?.unknown ? { own: true as const } : {}),
@@ -429,6 +442,34 @@ function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: nu
   score += Math.min(g.pages.length, 10);
   return { level: score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low', score, reasons };
 }
+
+/** Samples and source files shown per problem, the most frequent first. */
+const QUOTES_SHOWN = 5;
+/** Longer samples (a collector that kept more) are cut: they are clues, not the code. */
+const SAMPLE_LENGTH = 120;
+const CODE_CASES = new Set(['inline', 'handler', 'style-attr', 'eval', 'trusted-types']);
+
+/** What the reports quoted of the code, the scripts that asked for it, or the rule that would quote it. */
+function quotes(reports: ViolationReport[], e: ExplainedViolation): Pick<ReportGroup, 'samples' | 'sources' | 'sampleRule'> {
+  const samples = ranked(reports.map((r) => r.sample?.trim().slice(0, SAMPLE_LENGTH) || undefined)).slice(0, QUOTES_SHOWN);
+  const sources = ranked(reports.map((r) => (r.sourceFile ? withoutQuery(r.sourceFile) : undefined))).slice(0, QUOTES_SHOWN);
+  return {
+    ...(samples.length > 0 ? { samples: samples.map(([text, n]) => ({ text, reports: n })) } : {}),
+    ...(sources.length > 0 ? { sources: sources.map(([file, n]) => ({ file, reports: n })) } : {}),
+    ...(samples.length === 0 && CODE_CASES.has(e.case) ? sampleRuleOf(e) : {}),
+  };
+}
+
+/** The rule that decided, when it doesn't ask for samples yet. */
+function sampleRuleOf(e: ExplainedViolation): Pick<ReportGroup, 'sampleRule'> {
+  const v = e.violation;
+  if (!v.value) return {};
+  const rule = resolve(parseSinglePolicy(v.value), v.effective ?? v.directive ?? '').governing;
+  if (!rule || rule.values.some((s) => s.raw.toLowerCase() === "'report-sample'")) return {};
+  return { sampleRule: rule.name };
+}
+
+const withoutQuery = (url: string) => url.split(/[?#]/)[0]!;
 
 /**
  * The earliest and latest of `times`. A loop, not `Math.min(...times)`: spreading one argument per report overflows

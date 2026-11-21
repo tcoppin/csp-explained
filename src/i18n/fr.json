@@ -1103,7 +1103,8 @@
     "save": {
       "include": {
         "pages": "Inclure les pages de chaque problème",
-        "policies": "Inclure les politiques des rapports"
+        "policies": "Inclure les politiques des rapports",
+        "samples": "Inclure ce que les rapports citent du code"
       },
       "copy": "Copier en Markdown",
       "hint": "Fait dans votre navigateur à partir de ce que montre cette page : rien n'est envoyé, et les rapports eux-mêmes n'y sont pas. Un jour choisi dans « Seulement les rapports depuis le » et les adresses que vous avez marquées comme connues y sont indiqués.",
@@ -1130,6 +1131,16 @@
     "own": {
       "added": "{site} compté comme l'un de vos domaines : ses adresses sont dans les lignes.",
       "removed": "{site} n'est plus compté comme l'un de vos domaines."
+    },
+    "quotes": {
+      "title": {
+        "one": "Ce que les rapports citent (1)",
+        "other": "Ce que les rapports citent ({count})"
+      },
+      "samples": "Le début du code bloqué, tel que les navigateurs l'ont cité :",
+      "note": "Les navigateurs citent au plus les 40 premiers caractères : assez pour reconnaître votre propre code, ou du code que vous n'avez pas écrit.",
+      "sources": "Le script qui s'exécutait quand c'est arrivé :",
+      "none": "Ces rapports ne citent pas le code bloqué : ajoutez `'report-sample'` à votre règle `{directive}`, et les suivants montreront ses 40 premiers caractères, assez pour distinguer votre propre code de code glissé."
     }
   }
 }

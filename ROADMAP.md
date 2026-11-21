@@ -50,6 +50,8 @@ needs our own server comes last, because it changes the site's promise that the 
       a PDF saved from it, opened in a PDF reader, reads the same way.
       And "… is one of my domains" under an unknown address (2026-11-21): checking it says "…counted as one of your
       domains", and the focus stays on it although its row can move in the list.
+      And "What the reports quoted" in an opened row (2026-11-21): heard as a fold; the quoted code and the script
+      addresses are read as code, with their counts.
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).
@@ -282,7 +284,9 @@ Interface:
       tool: it is explained with how to check it, and left out of the lines until the visitor ticks "I know what
       this is", or "… is one of my domains" (every address on that domain at once: a CDN of the site's own). Only
       an unknown address that is new, on a few pages or mostly on checkout and sign-in pages comes first; one on most
-      pages since the reports start is more likely a forgotten tool, one level down, and says so. Collectors' exports are read by their field names, in JSON or in CSV and TSV with a header row
+      pages since the reports start is more likely a forgotten tool, one level down, and says so. Each problem shows,
+      folded, what the reports quoted: the start of the blocked code (`'report-sample'`) and the script that was
+      running (without its query string); with nothing quoted, how to get it. Collectors' exports are read by their field names, in JSON or in CSV and TSV with a header row
       (a record keeping a report twice, raw and parsed, counts once). Dated reports (a collector's field or column,
       or the date starting a log line) give each problem its first and last day and can be read from a day on; a
       policy every report of which came before the newest one's first is an older version: its reports are read

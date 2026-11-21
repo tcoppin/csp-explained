@@ -1103,7 +1103,8 @@
     "save": {
       "include": {
         "pages": "Include the pages of each problem",
-        "policies": "Include the policies in the reports"
+        "policies": "Include the policies in the reports",
+        "samples": "Include what the reports quoted of the code"
       },
       "copy": "Copy as Markdown",
       "hint": "Made in your browser from what this page shows: nothing is sent, and the reports themselves aren't in it. A day picked in “Only the reports since” and the addresses you marked as known are said in it.",
@@ -1130,6 +1131,16 @@
     "own": {
       "added": "{site} counted as one of your domains: its addresses are in the lines.",
       "removed": "{site} no longer counted as one of your domains."
+    },
+    "quotes": {
+      "title": {
+        "one": "What the reports quoted (1)",
+        "other": "What the reports quoted ({count})"
+      },
+      "samples": "The start of the blocked code, as browsers quoted it:",
+      "note": "Browsers quote at most the first 40 characters: enough to recognise your own code, or code you didn't write.",
+      "sources": "The script that was running when it happened:",
+      "none": "These reports don't quote the blocked code: add `'report-sample'` to your `{directive}` rule, and the next ones will show its first 40 characters, enough to tell your own code from code slipped in."
     }
   }
 }

@@ -205,7 +205,7 @@ async function everyView(page: Page, check: (where: string) => Promise<void>) {
   // A batch of violation reports read, every row and fold open (what is set apart, the policies).
   await openReader(page);
   await page.getByRole('button', { name: 'Try an example' }).click();
-  for (const summary of await page.locator('.report-row > details > summary, .report-noise > summary, .report-policies > summary, .report-policies li summary, .violation-weaker > summary').all()) await summary.click();
+  for (const summary of await page.locator('.report-row > details > summary, .report-quotes > summary, .report-noise > summary, .report-policies > summary, .report-policies li summary, .violation-weaker > summary').all()) await summary.click();
   await page.locator('.report-pages summary').first().click();
   // From the top, like the other views: scrolled, the sticky header covers whatever is under it.
   await page.evaluate(() => window.scrollTo(0, 0));

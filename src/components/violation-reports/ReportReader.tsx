@@ -9,7 +9,7 @@ import { Lines, ViolationItem, ViolationWhat } from '../policy/ViolationList';
 import { I18n, useT } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
 import { EXAMPLE_REPORTS } from './example';
-import { dayName, dayValue, Enforce, RiskLine, Stats, Summary } from './parts';
+import { dayName, dayValue, Enforce, Quotes, RiskLine, Stats, Summary } from './parts';
 import { DEFAULT_SAVE, linesTitle, ReportsDocument, reportsDocumentTitle, type SaveOptions } from './ReportsDocument';
 import { downloadFile, documentFile, printDocument } from '../ui/document';
 import { markdownOf } from '../ui/markdown';
@@ -388,6 +388,7 @@ function Results({ r, trusted, onTrust, own, onOwn, since, onSince, period, sour
         >
           {fixed ? <p class="report-risk">{t('reportsReader.fixedIntro', { date: changedOn(g) })}</p> : <RiskLine g={g} />}
           {stats(g)}
+          <Quotes g={g} />
         </ViolationItem>
       </details>
     </li>
@@ -510,6 +511,7 @@ function SaveResults({ r, source, since, trusted, own }: { r: ExplainedReports; 
       <legend>{t('report.export.title')}</legend>
       <div class="save-options">
         {option('pages')}
+        {option('samples')}
         {option('policies')}
       </div>
       <div class="actions">

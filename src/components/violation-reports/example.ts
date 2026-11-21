@@ -55,7 +55,8 @@ const KINDS: Kind[] = [
   { times: 3, blockedURL: 'inline', effectiveDirective: 'style-src-elem', browsers: [2], sourceFile: 'moz-extension://5b3c9e1a-1f4e-4d2b-9a77-0c2f6d8e4b10/inject.js' },
   // Last, so the kinds above keep their pages and browsers.
   // New on the 17th: no tool uses it, and nothing on the site changed then.
-  { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4], from: 4 * 24 * 60 - 6 * 60 },
+  // Loaded by the theme's own script: where to look first.
+  { times: 5, blockedURL: 'https://cdn.jquery-libs.example/jquery.min.js', effectiveDirective: 'script-src-elem', pages: [3, 4], from: 4 * 24 * 60 - 6 * 60, sourceFile: 'https://shop.example.com/assets/theme.js?v=3' },
   { times: 14, blockedURL: 'https://www.googletagmanager.com/gtm.js?id=GTM-X1Y2Z3', effectiveDirective: 'script-src-elem', until: (CHANGE - START) / 60000 },
   // Kaspersky's script, added to every page by the antivirus; a page translated by Chrome.
   { times: 4, blockedURL: 'https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js', effectiveDirective: 'script-src-elem', browsers: [0] },

