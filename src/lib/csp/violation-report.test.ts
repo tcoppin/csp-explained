@@ -152,6 +152,25 @@ describe('readReports', () => {
     expect(performance.now() - start).toBeLessThan(5_000);
   });
 
+  it("reads the shapes collectors document: Sentry's CSP interface, its csp-report output, and Datadog's logs", () => {
+    // Sentry keeps document_uri, violated_directive, blocked_uri and effective_directive (src/sentry/interfaces/security.py)
+    // and writes them back under "csp-report"; Datadog's intake keeps the browser's csp-report as sent.
+    const sentry = { id: 'a1', csp: { document_uri: 'https://www.example.com/', violated_directive: 'script-src', blocked_uri: 'https://static.hotjar.com/c/hotjar-1.js', effective_directive: 'script-src-elem' } };
+    const sentryOut = { 'csp-report': { document_uri: 'https://www.example.com/cart', violated_directive: 'connect-src', blocked_uri: 'https://region1.google-analytics.com', effective_directive: 'connect-src' } };
+    const datadog = {
+      date: '2026-11-20T10:00:00.000Z',
+      service: 'shop',
+      attributes: { ddsource: 'csp-report', 'csp-report': { 'blocked-uri': 'eval', 'document-uri': 'https://www.example.com/', 'violated-directive': 'script-src', 'original-policy': "script-src 'self'", disposition: 'enforce' } },
+    };
+    const { reports } = readReports([sentry, sentryOut, datadog].map((x) => JSON.stringify(x)).join('\n'));
+    expect(reports.map((r) => [r.blocked, r.directive, r.page])).toEqual([
+      ['https://static.hotjar.com/c/hotjar-1.js', 'script-src-elem', 'https://www.example.com/'],
+      ['https://region1.google-analytics.com', 'connect-src', 'https://www.example.com/cart'],
+      ['eval', 'script-src', 'https://www.example.com/'],
+    ]);
+    expect(reports[2]!.time).toBe(Date.UTC(2026, 10, 20, 10));
+  });
+
   it('counts once a report a record keeps twice: as raw text, and as parsed fields', () => {
     const raw = { 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src', 'document-uri': 'https://www.example.com/' } };
     const record = {

@@ -1,5 +1,6 @@
 import { SITE_URL } from '../../config';
 import { localePath, type Translate } from '../../i18n';
+import { whatText } from '../../lib/reports/violation-results';
 import { NOISE_KINDS, type ExplainedReports, type ReportGroup, type ReportPolicy } from '../../lib/violation-reports';
 import { encodeCompareState } from '../policy/compare-state';
 import { ViolationItem, ViolationWhat } from '../policy/ViolationList';
@@ -220,12 +221,4 @@ export function linesTitle(t: Translate, p: ReportPolicy, n: number | undefined)
 function policyCaption(t: Translate, p: ReportPolicy, i: number): string {
   if (p.replacedBy !== undefined) return t('reportsReader.policies.replaced', { n: i + 1, count: p.reports, date: dayName(t.locale, p.last!) });
   return t(`reportsReader.policies.${p.reportOnly ? 'reportOnly' : p.guessed ? 'guessed' : 'enforced'}`, { n: i + 1, count: p.reports });
-}
-
-/** A problem named in a sentence ("A script from gc.kis.v2.scr.kaspersky-labs.com"), without its markup. */
-function whatText(t: Translate, g: ReportGroup): string {
-  const e = g.explained;
-  const v = e.violation;
-  const key = e.case === 'trusted-types' ? `trusted.${v.trustedType ?? 'unknown'}` : v.kind === 'url' ? v.type : v.kind;
-  return t(`violations.what.${key}`, { host: e.host ?? '', count: e.count }).replace(/`/g, '');
 }

@@ -55,10 +55,14 @@ needs our own server comes last, because it changes the site's promise that the 
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).
-- [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. None of them publishes its
-      export format, so the reader goes by field and column names (`blocked_uri`, `@csp-report.blocked-uri`,
-      `tags[blocked-uri]`, "Blocked URI"…) and was tested with those spellings, not with their files. An anonymised
-      export from someone who uses one would settle it; add it to `src/lib/csp/violation-reports/` as a fixture.
+- [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. The reader goes by field
+      and column names (`blocked_uri`, `@csp-report.blocked-uri`, `tags[blocked-uri]`, "Blocked URI"…). Checked on
+      2026-11-21 against what is public: Sentry's CSP interface keeps `document_uri`, `violated_directive`,
+      `blocked_uri` and `effective_directive` and writes them back under `csp-report`
+      (`src/sentry/interfaces/security.py`); Datadog's intake keeps the browser's `csp-report` as sent (its CSP logs
+      integration page and blog post). Neither documents its export file (columns, layout), and report-uri.com and
+      URIports document theirs only behind a login. An anonymised export from someone who uses one would settle it;
+      add it to `src/lib/csp/violation-reports/` as a fixture.
 - [ ] Nonce guide: more stacks if asked (ASP.NET Core, Laravel, SvelteKit, Nuxt, nginx in front of an app).
 - [ ] Other languages come from contributors (decided 2026-11-12): CONTRIBUTING.md explains how to add one (the
       message files, YAML translations, `yarn i18n:status`, the locale list).
@@ -295,7 +299,10 @@ Interface:
       (downloaded, or copied for a ticket or a chat), all three made from one document built with the page's own
       pieces, so they never say something different. Unfolded and on paper: no box to fill in, the quicker way as a
       note with its cost, links pointing to the site. The pages can be left out, the policies added; the day picked
-      and the addresses marked as known are said in it. Never the reports themselves.
+      and the addresses marked as known are said in it. Never the reports themselves. And as data, for a
+      spreadsheet, a tracker or a SIEM: CSV (headers in the reader's language, no cell that a spreadsheet would run
+      as a formula) or JSON (stable English keys), one row or record per problem. Reads a few hundred thousand
+      reports, one per line or held in one record, in a second or two.
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole

@@ -26,7 +26,7 @@ export const USAGE_EVENTS = {
   'copy-report': ['audience', 'kind'],
   /** A report was saved: which audience, and in which format (pdf, html, md, txt). */
   'export-report': ['audience', 'format'],
-  /** The reports reader's results were saved: in which format (pdf, html, md, or copy as Markdown). Never what they say. */
+  /** The reports reader's results were saved: in which format (pdf, html, md, csv, json, or copy as Markdown). Never what they say. */
   'export-reports': ['format'],
   /** The Find my CSP console snippet was copied. */
   'copy-snippet': [],

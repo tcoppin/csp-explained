@@ -1125,6 +1125,27 @@
           "one": "1 domain counted as the site's own: {sites}.",
           "other": "{count} domains counted as the site's own: {sites}."
         }
+      },
+      "csvButton": "Download .csv",
+      "jsonButton": "Download .json",
+      "csv": {
+        "rank": "Rank",
+        "status": "Level",
+        "what": "Problem",
+        "blocked": "Blocked",
+        "directive": "Rule",
+        "reports": "Reports",
+        "pageCount": "Pages",
+        "pages": "Page list",
+        "browsers": "Browsers",
+        "first": "First",
+        "last": "Last",
+        "why": "Why",
+        "tools": "Tools",
+        "fix": "Safe fix",
+        "samples": "Quoted code",
+        "sources": "Running script",
+        "setApart": "Set apart"
       }
     },
     "ownLabel": "{site} is one of my domains",

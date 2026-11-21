@@ -15,6 +15,7 @@ import { downloadFile, documentFile, printDocument } from '../ui/document';
 import { markdownOf } from '../ui/markdown';
 import { useCopy } from '../ui/useCopy';
 import { printTitle } from '../../lib/reports/export';
+import { resultsCsv, resultsJson, type ResultsMeta } from '../../lib/reports/violation-results';
 import css from './reports-document.css?raw';
 import './reports-document.css';
 // Shared view styles first, so the reader's own rules win when they tie
@@ -500,6 +501,7 @@ function SaveResults({ r, source, since, trusted, own }: { r: ExplainedReports; 
   const { copied, copy } = useCopy(() => track('export-reports', { format: 'copy' }));
   const doc = () => <ReportsDocument t={t} r={r} options={options} source={source} {...(since !== undefined ? { since } : {})} trusted={trusted} own={own} date={new Date()} />;
   const title = reportsDocumentTitle(t);
+  const meta = (): ResultsMeta => ({ source, date: new Date(), ...(since !== undefined ? { since } : {}), ...options, own: [...own].sort() });
   const name = (ext: string) => `csp-violation-reports-${dayValue(Date.now())}.${ext}`;
   const option = (key: keyof SaveOptions) => (
     <label>
@@ -547,6 +549,27 @@ function SaveResults({ r, source, since, trusted, own }: { r: ExplainedReports; 
         </button>
         <button type="button" class="button quiet" onClick={() => copy(markdownOf(doc()))}>
           {copied ? t('report.copied') : t('reportsReader.save.copy')}
+        </button>
+        {/* For a spreadsheet, a tracker or a SIEM: one row or record per problem. */}
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            track('export-reports', { format: 'csv' });
+            downloadFile(name('csv'), resultsCsv(r, t, meta()), 'text/csv');
+          }}
+        >
+          {t('reportsReader.save.csvButton')}
+        </button>
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            track('export-reports', { format: 'json' });
+            downloadFile(name('json'), resultsJson(r, t, meta()), 'application/json');
+          }}
+        >
+          {t('reportsReader.save.jsonButton')}
         </button>
       </div>
       <p class="muted format-hint">{t('reportsReader.save.hint')}</p>

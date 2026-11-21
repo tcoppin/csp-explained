@@ -1125,6 +1125,27 @@
           "one": "1 domaine compté comme celui du site : {sites}.",
           "other": "{count} domaines comptés comme ceux du site : {sites}."
         }
+      },
+      "csvButton": "Télécharger le .csv",
+      "jsonButton": "Télécharger le .json",
+      "csv": {
+        "rank": "Rang",
+        "status": "Niveau",
+        "what": "Problème",
+        "blocked": "Bloqué",
+        "directive": "Règle",
+        "reports": "Rapports",
+        "pageCount": "Pages",
+        "pages": "Liste des pages",
+        "browsers": "Navigateurs",
+        "first": "Premier",
+        "last": "Dernier",
+        "why": "Pourquoi",
+        "tools": "Outils",
+        "fix": "Correction sûre",
+        "samples": "Code cité",
+        "sources": "Script en cours",
+        "setApart": "Mis à part"
       }
     },
     "ownLabel": "{site} est l'un de mes domaines",

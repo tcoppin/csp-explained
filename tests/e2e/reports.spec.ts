@@ -362,9 +362,19 @@ test('the results save as PDF, .html and Markdown, with what the visitor chose, 
   await save.getByRole('button', { name: 'Copy as Markdown' }).click();
   await expect(save.getByRole('button', { name: 'Copied' })).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(markdown);
-  expect(sent()).toEqual(expect.arrayContaining(['n=export-reports&format=html', 'n=export-reports&format=md', 'n=export-reports&format=copy']));
+  // For a spreadsheet or a tracker: one row or record per problem, with what was asked for.
+  const [csv] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .csv' }).click()]);
+  expect(csv.suggestedFilename()).toMatch(/^csp-violation-reports-\d{4}-\d{2}-\d{2}\.csv$/);
+  const rows = readFileSync((await csv.path())!, 'utf8').trimEnd().split('\r\n');
+  expect(rows[0]).toBe('Rank,Level,Problem,Blocked,Rule,Reports,Pages,Browsers,First,Last,Why,Tools,Safe fix,Quoted code,Running script');
+  expect(rows[1]).toMatch(/^1,Check first,A script from cdn\.jquery-libs\.example,/);
+  const [json] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .json' }).click()]);
+  const data = JSON.parse(readFileSync((await json.path())!, 'utf8'));
+  expect(data.problems[0]).toMatchObject({ rank: 1, status: 'high', host: 'cdn.jquery-libs.example', sources: [{ file: 'https://shop.example.com/assets/theme.js', reports: 5 }] });
+  expect(data.policies).toHaveLength(2);
+  expect(sent()).toEqual(expect.arrayContaining(['n=export-reports&format=html', 'n=export-reports&format=md', 'n=export-reports&format=copy', 'n=export-reports&format=csv', 'n=export-reports&format=json']));
   // What was counted: the format only.
-  for (const q of sent().filter((q) => q.startsWith('n=export-reports'))) expect(q).toMatch(/^n=export-reports&format=(pdf|html|md|copy)$/);
+  for (const q of sent().filter((q) => q.startsWith('n=export-reports'))) expect(q).toMatch(/^n=export-reports&format=(pdf|html|md|copy|csv|json)$/);
   expect(errors).toEqual([]);
 });
 
