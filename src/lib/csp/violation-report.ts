@@ -110,15 +110,15 @@ function fieldsOf(o: Obj): Partial<Record<Field, string>> {
 
 const DISPOSITION: Record<string, 'enforce' | 'report'> = { enforce: 'enforce', enforced: 'enforce', report: 'report', reportonly: 'report' };
 
-function fromBody(body: Obj, around: Obj[]): Read | undefined {
+function fromBody(body: Obj, around: Obj[], record: Obj | undefined): Read | undefined {
   const f = fieldsOf(body);
   const directive = f.effective ?? f.violated?.trim().split(/\s+/)[0];
   if (!directive || f.blocked === undefined) return undefined;
   const disposition = DISPOSITION[(f.disposition ?? '').toLowerCase().replace(/[^a-z]/g, '')];
   const time = [f.time, ...around.map((o) => fieldsOf(o).time)].map(timeOf).find((t) => t !== undefined);
   // The browser is beside the body (Reporting API), or kept by the collector, at any level around it or elsewhere in
-  // its record (a request's headers).
-  const userAgent = f.userAgent ?? around.map((o) => fieldsOf(o).userAgent).find((v) => v) ?? (around.length > 0 ? userAgentIn(around.at(-1)!, 4) : undefined);
+  // its record (a request's headers): this report's record, never the whole file around it.
+  const userAgent = f.userAgent ?? around.map((o) => fieldsOf(o).userAgent).find((v) => v) ?? (record && record !== body ? userAgentIn(record, 4) : undefined);
   return {
     blocked: f.blocked.trim(),
     directive: directive.toLowerCase(),
@@ -188,22 +188,27 @@ function tagsOf(list: Json[]): Obj | undefined {
 /** What makes two reports the same, to drop one a collector kept twice in a record (raw, and parsed). */
 const sameAs = (r: Read) => [r.blocked, r.directive, r.page, r.policy, r.sample, r.sourceFile].join('\u0000');
 
-/** Every report in a JSON value, however deep a collector wrapped it (strings holding JSON included). */
-function collect(value: Json, around: Obj[], out: Read[]) {
+/**
+ * Every report in a JSON value, however deep a collector wrapped it (strings holding JSON included). `record`: the
+ * object a report was kept in, below the last list of records (the whole value, when it holds one report).
+ */
+function collect(value: Json, around: Obj[], out: Read[], record?: Obj) {
   if (Array.isArray(value)) {
     const tags = tagsOf(value);
-    if (tags) collect(tags, around, out);
+    if (tags) collect(tags, around, out, record);
+    // A list of records: each item is a record of its own.
     else for (const v of value) collect(v, around, out);
     return;
   }
   if (typeof value === 'string') {
     const inner = parseJson(value);
-    if (inner !== undefined) collect(inner, around, out);
+    if (inner !== undefined) collect(inner, around, out, record);
     return;
   }
   if (!isObj(value)) return;
+  const rec = record ?? value;
   if (looksLikeReport(value)) {
-    const report = fromBody(value, around);
+    const report = fromBody(value, around, rec);
     if (report) out.push(report);
     return;
   }
@@ -214,10 +219,13 @@ function collect(value: Json, around: Obj[], out: Read[]) {
   const seen = new Set<string>();
   for (const v of Object.values(value)) {
     const found: Read[] = [];
-    collect(v, [value, ...around], found);
+    collect(v, [value, ...around], found, rec);
     if (found.length > 0 && found.every((r) => seen.has(sameAs(r)))) continue;
-    for (const r of found) seen.add(sameAs(r));
-    out.push(...found);
+    // One by one: a record can hold hundreds of thousands of reports, too many to spread as arguments.
+    for (const r of found) {
+      seen.add(sameAs(r));
+      out.push(r);
+    }
   }
 }
 

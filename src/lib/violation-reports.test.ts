@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parseVendor } from './catalogue/schema';
-import { explainReports, isSensitive, siteOf } from './violation-reports';
+import { readReports } from './csp/violation-report';
+import { explainReports, isSensitive, rangeOf, siteOf } from './violation-reports';
 
 const vendorDir = join(import.meta.dirname, '../../catalogue/vendors');
 const vendors = readdirSync(vendorDir).map((f) => parseVendor(readFileSync(join(vendorDir, f), 'utf8')));
@@ -234,6 +235,24 @@ describe('explainReports', () => {
     // An unknown address left out of the lines still keeps it from being ready.
     expect(explainReports([at(1, { blockedURL: 'https://cdn.evil.example/x.js', effectiveDirective: 'script-src-elem' }), at(9, extension)].join('\n'), vendors).readiness[0]).toMatchObject({ verdict: 'not-yet', blocking: 1, inLines: 0 });
   });
+
+  it('reads a few hundred thousand reports, in one record or one per line, without overflowing', () => {
+    const one = (i: number) => ({
+      timestamp: Date.UTC(2026, 10, 1 + (i % 20)),
+      type: 'csp-violation',
+      body: { documentURL: `https://shop.example.com/p/${i % 50}`, blockedURL: 'https://static.hotjar.com/c/hotjar-1.js', effectiveDirective: 'script-src-elem', originalPolicy: POLICY, disposition: 'enforce' },
+    });
+    const reports = Array.from({ length: 300_000 }, (_, i) => one(i));
+    // A collector's export holding them all in one record, then the same reports read.
+    const read = readReports(JSON.stringify({ reports }));
+    expect(read.reports).toHaveLength(300_000);
+    const e = explainReports(read, vendors);
+    expect(e.total).toBe(300_000);
+    expect(e.groups).toHaveLength(1);
+    expect(e.groups[0]).toMatchObject({ reports: 300_000, first: Date.UTC(2026, 10, 1), last: Date.UTC(2026, 10, 20) });
+    expect(e.period).toEqual({ from: Date.UTC(2026, 10, 1), to: Date.UTC(2026, 10, 20) });
+    expect(rangeOf([])).toBeUndefined();
+  }, 60_000);
 
   it('tells a domain from its subdomains', () => {
     expect(siteOf('cdn.shop.example.com')).toBe('example.com');

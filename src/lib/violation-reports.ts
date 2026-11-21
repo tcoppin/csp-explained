@@ -222,7 +222,7 @@ const PLACEHOLDER_ORIGIN = 'https://your-site.example';
 export function explainReports(input: string | ReadReports, vendors: Vendor[], { trusted = new Set(), since }: ReportOptions = {}): ExplainedReports {
   const read = typeof input === 'string' ? readReports(input) : input;
   const times = read.reports.map((r) => r.time).filter((t) => t !== undefined);
-  const period = times.length > 0 ? { from: Math.min(...times), to: Math.max(...times) } : undefined;
+  const period = rangeOf(times);
   const reports = since === undefined ? read.reports : read.reports.filter((r) => r.time !== undefined && r.time >= since);
   const undated = since === undefined ? 0 : read.reports.filter((r) => r.time === undefined).length;
   const before = read.reports.length - reports.length - undated;
@@ -298,7 +298,10 @@ export function explainReports(input: string | ReadReports, vendors: Vendor[], {
       pages: ranked(p.reports.map((r) => pageOf(r.page, origin))).map(([page, reports]) => ({ page, reports })),
       browsers: ranked(p.reports.map((r) => browserOf(r.userAgent))).map(([b]) => b),
       policy: p.policy,
-      ...(dates.length > 0 ? { first: Math.min(...dates), last: Math.max(...dates) } : {}),
+      ...(() => {
+        const range = rangeOf(dates);
+        return range ? { first: range.from, last: range.to } : {};
+      })(),
       key: p.key,
       ...(siteItems[i]?.unknown ? { unknown: true as const } : {}),
       ...(p.noise ? { noise: p.noise } : {}),
@@ -402,6 +405,21 @@ function riskOf(g: ReportGroup, trusted: ReadonlySet<string>, period: { from: nu
   // Seen on more pages: more likely everywhere. A few points, never more than a reason.
   score += Math.min(g.pages.length, 10);
   return { level: score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low', score, reasons };
+}
+
+/**
+ * The earliest and latest of `times`. A loop, not `Math.min(...times)`: spreading one argument per report overflows
+ * the call stack past about 100,000 reports (fewer in some browsers).
+ */
+export function rangeOf(times: readonly number[]): { from: number; to: number } | undefined {
+  if (times.length === 0) return undefined;
+  let from = times[0]!;
+  let to = from;
+  for (const t of times) {
+    if (t < from) from = t;
+    if (t > to) to = t;
+  }
+  return { from, to };
 }
 
 /**

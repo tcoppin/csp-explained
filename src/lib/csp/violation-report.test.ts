@@ -129,6 +129,29 @@ describe('readReports', () => {
     ]);
   });
 
+  it("takes a report's browser from its own record, never from another one in the same file", () => {
+    const withBrowser = {
+      csp: { blocked_uri: 'https://static.hotjar.com/c/hotjar-1.js', effective_directive: 'script-src-elem' },
+      request: { headers: [['User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0']] },
+    };
+    const without = { csp: { blocked_uri: 'eval', effective_directive: 'script-src' } };
+    // An export that holds its records in one object: each record is still its own.
+    const { reports } = readReports(JSON.stringify({ events: [withBrowser, without] }));
+    expect(reports.map((r) => [r.blocked, browserOf(r.userAgent)])).toEqual([
+      ['https://static.hotjar.com/c/hotjar-1.js', 'Firefox'],
+      ['eval', undefined],
+    ]);
+  });
+
+  it('reads a large export held in one object as fast as one report per line', () => {
+    const record = (i: number) => ({ csp: { blocked_uri: `https://cdn${i % 30}.example/x.js`, effective_directive: 'script-src-elem', document_uri: `https://www.example.com/${i % 40}` } });
+    const records = Array.from({ length: 50_000 }, (_, i) => record(i));
+    const start = performance.now();
+    expect(readReports(JSON.stringify({ events: records })).reports).toHaveLength(50_000);
+    // Searching the whole file for each report's browser took minutes here.
+    expect(performance.now() - start).toBeLessThan(5_000);
+  });
+
   it('counts once a report a record keeps twice: as raw text, and as parsed fields', () => {
     const raw = { 'csp-report': { 'blocked-uri': 'eval', 'effective-directive': 'script-src', 'document-uri': 'https://www.example.com/' } };
     const record = {
