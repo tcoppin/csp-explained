@@ -902,7 +902,8 @@
       "one": "La ligne `{directive}` ci-dessous l'autorise.",
       "other": "La ligne `{directive}` ci-dessous les autorise."
     },
-    "blockedUntil": "Bloqué par `{directive}` jusqu'au {date}."
+    "blockedUntil": "Bloqué par `{directive}` jusqu'au {date}.",
+    "noHashPaper": "Les rapports ne contiennent pas l'empreinte du code, et leur extrait s'arrête à 40 caractères : obtenez l'empreinte à partir du code lui-même (le [lecteur de rapports](/reports) a un outil pour cela), ou [utilisez un nonce](/nonces)."
   },
   "reportsReader": {
     "inputLabel": "Vos rapports",
@@ -994,7 +995,11 @@
       "pageCount": { "one": "(1 rapport)", "other": "({count} rapports)" },
       "seen": "Premier le {first}, dernier le {last}.",
       "seenOnce": "Le {date}.",
-      "more": { "one": "et 1 autre page", "other": "et {count} autres pages" }
+      "more": { "one": "et 1 autre page", "other": "et {count} autres pages" },
+      "pageItem": {
+        "one": "{page} (1 rapport)",
+        "other": "{page} ({count} rapports)"
+      }
     },
     "risk": {
       "level": {
@@ -1090,6 +1095,28 @@
     "noiseCount": {
       "one": "(1 rapport)",
       "other": "({count} rapports)"
+    },
+    "save": {
+      "include": {
+        "pages": "Inclure les pages de chaque problème",
+        "policies": "Inclure les politiques des rapports"
+      },
+      "copy": "Copier en Markdown",
+      "hint": "Fait dans votre navigateur à partir de ce que montre cette page : rien n'est envoyé, et les rapports eux-mêmes n'y sont pas. Un jour choisi dans « Seulement les rapports depuis le » et les adresses que vous avez marquées comme connues y sont indiqués.",
+      "document": {
+        "title": "Rapports de violation",
+        "read": "Lu",
+        "received": "Reçus",
+        "inShort": "En bref",
+        "vouched": {
+          "one": "1 adresse qu'aucun outil connu n'utilise a été marquée comme connue, et figure dans les lignes.",
+          "other": "{count} adresses qu'aucun outil connu n'utilise ont été marquées comme connues, et figurent dans les lignes."
+        },
+        "footer": "Lu dans le navigateur avec {site} : les rapports ne l'ont jamais quitté.",
+        "link": "Lire vos propres rapports",
+        "readValue": "{source}, {reports}",
+        "pages": "Pages : {pages}."
+      }
     }
   }
 }

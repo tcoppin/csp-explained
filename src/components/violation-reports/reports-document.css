@@ -1,0 +1,89 @@
+/* The reports reader's results on paper: the levels, the problems, the verdict on enforcing (the paper itself is in
+   ui/document.css). Light colours whatever the page's theme, from global.css's light highlighter. */
+.reports-doc {
+  --doc-hl-high: #ffb8b0;
+  --doc-hl-medium: #ffe66d;
+  --doc-hl-low: #ebe5ec;
+  --doc-hl-fixed: #bdf2cf;
+}
+/* A level: highlighted as on the page. The words say it; the colour repeats it. */
+.reports-doc :is(.report-level, .doc-level) {
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  color: var(--doc-ink);
+  font-weight: 700;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.reports-doc .report-level.high,
+.reports-doc .high > h3 .doc-level {
+  background: var(--doc-hl-high);
+}
+.reports-doc .report-level.medium,
+.reports-doc .medium > h3 .doc-level {
+  background: var(--doc-hl-medium);
+}
+.reports-doc .report-level.low,
+.reports-doc .low > h3 .doc-level {
+  background: var(--doc-hl-low);
+}
+.reports-doc .report-level.fixed,
+.reports-doc .fixed > h3 .doc-level {
+  background: var(--doc-hl-fixed);
+}
+.reports-doc .doc-lead {
+  line-height: 1.8;
+}
+.doc-problems {
+  padding: 0;
+  list-style: none;
+}
+.doc-problem {
+  margin-bottom: 1.25rem;
+  border-left: 4px solid var(--doc-bad);
+  padding-left: 0.75rem;
+  break-inside: avoid;
+}
+.doc-problem.fixed {
+  border-color: var(--doc-ok);
+}
+.doc-problem h3 {
+  margin: 0 0 0.35rem;
+  font-size: 11pt;
+}
+.doc-problem p {
+  margin: 0 0 0.4rem;
+}
+.doc-problem .violation-status,
+.doc-pages {
+  color: var(--doc-ink-soft);
+}
+/* The warning under an unknown address, and the quicker way: set off as on the page */
+.reports-doc .violation-risk,
+.doc-problem .doc-note {
+  border-left: 3px solid var(--doc-warn);
+  padding-left: 0.6rem;
+}
+/* "Can you enforce it?": the verdict in words, its edge repeating it */
+.reports-doc .report-enforce {
+  border-left: 4px solid var(--doc-rule);
+  padding-left: 0.75rem;
+  margin: 1rem 0;
+  break-inside: avoid;
+}
+.reports-doc .report-enforce.not-yet {
+  border-color: var(--doc-bad);
+}
+.reports-doc .report-enforce.too-soon {
+  border-color: var(--doc-warn);
+}
+.reports-doc .report-enforce.ready {
+  border-color: var(--doc-ok);
+}
+.reports-doc .report-enforce h3 {
+  margin: 0 0 0.35rem;
+  font-size: 11pt;
+}
+.doc-set-apart li {
+  margin-bottom: 0.35rem;
+}

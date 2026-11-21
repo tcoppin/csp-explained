@@ -44,6 +44,10 @@ needs our own server comes last, because it changes the site's promise that the 
       (2026-11-21): after "Try an example", the focus lands on "What the 138 reports say" and that is heard;
       "Change" puts it back in the box, "Done" on the heading again; the summary's highlighted counts are heard as
       plain words, and each row is heard with its level first ("Check first, A script from…, 5 reports").
+      And "Save a copy" at the end of the results (2026-11-21): the group and its two checkboxes are read with their
+      names; after "Print or save as PDF" the focus is back on that button; the downloaded .html file reads in
+      order in a browser (title, the details under it, "In short", each problem as a heading with its level first);
+      a PDF saved from it, opened in a PDF reader, reads the same way.
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).
@@ -279,6 +283,11 @@ Interface:
       or the date starting a log line) give each problem its first and last day and can be read from a day on; a
       policy every report of which came before the newest one's first is an older version: its reports are read
       against the newest, and what that one allows is the list's last row, marked "Allowed since" the day that policy started coming (not "fixed": the reports can't say it is still the one the site sends).
+      The results save as a copy to share or keep: printed or saved as PDF, a standalone .html file, or Markdown
+      (downloaded, or copied for a ticket or a chat), all three made from one document built with the page's own
+      pieces, so they never say something different. Unfolded and on paper: no box to fill in, the quicker way as a
+      note with its cost, links pointing to the site. The pages can be left out, the policies added; the day picked
+      and the addresses marked as known are said in it. Never the reports themselves.
       Shapes from Chromium, Firefox and WebKit themselves (`src/lib/csp/violation-reports/`), except Chromium's
       Reporting API reports, which it didn't deliver to a local test server: those follow the specification.
 - [x] **Explain a pasted console error** (2026-11-17): paste one or more of the browser's CSP messages (a whole

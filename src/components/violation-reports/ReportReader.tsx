@@ -9,6 +9,14 @@ import { Lines, ViolationItem, ViolationWhat } from '../policy/ViolationList';
 import { I18n, useT } from '../ui/i18n';
 import { Rich } from '../ui/Rich';
 import { EXAMPLE_REPORTS } from './example';
+import { dayName, dayValue, Enforce, RiskLine, Stats, Summary } from './parts';
+import { DEFAULT_SAVE, linesTitle, ReportsDocument, reportsDocumentTitle, type SaveOptions } from './ReportsDocument';
+import { downloadFile, documentFile, printDocument } from '../ui/document';
+import { markdownOf } from '../ui/markdown';
+import { useCopy } from '../ui/useCopy';
+import { printTitle } from '../../lib/reports/export';
+import css from './reports-document.css?raw';
+import './reports-document.css';
 // Shared view styles first, so the reader's own rules win when they tie
 import '../ui/panels.css';
 import '../policy/results.css';
@@ -21,8 +29,6 @@ interface Props {
 
 /** Larger files are refused: reading them would freeze the page. */
 const MAX_BYTES = 50 * 1024 * 1024;
-/** Pages listed under a problem before "and N more". */
-const PAGES_SHOWN = 8;
 
 type Loaded = { kind: 'none' } | { kind: 'example' } | { kind: 'file'; name: string; size: number };
 
@@ -267,7 +273,16 @@ export default function ReportReader({ content, locale }: Props) {
         </p>
         {read && result &&
           (read.reports.length > 0 ? (
-            <Results r={result} trusted={trusted} onTrust={trust} since={since} onSince={pickSince} period={!folded} />
+            <Results
+              r={result}
+              trusted={trusted}
+              onTrust={trust}
+              since={since}
+              onSince={pickSince}
+              period={!folded}
+              source={loaded.kind === 'file' ? loaded.name : t(`reportsReader.bar.${loaded.kind === 'example' ? 'example' : 'pasted'}`)}
+              sinceTime={since && sinceTime !== undefined && Number.isFinite(sinceTime) ? sinceTime : undefined}
+            />
           ) : (
             <p class="issue report-none">{t('reportsReader.noneLong')}</p>
           ))}
@@ -284,6 +299,9 @@ interface ResultsProps {
   onSince: (day: string) => void;
   /** When the reports were received, here: the bar shows it once the box is folded. */
   period: boolean;
+  /** What was read, for the saved copy: the example, a file's name, or pasted reports. */
+  source: string;
+  sinceTime: number | undefined;
 }
 
 const LEVELS = ['high', 'medium', 'low'] as const;
@@ -295,7 +313,7 @@ const LEVELS = ['high', 'medium', 'low'] as const;
  * one the site sends); then the lines that allow them; and what the site didn't cause, folded at
  * the end.
  */
-function Results({ r, trusted, onTrust, since, onSince, period }: ResultsProps) {
+function Results({ r, trusted, onTrust, since, onSince, period, source, sinceTime }: ResultsProps) {
   const t = useT();
   // Older versions get no lines of their own: their reports were read against the newest.
   const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
@@ -390,15 +408,7 @@ function Results({ r, trusted, onTrust, since, onSince, period }: ResultsProps) 
             key={i}
             lines={lines}
             // With dates, which policy the lines are built on: the one sent from its first report on.
-            title={
-              p.first === undefined
-                ? several
-                  ? t('reportsReader.linesFor', { n: i + 1 })
-                  : t('violations.lines.title')
-                : several
-                  ? t('reportsReader.linesForFrom', { n: i + 1, date: dayName(t.locale, p.first) })
-                  : t('reportsReader.linesFrom', { date: dayName(t.locale, p.first) })
-            }
+            title={linesTitle(t, p, several ? i + 1 : undefined)}
             intro={<p>{t('reportsReader.linesIntro')}</p>}
           >
             <PolicyNotes p={p} />
@@ -445,80 +455,72 @@ function Results({ r, trusted, onTrust, since, onSince, period }: ResultsProps) 
           })}
         </details>
       )}
+
+      <SaveResults r={r} source={source} since={sinceTime} trusted={trusted} />
     </section>
   );
 }
 
 /**
- * "From your site: 2 to check first, 3 to look at next…", each count highlighted like the rows' level, so the
- * summary is also the key to their colours.
+ * Saving the results to share with a team or keep: printed or saved as PDF, a standalone .html file, or Markdown
+ * (a file, or copied for a ticket or a chat). Made on the device from what the page shows; never the reports.
  */
-function Summary({ levels }: { levels: (readonly [string, number])[] }) {
+function SaveResults({ r, source, since, trusted }: { r: ExplainedReports; source: string; since: number | undefined; trusted: ReadonlySet<string> }) {
   const t = useT();
-  const words = levels.map(([level, count]) => t(`reportsReader.levels.${level}`, { count }));
-  let n = 0;
-  const parts = new Intl.ListFormat(t.locale, { type: 'conjunction' }).formatToParts(words).map((part, i) => {
-    if (part.type !== 'element') return part.value;
-    const level = levels[n++]![0];
-    return (
-      <span key={i} class={`report-level ${level}`}>
-        {part.value}
-      </span>
-    );
-  });
-  return (
-    <>
-      {t('reportsReader.summaryLead')} {parts}.
-    </>
+  const [options, setOptions] = useState<SaveOptions>(DEFAULT_SAVE);
+  const { copied, copy } = useCopy(() => track('export-reports', { format: 'copy' }));
+  const doc = () => <ReportsDocument t={t} r={r} options={options} source={source} {...(since !== undefined ? { since } : {})} trusted={trusted} date={new Date()} />;
+  const title = reportsDocumentTitle(t);
+  const name = (ext: string) => `csp-violation-reports-${dayValue(Date.now())}.${ext}`;
+  const option = (key: keyof SaveOptions) => (
+    <label>
+      <input type="checkbox" checked={options[key]} onChange={(e) => setOptions({ ...options, [key]: e.currentTarget.checked })} /> {t(`reportsReader.save.include.${key}`)}
+    </label>
   );
-}
-
-/**
- * "Can you enforce it?", for a report-only policy: not yet (what it would block, how much the lines settle), too soon
- * to say, or ready, with what to do next. The verdict is said in words; its colour only repeats it.
- */
-function Enforce({ ready, n }: { ready: Readiness; n: number | undefined }) {
-  const t = useT();
-  const days =
-    ready.days === undefined ? '' : ready.days < 1 ? t('reportsReader.enforce.lessThanDay') : t('reportsReader.enforce.days', { count: Math.round(ready.days) });
-  const rest = ready.blocking - ready.inLines;
   return (
-    <section class={`report-enforce ${ready.verdict}`} aria-labelledby={`report-enforce-${ready.policy}`}>
-      <h3 id={`report-enforce-${ready.policy}`}>{n === undefined ? t('reportsReader.enforce.title') : t('reportsReader.enforce.titleN', { n })}</h3>
-      {ready.verdict === 'not-yet' && (
-        <>
-          <p>
-            <Rich msg="reportsReader.enforce.notYet" vars={{ count: ready.blocking }} />
-            {ready.inLines > 0 && (
-              <> {ready.inLines === ready.blocking ? t('reportsReader.enforce.allInLines') : t('reportsReader.enforce.inLines', { count: ready.inLines })}</>
-            )}
-            {rest > 0 && <> {t('reportsReader.enforce.needsWork', { count: rest })}</>}
-          </p>
-          <p>{t('reportsReader.enforce.notYetNext')}</p>
-        </>
-      )}
-      {ready.verdict === 'too-soon' && (
-        <p>
-          <Rich msg="reportsReader.enforce.tooSoon" />{' '}
-          {ready.days === undefined ? t('reportsReader.enforce.tooSoonUndated') : t('reportsReader.enforce.tooSoonDays', { days })}
-        </p>
-      )}
-      {ready.verdict === 'ready' && (
-        <>
-          <p>
-            <Rich msg="reportsReader.enforce.ready" vars={{ days }} />
-            {ready.noise > 0 && <> {t('reportsReader.enforce.readyNoise', { count: ready.noise })}</>}
-          </p>
-          <ol>
-            {(['header', 'unseen', 'next'] as const).map((step) => (
-              <li key={step}>
-                <Rich msg={`reportsReader.enforce.readySteps.${step}`} />
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
-    </section>
+    <fieldset class="save-copy report-save">
+      <legend>{t('report.export.title')}</legend>
+      <div class="save-options">
+        {option('pages')}
+        {option('policies')}
+      </div>
+      <div class="actions">
+        <button
+          type="button"
+          class="button"
+          onClick={() => {
+            track('export-reports', { format: 'pdf' });
+            printDocument(doc(), printTitle(title, r.origin ?? ''));
+          }}
+        >
+          {t('report.export.print')}
+        </button>
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            track('export-reports', { format: 'html' });
+            downloadFile(name('html'), documentFile(doc(), title, t.locale, css), 'text/html');
+          }}
+        >
+          {t('report.export.html')}
+        </button>
+        <button
+          type="button"
+          class="button quiet"
+          onClick={() => {
+            track('export-reports', { format: 'md' });
+            downloadFile(name('md'), markdownOf(doc()), 'text/markdown');
+          }}
+        >
+          {t('report.export.md')}
+        </button>
+        <button type="button" class="button quiet" onClick={() => copy(markdownOf(doc()))}>
+          {copied ? t('report.copied') : t('reportsReader.save.copy')}
+        </button>
+      </div>
+      <p class="muted format-hint">{t('reportsReader.save.hint')}</p>
+    </fieldset>
   );
 }
 
@@ -592,15 +594,6 @@ function Period({ r, since, onSince }: { r: ExplainedReports; since: string; onS
   );
 }
 
-/** A day as people read it ("Nov 13, 2026"), in the visitor's time zone. */
-const dayName = (locale: string, time: number) => new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(time);
-/** A day as a date field takes it (`2026-11-13`), in the visitor's time zone. */
-function dayValue(time: number): string {
-  const d = new Date(time);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-const sameDay = (a: number, b: number) => dayValue(a) === dayValue(b);
-
 /** An address no tool uses, outside the site: why it isn't in the lines, how to check it, and the visitor's word. */
 function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; onTrust: (key: string, host: string, yes: boolean) => void }) {
   const t = useT();
@@ -618,69 +611,3 @@ function Unknown({ g, trusted, onTrust }: { g: ReportGroup; trusted: boolean; on
   );
 }
 
-/**
- * Why a problem is ranked where it is, when something sets it apart: an unknown address, a checkout or sign-in page,
- * new or gone. Its level is in its row; "blocked" and "a script" are in its status and name already.
- */
-const TELLING = new Set(['unknown', 'sensitive', 'new', 'stopped']);
-function RiskLine({ g }: { g: ReportGroup }) {
-  const t = useT();
-  const reasons = (g.risk?.reasons ?? [])
-    .filter((r) => TELLING.has(r.kind))
-    .map((r) =>
-      r.kind === 'sensitive'
-        ? t('reportsReader.risk.sensitive', { page: r.page })
-        : r.kind === 'new' || r.kind === 'stopped'
-          ? t(`reportsReader.risk.${r.kind}`, { date: dayName(t.locale, r.since) })
-          : t(`reportsReader.risk.${r.kind}`),
-    );
-  if (reasons.length === 0) return null;
-  // The level is in the row already.
-  const list = new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons);
-  return <p class="report-risk">{t('reportsReader.risk.why', { reasons: list })}</p>;
-}
-
-/** How many reports a problem stands for, from which pages and browsers. */
-function Stats({ g, policies }: { g: ReportGroup; policies: number }) {
-  const t = useT();
-  const list = (items: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(items);
-  const shown = g.pages.slice(0, PAGES_SHOWN);
-  return (
-    <div class="report-stats">
-      <p>
-        {t('reportsReader.stats.reports', { count: g.reports })}
-        {g.pages.length === 1 && (
-          <>
-            {' '}
-            <Rich msg="reportsReader.stats.onePage" vars={{ page: g.pages[0]!.page }} />
-          </>
-        )}
-        {g.pages.length > 1 && <> {t('reportsReader.stats.pages', { count: g.pages.length })}</>}
-        {g.browsers.length > 0 && <> {t('reportsReader.stats.browsers', { browsers: list(g.browsers) })}</>}
-        {policies > 0 && <> {t('reportsReader.stats.policy', { n: g.policy + 1 })}</>}
-        {t('reportsReader.stats.end')}
-        {g.first !== undefined && g.last !== undefined && (
-          <>
-            {' '}
-            {sameDay(g.first, g.last)
-              ? t('reportsReader.stats.seenOnce', { date: dayName(t.locale, g.first) })
-              : t('reportsReader.stats.seen', { first: dayName(t.locale, g.first), last: dayName(t.locale, g.last) })}
-          </>
-        )}
-      </p>
-      {g.pages.length > 1 && (
-        <details class="report-pages">
-          <summary>{t('reportsReader.stats.showPages', { count: g.pages.length })}</summary>
-          <ul>
-            {shown.map((p) => (
-              <li key={p.page}>
-                <code>{p.page}</code> {t('reportsReader.stats.pageCount', { count: p.reports })}
-              </li>
-            ))}
-            {g.pages.length > shown.length && <li>{t('reportsReader.stats.more', { count: g.pages.length - shown.length })}</li>}
-          </ul>
-        </details>
-      )}
-    </div>
-  );
-}

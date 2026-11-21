@@ -1,7 +1,7 @@
 /** The reports reader (/reports): reading a batch, what it shows and says, the comparator link, and what is counted. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { test, expect, openReader, announced, readAloud, watchErrors } from './helpers';
+import { test, expect, openReader, announced, readAloud, watchErrors, stubPrint, printed } from './helpers';
 
 /** Chromium's own reports (report-uri format, one per line): 16 of them, from an enforced and a report-only policy. */
 const CHROMIUM = readFileSync(join(import.meta.dirname, '../../src/lib/csp/violation-reports/chromium-report-uri.ndjson'), 'utf8');
@@ -245,6 +245,90 @@ test('read, the box folds into a bar; Change unfolds it and Done folds it again,
   await expect(bar).toHaveCount(0);
 });
 
+test('the results save as PDF, .html and Markdown, with what the visitor chose, and never the reports themselves', async ({ page, sent }) => {
+  const errors = watchErrors(page);
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  const title = await page.title();
+  // At the end of the results: the pages in, the policies out, by default.
+  const save = page.getByRole('group', { name: 'Save a copy' });
+  await expect(save.getByRole('checkbox', { name: 'Include the pages of each problem' })).toBeChecked();
+  await expect(save.getByRole('checkbox', { name: 'Include the policies in the reports' })).not.toBeChecked();
+
+  await stubPrint(page);
+  await save.getByRole('button', { name: 'Print or save as PDF' }).click();
+  const doc = (await printed(page))!;
+  expect(doc.printing).toBe(true);
+  expect(doc.title).toBe('Violation reports – shop.example.com');
+  expect(doc.text).toContain('From your site: 2 to check first, 3 to look at next, 1 less urgent, and 1 allowed since a policy change.');
+  expect(doc.text).toMatch(/Check first\s*: A script from cdn\.jquery-libs\.example/);
+  expect(doc.text).toContain('Pages: /checkout (3 reports) and /cart (2 reports).');
+  // Unfolded and on paper: the warnings, the quicker way as a note, no box to fill in.
+  expect(doc.text).toContain('search your site\'s code and your tag manager for cdn.jquery-libs.example');
+  expect(doc.text).toContain("A quicker way, less safe: Add a style-src-attr rule");
+  expect(doc.text).toContain('get the hash from the code itself');
+  expect(doc.text).toContain("script-src 'self' 'nonce-r4nd0m' https://www.googletagmanager.com https://static.hotjar.com");
+  expect(doc.text).toContain("Set apart: 17 reports your site didn't cause");
+  // Never the reports: no browser string, no raw field.
+  expect(doc.text).not.toMatch(/Mozilla|blockedURL|csp-violation/);
+  expect(doc.text).not.toContain('The 2 policies in these reports');
+  await expect.poll(sent).toContain('n=export-reports&format=pdf');
+  // The print window closed: the page as it was, the focus still on the button.
+  await expect(page.locator('.print-host')).toHaveCount(0);
+  await expect(save.getByRole('button', { name: 'Print or save as PDF' })).toBeFocused();
+  expect(await page.title()).toBe(title);
+
+  // Without the pages, with the policies: a standalone .html file whose links point to the site.
+  await save.getByRole('checkbox', { name: 'Include the pages of each problem' }).uncheck();
+  await save.getByRole('checkbox', { name: 'Include the policies in the reports' }).check();
+  const [html] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .html' }).click()]);
+  expect(html.suggestedFilename()).toMatch(/^csp-violation-reports-\d{4}-\d{2}-\d{2}\.html$/);
+  const file = readFileSync((await html.path())!, 'utf8');
+  expect(file).toMatch(/^<!doctype html>\n<html lang="en">/);
+  expect(file).toMatch(/<style>[^<]*\.report-doc \{[^<]*\.reports-doc \{/);
+  expect(file).not.toContain('Pages: /');
+  expect(file).toContain('The 2 policies in these reports');
+  expect(file).toContain('href="https://csp-explained.com/vendors/hotjar"');
+  const opened = await page.context().newPage();
+  await opened.setContent(file);
+  await expect(opened.getByRole('heading', { level: 1 })).toHaveText('Violation reports');
+  await expect(opened.getByRole('heading', { name: '7 problems, from your site' })).toBeVisible();
+  await opened.close();
+
+  // Markdown: the same document, as a file and copied.
+  const [md] = await Promise.all([page.waitForEvent('download'), save.getByRole('button', { name: 'Download .md' }).click()]);
+  expect(md.suggestedFilename()).toMatch(/^csp-violation-reports-\d{4}-\d{2}-\d{2}\.md$/);
+  const markdown = readFileSync((await md.path())!, 'utf8');
+  expect(markdown).toMatch(/^\[CSP Explained\]\(https:\/\/csp-explained\.com\/\)\n\n# Violation reports\n/);
+  expect(markdown).toContain('1. ### Check first: A script from cdn.jquery-libs.example');
+  expect(markdown).toContain('This address is used by [Hotjar](https://csp-explained.com/vendors/hotjar): Tracking code.');
+  expect(markdown).toContain("```\nscript-src 'self' 'nonce-r4nd0m' https://www.googletagmanager.com https://static.hotjar.com\n```");
+  await save.getByRole('button', { name: 'Copy as Markdown' }).click();
+  await expect(save.getByRole('button', { name: 'Copied' })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(markdown);
+  expect(sent()).toEqual(expect.arrayContaining(['n=export-reports&format=html', 'n=export-reports&format=md', 'n=export-reports&format=copy']));
+  // What was counted: the format only.
+  for (const q of sent().filter((q) => q.startsWith('n=export-reports'))) expect(q).toMatch(/^n=export-reports&format=(pdf|html|md|copy)$/);
+  expect(errors).toEqual([]);
+});
+
+test('a saved copy says what shaped it: the day picked, the addresses marked as known', async ({ page }) => {
+  await openReader(page);
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await page.getByLabel('Only the reports since').fill('2026-11-17');
+  const skimmer = row(page, 'cdn.jquery-libs.example');
+  await open(skimmer);
+  await skimmer.getByRole('checkbox', { name: 'I know what this is: allow it in the lines' }).check();
+  await stubPrint(page);
+  await page.getByRole('button', { name: 'Print or save as PDF' }).click();
+  const doc = (await printed(page))!;
+  expect(doc.text).toMatch(/\d+ reports since Nov 17, 2026\./);
+  expect(doc.text).toContain('1 address no known tool uses was marked as known, and is in the lines.');
+  // Vouched for: its warning isn't in the copy, its address is in the lines.
+  expect(doc.text).not.toContain('search your site\'s code and your tag manager');
+  expect(doc.text).toContain('https://cdn.jquery-libs.example');
+});
+
 test('text without reports says what a report looks like', async ({ page }) => {
   await openReader(page);
   await box(page).fill("default-src 'self'");
@@ -344,4 +428,10 @@ test('reports are read in French on French pages', async ({ page }) => {
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');
   await expect(first.getByRole('link', { name: 'Hotjar' })).toHaveAttribute('href', '/fr/vendors/hotjar');
   await expect(first.locator('.report-stats > p')).toHaveText(/^46 rapports sur 6 pages depuis Chrome, Edge, Safari et Firefox\. Premier le 13 nov\. 2026, dernier le 19 nov\. 2026\.$/);
+  // Its saved copy is in French too.
+  await stubPrint(page);
+  await page.getByRole('button', { name: 'Imprimer ou enregistrer en PDF' }).click();
+  const doc = (await printed(page))!;
+  expect(doc.title).toBe('Rapports de violation – shop.example.com');
+  expect(doc.text).toContain('Venant de votre site : 2 à voir en premier');
 });

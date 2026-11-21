@@ -80,6 +80,7 @@ export function ViolationItem({
   unknown = false,
   setApart = false,
   bare = false,
+  paper = false,
   until,
 }: {
   e: ExplainedViolation;
@@ -90,6 +91,8 @@ export function ViolationItem({
   unknown?: boolean;
   setApart?: boolean;
   bare?: boolean;
+  /** On paper (a saved copy): nothing to fill in or unfold; the quicker way is a note with what it costs. */
+  paper?: boolean;
   /** Blocked until then only (reports: a newer policy allows it): the day, as people read it. */
   until?: string;
 }) {
@@ -122,16 +125,16 @@ export function ViolationItem({
         </p>
       )}
       {children}
-      {(!setApart || e.case === 'extension') && <Body e={e} source={source} unknown={unknown} />}
+      {(!setApart || e.case === 'extension') && <Body e={e} source={source} unknown={unknown} paper={paper} />}
       {after}
       {e.fix && !e.fix.inLines && v.reportOnly && (
         <p class="muted">
           <Rich msg="violations.reportOnlyFix" />
         </p>
       )}
-      {e.case === 'inline' && !e.fix && !setApart && <HashOffer id={`violation-${index}`} e={e} folded={source === 'reports'} />}
+      {e.case === 'inline' && !e.fix && !setApart && !paper && <HashOffer id={`violation-${index}`} e={e} folded={source === 'reports'} />}
       {/* After the safe way, hash generator included. */}
-      <Weaker e={e} />
+      <Weaker e={e} paper={paper} />
     </Tag>
   );
 }
@@ -151,7 +154,7 @@ export function ViolationWhat({ e }: { e: ExplainedViolation }) {
 }
 
 /** What the message means for this case, and where the fix is. */
-function Body({ e, source, unknown }: { e: ExplainedViolation; source: ViolationSource; unknown: boolean }) {
+function Body({ e, source, unknown, paper }: { e: ExplainedViolation; source: ViolationSource; unknown: boolean; paper: boolean }) {
   const t = useT();
   const v = e.violation;
   switch (e.case) {
@@ -178,7 +181,7 @@ function Body({ e, source, unknown }: { e: ExplainedViolation; source: Violation
     case 'inline':
       return (
         <>
-          <p><Rich msg={e.fix ? 'violations.hash' : source === 'reports' ? 'violations.noHashReport' : 'violations.noHash'} /></p>
+          <p><Rich msg={e.fix ? 'violations.hash' : paper ? 'violations.noHashPaper' : source === 'reports' ? 'violations.noHashReport' : 'violations.noHash'} /></p>
           {e.fix && <Fix e={e} source={source} />}
         </>
       );
@@ -240,7 +243,7 @@ function Fix({ e, source }: { e: ExplainedViolation; source: ViolationSource }) 
  * A value that weakens the policy for everyone: after the safe way, folded, and with what it costs before the line.
  * When a nonce or a hash makes browsers ignore it, only that is said.
  */
-function Weaker({ e }: { e: ExplainedViolation }) {
+function Weaker({ e, paper = false }: { e: ExplainedViolation; paper?: boolean }) {
   const t = useT();
   const w = e.weaker;
   if (!w) return null;
@@ -252,6 +255,14 @@ function Weaker({ e }: { e: ExplainedViolation }) {
     );
   }
   const add = w.add.join(' ');
+  if (paper) {
+    return (
+      <p class="doc-note">
+        <strong>{t('violations.weaker.show')}:</strong> <Rich msg={w.created ? 'violations.fixAddCreated' : 'violations.fixAdd'} vars={{ add, directive: w.directive }} />{' '}
+        <Rich msg={`violations.weaker.risk.${w.risk}`} vars={{ add, directive: w.directive }} />
+      </p>
+    );
+  }
   return (
     <details class="violation-weaker">
       <summary>{t('violations.weaker.show')}</summary>

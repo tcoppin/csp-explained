@@ -902,7 +902,8 @@
       "one": "The `{directive}` line below allows it.",
       "other": "The `{directive}` line below allows them."
     },
-    "blockedUntil": "Blocked by `{directive}` until {date}."
+    "blockedUntil": "Blocked by `{directive}` until {date}.",
+    "noHashPaper": "Reports don't carry the code's hash, and their sample is cut at 40 characters: get the hash from the code itself (the [reports reader](/reports) has a tool for it), or [use a nonce](/nonces)."
   },
   "reportsReader": {
     "inputLabel": "Your reports",
@@ -994,7 +995,11 @@
       "pageCount": { "one": "(1 report)", "other": "({count} reports)" },
       "seen": "First on {first}, last on {last}.",
       "seenOnce": "On {date}.",
-      "more": { "one": "and 1 more page", "other": "and {count} more pages" }
+      "more": { "one": "and 1 more page", "other": "and {count} more pages" },
+      "pageItem": {
+        "one": "{page} (1 report)",
+        "other": "{page} ({count} reports)"
+      }
     },
     "risk": {
       "level": {
@@ -1090,6 +1095,28 @@
     "noiseCount": {
       "one": "(1 report)",
       "other": "({count} reports)"
+    },
+    "save": {
+      "include": {
+        "pages": "Include the pages of each problem",
+        "policies": "Include the policies in the reports"
+      },
+      "copy": "Copy as Markdown",
+      "hint": "Made in your browser from what this page shows: nothing is sent, and the reports themselves aren't in it. A day picked in “Only the reports since” and the addresses you marked as known are said in it.",
+      "document": {
+        "title": "Violation reports",
+        "read": "Read",
+        "received": "Received",
+        "inShort": "In short",
+        "vouched": {
+          "one": "1 address no known tool uses was marked as known, and is in the lines.",
+          "other": "{count} addresses no known tool uses were marked as known, and are in the lines."
+        },
+        "footer": "Read in the browser with {site}: the reports never left it.",
+        "link": "Read your own reports",
+        "readValue": "{source}, {reports}",
+        "pages": "Pages: {pages}."
+      }
     }
   }
 }

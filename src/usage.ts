@@ -26,6 +26,8 @@ export const USAGE_EVENTS = {
   'copy-report': ['audience', 'kind'],
   /** A report was saved: which audience, and in which format (pdf, html, md, txt). */
   'export-report': ['audience', 'format'],
+  /** The reports reader's results were saved: in which format (pdf, html, md, or copy as Markdown). Never what they say. */
+  'export-reports': ['format'],
   /** The Find my CSP console snippet was copied. */
   'copy-snippet': [],
   /** The builder's policy was shown (once per page load), and what it started from: allowlist, nonce or policy. */
