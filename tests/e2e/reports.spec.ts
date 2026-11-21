@@ -24,7 +24,13 @@ test('the example groups the reports by problem, riskiest first, with the lines 
   await expect(page.getByRole('heading', { name: 'What the 138 reports say', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: '7 problems, from your site', level: 3 })).toBeVisible();
 
-  await expect(page.locator('.report-results > p').first()).toContainText('In short, from your site: 2 to check first, 3 to look at next, 1 less urgent, and 1 allowed since a policy change.');
+  // Read, the box folds into a bar, and the introduction goes: the results start near the top.
+  await expect(page.locator('.report-bar')).toContainText('The example: 138 reports');
+  await expect(box(page)).toHaveCount(0);
+  await expect(page.locator('.lead')).toBeHidden();
+  // The summary: each count highlighted like the rows' levels.
+  await expect(page.locator('.report-summary')).toHaveText('From your site: 2 to check first, 3 to look at next, 1 less urgent, and 1 allowed since a policy change.');
+  await expect(page.locator('.report-summary .report-level')).toHaveClass([/high/, /medium/, /low/, /fixed/]);
 
   // One row each, riskiest first whatever the counts: the look-alike jQuery (5 reports), the checkout's inline script
   // (4), then the tools blocked everywhere, then a look. All folded.
@@ -37,12 +43,13 @@ test('the example groups the reports by problem, riskiest first, with the lines 
     'A style attribute',
     'A script from www.googletagmanager.com',
   ]);
-  await expect(page.locator('.report-row-meta')).toHaveText(['Check first, 5 reports', 'Check first, 4 reports', 'Then, 46 reports', 'Then, 31 reports', 'Then, 12 reports', 'Less urgent, 9 reports', 'Allowed since Nov 14, 2026, 14 reports']);
+  await expect(page.locator('.report-row-level')).toHaveText(['Check first', 'Check first', 'Then', 'Then', 'Then', 'Less urgent', 'Allowed']);
+  await expect(page.locator('.report-row-meta')).toHaveText(['5 reports', '4 reports', '46 reports', '31 reports', '12 reports', '9 reports', 'since Nov 14, 2026, 14 reports']);
   await expect(page.locator('.report-row .violation').first()).toBeHidden();
   // Opened: why it ranks there, when something sets it apart.
   const skimmer = row(page, 'cdn.jquery-libs.example');
   await open(skimmer);
-  await expect(skimmer.locator('.report-risk')).toHaveText('Check first: an address no known tool uses, on /checkout, where visitors pay or sign in, and new since Nov 17, 2026.');
+  await expect(skimmer.locator('.report-risk')).toHaveText('Why it ranks here: an address no known tool uses, on /checkout, where visitors pay or sign in, and new since Nov 17, 2026.');
   const first = row(page, 'static.hotjar.com');
   await open(first);
   await expect(first.locator('.report-risk')).toHaveCount(0);
@@ -60,18 +67,17 @@ test('the example groups the reports by problem, riskiest first, with the lines 
   // Nothing that weakens the policy for everyone: no 'unsafe-inline' for the style attributes.
   await expect(page.locator('.violation-lines .code-block')).toHaveText([/script-src 'self' 'nonce-r4nd0m' https:\/\/www.googletagmanager.com https:\/\/static.hotjar.com/, /connect-src 'self' https:\/\/\*.google-analytics.com wss:\/\/\*.hotjar.com/]);
 
-  // What the site didn't cause is folded at the end, one section per cause, and adds no line.
-  await expect(page.locator('.report-results > p').first()).toContainText("17 reports weren't caused by your site: they are set apart at the end, by cause.");
+  // What the site didn't cause is one fold at the end, a part per cause, and adds no line.
+  await expect(page.locator('.report-results > p.muted').first()).toHaveText("17 reports weren't caused by your site: they are set apart at the end, by cause.");
   const noise = page.locator('.report-noise');
-  await expect(noise.locator('> summary')).toHaveText([
-    'Set apart: 2 problems from browser extensions (10 reports)',
-    "Set apart: 1 problem from software on visitors' devices (4 reports)",
-    'Set apart: 1 problem from translation (3 reports)',
-  ]);
+  await expect(noise.locator('> summary')).toHaveText("Set apart: 17 reports your site didn't cause");
   await expect(noise.locator('.violation').first()).toBeHidden();
-  const software = page.locator('.report-noise[data-noise=software]');
-  await software.locator('> summary').click();
+  await noise.locator('> summary').click();
+  await expect(noise.locator('.report-noise-name')).toHaveText(['Browser extensions (10 reports)', "Software on visitors' devices (4 reports)", 'Translation (3 reports)']);
+  const software = page.locator('.report-noise-cause[data-noise=software]');
   await expect(software).toContainText('Antivirus software, programs that inject ads and company proxies');
+  // Formatted: no backticks left in the text.
+  await expect(page.locator('.report-noise-cause[data-noise=translation] > p code')).toHaveText('translate.goog');
   // Only what was blocked and the counts: no tool lookup, no line, no "check what it is".
   const kaspersky = software.locator('.violation');
   await expect(kaspersky.getByRole('heading')).toHaveText('A script from gc.kis.v2.scr.kaspersky-labs.com');
@@ -123,8 +129,9 @@ test('dated reports tell what an older policy blocked that the newest allows, an
   // the one sent), with a green edge and the words for it.
   const gtm = row(page, 'www.googletagmanager.com');
   await expect(page.locator('.report-row').last()).toHaveClass(/fixed/);
-  await expect(gtm.locator('.report-row-meta')).toHaveText('Allowed since Nov 14, 2026, 14 reports');
-  await expect(gtm.locator('> details > summary')).toHaveAccessibleName('A script from www.googletagmanager.com Allowed since Nov 14, 2026, 14 reports');
+  await expect(gtm.locator('.report-row-level')).toHaveText('Allowed');
+  await expect(gtm.locator('.report-row-meta')).toHaveText('since Nov 14, 2026, 14 reports');
+  await expect(gtm.locator('> details > summary')).toHaveAccessibleName('Allowed A script from www.googletagmanager.com since Nov 14, 2026, 14 reports');
   await open(gtm);
   await expect(gtm.locator('.report-risk')).toHaveText(/^The policy your pages sent from Nov 14, 2026 allows it, and no report about it came after that\. If it's still the policy your site sends, there's nothing to do\./);
   await expect(gtm.locator('.code-block')).toHaveCount(0);
@@ -179,7 +186,12 @@ test('pasted reports are read, counted once without what they hold, and kept now
 test('a file is opened, not shown in the box, and Clear gives the box back with the focus', async ({ page, sent }) => {
   await openReader(page);
   await page.locator('input[type="file"]').setInputFiles({ name: 'csp-reports.ndjson', mimeType: 'application/x-ndjson', buffer: Buffer.from(CHROMIUM) });
+  await expect(page.locator('.report-bar p')).toHaveText('csp-reports.ndjson: 16 reports');
+  await expect(box(page)).toHaveCount(0);
+  // "Change" shows the file's name and size, not its text.
+  await page.locator('.report-bar').getByRole('button', { name: 'Change' }).click();
   await expect(page.locator('.report-file')).toHaveText(/^csp-reports\.ndjson \([\d.]+ kB\) is open\.$/);
+  await expect(page.getByRole('button', { name: 'Open a file' })).toBeFocused();
   await expect(box(page)).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'What the 16 reports say' })).toBeVisible();
   await expect.poll(() => sent().filter((q) => q.startsWith('n=read-reports'))).toEqual(['n=read-reports&from=file']);
@@ -202,6 +214,37 @@ test("a collector's CSV export is read by its column names", async ({ page }) =>
   await expect(page.locator('.violation-lines .code-block')).toHaveText([/script-src 'self' https:\/\/static\.hotjar\.com/]);
 });
 
+test('read, the box folds into a bar; Change unfolds it and Done folds it again, the focus following', async ({ page }) => {
+  await openReader(page);
+  // "Try an example" goes away with the box: the focus goes to the results' heading.
+  await page.getByRole('button', { name: 'Try an example' }).click();
+  await expect(page.getByRole('heading', { name: 'What the 138 reports say' })).toBeFocused();
+  const bar = page.locator('.report-bar');
+  await bar.getByRole('button', { name: 'Change' }).click();
+  await expect(box(page)).toBeFocused();
+  await expect(box(page)).toHaveValue(/csp-violation/);
+  await expect(page.locator('.lead')).toBeVisible();
+  await page.getByRole('button', { name: 'Done' }).click();
+  await expect(page.getByRole('heading', { name: 'What the 138 reports say' })).toBeFocused();
+  await expect(bar).toBeVisible();
+
+  // A paste into the empty box is a whole batch: folded at once. Typing isn't: the box stays.
+  await bar.getByRole('button', { name: 'Clear' }).click();
+  await expect(box(page)).toBeFocused();
+  await box(page).evaluate((el, text) => {
+    const data = new DataTransfer();
+    data.setData('text/plain', text);
+    el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+  }, CHROMIUM);
+  await expect(bar).toContainText('Pasted reports: 16 reports');
+  await expect(page.getByRole('heading', { name: 'What the 16 reports say' })).toBeFocused();
+  await bar.getByRole('button', { name: 'Clear' }).click();
+  await box(page).fill(CHROMIUM);
+  await expect(page.getByRole('heading', { name: 'What the 16 reports say' })).toBeVisible();
+  await expect(box(page)).toBeFocused();
+  await expect(bar).toHaveCount(0);
+});
+
 test('text without reports says what a report looks like', async ({ page }) => {
   await openReader(page);
   await box(page).fill("default-src 'self'");
@@ -214,8 +257,11 @@ test('a screen reader hears how many reports were read, and for each problem wha
   expect(await live(() => page.getByRole('button', { name: 'Try an example' }).click())).toEqual(['polite: 138 reports read.']);
   // Each row says what, how urgent and how often: the level is in words, not only in the order.
   const summaries = page.locator('.report-row > details > summary');
-  await expect(summaries.first()).toHaveAccessibleName('A script from cdn.jquery-libs.example Check first, 5 reports');
-  await expect(summaries.nth(5)).toHaveAccessibleName('A style attribute Less urgent, 9 reports');
+  await expect(summaries.first()).toHaveAccessibleName('Check first A script from cdn.jquery-libs.example 5 reports');
+  await expect(summaries.nth(5)).toHaveAccessibleName('Less urgent A style attribute 9 reports');
+  // The summary's highlights are words too.
+  const summary0 = (await readAloud(page, '.report-summary')).join(' ');
+  expect(summary0).toMatch(/From your site:.*2 to check first.*3 to look at next.*1 less urgent.*1 allowed since a policy change/);
   // Its arrow is drawn, not read: the native fold says collapsed or expanded.
   const summary = page.locator('.report-row:nth-child(4) > details > summary');
   await expect(summary).toHaveCSS('display', 'flex');
@@ -290,8 +336,9 @@ test('reports are read in French on French pages', async ({ page }) => {
   await openReader(page, '/fr/reports');
   await page.getByRole('button', { name: 'Essayer un exemple' }).click();
   await expect(page.getByRole('heading', { name: 'Ce que disent les 138 rapports' })).toBeVisible();
-  await expect(page.locator('.report-results > p').first()).toContainText('En bref, venant de votre site : 2 à voir en premier, 3 à voir ensuite, 1 moins urgent et 1 autorisé depuis un changement de politique.');
-  await expect(page.locator('.report-row-meta').first()).toHaveText('À voir en premier, 5 rapports');
+  await expect(page.locator('.report-results > p').first()).toContainText('Venant de votre site : 2 à voir en premier, 3 à voir ensuite, 1 moins urgent et 1 autorisé depuis un changement de politique.');
+  await expect(page.locator('.report-row-level').first()).toHaveText('À voir en premier');
+  await expect(page.locator('.report-row-meta').first()).toHaveText('5 rapports');
   const first = row(page, 'Un script de static.hotjar.com');
   await open(first);
   await expect(first.locator('.violation-status')).toHaveText('Bloqué par script-src.');

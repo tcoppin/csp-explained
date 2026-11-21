@@ -918,7 +918,6 @@
     "none": "Aucun rapport trouvé.",
     "noneLong": "Aucun rapport de violation CSP dans ce texte. Un rapport dit ce qui a été bloqué (un champ `blockedURL` ou `blocked-uri`, ou une colonne de ce nom dans un export CSV) et sous quelle règle : collez-les tels que votre collecteur les a enregistrés ou exportés.",
     "title": { "one": "Ce que dit le rapport", "other": "Ce que disent les {count} rapports" },
-    "lead": "Les plus risqués d'abord, pas ceux qui ont le plus de rapports. Ouvrez-en un pour voir ce que c'est et quoi faire.",
     "noiseLead": {
       "one": "1 rapport ne vient pas de votre site : il est mis à part à la fin, avec la raison.",
       "other": "{count} rapports ne viennent pas de votre site : ils sont mis à part à la fin, par cause."
@@ -934,53 +933,32 @@
     "problems": { "one": "1 problème, venant de votre site", "other": "{count} problèmes, venant de votre site" },
     "noise": {
       "extension": {
-        "title": {
-          "one": "Mis à part : 1 problème venant d'extensions du navigateur ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes venant d'extensions du navigateur ({reports} rapports)"
-        },
-        "intro": "Les extensions installées par vos visiteurs ajoutent du code aux pages qu'ils visitent, et votre politique le bloque. C'est votre politique qui fait son travail : il n'y a rien à autoriser."
+        "intro": "Les extensions installées par vos visiteurs ajoutent du code aux pages qu'ils visitent, et votre politique le bloque. C'est votre politique qui fait son travail : il n'y a rien à autoriser.",
+        "name": "Extensions du navigateur"
       },
       "software": {
-        "title": {
-          "one": "Mis à part : 1 problème venant de logiciels sur les appareils des visiteurs ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes venant de logiciels sur les appareils des visiteurs ({reports} rapports)"
-        },
-        "intro": "Les antivirus, les programmes qui injectent des publicités et les proxys d'entreprise ajoutent du code à chaque page que leurs utilisateurs ouvrent, et votre politique le bloque. Leurs adresses sont bien connues. Rien à autoriser : cela ne fait pas partie de votre site."
+        "intro": "Les antivirus, les programmes qui injectent des publicités et les proxys d'entreprise ajoutent du code à chaque page que leurs utilisateurs ouvrent, et votre politique le bloque. Leurs adresses sont bien connues. Rien à autoriser : cela ne fait pas partie de votre site.",
+        "name": "Logiciels sur les appareils des visiteurs"
       },
       "translation": {
-        "title": {
-          "one": "Mis à part : 1 problème venant de la traduction ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes venant de la traduction ({reports} rapports)"
-        },
-        "intro": "Quand des visiteurs traduisent votre page (la traduction intégrée de Chrome, ou une copie traduite sur `translate.goog`), le traducteur ajoute ses propres styles et scripts. Rien à autoriser : c'est l'outil du visiteur, pas celui de votre site, et votre page fonctionne toujours dans sa propre langue."
+        "intro": "Quand des visiteurs traduisent votre page (la traduction intégrée de Chrome, ou une copie traduite sur `translate.goog`), le traducteur ajoute ses propres styles et scripts. Rien à autoriser : c'est l'outil du visiteur, pas celui de votre site, et votre page fonctionne toujours dans sa propre langue.",
+        "name": "Traduction"
       },
       "in-app": {
-        "title": {
-          "one": "Mis à part : 1 problème vu seulement dans les navigateurs d'applications ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes vus seulement dans les navigateurs d'applications ({reports} rapports)"
-        },
-        "intro": "Instagram, Facebook, TikTok et d'autres applications ouvrent les liens dans leur propre navigateur, qui ajoute son propre code à la page. Seuls ces navigateurs les ont signalés : votre site ne les charge pas lui-même."
+        "intro": "Instagram, Facebook, TikTok et d'autres applications ouvrent les liens dans leur propre navigateur, qui ajoute son propre code à la page. Seuls ces navigateurs les ont signalés : votre site ne les charge pas lui-même.",
+        "name": "Navigateurs intégrés aux applications"
       },
       "bot": {
-        "title": {
-          "one": "Mis à part : 1 problème vu seulement chez des robots ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes vus seulement chez des robots ({reports} rapports)"
-        },
-        "intro": "Les robots des moteurs de recherche, les outils de surveillance et de test, et les aspirateurs de sites. Eux seuls les ont signalés, aucun navigateur de visiteur. Si l'un d'eux est votre propre surveillance, vérifiez sa configuration plutôt que votre politique."
+        "intro": "Les robots des moteurs de recherche, les outils de surveillance et de test, et les aspirateurs de sites. Eux seuls les ont signalés, aucun navigateur de visiteur. Si l'un d'eux est votre propre surveillance, vérifiez sa configuration plutôt que votre politique.",
+        "name": "Robots"
       },
       "copy": {
-        "title": {
-          "one": "Mis à part : 1 problème sur des copies de vos pages ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes sur des copies de vos pages ({reports} rapports)"
-        },
-        "intro": "Ils viennent de vos pages affichées ailleurs : le cache d'un moteur de recherche, une archive, une page enregistrée sur l'ordinateur de quelqu'un. La copie garde votre politique mais pas votre adresse, donc des choses s'y cassent qui fonctionnent sur votre site."
+        "intro": "Ils viennent de vos pages affichées ailleurs : le cache d'un moteur de recherche, une archive, une page enregistrée sur l'ordinateur de quelqu'un. La copie garde votre politique mais pas votre adresse, donc des choses s'y cassent qui fonctionnent sur votre site.",
+        "name": "Copies de vos pages"
       },
       "browser": {
-        "title": {
-          "one": "Mis à part : 1 problème venant du navigateur lui-même ({reports} rapports)",
-          "other": "Mis à part : {count} problèmes venant du navigateur lui-même ({reports} rapports)"
-        },
-        "intro": "Les pages propres aux navigateurs et leurs adresses internes (`about:`, `chrome://`, `resource://`…) se retrouvent parfois dans les rapports. Elles ne font pas partie de votre site."
+        "intro": "Les pages propres aux navigateurs et leurs adresses internes (`about:`, `chrome://`, `resource://`…) se retrouvent parfois dans les rapports. Elles ne font pas partie de votre site.",
+        "name": "Le navigateur lui-même"
       }
     },
     "period": "Reçus : {range}.",
@@ -1024,7 +1002,6 @@
         "medium": "Ensuite",
         "low": "Moins urgent"
       },
-      "line": "**{level}** : {reasons}.",
       "unknown": "une adresse qu'aucun outil connu n'utilise",
       "sensitive": "sur {page}, où les visiteurs paient ou se connectent",
       "enforced": "bloqué pour vos visiteurs",
@@ -1032,7 +1009,8 @@
       "code": "cela exécute du code ou envoie des données",
       "look": "cela ne change que l'apparence de la page",
       "new": "nouveau depuis le {date}",
-      "stopped": "plus vu depuis le {date}, peut-être déjà corrigé"
+      "stopped": "plus vu depuis le {date}, peut-être déjà corrigé",
+      "why": "Pourquoi à ce rang : {reasons}."
     },
     "enforce": {
       "title": "Pouvez-vous l'appliquer ?",
@@ -1070,7 +1048,6 @@
       },
       "lessThanDay": "moins d'un jour"
     },
-    "summary": "En bref, venant de votre site : {levels}.",
     "levels": {
       "high": {
         "one": "1 à voir en premier",
@@ -1089,10 +1066,30 @@
         "other": "{count} autorisés depuis un changement de politique"
       }
     },
-    "rowMeta": "{level}, {reports}",
-    "fixed": "Autorisé depuis le {date}",
+    "fixed": "Autorisé",
     "fixedIntro": "La politique que vos pages envoyaient à partir du {date} l'autorise, et aucun rapport à ce sujet n'est arrivé ensuite. Si c'est toujours la politique que votre site envoie, il n'y a rien à faire. S'il arrive encore des rapports, certaines pages ou certains navigateurs reçoivent toujours l'ancienne.",
     "linesFrom": "Ce qu'il faut changer dans la politique envoyée depuis le {date}",
-    "linesForFrom": "Ce qu'il faut changer dans la politique {n}, envoyée depuis le {date}"
+    "linesForFrom": "Ce qu'il faut changer dans la politique {n}, envoyée depuis le {date}",
+    "bar": {
+      "example": "L'exemple",
+      "pasted": "Rapports collés",
+      "sep": " : ",
+      "count": {
+        "one": "1 rapport",
+        "other": "{count} rapports"
+      },
+      "change": "Modifier",
+      "done": "Terminé"
+    },
+    "fixedMeta": "depuis le {date}, {reports}",
+    "summaryLead": "Venant de votre site :",
+    "noiseTitle": {
+      "one": "Mis à part : 1 rapport qui ne vient pas de votre site",
+      "other": "Mis à part : {count} rapports qui ne viennent pas de votre site"
+    },
+    "noiseCount": {
+      "one": "(1 rapport)",
+      "other": "({count} rapports)"
+    }
   }
 }

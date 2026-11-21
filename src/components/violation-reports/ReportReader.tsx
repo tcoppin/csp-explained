@@ -28,8 +28,9 @@ type Loaded = { kind: 'none' } | { kind: 'example' } | { kind: 'file'; name: str
 
 /**
  * Reads a batch of violation reports (pasted, or opened from a file) on the visitor's device: the problems they
- * stand for, most reports first, what extensions caused set apart, and the lines that allow the rest. Nothing is
- * kept: not in the address, not in the browser's storage.
+ * stand for, riskiest first, what the site didn't cause set apart, and the lines that allow the rest. Once read, the
+ * box folds into a bar (what was read, when, and "Change"), so the results start near the top. Nothing is kept: not
+ * in the address, not in the browser's storage.
  */
 export default function ReportReader({ content, locale }: Props) {
   const t = useMemo(() => translator(locale), [locale]);
@@ -47,6 +48,8 @@ export default function ReportReader({ content, locale }: Props) {
   // "Only the reports since": a day (`YYYY-MM-DD`), from its start in the visitor's time zone.
   const [since, setSince] = useState('');
   const sinceTime = since ? new Date(`${since}T00:00`).getTime() : undefined;
+  // The box, open; folded into a bar once reports are read from a paste, a file or the example.
+  const [editing, setEditing] = useState(true);
 
   // Read once; explained again (quickly) when the visitor vouches for an address or picks a day.
   const read = useMemo(() => (text.trim() === '' ? undefined : readReports(text)), [text]);
@@ -55,10 +58,11 @@ export default function ReportReader({ content, locale }: Props) {
     [read, content.vendors, trusted, sinceTime],
   );
 
-  /** New reports: what was vouched for went with the old ones. */
-  function load(next: string, from: Loaded) {
+  /** New reports: what was vouched for went with the old ones. `fold`: a whole batch at once (not typing). */
+  function load(next: string, from: Loaded, fold = false) {
     setText(next);
     setLoaded(from);
+    if (fold) setEditing(false);
     setTrusted(new Set());
     setTrustNote('');
     setSince('');
@@ -84,6 +88,9 @@ export default function ReportReader({ content, locale }: Props) {
     track('read-reports', { from: loaded.kind === 'file' ? 'file' : 'paste' });
   }, [read, loaded]);
 
+  const hasReports = !!read && read.reports.length > 0;
+  const folded = hasReports && !editing;
+
   // "Clear" goes away with what it cleared: the focus goes to the box, if it was lost or is still on the button
   // (which can become "Try an example").
   const cleared = useRef<Element | null | undefined>(undefined);
@@ -95,6 +102,19 @@ export default function ReportReader({ content, locale }: Props) {
     if (!active || active === document.body || active === pressed) textArea.current?.focus();
   });
 
+  // Folding or unfolding takes away the control that was pressed: the focus goes to the results' heading, or back
+  // to the box (or "Open a file", for a file). Only a focus that was lost is moved.
+  const wasFolded = useRef(folded);
+  const openButton = useRef<HTMLButtonElement>(null);
+  useLayoutEffect(() => {
+    if (wasFolded.current === folded) return;
+    wasFolded.current = folded;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    if (folded) document.getElementById('report-results-title')?.focus();
+    else (textArea.current ?? openButton.current)?.focus();
+  }, [folded]);
+
   async function open(file: File | undefined) {
     if (!file) return;
     setError(undefined);
@@ -103,7 +123,7 @@ export default function ReportReader({ content, locale }: Props) {
       return;
     }
     try {
-      load(await file.text(), { kind: 'file', name: file.name, size: file.size });
+      load(await file.text(), { kind: 'file', name: file.name, size: file.size }, true);
     } catch {
       setError('unreadable');
     }
@@ -112,6 +132,7 @@ export default function ReportReader({ content, locale }: Props) {
   function clear() {
     cleared.current = document.activeElement;
     load('', { kind: 'none' });
+    setEditing(true);
     setError(undefined);
   }
 
@@ -139,63 +160,103 @@ export default function ReportReader({ content, locale }: Props) {
             void open(e.dataTransfer.files[0]);
           }}
         >
-          {loaded.kind === 'file' ? (
-            <p class="report-file">
-              <Rich msg="reportsReader.fileOpen" vars={{ name: loaded.name, size: size(loaded.size) }} />
-            </p>
+          {folded ? (
+            <>
+              <div class="report-bar">
+                <p>
+                  <strong>
+                    {loaded.kind === 'file' ? loaded.name : t(`reportsReader.bar.${loaded.kind === 'example' ? 'example' : 'pasted'}`)}
+                  </strong>
+                  {t('reportsReader.bar.sep')}
+                  {t('reportsReader.bar.count', { count: read!.reports.length })}
+                </p>
+                <div class="report-bar-actions">
+                  <button type="button" class="button quiet" onClick={() => setEditing(true)}>
+                    {t('reportsReader.bar.change')}
+                  </button>
+                  <button type="button" class="button quiet" onClick={clear}>
+                    {t('analyzer.clear')}
+                  </button>
+                </div>
+              </div>
+              {result?.period && <Period r={result} since={since} onSince={pickSince} />}
+            </>
           ) : (
             <>
-              <label for="reports-input" class="report-label">
-                {t('reportsReader.pasteLabel')}
-              </label>
-              <textarea
-                id="reports-input"
-                ref={textArea}
-                class="code"
-                rows={8}
-                spellcheck={false}
-                autocomplete="off"
-                aria-describedby="reports-hint"
-                value={text}
-                onInput={(e) => load(e.currentTarget.value, { kind: 'none' })}
-              />
+              {loaded.kind === 'file' ? (
+                <p class="report-file">
+                  <Rich msg="reportsReader.fileOpen" vars={{ name: loaded.name, size: size(loaded.size) }} />
+                </p>
+              ) : (
+                <>
+                  <label for="reports-input" class="report-label">
+                    {t('reportsReader.pasteLabel')}
+                  </label>
+                  <textarea
+                    id="reports-input"
+                    ref={textArea}
+                    class="code"
+                    rows={8}
+                    spellcheck={false}
+                    autocomplete="off"
+                    aria-describedby="reports-hint"
+                    value={text}
+                    onInput={(e) => load(e.currentTarget.value, { kind: 'none' })}
+                    onPaste={(e) => {
+                      // A paste into the empty box is a whole batch: show the results right away.
+                      const pasted = e.clipboardData?.getData('text') ?? '';
+                      if (pasted.trim() && !text.trim()) {
+                        e.preventDefault();
+                        load(pasted, { kind: 'none' }, true);
+                      }
+                    }}
+                  />
+                </>
+              )}
+              <p id="reports-hint" class="muted format-hint">
+                {t('reportsReader.hint')}
+              </p>
+              <div class="actions">
+                <button type="button" class="button" ref={openButton} onClick={() => fileInput.current?.click()}>
+                  {t('reportsReader.openFile')}
+                </button>
+                {text.trim() === '' ? (
+                  <button
+                    type="button"
+                    class="button quiet"
+                    onClick={() => {
+                      track('example');
+                      setError(undefined);
+                      load(EXAMPLE_REPORTS, { kind: 'example' }, true);
+                    }}
+                  >
+                    {t('analyzer.example')}
+                  </button>
+                ) : (
+                  <>
+                    {hasReports && (
+                      <button type="button" class="button quiet" onClick={() => setEditing(false)}>
+                        {t('reportsReader.bar.done')}
+                      </button>
+                    )}
+                    <button type="button" class="button quiet" onClick={clear}>
+                      {t('analyzer.clear')}
+                    </button>
+                  </>
+                )}
+              </div>
             </>
           )}
-          <p id="reports-hint" class="muted format-hint">
-            {t('reportsReader.hint')}
-          </p>
-          <div class="actions">
-            <button type="button" class="button" onClick={() => fileInput.current?.click()}>
-              {t('reportsReader.openFile')}
-            </button>
-            <input
-              ref={fileInput}
-              type="file"
-              hidden
-              accept=".json,.ndjson,.jsonl,.log,.txt,.csv,.tsv,application/json,application/reports+json,application/csp-report,text/plain,text/csv,text/tab-separated-values"
-              onChange={(e) => {
-                void open(e.currentTarget.files?.[0]);
-                e.currentTarget.value = '';
-              }}
-            />
-            {text.trim() === '' ? (
-              <button
-                type="button"
-                class="button quiet"
-                onClick={() => {
-                  track('example');
-                  setError(undefined);
-                  load(EXAMPLE_REPORTS, { kind: 'example' });
-                }}
-              >
-                {t('analyzer.example')}
-              </button>
-            ) : (
-              <button type="button" class="button quiet" onClick={clear}>
-                {t('analyzer.clear')}
-              </button>
-            )}
-          </div>
+          <input
+            ref={fileInput}
+            type="file"
+            hidden
+            accept=".json,.ndjson,.jsonl,.log,.txt,.csv,.tsv,application/json,application/reports+json,application/csp-report,text/plain,text/csv,text/tab-separated-values"
+            onChange={(e) => {
+              void open(e.currentTarget.files?.[0]);
+              e.currentTarget.value = '';
+            }}
+          />
           {error && <p class="issue">{t(`reportsReader.error.${error}`, { max: size(MAX_BYTES) })}</p>}
         </section>
 
@@ -206,7 +267,7 @@ export default function ReportReader({ content, locale }: Props) {
         </p>
         {read && result &&
           (read.reports.length > 0 ? (
-            <Results r={result} trusted={trusted} onTrust={trust} since={since} onSince={pickSince} />
+            <Results r={result} trusted={trusted} onTrust={trust} since={since} onSince={pickSince} period={!folded} />
           ) : (
             <p class="issue report-none">{t('reportsReader.noneLong')}</p>
           ))}
@@ -221,6 +282,8 @@ interface ResultsProps {
   onTrust: (key: string, host: string, yes: boolean) => void;
   since: string;
   onSince: (day: string) => void;
+  /** When the reports were received, here: the bar shows it once the box is folded. */
+  period: boolean;
 }
 
 const LEVELS = ['high', 'medium', 'low'] as const;
@@ -232,13 +295,12 @@ const LEVELS = ['high', 'medium', 'low'] as const;
  * one the site sends); then the lines that allow them; and what the site didn't cause, folded at
  * the end.
  */
-function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
+function Results({ r, trusted, onTrust, since, onSince, period }: ResultsProps) {
   const t = useT();
   // Older versions get no lines of their own: their reports were read against the newest.
   const several = r.policies.filter((p) => p.replacedBy === undefined).length > 1;
   const noiseReports = r.noise.reduce((n, g) => n + g.reports, 0);
   const stats = (g: ReportGroup) => <Stats g={g} policies={several ? r.policies.length : 0} />;
-  const list = (items: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(items);
   const levels = [
     ...LEVELS.map((level) => [level, r.groups.filter((g) => g.risk?.level === level).length] as const),
     ['fixed', r.allowed.length] as const,
@@ -253,14 +315,19 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
       <details>
         <summary>
           <span class="report-row-text">
+            {/* The level in words, highlighted in its colour; the order and the colour only repeat it. */}
+            <span class="report-row-level">
+              <span class={`report-level ${fixed ? 'fixed' : (g.risk?.level ?? 'low')}`}>
+                {fixed ? t('reportsReader.fixed') : t(`reportsReader.risk.level.${g.risk?.level ?? 'low'}`)}
+              </span>
+            </span>{' '}
             <span class="report-row-what">
               <ViolationWhat e={g.explained} />
             </span>{' '}
             <span class="report-row-meta">
-              {t('reportsReader.rowMeta', {
-                level: fixed ? t('reportsReader.fixed', { date: changedOn(g) }) : t(`reportsReader.risk.level.${g.risk?.level ?? 'low'}`),
-                reports: t('reportsReader.stats.reports', { count: g.reports }),
-              })}
+              {fixed
+                ? t('reportsReader.fixedMeta', { date: changedOn(g), reports: t('reportsReader.stats.reports', { count: g.reports }) })
+                : t('reportsReader.stats.reports', { count: g.reports })}
             </span>
           </span>
         </summary>
@@ -281,13 +348,22 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
   );
   return (
     <section class="report-results" aria-labelledby="report-results-title">
-      <h2 id="report-results-title">{t('reportsReader.title', { count: r.total })}</h2>
-      <p>
-        {levels.length > 0 && t('reportsReader.summary', { levels: list(levels.map(([level, count]) => t(`reportsReader.levels.${level}`, { count }))) })}
-        {r.noise.length > 0 && <> {t('reportsReader.noiseLead', { count: noiseReports })}</>}
-        {r.skipped > 0 && <> {t('reportsReader.skipped', { count: r.skipped })}</>}
-      </p>
-      {r.period && <Period r={r} since={since} onSince={onSince} />}
+      <h2 id="report-results-title" tabIndex={-1}>
+        {t('reportsReader.title', { count: r.total })}
+      </h2>
+      {levels.length > 0 && (
+        <p class="report-summary">
+          <Summary levels={levels} />
+        </p>
+      )}
+      {(r.noise.length > 0 || r.skipped > 0) && (
+        <p class="muted">
+          {r.noise.length > 0 && t('reportsReader.noiseLead', { count: noiseReports })}
+          {r.noise.length > 0 && r.skipped > 0 && ' '}
+          {r.skipped > 0 && t('reportsReader.skipped', { count: r.skipped })}
+        </p>
+      )}
+      {period && r.period && <Period r={r} since={since} onSince={onSince} />}
       {r.total === 0 && <p class="issue">{t('reportsReader.since.none')}</p>}
 
       {r.readiness.map((ready) => (
@@ -297,7 +373,6 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
       {r.groups.length + r.allowed.length > 0 && (
         <>
           <h3 class="report-list-title">{t('reportsReader.problems', { count: r.groups.length + r.allowed.length })}</h3>
-          <p class="muted">{t('reportsReader.lead')}</p>
           {/* Last, what the newest policy already allows: in the list, marked fixed. */}
           <ol class="report-rows">
             {r.groups.map((g, i) => row(g, i, false))}
@@ -342,26 +417,59 @@ function Results({ r, trusted, onTrust, since, onSince }: ResultsProps) {
 
       {r.policies.length > 1 && <PolicyList policies={r.policies} />}
 
-      {/* What isn't the site's doing, folded at the end: one section per cause, each saying why. */}
-      {NOISE_KINDS.map((kind) => {
-        const groups = r.noise.filter((g) => g.noise === kind);
-        if (groups.length === 0) return null;
-        const start = r.groups.length + r.allowed.length + r.noise.indexOf(groups[0]!);
-        return (
-          <details key={kind} class="report-noise" data-noise={kind}>
-            <summary>{t(`reportsReader.noise.${kind}.title`, { count: groups.length, reports: groups.reduce((n, g) => n + g.reports, 0) })}</summary>
-            <p>{t(`reportsReader.noise.${kind}.intro`)}</p>
-            <ol class="violation-list">
-              {groups.map((g, i) => (
-                <ViolationItem key={i} e={g.explained} index={start + i} source="reports" setApart>
-                  {stats(g)}
-                </ViolationItem>
-              ))}
-            </ol>
-          </details>
-        );
-      })}
+      {/* What isn't the site's doing, folded at the end: one fold, a part per cause saying why. */}
+      {r.noise.length > 0 && (
+        <details class="report-noise">
+          <summary>{t('reportsReader.noiseTitle', { count: noiseReports })}</summary>
+          {NOISE_KINDS.map((kind) => {
+            const groups = r.noise.filter((g) => g.noise === kind);
+            if (groups.length === 0) return null;
+            const start = r.groups.length + r.allowed.length + r.noise.indexOf(groups[0]!);
+            return (
+              <div key={kind} class="report-noise-cause" data-noise={kind}>
+                <p class="report-noise-name">
+                  <strong>{t(`reportsReader.noise.${kind}.name`)}</strong> {t('reportsReader.noiseCount', { count: groups.reduce((n, g) => n + g.reports, 0) })}
+                </p>
+                <p>
+                  <Rich msg={`reportsReader.noise.${kind}.intro`} />
+                </p>
+                <ol class="violation-list">
+                  {groups.map((g, i) => (
+                    <ViolationItem key={i} e={g.explained} index={start + i} source="reports" setApart>
+                      {stats(g)}
+                    </ViolationItem>
+                  ))}
+                </ol>
+              </div>
+            );
+          })}
+        </details>
+      )}
     </section>
+  );
+}
+
+/**
+ * "From your site: 2 to check first, 3 to look at next…", each count highlighted like the rows' level, so the
+ * summary is also the key to their colours.
+ */
+function Summary({ levels }: { levels: (readonly [string, number])[] }) {
+  const t = useT();
+  const words = levels.map(([level, count]) => t(`reportsReader.levels.${level}`, { count }));
+  let n = 0;
+  const parts = new Intl.ListFormat(t.locale, { type: 'conjunction' }).formatToParts(words).map((part, i) => {
+    if (part.type !== 'element') return part.value;
+    const level = levels[n++]![0];
+    return (
+      <span key={i} class={`report-level ${level}`}>
+        {part.value}
+      </span>
+    );
+  });
+  return (
+    <>
+      {t('reportsReader.summaryLead')} {parts}.
+    </>
   );
 }
 
@@ -527,11 +635,9 @@ function RiskLine({ g }: { g: ReportGroup }) {
           : t(`reportsReader.risk.${r.kind}`),
     );
   if (reasons.length === 0) return null;
-  return (
-    <p class="report-risk">
-      <Rich msg="reportsReader.risk.line" vars={{ level: t(`reportsReader.risk.level.${g.risk!.level}`), reasons: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons) }} />
-    </p>
-  );
+  // The level is in the row already.
+  const list = new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(reasons);
+  return <p class="report-risk">{t('reportsReader.risk.why', { reasons: list })}</p>;
 }
 
 /** How many reports a problem stands for, from which pages and browsers. */

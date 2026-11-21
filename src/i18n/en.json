@@ -918,7 +918,6 @@
     "none": "No reports found.",
     "noneLong": "No CSP violation report found in this text. A report says what was blocked (a `blockedURL` or `blocked-uri` field, or a column of that name in a CSV export) and under which rule: paste them as your collector stored or exported them.",
     "title": { "one": "What the report says", "other": "What the {count} reports say" },
-    "lead": "Riskiest first, not the ones with the most reports. Open one to see what it is and what to do.",
     "noiseLead": {
       "one": "1 report wasn't caused by your site: it is set apart at the end, with why.",
       "other": "{count} reports weren't caused by your site: they are set apart at the end, by cause."
@@ -934,53 +933,32 @@
     "problems": { "one": "1 problem, from your site", "other": "{count} problems, from your site" },
     "noise": {
       "extension": {
-        "title": {
-          "one": "Set apart: 1 problem from browser extensions ({reports} reports)",
-          "other": "Set apart: {count} problems from browser extensions ({reports} reports)"
-        },
-        "intro": "Extensions your visitors installed add code to the pages they visit, and your policy blocks it. That's your policy doing its job: there is nothing to allow."
+        "intro": "Extensions your visitors installed add code to the pages they visit, and your policy blocks it. That's your policy doing its job: there is nothing to allow.",
+        "name": "Browser extensions"
       },
       "software": {
-        "title": {
-          "one": "Set apart: 1 problem from software on visitors' devices ({reports} reports)",
-          "other": "Set apart: {count} problems from software on visitors' devices ({reports} reports)"
-        },
-        "intro": "Antivirus software, programs that inject ads and company proxies add code to every page their users open, and your policy blocks it. Their addresses are well known. Nothing to allow: it isn't part of your site."
+        "intro": "Antivirus software, programs that inject ads and company proxies add code to every page their users open, and your policy blocks it. Their addresses are well known. Nothing to allow: it isn't part of your site.",
+        "name": "Software on visitors' devices"
       },
       "translation": {
-        "title": {
-          "one": "Set apart: 1 problem from translation ({reports} reports)",
-          "other": "Set apart: {count} problems from translation ({reports} reports)"
-        },
-        "intro": "When visitors translate your page (Chrome's built-in translation, or a translated copy on `translate.goog`), the translator adds its own styles and scripts. Nothing to allow: it's the visitor's tool, not your site's, and your page still works in its own language."
+        "intro": "When visitors translate your page (Chrome's built-in translation, or a translated copy on `translate.goog`), the translator adds its own styles and scripts. Nothing to allow: it's the visitor's tool, not your site's, and your page still works in its own language.",
+        "name": "Translation"
       },
       "in-app": {
-        "title": {
-          "one": "Set apart: 1 problem seen only in apps' browsers ({reports} reports)",
-          "other": "Set apart: {count} problems seen only in apps' browsers ({reports} reports)"
-        },
-        "intro": "Instagram, Facebook, TikTok and other apps open links in a browser of their own, which adds its own code to the page. Only such browsers reported these: your site doesn't load them itself."
+        "intro": "Instagram, Facebook, TikTok and other apps open links in a browser of their own, which adds its own code to the page. Only such browsers reported these: your site doesn't load them itself.",
+        "name": "Apps' built-in browsers"
       },
       "bot": {
-        "title": {
-          "one": "Set apart: 1 problem seen only from bots ({reports} reports)",
-          "other": "Set apart: {count} problems seen only from bots ({reports} reports)"
-        },
-        "intro": "Search engines' crawlers, monitoring and test tools, and scrapers. Only they reported these, no visitor's browser did. If one of them is your own monitoring, check its setup rather than your policy."
+        "intro": "Search engines' crawlers, monitoring and test tools, and scrapers. Only they reported these, no visitor's browser did. If one of them is your own monitoring, check its setup rather than your policy.",
+        "name": "Bots"
       },
       "copy": {
-        "title": {
-          "one": "Set apart: 1 problem on copies of your pages ({reports} reports)",
-          "other": "Set apart: {count} problems on copies of your pages ({reports} reports)"
-        },
-        "intro": "These came from your pages shown somewhere else: a search engine's cache, an archive, a page saved on someone's computer. The copy keeps your policy but not your address, so things break there that work on your site."
+        "intro": "These came from your pages shown somewhere else: a search engine's cache, an archive, a page saved on someone's computer. The copy keeps your policy but not your address, so things break there that work on your site.",
+        "name": "Copies of your pages"
       },
       "browser": {
-        "title": {
-          "one": "Set apart: 1 problem from the browser itself ({reports} reports)",
-          "other": "Set apart: {count} problems from the browser itself ({reports} reports)"
-        },
-        "intro": "Browsers' own pages and internal addresses (`about:`, `chrome://`, `resource://`…) sometimes end up in reports. They aren't part of your site."
+        "intro": "Browsers' own pages and internal addresses (`about:`, `chrome://`, `resource://`…) sometimes end up in reports. They aren't part of your site.",
+        "name": "The browser itself"
       }
     },
     "period": "Received {range}.",
@@ -1024,7 +1002,6 @@
         "medium": "Then",
         "low": "Less urgent"
       },
-      "line": "**{level}**: {reasons}.",
       "unknown": "an address no known tool uses",
       "sensitive": "on {page}, where visitors pay or sign in",
       "enforced": "blocked for your visitors",
@@ -1032,7 +1009,8 @@
       "code": "it runs code or sends data",
       "look": "it only changes how the page looks",
       "new": "new since {date}",
-      "stopped": "not seen since {date}, maybe already fixed"
+      "stopped": "not seen since {date}, maybe already fixed",
+      "why": "Why it ranks here: {reasons}."
     },
     "enforce": {
       "title": "Can you enforce it?",
@@ -1070,7 +1048,6 @@
       },
       "lessThanDay": "less than a day"
     },
-    "summary": "In short, from your site: {levels}.",
     "levels": {
       "high": {
         "one": "1 to check first",
@@ -1089,10 +1066,30 @@
         "other": "{count} allowed since a policy change"
       }
     },
-    "rowMeta": "{level}, {reports}",
-    "fixed": "Allowed since {date}",
+    "fixed": "Allowed",
     "fixedIntro": "The policy your pages sent from {date} allows it, and no report about it came after that. If it's still the policy your site sends, there's nothing to do. If more reports come, some pages or browsers still get the older one.",
     "linesFrom": "What to change in the policy sent from {date}",
-    "linesForFrom": "What to change in policy {n}, sent from {date}"
+    "linesForFrom": "What to change in policy {n}, sent from {date}",
+    "bar": {
+      "example": "The example",
+      "pasted": "Pasted reports",
+      "sep": ": ",
+      "count": {
+        "one": "1 report",
+        "other": "{count} reports"
+      },
+      "change": "Change",
+      "done": "Done"
+    },
+    "fixedMeta": "since {date}, {reports}",
+    "summaryLead": "From your site:",
+    "noiseTitle": {
+      "one": "Set apart: 1 report your site didn't cause",
+      "other": "Set apart: {count} reports your site didn't cause"
+    },
+    "noiseCount": {
+      "one": "(1 report)",
+      "other": "({count} reports)"
+    }
   }
 }

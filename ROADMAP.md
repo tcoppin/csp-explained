@@ -40,7 +40,10 @@ needs our own server comes last, because it changes the site's promise that the 
       And the problems as rows (2026-11-20): each row is heard as one control with what was blocked, its level and
       its count ("A script from cdn.jquery-libs.example, Check first, 5 reports, collapsed"), says expanded once
       opened, and its detail reads in order (the reasons it ranks there, the counts, the explanation, the warning
-      before the checkbox). The arrows on folds aren't read.
+      before the checkbox). The arrows on folds aren't read. And the bar the box folds into once reports are read
+      (2026-11-21): after "Try an example", the focus lands on "What the 138 reports say" and that is heard;
+      "Change" puts it back in the box, "Done" on the heading again; the summary's highlighted counts are heard as
+      plain words, and each row is heard with its level first ("Check first, A script from…, 5 reports").
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).

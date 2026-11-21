@@ -21,9 +21,69 @@
 .report-none {
   margin-top: 2rem;
 }
+/* Once read, the box folds into a bar: what was read, and how to change it */
+.report-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+.report-bar p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.report-bar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.report-bar + .report-period {
+  margin: 0.75rem 0 0;
+}
 
 .report-results {
-  margin-top: 2.5rem;
+  margin-top: 2rem;
+}
+/* The answer to the page, in one line: its counts highlighted like the rows' levels */
+.report-summary {
+  font-size: var(--step-0);
+  line-height: 1.9;
+  margin: 0.25rem 0 0.5rem;
+}
+
+/* A level: the site's highlighter, in the colour of what it means (risky, a warning, quiet, allowed). The words say
+   it; the colour repeats it. */
+.report-level {
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  color: var(--ink);
+  font-weight: 700;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.report-level.high {
+  background: var(--hl-unsafe);
+}
+.report-level.medium {
+  background: var(--hl-keyword);
+}
+.report-level.low {
+  background: var(--hl-invalid);
+}
+.report-level.fixed {
+  background: var(--hl-nonce);
+}
+@media (forced-colors: active) {
+  .report-level {
+    /* System colours already: no plate in the page's colour behind the text */
+    forced-color-adjust: none;
+    background: Mark;
+    color: MarkText;
+  }
 }
 .report-results h2 {
   font-size: var(--step-1);
@@ -32,14 +92,11 @@
   margin: 0 0 0.35rem;
 }
 .report-results .report-list-title {
-  margin: 2.5rem 0 0.25rem;
-}
-.report-list-title + .muted {
-  margin: 0 0 1rem;
+  margin: 2rem 0 0.75rem;
 }
 
-/* One row per problem: what it is, how urgent and how many reports; it opens to the detail. The edge says blocked
-   or only reported, as the problem's own rule did; the level is said in words. */
+/* One row per problem: how urgent, what it is and how many reports; it opens to the detail. The edge says blocked
+   or only reported, as the problem's own rule did; the level is said in words, highlighted. */
 .report-rows {
   list-style: none;
   margin: 0 0 2.5rem;
@@ -64,18 +121,34 @@
   padding: 0.6rem 0.75rem;
   color: var(--ink-soft);
 }
-/* Name and level side by side, the level under the name when there's no room: both right of the arrow */
+/* Level, name and count in a line on wide screens, the level in a column of its own; on phones the level above the
+   name, the count under it: all right of the arrow */
 .report-row-text {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.15rem 1rem;
+  align-items: baseline;
+  gap: 0.2rem 1rem;
+}
+.report-row-level {
+  flex: 0 0 9rem;
 }
 .report-row-what {
   flex: 1 1 14rem;
   font-weight: 700;
+  color: var(--ink);
+}
+.report-results .report-row > details > summary:hover .report-row-what {
+  text-decoration: underline;
+}
+.report-results .report-row > details > summary::before {
   color: var(--action);
+  align-self: center;
+}
+@media (max-width: 40rem) {
+  .report-row-level {
+    flex-basis: 100%;
+  }
 }
 .report-row > details > .violation {
   padding: 0 0.75rem 1rem 2rem;
@@ -151,17 +224,18 @@
   }
 }
 
-/* Set apart: what the site didn't cause, folded at the end */
+/* Set apart: what the site didn't cause, one fold at the end, a part per cause */
 .report-noise {
   margin-top: 2rem;
-  border-top: 2px solid var(--rule);
-  padding-top: 1rem;
 }
 .report-noise > summary {
   font-weight: 700;
 }
-.report-noise > p {
-  margin-top: 0.75rem;
+.report-noise-cause {
+  margin-top: 1.25rem;
+}
+.report-noise-cause > p {
+  margin: 0 0 0.75rem;
 }
 /* "I know what this is", under an unknown address */
 .report-trust {
@@ -174,12 +248,19 @@
     min-height: 2.75rem;
   }
 }
-/* When the reports were received, and "Only the reports since" */
+/* When the reports were received, and "Only the reports since", on one line when there's room */
 .report-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
   margin-bottom: 1.5rem;
 }
 .report-period p {
-  margin: 0.25rem 0;
+  margin: 0;
+}
+.report-period p:last-child:not(.report-since) {
+  flex-basis: 100%;
 }
 .report-since input {
   font: inherit;

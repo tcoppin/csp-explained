@@ -31,4 +31,8 @@ const locale = localeOf(Astro.currentLocale);
     max-width: var(--measure);
     color: var(--ink-soft);
   }
+  /* Once reports are read, the introduction has done its job: the results start near the top. */
+  .wrap:has(:global(.report-bar)) :is(.lead, .private) {
+    display: none;
+  }
 </style>
