@@ -1,0 +1,43 @@
+id: angularjs
+name: AngularJS
+category: library
+website: https://angularjs.org
+sources:
+  - https://docs.angularjs.org/misc/downloading
+  - https://docs.angularjs.org/api/ng/directive/ngCsp
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Loads AngularJS 1.8.3, the last version in its documentation (the download page's example still shows 1.5.6):
+  the address includes the version, so change it in your policy if you use another one. Put ng-csp on the html
+  element and link angular-csp.css yourself, and AngularJS needs neither 'unsafe-eval' nor 'unsafe-inline'.
+warning: >-
+  AngularJS support ended in January 2022: it no longer gets security fixes. Because it runs code written in
+  templates, an attacker who manages to put AngularJS markup in one of your pages can use it to run their own code,
+  whatever your policy says. Plan a move away from AngularJS, and allow only the one version you use.
+features:
+  - id: library
+    label: Load AngularJS from the Google CDN
+    default: true
+    requirements:
+      - type: script
+        sources: [https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/]
+        reason: Loads AngularJS.
+  - id: inline-styles
+    label: Styles AngularJS adds (without ng-csp)
+    default: true
+    description: Put ng-csp on the html element and link angular-csp.css instead.
+    requirements:
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: AngularJS adds the CSS rules of ngCloak and ngHide to the page.
+  - id: eval
+    label: Faster expressions
+    default: false
+    description: >-
+      Without it, AngularJS detects that eval is blocked and evaluates expressions without it (about 30% slower);
+      ng-csp avoids the error that detection logs in the console.
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: AngularJS's $parse service turns expressions into code with eval.

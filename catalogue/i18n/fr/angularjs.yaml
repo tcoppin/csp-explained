@@ -1,0 +1,40 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Loads AngularJS 1.8.3, the last version in its documentation (the download page's example still shows 1.5.6): the address includes the version, so change it in your policy if you use another one. Put ng-csp on the html element and link angular-csp.css yourself, and AngularJS needs neither 'unsafe-eval' nor 'unsafe-inline'.
+  { en: 45f06f8d, text: "Charge AngularJS 1.8.3, la dernière version de sa documentation (l'exemple de la page de téléchargement montre encore 1.5.6) : l'adresse contient la version, changez-la donc dans votre politique si vous en utilisez une autre. Mettez ng-csp sur l'élément html et liez vous-même angular-csp.css : AngularJS n'a alors besoin ni de 'unsafe-eval' ni de 'unsafe-inline'." }
+warning:
+  # AngularJS support ended in January 2022: it no longer gets security fixes. Because it runs code written in templates, an attacker who manages to put AngularJS markup in one of your pages can use it to run their own code, whatever your policy says. Plan a move away from AngularJS, and allow only the one version you use.
+  { en: f59fe999, text: "Le support d'AngularJS a pris fin en janvier 2022 : il ne reçoit plus de correctifs de sécurité. Comme il exécute le code écrit dans les templates, un attaquant qui parvient à glisser du balisage AngularJS dans l'une de vos pages peut s'en servir pour exécuter son propre code, quelle que soit votre politique. Prévoyez de quitter AngularJS, et n'autorisez que la seule version que vous utilisez." }
+features:
+  library:
+    label:
+      # Load AngularJS from the Google CDN
+      { en: dbb198f2, text: "Charger AngularJS depuis le CDN de Google" }
+    reasons:
+      script:
+        # Loads AngularJS.
+        { en: d2367efb, text: "Charge AngularJS." }
+  inline-styles:
+    description:
+      # Put ng-csp on the html element and link angular-csp.css instead.
+      { en: 242f0b6a, text: "Mettez ng-csp sur l'élément html et liez plutôt angular-csp.css." }
+    label:
+      # Styles AngularJS adds (without ng-csp)
+      { en: b435032d, text: "Styles ajoutés par AngularJS (sans ng-csp)" }
+    reasons:
+      inline-style:
+        # AngularJS adds the CSS rules of ngCloak and ngHide to the page.
+        { en: 70067c1a, text: "AngularJS ajoute à la page les règles CSS de ngCloak et ngHide." }
+  eval:
+    description:
+      # Without it, AngularJS detects that eval is blocked and evaluates expressions without it (about 30% slower); ng-csp avoids the error that detection logs in the console.
+      { en: 390f965f, text: "Sans cela, AngularJS détecte qu'eval est bloqué et évalue les expressions sans lui (environ 30 % plus lent) ; ng-csp évite l'erreur que cette détection affiche dans la console." }
+    label:
+      # Faster expressions
+      { en: 4f5185b5, text: "Expressions plus rapides" }
+    reasons:
+      eval:
+        # AngularJS's $parse service turns expressions into code with eval.
+        { en: 7773f4cc, text: "Le service $parse d'AngularJS transforme les expressions en code avec eval." }

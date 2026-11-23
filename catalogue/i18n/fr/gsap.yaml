@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The address includes the version (3.15 here): when you upgrade GSAP, change it in your policy too. The plugins load from the same folder.
+  { en: 3aea3306, text: "L'adresse contient la version (3.15 ici) : quand vous mettez GSAP à jour, changez-la aussi dans votre politique. Les extensions se chargent depuis le même dossier." }
+features:
+  library:
+    label:
+      # Load GSAP from jsDelivr
+      { en: 4846bbc4, text: "Charger GSAP depuis jsDelivr" }
+    reasons:
+      script:
+        # Loads GSAP and its plugins.
+        { en: a373ef7b, text: "Charge GSAP et ses extensions." }

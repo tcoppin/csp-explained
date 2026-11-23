@@ -1,0 +1,19 @@
+id: gsap
+name: GSAP
+category: library
+website: https://gsap.com
+sources:
+  - https://gsap.com/docs/v3/Installation/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  The address includes the version (3.15 here): when you upgrade GSAP, change it in your policy too. The plugins
+  load from the same folder.
+features:
+  - id: library
+    label: Load GSAP from jsDelivr
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/gsap@3.15/]
+        reason: Loads GSAP and its plugins.

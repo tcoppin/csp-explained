@@ -735,6 +735,15 @@
   "https://api.jquery.com/jQuery.globalEval/": [
     "jquery.globaleval"
   ],
+  "https://www.jsdelivr.com/": [
+    "esm.run",
+    "esm.sh",
+    "https://cdn.jsdelivr.net",
+    "https://data.jsdelivr.com",
+    "https://esm.run",
+    "jsdelivr.com",
+    "node.js"
+  ],
   "https://momentjs.com/docs/#/use-it/browser/": [
     "a.add",
     "a.clone",
@@ -1851,7 +1860,28 @@
     "v1.api.service.cmp.usercentrics.eu",
     "web.cmp.usercentrics.eu"
   ],
+  "https://docs.angularjs.org/misc/downloading": [
+    "angular.io",
+    "crumb.name",
+    "item.name",
+    "navgroup.name",
+    "navitem.extra.text",
+    "navitem.name"
+  ],
+  "https://docs.angularjs.org/api/ng/directive/ngCsp": [
+    "angular.io",
+    "crumb.name",
+    "item.name",
+    "navgroup.name",
+    "navitem.extra.text",
+    "navitem.name"
+  ],
   "https://developers.google.com/fonts/faq": [],
+  "https://gsap.com/docs/v3/Installation/": [
+    "gsap.js",
+    "gsap.registerplugin",
+    "npm.greensock.com"
+  ],
   "https://www.jsdelivr.com/documentation": [
     "esm.run",
     "esm.sh",

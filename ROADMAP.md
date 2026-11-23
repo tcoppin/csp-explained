@@ -118,6 +118,8 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
 - [ ] Segment: its FAQ names cdn.segment.com and api.segment.io without directives; the entry puts the scripts in
       script-src, the settings and events in connect-src. Confirm with Segment.
 - Hotjar, Cookiebot, Usercentrics, TrustArc, Segment, Adobe Fonts, Adyen, tawk.to and Kameleoon pages block automated reads: re-check them by hand when the weekly watcher can't.
+- GSAP, AngularJS, jsDelivr and the Google Fonts FAQ only show their addresses once JavaScript runs (read in a
+      browser, 2026-11-23): the weekly watcher can't see them change, so re-check them by hand.
 
 ### To add from public documentation (contributions welcome)
 
@@ -133,8 +135,8 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
       UET, Sentry (its pages cover sending CSP reports to Sentry, not what the browser SDK needs).
 - [ ] Vimeo: the developer site only renders with JavaScript, and the help centre has no CSP article.
 - [ ] Mixpanel: no CSP page; the JavaScript SDK page names `cdn.mxpnl.com` and regional API hosts only.
-- [ ] Libraries whose docs couldn't give a CDN address (checked 2026-11-23): GSAP and Three.js (install pages
-      render with JavaScript), AngularJS (docs render with JavaScript), Lodash (links to jsDelivr's project page
+- [ ] Libraries whose docs couldn't give a CDN address (checked 2026-11-23): Three.js (its import map writes
+      `three@<version>` without a version to pin), Lodash (links to jsDelivr's project page
       only), Chart.js (links to the CDNs' pages only), Select2 and Fancybox (version unreadable in the page),
       Lottie and Modernizr (no CDN address). Modernizr's ES5 detect is said to use `eval()`: confirm on its
       download page.
