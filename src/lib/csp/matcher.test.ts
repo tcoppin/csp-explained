@@ -110,6 +110,14 @@ describe('checkResource', () => {
     expect(checkResource(p, 'eval', undefined, SELF).verdict).toBe('blocked');
   });
 
+  it("lets 'wasm-unsafe-eval' allow WebAssembly only, and 'unsafe-eval' allow both", () => {
+    const wasmOnly = parseSinglePolicy("script-src 'self' 'wasm-unsafe-eval'");
+    expect(checkResource(wasmOnly, 'eval', undefined, SELF, undefined, true).verdict).toBe('allowed');
+    expect(checkResource(wasmOnly, 'eval', undefined, SELF).verdict).toBe('blocked');
+    expect(checkResource(parseSinglePolicy("script-src 'self' 'unsafe-eval'"), 'eval', undefined, SELF, undefined, true).verdict).toBe('allowed');
+    expect(checkResource(parseSinglePolicy("script-src 'self'"), 'eval', undefined, SELF, undefined, true).verdict).toBe('blocked');
+  });
+
   it("allows code from text with 'trusted-types-eval' only when Trusted Types are enforced", () => {
     const enforced = parseSinglePolicy("script-src 'self' 'trusted-types-eval'; require-trusted-types-for 'script'");
     const r = checkResource(enforced, 'eval', undefined, SELF);

@@ -80,11 +80,13 @@ function worst(checks: PolicyCheck[]): Verdict {
 export function checkRequirement(parsed: ParseResult, req: Requirement, selfOrigin: string): RequirementResult {
   const url = probeFor(req, selfOrigin);
   const hash = classify(req.source, { start: 0, end: req.source.length }).kind === 'hash' ? req.source : undefined;
+  // A tool that only compiles WebAssembly asks for 'wasm-unsafe-eval', which 'unsafe-eval' also covers.
+  const wasm = req.type === 'eval' && req.source.toLowerCase() === "'wasm-unsafe-eval'";
   const run = (reportOnly: boolean) =>
     parsed.policies
       .map((policy, policyIndex) => ({ policy, policyIndex }))
       .filter(({ policy }) => policy.reportOnly === reportOnly && policy.directives.length > 0)
-      .map(({ policy, policyIndex }) => ({ policyIndex, match: checkResource(policy, req.type, url, selfOrigin, hash) }));
+      .map(({ policy, policyIndex }) => ({ policyIndex, match: checkResource(policy, req.type, url, selfOrigin, hash, wasm) }));
 
   const enforced = run(false);
   const reportOnly = run(true);

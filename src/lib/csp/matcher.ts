@@ -161,9 +161,17 @@ export function ignoredSources(governing: Directive, type: ResourceType): Source
 /**
  * Would a single policy let the page load `url` as `type`?
  * For inline/eval types the URL is ignored. `hash` names one inline block by its hash (`'sha256-…'`): it is allowed
- * when the directive lists that hash, and adding it is the fix otherwise.
+ * when the directive lists that hash, and adding it is the fix otherwise. `wasm`: the code to compile is WebAssembly
+ * only, which 'wasm-unsafe-eval' allows as well as 'unsafe-eval'.
  */
-export function checkResource(policy: Policy, type: ResourceType, url: string | undefined, selfOrigin: string, hash?: string): MatchResult {
+export function checkResource(
+  policy: Policy,
+  type: ResourceType,
+  url: string | undefined,
+  selfOrigin: string,
+  hash?: string,
+  wasm = false,
+): MatchResult {
   const requested = EFFECTIVE_DIRECTIVE[type];
   const { governing } = resolve(policy, requested);
   if (!governing) return { verdict: 'allowed', requested, ignored: [] };
@@ -176,7 +184,7 @@ export function checkResource(policy: Policy, type: ResourceType, url: string | 
     // 'trusted-types-eval' allows it too, but only where Trusted Types are enforced (CSP3 §4.4.1): the code then has
     // to come through a Trusted Types policy.
     const kw =
-      governing.values.find((v) => v.kind === 'keyword' && v.value === "'unsafe-eval'") ??
+      governing.values.find((v) => v.kind === 'keyword' && (v.value === "'unsafe-eval'" || (wasm && v.value === "'wasm-unsafe-eval'"))) ??
       (requiresTrustedTypes(policy) ? governing.values.find((v) => v.kind === 'keyword' && v.value === "'trusted-types-eval'") : undefined);
     return kw ? { ...base, verdict: 'allowed', matchedBy: kw, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
   }
