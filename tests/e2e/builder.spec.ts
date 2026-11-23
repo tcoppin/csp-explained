@@ -98,6 +98,25 @@ test('a tool that puts the site at risk says so when it is offered and once it i
   expect(heard).toContain('Risk: Allowing all of unpkg lets code from anyone run on your site.');
 });
 
+test('a partly verified tool says what is missing once picked, and the review asks to check it first', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await pickTool(page, 'Tealium iQ');
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  const heard = (await readAloud(page, '.tool-list')).join(' ').replace(/\s*(?:strong|end of strong|code|end of code)\s*/g, ' ').replace(/ :/g, ':');
+  expect(heard).toContain("Partly verified: Be careful with this entry: Tealium's page lists domains without saying which directive");
+  expect(heard).toContain('Put the policy live with Content-Security-Policy-Report-Only first');
+  // A fully verified tool has no such note.
+  await pickTool(page, 'Hotjar');
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  await expect(page.locator('.tool', { hasText: 'Hotjar' }).locator('.tool-partial')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'See your policy' }).click();
+  const notes = page.getByRole('tab', { name: /Things to know/ });
+  await notes.click();
+  const note = page.locator('.companion-note', { has: page.getByRole('heading', { name: 'Check these tools before you enforce the policy' }) });
+  await expect(note).toContainText("Their official documentation doesn't say everything they need: Tealium iQ.");
+});
+
 test('an address of your own account is typed once, fills the tool in, and travels in the link', async ({ page }) => {
   await openBuilder(page, '/build#b=allowlist&step=tools');
   await pickTool(page, 'Matomo');

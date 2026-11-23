@@ -275,6 +275,19 @@
   margin-top: 0;
 }
 
+/* A picked tool only partly verified: the warning status colour, its label in words */
+.tool-partial {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+  margin-block: 0.75rem;
+}
+.tool-partial p {
+  margin: 0 0 0.35rem;
+}
+.tool-partial strong {
+  color: var(--warn);
+}
+
 /* Tools folded to a summary line; the last one picked starts open */
 .tool-list {
   margin-top: 1rem;

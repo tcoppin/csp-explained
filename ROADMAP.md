@@ -48,6 +48,9 @@ needs our own server comes last, because it changes the site's promise that the 
       on its page, "Risk:" and the warning are heard before "Check jsDelivr against my policy"; in the tool
       picker, cdnjs is heard as "cdnjs risky" (not "cdnjsrisky"); once picked, in the builder and the analyzer, the
       warning is the first thing heard under the tool's name.
+      And partly verified tools in the builder (2026-11-23): picking Tealium iQ, its open card says "Partly verified:"
+      and what's missing before its lines; on the last step, "Things to know" counts one more note, and its heading
+      "Check these tools before you enforce the policy" is followed by the tools' names.
       And the account address fields (2026-11-23): picking Matomo in the builder, "Your Matomo address, edit text" is
       heard with its hint; typing "stats shop" makes it invalid and the error is heard with it; Piwik PRO's "Your
       account name" in the analyzer, and the same field in the comparator's tools. Datadog RUM's "Your Datadog site" is a list:

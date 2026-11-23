@@ -114,6 +114,21 @@ function ToolStatus({ placed }: { placed: PlacedRequirement[] }) {
 }
 
 /** A tool folded to its name and outcome; the latest one picked starts open. */
+/** A tool whose official documentation doesn't say everything it needs: what's missing, then how to find the rest. */
+function PartialNote({ notes }: { notes: string | undefined }) {
+  const t = useT();
+  return (
+    <div class="tool-partial">
+      <p>
+        <strong>{t('vendors.partialLabel')}:</strong> {notes}
+      </p>
+      <p>
+        <Rich msg="vendors.partialCheck" />
+      </p>
+    </div>
+  );
+}
+
 function ToolDetails({ name, placed, open, children }: { name: string; placed: PlacedRequirement[]; open: boolean; children: ComponentChildren }) {
   return (
     <details class="tool" open={open}>
@@ -376,6 +391,7 @@ export function ToolsPanel({ b }: { b: BuilderModel }) {
           return (
             <ToolDetails key={vendor.id} name={vendor.name} placed={placed} open={vendor.id === b.lastPicked}>
               <ToolWarning text={vendor.warning} />
+              {vendor.confidence === 'partial' && <PartialNote notes={vendor.notes} />}
               {vendor.features.length > 1 && (
                 <fieldset class="features">
                   <legend>{t('vendors.features')}</legend>
@@ -442,7 +458,8 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
   const activeSelection = selection && policy.directives[selection.directiveIndex] ? selection : { policyIndex: 0, directiveIndex: 0 };
   const nonceWaiting = built.requirements.filter((p) => p.result.verdict === 'needs-nonce');
   const findings = built.findings.filter((f) => audience === 'security' || f.level === 'high' || f.level === 'medium');
-  const notes = findings.length + (nonceWaiting.length > 0 ? 1 : 0) + (b.start === 'nonce' ? 1 : 0);
+  const partial = b.picked.filter((v) => v.confidence === 'partial');
+  const notes = findings.length + (nonceWaiting.length > 0 ? 1 : 0) + (b.start === 'nonce' ? 1 : 0) + (partial.length > 0 ? 1 : 0);
   const snippet = deploySnippet(deployAnalysis, target);
   const metaHeaders = target === 'meta' ? headersBesideMeta(deployAnalysis) : '';
   const analyzeHref = localePath(t.locale, `/#${encodeState({ policy: built.text, site: b.site, vendors: b.vendors })}`);
@@ -504,6 +521,14 @@ export function ReviewPanel({ b, content }: { b: BuilderModel; content: ContentB
               <h3>{t('build.review.nonceTitle')}</h3>
               <p>
                 <Rich msg="build.review.nonce" vars={{ placeholder: NONCE_PLACEHOLDER }} />
+              </p>
+            </div>
+          )}
+          {partial.length > 0 && (
+            <div class="companion-note">
+              <h3>{t('build.review.partialTitle')}</h3>
+              <p>
+                <Rich msg="build.review.partial" vars={{ tools: new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(partial.map((v) => v.name)) }} />
               </p>
             </div>
           )}

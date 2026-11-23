@@ -227,8 +227,10 @@
     "partialShort": "partly verified",
     "warning": "Risk",
     "riskyShort": "risky",
+    "partialLabel": "Partly verified",
     "fieldChoose": "Choose…",
-    "fieldInvalid": "This doesn't look like an address. Type it as it appears in your account, without spaces."
+    "fieldInvalid": "This doesn't look like an address. Type it as it appears in your account, without spaces.",
+    "partialCheck": "Its official documentation doesn't say everything it needs, so this policy may still block part of it. Put the policy live with `Content-Security-Policy-Report-Only` first, and add what the browser console shows."
   },
   "report": {
     "needsNonceNoHow": "The vendor's documentation should explain how.",
@@ -805,6 +807,8 @@
       "nonceTitle": "Replace the nonce placeholder",
       "nonce": "`{placeholder}` stands for the value your server must generate: a new random one for **every page**, also set as the `nonce` attribute of your `<script>` tags. A fixed value gives no protection. [How to add it on your stack](/nonces#stacks-title).",
       "waitingTitle": "Waiting on the nonce",
+      "partialTitle": "Check these tools before you enforce the policy",
+      "partial": "Their official documentation doesn't say everything they need: {tools}. Put the policy live with `Content-Security-Policy-Report-Only` first, and add what the browser console shows for them.",
       "useHashes": "List your inline scripts by hash instead",
       "fromTools": "new with your changes",
       "deployTitle": "Put it live",

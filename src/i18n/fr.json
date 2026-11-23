@@ -227,8 +227,10 @@
     "partialShort": "partiellement vérifié",
     "warning": "Risque",
     "riskyShort": "risqué",
+    "partialLabel": "Vérifié en partie",
     "fieldChoose": "Choisir…",
-    "fieldInvalid": "Cela ne ressemble pas à une adresse. Tapez-la comme elle apparaît dans votre compte, sans espaces."
+    "fieldInvalid": "Cela ne ressemble pas à une adresse. Tapez-la comme elle apparaît dans votre compte, sans espaces.",
+    "partialCheck": "Sa documentation officielle ne dit pas tout ce dont il a besoin : cette politique peut encore en bloquer une partie. Mettez d'abord la politique en ligne avec `Content-Security-Policy-Report-Only`, et ajoutez ce que montre la console du navigateur."
   },
   "report": {
     "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",
@@ -805,6 +807,8 @@
       "nonceTitle": "Remplacez le nonce d'exemple",
       "nonce": "`{placeholder}` représente la valeur que votre serveur doit générer : une nouvelle valeur aléatoire pour **chaque page**, placée aussi dans l'attribut `nonce` de vos balises `<script>`. Une valeur fixe ne protège de rien. [Comment l'ajouter selon votre technologie](/nonces#stacks-title).",
       "waitingTitle": "En attente du nonce",
+      "partialTitle": "Vérifiez ces outils avant d'appliquer la politique",
+      "partial": "Leur documentation officielle ne dit pas tout ce dont ils ont besoin : {tools}. Mettez d'abord la politique en ligne avec `Content-Security-Policy-Report-Only`, et ajoutez ce que la console du navigateur montre pour eux.",
       "useHashes": "Lister plutôt vos scripts intégrés par empreinte",
       "fromTools": "nouveau avec vos ajouts",
       "deployTitle": "La mettre en ligne",
