@@ -281,6 +281,17 @@ test("a tool shows what's missing first, and folds what already works", async ({
   await expect(gtm.locator('details.working summary')).toHaveText(/^Show the \d+ that already work$/);
 });
 
+test('allowing all of a CDN anyone can publish to is a risk, said in plain words and as a high finding', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://unpkg.com; object-src 'none'");
+  const heard = (await readAloud(page, '.findings')).join(' ');
+  expect(heard).toContain('https://unpkg.com serves files anyone can publish, so an attacker could put their own code there');
+  expect(heard).toMatch(/High.*https:\/\/unpkg\.com serves files/);
+  // One package's address is not flagged that way.
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://unpkg.com/vue@3/; object-src 'none'");
+  await expect(page.getByText('anyone can publish')).toHaveCount(0);
+});
+
 test('tools are picked from a searchable multi-select', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

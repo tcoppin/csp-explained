@@ -473,6 +473,7 @@
       "base-uri": "The policy doesn't restrict the page's base address (base-uri). An attacker could change where the page's own scripts load from; base-uri 'none' or 'self' prevents it."
     },
     "script-allowlist-bypass": {
+      "open-cdn": "{value} serves files anyone can publish, so an attacker could put their own code there and your policy would let it run. Allow only the libraries your site uses, by their own address.",
       "known": "{value} hosts files an attacker can reuse to run their own code, so allowing it weakens the policy. Remove it if nothing on your site needs it."
     },
     "object-allowlist-bypass": {
@@ -491,6 +492,7 @@
       "base-uri": "No base-uri: an injected <base> tag could send every relative script address to an attacker's server, even with nonces. Set base-uri 'none' or 'self'."
     },
     "script-allowlist-bypass": {
+      "open-cdn": "{value} serves every package published on npm, and anyone can publish one: an attacker can put their code there and this policy lets it run. Allow only the packages you use, by their address with a path, or move to nonces with 'strict-dynamic'.",
       "known": "{value} is known to host JSONP endpoints or Angular libraries that let an attacker run code despite this policy. Remove it, or move to nonces with 'strict-dynamic'.",
       "unverified": "No known bypass on {value}, but if it serves JSONP replies or Angular libraries, an attacker can use it to run code. Host allowlists are hard to keep safe; nonces with 'strict-dynamic' are more robust.",
       "self": "'self' trusts every file on your own site. If it hosts JSONP endpoints, Angular or files uploaded by users, they can be used to get around the policy."

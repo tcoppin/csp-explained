@@ -4,6 +4,7 @@ import { Finding, Severity, Type } from 'csp_evaluator/dist/finding.js';
 import { CspParser } from 'csp_evaluator/dist/parser.js';
 import { directiveInfo, KEYWORDS } from './directives';
 import type { ParseResult, Policy } from './model';
+import { parseHostSource } from './parser';
 
 /**
  * Security findings come from Google's CSP Evaluator (Apache-2.0), which encodes
@@ -38,6 +39,24 @@ const LEVELS: Record<Severity, Level> = {
 };
 
 const ORDER: Record<Level, number> = { high: 0, medium: 1, low: 2, info: 3 };
+
+/**
+ * Public CDNs that serve every package published on npm, as their own pages say (unpkg, jsDelivr, esm.sh, Skypack,
+ * JSPM: see their catalogue entries). Anyone can publish a package, so allowing the whole host lets an attacker load
+ * code of their own. The evaluator knows jsDelivr as a bypass but not the others; we say the same thing about all.
+ */
+const OPEN_CDNS = ['unpkg.com', 'cdn.jsdelivr.net', 'esm.sh', 'cdn.skypack.dev', 'ga.jspm.io'];
+
+/**
+ * Does a source allow a whole open CDN (`https://unpkg.com`, `unpkg.com`, `https://*.jsdelivr.net`), rather than one
+ * package's address (`https://unpkg.com/vue@3/`)?
+ */
+export function allowsOpenCdn(value: string | undefined): boolean {
+  const parts = value === undefined ? undefined : parseHostSource(value);
+  if (!parts || (parts.path !== undefined && parts.path !== '/')) return false;
+  const host = parts.host;
+  return OPEN_CDNS.some((cdn) => host === cdn || (host.startsWith('*.') && cdn.endsWith(host.slice(1))));
+}
 
 const idOf = (type: Type) => (Type[type] ?? String(type)).toLowerCase().replace(/_/g, '-');
 
@@ -77,7 +96,7 @@ export function findingKey(f: Pick<SecurityFinding, 'id' | 'directive' | 'value'
     case 'missing-directives':
       return `${f.id}.${f.directive}`;
     case 'script-allowlist-bypass':
-      return `${f.id}.${value === "'self'" ? 'self' : f.maybe ? 'unverified' : 'known'}`;
+      return `${f.id}.${value === "'self'" ? 'self' : allowsOpenCdn(value) ? 'open-cdn' : f.maybe ? 'unverified' : 'known'}`;
     case 'object-allowlist-bypass':
       return `${f.id}.${f.maybe ? 'restrict' : 'known'}`;
     case 'ip-source':
@@ -117,10 +136,13 @@ export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): Securit
       const key = `${f.type}|${f.directive}|${f.value ?? ''}`;
       if (seen.has(key)) continue;
       seen.add(key);
+      const id = idOf(f.type);
+      // A CDN anyone can publish to is a sure bypass, whether or not the evaluator's lists know it.
+      const openCdn = id === 'script-allowlist-bypass' && allowsOpenCdn(f.value);
       findings.push({
-        id: idOf(f.type),
-        level: LEVELS[f.severity] ?? 'info',
-        maybe: f.severity === Severity.HIGH_MAYBE || f.severity === Severity.MEDIUM_MAYBE,
+        id,
+        level: openCdn ? 'high' : (LEVELS[f.severity] ?? 'info'),
+        maybe: !openCdn && (f.severity === Severity.HIGH_MAYBE || f.severity === Severity.MEDIUM_MAYBE),
         directive: f.directive,
         value: f.value,
         description: f.description,

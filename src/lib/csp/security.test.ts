@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parse } from './parser';
-import { evaluateSecurity } from './security';
+import { allowsOpenCdn, evaluateSecurity, findingKey } from './security';
 
 describe('evaluateSecurity', () => {
   it("flags 'unsafe-inline' in script-src as high", () => {
@@ -46,5 +46,38 @@ describe('evaluateSecurity', () => {
     const order = { high: 0, medium: 1, low: 2, info: 3 };
     const levels = findings.map((f) => order[f.level]);
     expect(levels).toEqual([...levels].sort((a, b) => a - b));
+  });
+});
+
+describe('CDNs anyone can publish to', () => {
+  const bypass = (policy: string) => evaluateSecurity(parse(policy)).filter((f) => f.id === 'script-allowlist-bypass' && f.value !== "'self'");
+
+  it('flags all of unpkg as a sure, high bypass, though the evaluator only suspects it', () => {
+    const [f] = bypass("script-src 'self' https://unpkg.com; object-src 'none'");
+    expect(f).toMatchObject({ level: 'high', maybe: false, value: 'https://unpkg.com' });
+    expect(findingKey(f!)).toBe('script-allowlist-bypass.open-cdn');
+  });
+
+  it('says the same about jsDelivr, which the evaluator already knows', () => {
+    const [f] = bypass("script-src https://cdn.jsdelivr.net; object-src 'none'");
+    expect(f).toMatchObject({ level: 'high', maybe: false });
+    expect(findingKey(f!)).toBe('script-allowlist-bypass.open-cdn');
+  });
+
+  it('also catches them through default-src', () => {
+    expect(bypass("default-src 'self' unpkg.com")[0]).toMatchObject({ directive: 'default-src', level: 'high' });
+  });
+
+  it("leaves one package's address to the usual check", () => {
+    const [f] = bypass("script-src https://unpkg.com/vue@3/; object-src 'none'");
+    expect(f).toMatchObject({ level: 'medium', maybe: true });
+    expect(findingKey(f!)).toBe('script-allowlist-bypass.unverified');
+  });
+
+  it('knows a whole CDN from one of its packages', () => {
+    for (const v of ['https://unpkg.com', 'unpkg.com', 'https://unpkg.com/', 'https://cdn.jsdelivr.net', 'https://*.jsdelivr.net', 'https://esm.sh', 'https://cdn.skypack.dev', 'https://ga.jspm.io']) expect(allowsOpenCdn(v), v).toBe(true);
+    for (const v of ['https://unpkg.com/vue@3/', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/', 'https://cdnjs.cloudflare.com', 'https://unpkg.com.evil.example', 'https://ga.jspm.io/npm:lit@3.3.0/', "'self'", undefined]) {
+      expect(allowsOpenCdn(v), String(v)).toBe(false);
+    }
   });
 });

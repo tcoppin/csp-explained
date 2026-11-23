@@ -245,6 +245,7 @@ describe('findingKey', () => {
     'script-src self',
     "script-src 'nonce-abcdefgh1234' 'unsafe-inline' 'strict-dynamic' https://x.example",
     "default-src 'self'; report-uri http://r.example",
+    "script-src 'self' https://unpkg.com; object-src 'none'",
   ];
   const produced = new Set(POLICIES.flatMap((p) => evaluateSecurity(parse(p)).map((f) => findingKey(f))));
 
