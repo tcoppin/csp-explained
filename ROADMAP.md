@@ -44,6 +44,10 @@ needs our own server comes last, because it changes the site's promise that the 
       (2026-11-21): after "Try an example", the focus lands on "What the 138 reports say" and that is heard;
       "Change" puts it back in the box, "Done" on the heading again; the summary's highlighted counts are heard as
       plain words, and each row is heard with its level first ("Check first, A script from…, 5 reports").
+      And the account address fields (2026-11-23): picking Matomo in the builder, "Your Matomo address, edit text" is
+      heard with its hint; typing "stats shop" makes it invalid and the error is heard with it; Piwik PRO's "Your
+      account name" in the analyzer, and the same field in the comparator's tools. Datadog RUM's "Your Datadog site" is a list:
+      heard as a pop-up button with its hint, and "Choose…" first.
       And "Save a copy" at the end of the results (2026-11-21): the group and its two checkboxes are read with their
       names; after "Print or save as PDF" the focus is back on that button; the downloaded .html file reads in
       order in a browser (title, the details under it, "In short", each problem as a heading with its level first);
@@ -109,8 +113,8 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
       browser.
 - [ ] LinkedIn Insight Tag: the public troubleshooting page lists domains not to block, without directives or the
       tag code.
-- [ ] Matomo: the public FAQ is complete, but describes the site's own Matomo server, an address the catalogue
-      can't know (Matomo Cloud domains, or a field to type it in, would solve it).
+- [ ] Matomo Cloud: the self-hosted Matomo is in the catalogue (its address typed in a field); Matomo Cloud's
+      tracker addresses aren't documented publicly.
 - [ ] No official CSP page found (2026-11-23): Mouseflow, Quantum Metric, Heap, Plausible, Microsoft Advertising
       UET, Sentry (its pages cover sending CSP reports to Sentry, not what the browser SDK needs).
 - [ ] Vimeo: the developer site only renders with JavaScript, and the help centre has no CSP article.

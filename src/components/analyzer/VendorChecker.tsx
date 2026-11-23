@@ -7,6 +7,7 @@ import type { Audience } from '../../lib/csp/model';
 import { track } from '../../scripts/track';
 import { NewTabLink } from '../ui/NewTabLink';
 import { ToolPicker } from '../policy/ToolPicker';
+import { ToolFields } from '../policy/ToolFields';
 import { useT } from '../ui/i18n';
 
 interface Props {
@@ -86,6 +87,7 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
               ))}
             </fieldset>
           )}
+          <ToolFields vendor={vendor} selected={selected[vendor.id] ?? []} onChange={(next) => onChange({ ...selected, [vendor.id]: next })} />
 
           {(() => {
             // What needs doing first; what already works stays one click away.

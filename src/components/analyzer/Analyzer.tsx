@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { EXAMPLE_POLICY } from '../../config';
 import { localePath, translator, type Locale } from '../../i18n';
-import { analyze, DEFAULT_ORIGIN, type VendorSelection } from '../../lib/analysis';
+import { analyze, DEFAULT_ORIGIN, selectionsOf, type VendorSelection } from '../../lib/analysis';
 import type { Vendor } from '../../lib/catalogue/schema';
 import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
@@ -118,13 +118,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
     history.replaceState(null, '', hash ? `#${hash}` : location.pathname);
   }, [input, site, selectedVendors, view, audience]);
 
-  const selections: VendorSelection[] = useMemo(
-    () =>
-      content.vendors
-        .filter((v) => v.id in selectedVendors)
-        .map((vendor) => ({ vendor, features: vendor.features.filter((f) => selectedVendors[vendor.id]?.includes(f.id)) })),
-    [content.vendors, selectedVendors],
-  );
+  const selections: VendorSelection[] = useMemo(() => selectionsOf(content.vendors, selectedVendors), [content.vendors, selectedVendors]);
 
   const origin = toOrigin(site) ?? DEFAULT_ORIGIN;
   const analysis = useMemo(() => analyze(input, selections, origin), [input, selections, origin]);

@@ -1,0 +1,33 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Matomo's usual tracking code is written in the page, which a policy without 'unsafe-inline' blocks: give it a nonce, or load it from a file of your site. Since Matomo 4.12, Tag Manager's custom HTML tags take the nonce too.
+    { en: c94c0e59, text: "Le code de suivi habituel de Matomo est écrit dans la page, ce qu'une politique sans 'unsafe-inline' bloque : donnez-lui un nonce, ou chargez-le depuis un fichier de votre site. Depuis Matomo 4.12, les balises HTML personnalisées de Tag Manager prennent aussi le nonce." }
+notes:
+  # For Matomo On-Premise, installed on a server of yours. Matomo Cloud's addresses aren't documented publicly. If Matomo loads its files from a CDN, that address is needed too.
+  { en: 7dcb8a9d, text: "Pour Matomo On-Premise, installé sur un serveur à vous. Les adresses de Matomo Cloud ne sont pas documentées publiquement. Si Matomo charge ses fichiers depuis un CDN, cette adresse est aussi nécessaire." }
+fields:
+  server:
+    description:
+      # The address of your Matomo server. Until it is typed, Matomo adds nothing to the policy.
+      { en: 764fe615, text: "L'adresse de votre serveur Matomo. Tant qu'elle n'est pas tapée, Matomo n'ajoute rien à la politique." }
+    label:
+      # Your Matomo address
+      { en: 5f1b5202, text: "Votre adresse Matomo" }
+features:
+  tracking:
+    label:
+      # Tracking code
+      { en: 1f0877cd, text: "Code de suivi" }
+    reasons:
+      script:
+        # Loads matomo.js.
+        { en: ca3b7206, text: "Charge matomo.js." }
+      img:
+        # Sends measurement as image requests.
+        { en: bb601dc5, text: "Envoie les mesures par des requêtes d'image." }
+      connect:
+        # Sends measurement.
+        { en: 369e532a, text: "Envoie les mesures." }

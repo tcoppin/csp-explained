@@ -1,0 +1,44 @@
+/* Addresses of the visitor's own account, after a tool's features: label, hint, then the field */
+.tool-fields {
+  margin: 0.75rem 0;
+}
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0 0 0.75rem;
+  max-width: 32rem;
+}
+.tool-field label {
+  font-weight: 700;
+}
+.tool-field-hint {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+.tool-field input,
+.tool-field select {
+  border: 2px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.45rem 0.7rem;
+  font: inherit;
+}
+.tool-field input {
+  font-family: var(--mono);
+}
+.tool-field input:focus,
+.tool-field select:focus {
+  border-color: var(--action);
+  outline: none;
+}
+.tool-field input[aria-invalid='true'] {
+  border-color: var(--bad);
+}
+/* The words say it; the colour repeats it */
+.tool-field-error {
+  color: var(--bad);
+  font-size: var(--step--1);
+  font-weight: 700;
+}

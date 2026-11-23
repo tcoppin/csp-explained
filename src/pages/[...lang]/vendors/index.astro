@@ -3,6 +3,7 @@ import Base from '../../../layouts/Base.astro';
 import { Rich } from '../../../components/ui/Rich';
 import { REPO_URL } from '../../../config';
 import { groupByCategory } from '../../../lib/catalogue/categories';
+import { resolveVendor } from '../../../lib/catalogue/fields';
 import { requirementsOf } from '../../../lib/catalogue/requirements';
 import type { Vendor } from '../../../lib/catalogue/schema';
 import { CANONICAL_DIRECTIVE } from '../../../lib/csp/directives';
@@ -21,7 +22,9 @@ const date = (d: string) =>
   new Intl.DateTimeFormat(t.locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${d}T00:00:00Z`));
 
 /** What a tool's default setup needs: its directives, and the 'unsafe-…' keywords it asks for. */
-function needs(v: Vendor) {
+function needs(tool: Vendor) {
+  // Lines that wait on an address of the visitor's account count too.
+  const v = resolveVendor(tool, {}, 'example');
   const defaults = v.features.filter((f) => f.default);
   const requirements = (defaults.length > 0 ? defaults : v.features.slice(0, 1)).flatMap((f) => requirementsOf(f));
   return {

@@ -1,0 +1,57 @@
+id: datadog-rum
+name: Datadog RUM
+category: monitoring
+website: https://www.datadoghq.com
+sources:
+  - https://docs.datadoghq.com/real_user_monitoring/faq/content_security_policy/
+  - https://docs.datadoghq.com/real_user_monitoring/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  The worker can also be hosted on your own site (workerUrl option) instead of allowing blob:. For a site in
+  US2-FED, Datadog asks to check with its support that the CSP integration is available.
+fields:
+  - id: intake
+    label: Your Datadog site
+    description: >-
+      The site in your Datadog address: app.datadoghq.eu is EU1, us5.datadoghq.com is US5. Until it is picked, the
+      address data is sent to isn't in the policy.
+    kind: host
+    example: browser-intake.example.com
+    options:
+      - { label: "US1 (datadoghq.com)", value: browser-intake-datadoghq.com }
+      - { label: "US3 (us3.datadoghq.com)", value: browser-intake-us3-datadoghq.com }
+      - { label: "US5 (us5.datadoghq.com)", value: browser-intake-us5-datadoghq.com }
+      - { label: "EU1 (datadoghq.eu)", value: browser-intake-datadoghq.eu }
+      - { label: "AP1 (ap1.datadoghq.com)", value: browser-intake-ap1-datadoghq.com }
+      - { label: "AP2 (ap2.datadoghq.com)", value: browser-intake-ap2-datadoghq.com }
+      - { label: "UK1 (uk1.datadoghq.com)", value: browser-intake-uk1-datadoghq.com }
+      - { label: "US1-FED (ddog-gov.com)", value: browser-intake-ddog-gov.com }
+      - { label: "US2-FED (us2.ddog-gov.com)", value: browser-intake-us2-ddog-gov.com }
+features:
+  - id: intake
+    label: Send data to Datadog
+    default: true
+    requirements:
+      - type: connect
+        sources: ["https://{intake}"]
+        reason: Sends sessions, errors and logs to your Datadog site.
+  - id: cdn
+    label: Browser SDK from Datadog's CDN
+    default: true
+    requirements:
+      - type: script
+        sources: [https://www.datadoghq-browser-agent.com]
+        reason: Loads the SDK.
+  - id: session-replay
+    label: Session Replay or compressed requests
+    requirements:
+      - type: worker
+        sources: ["blob:"]
+        reason: Runs the compression worker.
+  - id: profiling
+    label: Browser Profiling
+    requirements:
+      - type: connect
+        sources: ["https://quota.{intake}"]
+        reason: Checks the profiling quota for your Datadog site.

@@ -1,0 +1,36 @@
+id: matomo
+name: Matomo (on your own server)
+category: analytics
+website: https://matomo.org
+sources:
+  - https://matomo.org/faq/general/faq_20904/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Matomo's usual tracking code is written in the page, which a policy without 'unsafe-inline' blocks: give it a
+    nonce, or load it from a file of your site. Since Matomo 4.12, Tag Manager's custom HTML tags take the nonce too.
+notes: >-
+  For Matomo On-Premise, installed on a server of yours. Matomo Cloud's addresses aren't documented publicly. If
+  Matomo loads its files from a CDN, that address is needed too.
+fields:
+  - id: server
+    label: Your Matomo address
+    description: The address of your Matomo server. Until it is typed, Matomo adds nothing to the policy.
+    kind: host
+    example: matomo.example.com
+features:
+  - id: tracking
+    label: Tracking code
+    default: true
+    requirements:
+      - type: script
+        sources: ["https://{server}"]
+        reason: Loads matomo.js.
+      - type: img
+        sources: ["https://{server}"]
+        reason: Sends measurement as image requests.
+      - type: connect
+        sources: ["https://{server}"]
+        reason: Sends measurement.

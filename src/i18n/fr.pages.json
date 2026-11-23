@@ -73,7 +73,7 @@
         "diff-layout": "**Présentation des deux politiques dans le comparateur** (Fusionné ou Côte à côte, sur grand écran) : une fois votre choix fait.",
         "tools": "**Outils décrits dans le constructeur**, pour les choisir à nouveau. « Oublier les outils mémorisés dans ce navigateur » les supprime.",
         "recent-on": "**Historique activé** : une fois que vous demandez à l'analyseur de garder un historique. Le désactiver supprime ceci et les analyses.",
-        "recent": "**Vos 10 dernières analyses** (politique, adresse du site, outils choisis), seulement tant que l'historique est activé. Supprimez-les sous la liste."
+        "recent": "**Vos 10 dernières analyses** (politique, adresse du site, outils choisis et adresses de compte tapées pour eux), seulement tant que l'historique est activé. Supprimez-les sous la liste."
       }
     },
     "countTitle": "Ce que nous comptons",
@@ -488,6 +488,8 @@
     "near": "Aucun outil n'utilise {address} elle-même. Ces outils utilisent des adresses qui en dépendent.",
     "nearFound": "Aucun outil n'utilise {address} elle-même. Des adresses qui en dépendent sont utilisées par {tools}.",
     "noAddress": "Aucun outil du catalogue n'utilise {address}. Elle appartient peut-être à votre propre site, ou à un outil que le catalogue n'a pas encore : proposez-le ci-dessous.",
+    "fieldNote": "**{label}** : dans les lignes ci-dessous, `{example}` en tient lieu. L'analyseur et le constructeur font le remplacement pour vous.",
+    "fieldOption": "{label} : `{value}`",
     "addToPolicy": "À ajouter à votre politique",
     "missingTitle": "Un outil manque ?",
     "missing": "Le catalogue est ouvert. [Proposez un outil]({url}) avec un lien vers sa documentation CSP officielle.",

@@ -5,6 +5,7 @@ import { NewTabLink } from '../../../components/ui/NewTabLink';
 import { Rich } from '../../../components/ui/Rich';
 import { outdatedIssueUrl } from '../../../config';
 import { DEFAULT_LOCALE, localeOf, localeParams, localePath, translatorFor } from '../../../i18n';
+import { resolveVendor } from '../../../lib/catalogue/fields';
 import { requirementsOf } from '../../../lib/catalogue/requirements';
 import type { Feature } from '../../../lib/catalogue/schema';
 import { CANONICAL_DIRECTIVE } from '../../../lib/csp/directives';
@@ -15,7 +16,8 @@ export function getStaticPaths() {
 }
 
 // The page's language decides the text; the facts are the same in every language.
-const vendor = contentFor(localeOf(Astro.currentLocale)).vendors.find((v) => v.id === Astro.params.id)!;
+// Addresses of the visitor's own account show as their example, which the page says to replace.
+const vendor = resolveVendor(contentFor(localeOf(Astro.currentLocale)).vendors.find((v) => v.id === Astro.params.id)!, {}, 'example');
 const t = translatorFor(Astro);
 const m = (key: string) => `pages.vendors.${key}`;
 
@@ -57,6 +59,25 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
     <p><a class="button" href={checkLink}>{t(m('check'), { name: vendor.name })}</a></p>
 
     {vendor.notes && <p>{vendor.notes}</p>}
+    {
+      vendor.fields?.map((f) => (
+        <>
+          <p class="field-note">
+            <Rich t={t} msg={m('fieldNote')} vars={{ label: f.label, example: f.example }} />
+            {f.description && ` ${f.description}`}
+          </p>
+          {f.options && (
+            <ul class="field-options">
+              {f.options.map((o) => (
+                <li>
+                  <Rich t={t} msg={m('fieldOption')} vars={{ label: o.label, value: o.value }} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      ))
+    }
 
     {
       vendor.nonce?.how && (

@@ -1,0 +1,47 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Piwik PRO recommends a nonce with 'strict-dynamic' in script-src: put the nonce on the installation code's script tag, and Tag Manager adds it to the scripts of your custom tags. Its styles, debug mode and Consent Manager forms take the nonce in style-src.
+    { en: a948630b, text: "Piwik PRO recommande un nonce avec 'strict-dynamic' dans script-src : mettez le nonce sur la balise script du code d'installation, et Tag Manager l'ajoute aux scripts de vos tags personnalisés. Ses styles, son mode débogage et les formulaires de Consent Manager prennent le nonce dans style-src." }
+notes:
+  # Tags fired by Tag Manager have their own requirements: check those tools too.
+  { en: 3019f6df, text: "Les tags déclenchés par Tag Manager ont leurs propres besoins : vérifiez aussi ces outils." }
+features:
+  tag-manager:
+    label:
+      # Tag Manager and tracking
+      { en: 0d080518, text: "Tag Manager et suivi" }
+    reasons:
+      script:
+        # Loads the container (not needed with 'strict-dynamic' and a nonce).
+        { en: 2183bb9b, text: "Charge le conteneur (inutile avec 'strict-dynamic' et un nonce)." }
+      connect:
+        # Loads settings and sends measurement.
+        { en: e8236a74, text: "Charge les réglages et envoie les mesures." }
+      img:
+        # Sends measurement as image pixels.
+        { en: 8bddfc37, text: "Envoie les mesures par des pixels." }
+  debug:
+    label:
+      # Tag Manager debug mode and site inspector
+      { en: 39d33615, text: "Mode débogage de Tag Manager et inspecteur de site" }
+    reasons:
+      font:
+        # The debug panel's fonts.
+        { en: 5c7c428a, text: "Polices du panneau de débogage." }
+      connect:
+        # The site inspector's requests.
+        { en: d751b7e3, text: "Requêtes de l'inspecteur de site." }
+      frame:
+        # Shows the site inspector.
+        { en: 1a646d6c, text: "Affiche l'inspecteur de site." }
+fields:
+  account:
+    description:
+      # As in your Piwik PRO addresses: organization in organization.piwik.pro (Administration › Sites & apps › Data collection › Domains setup). Left empty, every Piwik PRO account is allowed.
+      { en: c66ba340, text: "Comme dans vos adresses Piwik PRO : organization dans organization.piwik.pro (Administration › Sites & apps › Data collection › Domains setup). Laissé vide, tout compte Piwik PRO est autorisé." }
+    label:
+      # Your account name
+      { en: d4b72dc7, text: "Le nom de votre compte" }

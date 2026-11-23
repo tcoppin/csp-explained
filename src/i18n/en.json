@@ -224,7 +224,9 @@
     "removed": "{name} removed",
     "noMatch": "No tool matches “{query}” yet.",
     "suggest": "Missing a tool? Suggest it",
-    "partialShort": "partly verified"
+    "partialShort": "partly verified",
+    "fieldChoose": "Choose…",
+    "fieldInvalid": "This doesn't look like an address. Type it as it appears in your account, without spaces."
   },
   "report": {
     "needsNonceNoHow": "The vendor's documentation should explain how.",

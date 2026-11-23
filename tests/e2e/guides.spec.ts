@@ -141,6 +141,24 @@ test('a screen reader hears which tools use an address, once typing pauses, and 
   expect(heard).toContain('csxd.contentsquare.net in frame-src, for Cross-domain tracking (frame hosted by Contentsquare).');
 });
 
+test("a tool page shows an account address as its example, and says to replace it", async ({ page }) => {
+  await page.goto('/vendors/matomo');
+  await expect(page.locator('.field-note')).toContainText('Your Matomo address: in the lines below, matomo.example.com stands for it.');
+  await expect(page.locator('.code-block').first()).toContainText('script-src https://matomo.example.com');
+  // The Tools page names what it needs, though the lines wait on the address.
+  await page.goto('/vendors');
+  await expect(page.locator('[data-name="matomo (on your own server)"] .needs')).toContainText('script-src');
+});
+
+test('the address search knows every intake address a tool lists to pick from', async ({ page }) => {
+  await page.goto('/vendors');
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('browser-intake-datadoghq.eu');
+  await expect(page.locator('[data-name="datadog rum"]')).toBeVisible();
+  await expect(page.locator('[data-name="datadog rum"] [data-uses]')).toContainText('https://browser-intake-datadoghq.eu in connect-src');
+  await page.goto('/vendors/datadog-rum');
+  await expect(page.locator('.field-options')).toContainText('EU1 (datadoghq.eu): browser-intake-datadoghq.eu');
+});
+
 test('find my CSP shows one method at a time', async ({ page }) => {
   await page.goto('/find-my-csp');
   await expect(page.locator('#console')).toBeVisible();

@@ -1,3 +1,4 @@
+import { fieldValues, resolveVendor } from './catalogue/fields';
 import { requirementsOf } from './catalogue/requirements';
 import type { Feature, Vendor } from './catalogue/schema';
 import { checkRequirements, probeFor, type RequirementResult, type RequirementVerdict } from './csp/compat';
@@ -30,6 +31,19 @@ export interface Analysis {
   findings: SecurityFinding[];
   /** Findings that would only appear once the patches are applied. */
   introducedFindings: SecurityFinding[];
+}
+
+/**
+ * The picked tools (vendor id → feature ids, and `field=value` tokens for addresses of the visitor's account), in the
+ * catalogue's order, each with its account addresses filled in.
+ */
+export function selectionsOf(catalogue: Vendor[], picked: Record<string, string[]>): VendorSelection[] {
+  return catalogue
+    .filter((v) => v.id in picked)
+    .map((v) => {
+      const vendor = resolveVendor(v, fieldValues(picked[v.id]));
+      return { vendor, features: vendor.features.filter((f) => picked[v.id]?.includes(f.id)) };
+    });
 }
 
 const RANK: Record<RequirementVerdict, number> = { allowed: 0, reported: 1, 'needs-nonce': 2, blocked: 3 };

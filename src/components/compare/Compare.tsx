@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { COMPARE_EXAMPLE } from '../../config';
 import { translator, type Locale } from '../../i18n';
-import { DEFAULT_ORIGIN, type VendorSelection } from '../../lib/analysis';
+import { DEFAULT_ORIGIN, selectionsOf, type VendorSelection } from '../../lib/analysis';
 import { compare } from '../../lib/comparison';
 import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
@@ -157,13 +157,7 @@ export default function Compare({ content, locale }: Props) {
     history.replaceState(null, '', hash ? `#${hash}` : location.pathname);
   }, [before, after, site, vendors, view, audience]);
 
-  const selections: VendorSelection[] = useMemo(
-    () =>
-      content.vendors
-        .filter((v) => v.id in vendors)
-        .map((vendor) => ({ vendor, features: vendor.features.filter((f) => vendors[vendor.id]?.includes(f.id)) })),
-    [content.vendors, vendors],
-  );
+  const selections: VendorSelection[] = useMemo(() => selectionsOf(content.vendors, vendors), [content.vendors, vendors]);
   const origin = toOrigin(site) ?? DEFAULT_ORIGIN;
   const comparison = useMemo(() => compare(before, after, selections, origin), [before, after, selections, origin]);
   const ready = hasDirectives(comparison.before) && hasDirectives(comparison.after);

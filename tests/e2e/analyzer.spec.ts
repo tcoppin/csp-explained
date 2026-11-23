@@ -292,6 +292,18 @@ test('allowing all of a CDN anyone can publish to is a risk, said in plain words
   await expect(page.getByText('anyone can publish')).toHaveCount(0);
 });
 
+test("a tool's account name fills in its lines, and every account is allowed while it is empty", async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("default-src 'self'; connect-src 'self' https://acme.piwik.pro");
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'Piwik PRO');
+  const card = page.getByRole('region', { name: 'Piwik PRO' });
+  await expect(card).toContainText('https://*.containers.piwik.pro');
+  await card.getByRole('textbox', { name: 'Your account name' }).fill('acme.containers.piwik.pro');
+  await expect(card).toContainText('https://acme.containers.piwik.pro');
+  await expect(card).not.toContainText('https://*.containers.piwik.pro');
+});
+
 test('tools are picked from a searchable multi-select', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill(POLICY);

@@ -1,3 +1,4 @@
+import { fieldValues, resolveVendor } from '../../lib/catalogue/fields';
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Translate } from '../../i18n';
 import { DEFAULT_ORIGIN } from '../../lib/analysis';
@@ -50,7 +51,7 @@ export function useBuilder(content: ContentBundle, t: Translate) {
   const origin = toOrigin(site) ?? DEFAULT_ORIGIN;
   const baseText = start === 'policy' ? policyText : baselinePolicy(start ?? 'allowlist', olderBrowsers);
   // In the order they were picked.
-  const picked = Object.keys(vendors).flatMap((id) => content.vendors.filter((v) => v.id === id));
+  const picked = Object.keys(vendors).flatMap((id) => content.vendors.filter((v) => v.id === id).map((v) => resolveVendor(v, fieldValues(vendors[id]))));
 
   const built = useMemo(() => {
     const contributions: Contribution[] = [
@@ -115,6 +116,10 @@ export function useBuilder(content: ContentBundle, t: Translate) {
         track('tool', { tool: id });
       }
       setVendors(next);
+    },
+    /** A tool's whole selection: its features and what was typed for the addresses of the visitor's account. */
+    setSelection: (vendorId: string, selection: string[]) => {
+      setVendors({ ...vendors, [vendorId]: selection });
     },
     toggleFeature: (vendorId: string, featureId: string) => {
       const current = vendors[vendorId] ?? [];

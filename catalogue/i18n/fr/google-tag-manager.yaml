@@ -76,8 +76,8 @@ features:
         { en: 25a3dd51, text: "Exécute un service worker depuis votre chemin de mesure." }
   server-side-same-origin:
     description:
-      # With the tagging server on a subdomain instead (sgtm.yoursite.com), allow that address in img-src, connect-src and frame-src (and script-src-elem if the Google tag loads from it); no worker-src is needed. On a path of your site, your server or CDN must not add your Content-Security-Policy header to its responses, or the service worker is blocked.
-      { en: 3189acb9, text: "Si le serveur de taggage est plutôt sur un sous-domaine (sgtm.votresite.fr), autorisez cette adresse dans img-src, connect-src et frame-src (et script-src-elem si la balise Google se charge depuis lui) ; worker-src n'est pas nécessaire. Sur un chemin de votre site, votre serveur ou votre CDN ne doit pas ajouter votre en-tête Content-Security-Policy à ses réponses, sinon le service worker est bloqué." }
+      # Your server or CDN must not add your Content-Security-Policy header to the tagging server's responses, or the service worker is blocked.
+      { en: 0b8b4065, text: "Votre serveur ou votre CDN ne doit pas ajouter votre en-tête Content-Security-Policy aux réponses du serveur de balisage, sinon le service worker est bloqué." }
     label:
       # Server-side tagging, on a path of your site
       { en: 1d15d063, text: "Taggage côté serveur, sur un chemin de votre site" }
@@ -94,3 +94,28 @@ features:
       worker:
         # Runs a service worker from your tagging server.
         { en: ec96642b, text: "Exécute un service worker depuis votre serveur de taggage." }
+  server-side-subdomain:
+    description:
+      # If the Google tag also loads from your tagging server, allow it in script-src too. No worker-src is needed.
+      { en: 92f704e9, text: "Si la balise Google se charge aussi depuis votre serveur de balisage, autorisez-le aussi dans script-src. Aucun worker-src n'est nécessaire." }
+    label:
+      # Server-side tagging, on a subdomain
+      { en: 455e69e5, text: "Balisage côté serveur, sur un sous-domaine" }
+    reasons:
+      img:
+        # Sends measurement requests to your tagging server.
+        { en: 3239de6e, text: "Envoie les requêtes de mesure à votre serveur de balisage." }
+      connect:
+        # Sends measurement requests to your tagging server.
+        { en: 3239de6e, text: "Envoie les requêtes de mesure à votre serveur de balisage." }
+      frame:
+        # Registers the service worker through a frame.
+        { en: 1366a0ad, text: "Enregistre le service worker par un cadre." }
+fields:
+  server:
+    description:
+      # For server-side tagging on a subdomain of your site.
+      { en: 3460a65c, text: "Pour le balisage côté serveur sur un sous-domaine de votre site." }
+    label:
+      # Your tagging server's address
+      { en: ad475d8b, text: "L'adresse de votre serveur de balisage" }

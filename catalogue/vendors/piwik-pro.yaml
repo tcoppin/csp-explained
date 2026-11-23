@@ -1,0 +1,50 @@
+id: piwik-pro
+name: Piwik PRO
+category: analytics
+website: https://piwik.pro
+sources:
+  - https://developers.piwik.pro/docs/content-security-policy-csp
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Piwik PRO recommends a nonce with 'strict-dynamic' in script-src: put the nonce on the installation code's
+    script tag, and Tag Manager adds it to the scripts of your custom tags. Its styles, debug mode and Consent
+    Manager forms take the nonce in style-src.
+notes: >-
+  Tags fired by Tag Manager have their own requirements: check those tools too.
+fields:
+  - id: account
+    label: Your account name
+    description: >-
+      As in your Piwik PRO addresses: organization in organization.piwik.pro (Administration › Sites & apps › Data
+      collection › Domains setup). Left empty, every Piwik PRO account is allowed.
+    kind: subdomain
+    example: organization
+features:
+  - id: tag-manager
+    label: Tag Manager and tracking
+    default: true
+    requirements:
+      - type: script
+        sources: ["https://{account}.containers.piwik.pro"]
+        reason: Loads the container (not needed with 'strict-dynamic' and a nonce).
+      - type: connect
+        sources: ["https://{account}.containers.piwik.pro", "https://{account}.piwik.pro"]
+        reason: Loads settings and sends measurement.
+      - type: img
+        sources: ["https://{account}.piwik.pro"]
+        reason: Sends measurement as image pixels.
+  - id: debug
+    label: Tag Manager debug mode and site inspector
+    requirements:
+      - type: font
+        sources: [https://*.piwik.pro]
+        reason: The debug panel's fonts.
+      - type: connect
+        sources: [https://*.piwik.pro]
+        reason: The site inspector's requests.
+      - type: frame
+        sources: [https://*.piwik.pro]
+        reason: Shows the site inspector.

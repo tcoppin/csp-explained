@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { DEFAULT_LOCALE } from '../i18n';
+import { resolveVendor } from './catalogue/fields';
 import { VendorSchema, type Vendor } from './catalogue/schema';
 import type { ContentBundle, DirectiveDoc, SourceDoc } from './content';
 
@@ -68,6 +69,7 @@ const ExplanationOverlay = z.strictObject({
 const ContentOverlay = z.record(z.string(), ExplanationOverlay);
 const VendorOverlay = z.strictObject({
   notes: Field.optional(),
+  fields: z.record(z.string(), z.strictObject({ label: Field.optional(), description: Field.optional() })).optional(),
   nonce: z.strictObject({ how: Field.optional() }).optional(),
   features: z
     .record(
@@ -141,8 +143,17 @@ class Translation {
 
     const how = field(['nonce', 'how'], vendor.nonce?.how, overlay.nonce?.how);
     const notes = field(['notes'], vendor.notes, overlay.notes);
+    const fields = new Map((vendor.fields ?? []).map((f) => [f.id, f]));
+    for (const id of Object.keys(overlay.fields ?? {})) if (!fields.has(id)) this.orphan(file, ['fields', id], 'no field with this id');
     return {
       ...vendor,
+      ...(vendor.fields && {
+        fields: vendor.fields.map((f) => {
+          const given = overlay.fields?.[f.id];
+          const description = field(['fields', f.id, 'description'], f.description, given?.description);
+          return { ...f, label: this.text(file, ['fields', f.id, 'label'], f.label, given?.label), ...(description !== undefined && { description }) };
+        }),
+      }),
       ...(notes !== undefined && { notes }),
       ...(vendor.nonce && { nonce: { ...vendor.nonce, ...(how !== undefined && { how }) } }),
       features: vendor.features.map((f) => {
@@ -185,7 +196,11 @@ export function loadContent(files: ContentFiles, locale: string): { bundle: Cont
 
   const directives = given ? translation.docs(en.directives, (d) => d.name, contentPath(locale, 'directives'), given.directives) : en.directives;
   const sources = given ? translation.docs(en.sources, (d) => d.id, contentPath(locale, 'sources'), given.sources) : en.sources;
-  const vendors = en.vendors.map(({ id, vendor }) => (given ? translation.vendor(vendor, vendorPath(locale, id), given.vendors[id]) : vendor));
+  // Lines naming an address of the visitor's account start with that part empty, or with every value the vendor
+  // lists for it, so that any of them is recognised (see fields.ts). Picking the tool fills them in again.
+  const vendors = en.vendors.map(({ id, vendor }) =>
+    resolveVendor(given ? translation.vendor(vendor, vendorPath(locale, id), given.vendors[id]) : vendor, {}, 'choices'),
+  );
   if (given) {
     for (const id of Object.keys(given.vendors)) if (!files.vendors[id]) translation.orphan(vendorPath(locale, id), [], 'no vendor with this id');
   }

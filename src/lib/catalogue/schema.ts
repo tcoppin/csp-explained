@@ -9,6 +9,23 @@ const RequirementSchema = z.object({
   sources: z.array(z.string().min(1)).min(1),
   reason: z.string().min(1),
   probe: z.url().optional(),
+  /** Set when loading: the catalogue's lines with their `{field}` placeholders, `sources` being them filled in. */
+  templates: z.array(z.string()).optional(),
+});
+
+/**
+ * An address of the visitor's own account that some lines name as `{id}` (see fields.ts): `subdomain`, the part
+ * before the tool's domain (a wildcard while empty); `host`, a whole host name (the line is left out while empty).
+ */
+const FieldSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  label: z.string().min(1),
+  description: z.string().optional(),
+  kind: z.enum(['subdomain', 'host']),
+  /** Shown as the field's placeholder and, on the tool's page, in its lines: a documentation domain (RFC 2606). */
+  example: z.string().min(1),
+  /** The values the vendor documents, to pick from rather than type (a host each, named as the vendor names it). */
+  options: z.array(z.object({ label: z.string().min(1), value: z.string().min(1) })).optional(),
 });
 
 const FeatureSchema = z.object({
@@ -37,11 +54,13 @@ export const VendorSchema = z.object({
     })
     .optional(),
   notes: z.string().optional(),
+  fields: z.array(FieldSchema).optional(),
   features: z.array(FeatureSchema).min(1),
 });
 
 export type Vendor = z.infer<typeof VendorSchema>;
 export type Feature = Vendor['features'][number];
+export type Field = NonNullable<Vendor['fields']>[number];
 
 export function parseVendor(yamlText: string): Vendor {
   return VendorSchema.parse(parseYaml(yamlText));

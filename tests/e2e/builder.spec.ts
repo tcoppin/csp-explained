@@ -88,6 +88,49 @@ test('each step takes the focus to its question, and the tool picker says what i
   await expect(picker).toBeFocused();
 });
 
+test('an address of your own account is typed once, fills the tool in, and travels in the link', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await pickTool(page, 'Matomo');
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  const preview = page.locator('.preview-policy');
+  // Nothing to add until the address is known.
+  await expect(preview).not.toContainText('matomo');
+
+  const field = page.getByRole('textbox', { name: 'Your Matomo address' });
+  await expect(field).toHaveAccessibleDescription(/The address of your Matomo server/);
+  await field.fill('stats shop');
+  await expect(field).toHaveAttribute('aria-invalid', 'true');
+  await expect(field).toHaveAccessibleDescription(/This doesn't look like an address/);
+  await expect(preview).not.toContainText('stats');
+
+  await field.fill('https://stats.shop.example/index.php');
+  await expect(field).not.toHaveAttribute('aria-invalid');
+  await expect(preview).toContainText('script-src');
+  await expect(preview).toContainText('https://stats.shop.example');
+  await expect(page).toHaveURL(/matomo%3Atracking%2Bserver%3D/);
+
+  // The link brings the address back.
+  const fresh = await page.context().newPage();
+  await openBuilder(fresh, page.url());
+  await fresh.locator('details.tool summary', { hasText: 'Matomo' }).click();
+  await expect(fresh.getByRole('textbox', { name: 'Your Matomo address' })).toHaveValue('https://stats.shop.example/index.php');
+  await expect(fresh.locator('.preview-policy')).toContainText('https://stats.shop.example');
+});
+
+test('a Datadog site is picked from a list, and adds its own intake address', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await pickTool(page, 'Datadog RUM');
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  const preview = page.locator('.preview-policy');
+  await expect(preview).not.toContainText('browser-intake');
+  const site = page.getByRole('combobox', { name: 'Your Datadog site' });
+  await expect(site).toHaveAccessibleDescription(/The site in your Datadog address/);
+  await site.selectOption({ label: 'EU1 (datadoghq.eu)' });
+  await expect(preview).toContainText('connect-src');
+  await expect(preview).toContainText('https://browser-intake-datadoghq.eu');
+  await expect(preview).not.toContainText('https://browser-intake-datadoghq.com');
+});
+
 test('with a nonce, the builder explains the placeholder and what waits on it', async ({ page }) => {
   await openBuilder(page, '/build#b=nonce&n=inline-scripts&step=review');
   await expect(page.locator('.policy')).toContainText("'nonce-REPLACE_PER_PAGE' 'strict-dynamic'");

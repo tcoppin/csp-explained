@@ -1,0 +1,77 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # The tracking script takes the nonce from the first element on the page that has one, so a nonced element must already be there when it runs. A nonce-only script-src also needs 'strict-dynamic' or the Convert host.
+    { en: 2ec1fe35, text: "Le script de suivi prend le nonce du premier élément de la page qui en a un : un élément avec nonce doit donc déjà être là quand il s'exécute. Un script-src avec seulement un nonce demande aussi 'strict-dynamic' ou l'hôte de Convert." }
+features:
+  experiences:
+    label:
+      # Live experiences
+      { en: 9fe0ad4c, text: "Expériences en ligne" }
+    reasons:
+      script:
+        # Loads the tracking script.
+        { en: c3c65a83, text: "Charge le script de suivi." }
+      connect:
+        # Sends metrics and loads settings.
+        { en: 92b7f3e0, text: "Envoie les mesures et charge les réglages." }
+      img:
+        # Images used in experiences.
+        { en: 0f91b1bb, text: "Images utilisées dans les expériences." }
+      inline-style:
+        # The styles of your variations (or a nonce).
+        { en: f77a80d3, text: "Les styles de vos variantes (ou un nonce)." }
+  visitor-insights:
+    label:
+      # Visitor Insights
+      { en: d644bfe2, text: "Visitor Insights" }
+    reasons:
+      worker:
+        # Its worker runs from a blob URL.
+        { en: 743328aa, text: "Son worker s'exécute depuis une URL blob." }
+  qa-overlay:
+    description:
+      # The overlay doesn't take the nonce, and its styles need 'unsafe-inline'.
+      { en: 2f2ce881, text: "L'overlay ne reçoit pas le nonce, et ses styles demandent 'unsafe-inline'." }
+    label:
+      # QA overlay and Visual Editor
+      { en: 86b1103a, text: "Overlay de QA et éditeur visuel" }
+    reasons:
+      script:
+        # Loads the overlay.
+        { en: 3c485b34, text: "Charge l'overlay." }
+      frame:
+        # Shows the overlay.
+        { en: ec15e0e8, text: "Affiche l'overlay." }
+      inline-style:
+        # The overlay adds styles a nonce can't cover.
+        { en: 70c53339, text: "L'overlay ajoute des styles qu'un nonce ne peut pas couvrir." }
+  draft-preview:
+    label:
+      # Preview draft experiences
+      { en: 0407c6a3, text: "Prévisualiser les brouillons" }
+    reasons:
+      eval:
+        # Only needed to preview drafts, not for live experiences.
+        { en: 541875fc, text: "Seulement pour prévisualiser les brouillons, pas pour les expériences en ligne." }
+  custom-domain:
+    label:
+      # Custom domain
+      { en: d7d4c1e4, text: "Domaine personnalisé" }
+    reasons:
+      script:
+        # Loads the tracking script from your domain.
+        { en: 78f5db7c, text: "Charge le script de suivi depuis votre domaine." }
+      connect:
+        # Visitor Insights and data sent through your domain.
+        { en: f96a4261, text: "Visitor Insights et les données envoyées par votre domaine." }
+fields:
+  custom-domain:
+    description:
+      # Only if Convert's script loads from a domain of yours.
+      { en: f02a3671, text: "Seulement si le script de Convert se charge depuis un domaine à vous." }
+    label:
+      # Your Convert custom domain
+      { en: 97c79c5f, text: "Votre domaine personnalisé Convert" }

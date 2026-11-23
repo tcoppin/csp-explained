@@ -1,0 +1,70 @@
+id: convert
+name: Convert Experiences
+category: experimentation
+website: https://www.convert.com
+sources:
+  - https://support.convert.com/hc/en-us/articles/23979373845261-How-to-Configure-Your-Website-s-CSP-Policy-for-Convert-Experiments
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    The tracking script takes the nonce from the first element on the page that has one, so a nonced element must
+    already be there when it runs. A nonce-only script-src also needs 'strict-dynamic' or the Convert host.
+fields:
+  - id: custom-domain
+    label: Your Convert custom domain
+    description: Only if Convert's script loads from a domain of yours.
+    kind: host
+    example: convert.example.com
+features:
+  - id: experiences
+    label: Live experiences
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.convertexperiments.com]
+        reason: Loads the tracking script.
+      - type: connect
+        sources: [https://*.convertexperiments.com]
+        reason: Sends metrics and loads settings.
+      - type: img
+        sources: [https://*.convertexperiments.com]
+        reason: Images used in experiences.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The styles of your variations (or a nonce).
+  - id: visitor-insights
+    label: Visitor Insights
+    requirements:
+      - type: worker
+        sources: ["blob:"]
+        reason: Its worker runs from a blob URL.
+  - id: qa-overlay
+    label: QA overlay and Visual Editor
+    description: The overlay doesn't take the nonce, and its styles need 'unsafe-inline'.
+    requirements:
+      - type: script
+        sources: [https://app.convert.com]
+        reason: Loads the overlay.
+      - type: frame
+        sources: [https://app.convert.com]
+        reason: Shows the overlay.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The overlay adds styles a nonce can't cover.
+  - id: draft-preview
+    label: Preview draft experiences
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Only needed to preview drafts, not for live experiences.
+  - id: custom-domain
+    label: Custom domain
+    requirements:
+      - type: script
+        sources: ["https://{custom-domain}"]
+        reason: Loads the tracking script from your domain.
+      - type: connect
+        sources: ["https://{custom-domain}"]
+        reason: Visitor Insights and data sent through your domain.

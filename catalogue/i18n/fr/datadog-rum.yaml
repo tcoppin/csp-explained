@@ -1,0 +1,47 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The worker can also be hosted on your own site (workerUrl option) instead of allowing blob:. For a site in US2-FED, Datadog asks to check with its support that the CSP integration is available.
+  { en: "8a0f8673", text: "Le worker peut aussi être hébergé sur votre site (option workerUrl) au lieu d'autoriser blob:. Pour un site en US2-FED, Datadog demande de vérifier auprès de son support que l'intégration CSP est disponible." }
+features:
+  cdn:
+    label:
+      # Browser SDK from Datadog's CDN
+      { en: 4a341f7b, text: "Browser SDK depuis le CDN de Datadog" }
+    reasons:
+      script:
+        # Loads the SDK.
+        { en: 0a636ba6, text: "Charge le SDK." }
+  session-replay:
+    label:
+      # Session Replay or compressed requests
+      { en: c91215af, text: "Session Replay ou requêtes compressées" }
+    reasons:
+      worker:
+        # Runs the compression worker.
+        { en: 26159f1b, text: "Exécute le worker de compression." }
+  intake:
+    label:
+      # Send data to Datadog
+      { en: ac6c25bc, text: "Envoyer les données à Datadog" }
+    reasons:
+      connect:
+        # Sends sessions, errors and logs to your Datadog site.
+        { en: be99c163, text: "Envoie les sessions, les erreurs et les logs à votre site Datadog." }
+  profiling:
+    label:
+      # Browser Profiling
+      { en: 96b0d63a, text: "Browser Profiling" }
+    reasons:
+      connect:
+        # Checks the profiling quota for your Datadog site.
+        { en: e09675d7, text: "Vérifie le quota de profilage de votre site Datadog." }
+fields:
+  intake:
+    description:
+      # The site in your Datadog address: app.datadoghq.eu is EU1, us5.datadoghq.com is US5. Until it is picked, the address data is sent to isn't in the policy.
+      { en: "3073e9b3", text: "Le site de votre adresse Datadog : app.datadoghq.eu correspond à EU1, us5.datadoghq.com à US5. Tant qu'il n'est pas choisi, l'adresse où partent les données n'est pas dans la politique." }
+    label:
+      # Your Datadog site
+      { en: "2497606c", text: "Votre site Datadog" }

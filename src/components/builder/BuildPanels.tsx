@@ -22,6 +22,7 @@ import { FindingList } from '../policy/FindingList';
 import { encodeState, unreadableSite } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { ToolPicker } from '../policy/ToolPicker';
+import { ToolFields } from '../policy/ToolFields';
 import type { BuilderModel } from './useBuilder';
 
 const NEEDS = Object.keys(SITE_NEEDS) as SiteNeed[];
@@ -384,6 +385,7 @@ export function ToolsPanel({ b }: { b: BuilderModel }) {
                   ))}
                 </fieldset>
               )}
+              <ToolFields vendor={vendor} selected={b.vendors[vendor.id] ?? []} onChange={(next) => b.setSelection(vendor.id, next)} />
               <RequirementList placed={placed} audience={b.audience} />
               {vendor.nonce?.how && (b.start === 'nonce' || placed.some((p) => p.result.verdict === 'needs-nonce')) && (
                 <p class="nonce-how">

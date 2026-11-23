@@ -1,3 +1,4 @@
+import { ToolFields } from '../policy/ToolFields';
 import type { Vendor } from '../../lib/catalogue/schema';
 import type { VendorChange } from '../../lib/comparison';
 import type { Audience } from '../../lib/csp/model';
@@ -59,6 +60,7 @@ export function ToolsChange({ vendors, selected, changes, audience, onChange }: 
                 ))}
               </fieldset>
             )}
+            <ToolFields vendor={vendor} selected={selected[vendor.id] ?? []} onChange={(next) => onChange({ ...selected, [vendor.id]: next })} />
 
             {moved.length > 0 && (
               <ul class="requirements">

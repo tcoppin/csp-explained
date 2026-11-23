@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { readField, resolveVendor } from '../src/lib/catalogue/fields';
 import { requirementsOf } from '../src/lib/catalogue/requirements';
 import { translationReports } from '../src/lib/content-loader';
 import { parseVendor } from '../src/lib/catalogue/schema';
@@ -29,7 +30,34 @@ export function validateCatalogue(dir = DIR): string[] {
     ids.add(vendor.id);
     if (!vendor.features.some((f) => f.default)) problems.push(`${where}: at least one feature must be default: true`);
 
+    // Placeholders: a declared field, where its kind can stand (an account name first in the host, a whole host
+    // right after the scheme), each field used somewhere.
+    const fields = new Map((vendor.fields ?? []).map((f) => [f.id, f]));
+    const used = new Set<string>();
     for (const feature of vendor.features) {
+      for (const source of feature.requirements.flatMap((r) => r.sources)) {
+        for (const [, id] of source.matchAll(/\{([^}]*)\}/g)) {
+          const field = fields.get(id!);
+          used.add(id!);
+          if (!field) problems.push(`${where} › ${feature.id} › ${source}: {${id}} is not one of the tool's fields`);
+          else if (field.kind === 'subdomain' && !new RegExp(`^[a-z]+://\\{${id}\\}\\.[a-z0-9.-]+[a-z]`).test(source)) {
+            problems.push(`${where} › ${feature.id} › ${source}: an account name goes first in the host (https://{${id}}.vendor.com)`);
+          } else if (field.kind === 'host' && !new RegExp(`^[a-z]+://([a-z0-9-]+\\.)?\\{${id}\\}(/|$)`).test(source)) {
+            problems.push(`${where} › ${feature.id} › ${source}: a whole address goes right after the scheme (https://{${id}})`);
+          }
+        }
+      }
+    }
+    for (const id of fields.keys()) if (!used.has(id)) problems.push(`${where}: field "${id}" is used by no line`);
+    for (const field of fields.values()) {
+      if (field.options && field.kind !== 'host') problems.push(`${where}: field "${field.id}": options are whole addresses (kind: host)`);
+      for (const o of field.options ?? []) {
+        if (readField(vendor, field, o.value) !== o.value) problems.push(`${where}: field "${field.id}": option "${o.label}" is not a host name`);
+      }
+    }
+
+    // The lines as the tool's page shows them, with each field's example filled in.
+    for (const feature of resolveVendor(vendor, {}, 'example').features) {
       // Translations key a requirement's reason by its type, so each type appears once per feature.
       const types = feature.requirements.map((r) => r.type);
       for (const type of new Set(types.filter((t, i) => types.indexOf(t) !== i))) {

@@ -14,6 +14,12 @@ nonce:
 notes: >-
   Google discourages the 'unsafe-inline' fallback. Tags fired by the container (analytics, ads, …)
   have their own requirements: check those vendors too.
+fields:
+  - id: server
+    label: Your tagging server's address
+    description: For server-side tagging on a subdomain of your site.
+    kind: host
+    example: sgtm.example.com
 features:
   - id: container
     label: Load the container
@@ -74,10 +80,8 @@ features:
   - id: server-side-same-origin
     label: Server-side tagging, on a path of your site
     description: >-
-      With the tagging server on a subdomain instead (sgtm.yoursite.com), allow that address in img-src,
-      connect-src and frame-src (and script-src-elem if the Google tag loads from it); no worker-src is needed.
-      On a path of your site, your server or CDN must not add your Content-Security-Policy header to its
-      responses, or the service worker is blocked.
+      Your server or CDN must not add your Content-Security-Policy header to the tagging server's responses, or the
+      service worker is blocked.
     requirements:
       - type: img
         sources: ["'self'"]
@@ -91,3 +95,17 @@ features:
       - type: worker
         sources: ["'self'"]
         reason: Runs a service worker from your tagging server.
+  - id: server-side-subdomain
+    label: Server-side tagging, on a subdomain
+    description: >-
+      If the Google tag also loads from your tagging server, allow it in script-src too. No worker-src is needed.
+    requirements:
+      - type: img
+        sources: ["https://{server}"]
+        reason: Sends measurement requests to your tagging server.
+      - type: connect
+        sources: ["https://{server}"]
+        reason: Sends measurement requests to your tagging server.
+      - type: frame
+        sources: ["https://{server}"]
+        reason: Registers the service worker through a frame.

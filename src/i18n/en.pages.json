@@ -73,7 +73,7 @@
         "diff-layout": "**How the comparator lays out the two policies** (Inline or Side by side, on wide screens): once you choose.",
         "tools": "**Tools you describe in the builder**, to pick them again. “Forget the tools saved in this browser” removes them.",
         "recent-on": "**History turned on**: once you ask the analyzer to keep a history. Turning it off removes this and the analyses.",
-        "recent": "**Your last 10 analyses** (policy, site address, tools picked), only while the history is on. Delete them under the list."
+        "recent": "**Your last 10 analyses** (policy, site address, tools picked and the account addresses typed for them), only while the history is on. Delete them under the list."
       }
     },
     "countTitle": "What we count",
@@ -488,6 +488,8 @@
     "near": "No tool uses {address} itself. These tools use addresses under it.",
     "nearFound": "No tool uses {address} itself. Addresses under it are used by {tools}.",
     "noAddress": "No tool in the catalogue uses {address}. It may belong to your own site, or to a tool the catalogue doesn't have yet: suggest it below.",
+    "fieldNote": "**{label}**: in the lines below, `{example}` stands for it. The analyzer and the builder fill it in for you.",
+    "fieldOption": "{label}: `{value}`",
     "addToPolicy": "Add to your policy",
     "missingTitle": "Missing a tool?",
     "missing": "The catalogue is open. [Suggest a tool]({url}) with a link to its official CSP documentation.",
