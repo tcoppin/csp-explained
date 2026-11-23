@@ -100,6 +100,7 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
                     {n.unsafe.map((u) => (
                       <code class="chip unsafe">{u}</code>
                     ))}
+                    {v.warning && <span class="risky">{t(m('risky'))}</span>}
                     {v.nonce?.supported && <span class="nonce">{t(m('nonce'))}</span>}
                   </p>
                   {lines.length > 0 && (
@@ -285,6 +286,17 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
   }
   .chip.unsafe {
     background: var(--hl-unsafe);
+  }
+  /* A risk the tool brings to the site: the words say it, the highlighter's "unsafe" colour repeats it. */
+  .risky {
+    display: inline-block;
+    font-size: var(--step--1);
+    font-weight: 700;
+    padding: 0 0.35em;
+    margin: 0.1rem 0.35rem 0.1rem 0;
+    border-radius: 3px;
+    background: var(--hl-unsafe);
+    color: var(--ink);
   }
   .near {
     margin: 1.5rem 0 0;

@@ -23,6 +23,7 @@ import { encodeState, unreadableSite } from '../policy/state';
 import { TabList, tabPanelProps } from '../ui/Tabs';
 import { ToolPicker } from '../policy/ToolPicker';
 import { ToolFields } from '../policy/ToolFields';
+import { ToolWarning } from '../policy/ToolWarning';
 import type { BuilderModel } from './useBuilder';
 
 const NEEDS = Object.keys(SITE_NEEDS) as SiteNeed[];
@@ -374,6 +375,7 @@ export function ToolsPanel({ b }: { b: BuilderModel }) {
           const placed = b.placedBy('vendor', vendor.id);
           return (
             <ToolDetails key={vendor.id} name={vendor.name} placed={placed} open={vendor.id === b.lastPicked}>
+              <ToolWarning text={vendor.warning} />
               {vendor.features.length > 1 && (
                 <fieldset class="features">
                   <legend>{t('vendors.features')}</legend>

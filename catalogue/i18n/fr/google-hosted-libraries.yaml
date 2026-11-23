@@ -1,0 +1,18 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+features:
+  libraries:
+    label:
+      # Any library from Google Hosted Libraries
+      { en: 24426d54, text: "N'importe quelle bibliothèque de Google Hosted Libraries" }
+    reasons:
+      script:
+        # Loads the libraries' scripts.
+        { en: cfc62485, text: "Charge les scripts des bibliothèques." }
+      style:
+        # Loads the libraries' stylesheets (jQuery UI themes, …).
+        { en: 1e088bf4, text: "Charge les feuilles de style des bibliothèques (thèmes jQuery UI, …)." }
+warning:
+  # Allowing all of Google Hosted Libraries lets every library Google hosts run on your site, including old ones attackers know how to use to get around a policy. If an attacker manages to slip a script into one of your pages, your policy won't stop it. Allow only the libraries you use, by their own folder (https://ajax.googleapis.com/ajax/libs/jquery/).
+  { en: 846fc407, text: "Autoriser tout Google Hosted Libraries permet à toutes les bibliothèques hébergées par Google de s'exécuter sur votre site, y compris d'anciennes que les attaquants savent utiliser pour contourner une politique. Si un attaquant parvient à glisser un script dans l'une de vos pages, votre politique ne l'arrêtera pas. N'autorisez que les bibliothèques que vous utilisez, par leur propre dossier (https://ajax.googleapis.com/ajax/libs/jquery/)." }

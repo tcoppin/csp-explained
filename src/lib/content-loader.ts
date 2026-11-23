@@ -69,6 +69,7 @@ const ExplanationOverlay = z.strictObject({
 const ContentOverlay = z.record(z.string(), ExplanationOverlay);
 const VendorOverlay = z.strictObject({
   notes: Field.optional(),
+  warning: Field.optional(),
   fields: z.record(z.string(), z.strictObject({ label: Field.optional(), description: Field.optional() })).optional(),
   nonce: z.strictObject({ how: Field.optional() }).optional(),
   features: z
@@ -143,6 +144,7 @@ class Translation {
 
     const how = field(['nonce', 'how'], vendor.nonce?.how, overlay.nonce?.how);
     const notes = field(['notes'], vendor.notes, overlay.notes);
+    const warning = field(['warning'], vendor.warning, overlay.warning);
     const fields = new Map((vendor.fields ?? []).map((f) => [f.id, f]));
     for (const id of Object.keys(overlay.fields ?? {})) if (!fields.has(id)) this.orphan(file, ['fields', id], 'no field with this id');
     return {
@@ -155,6 +157,7 @@ class Translation {
         }),
       }),
       ...(notes !== undefined && { notes }),
+      ...(warning !== undefined && { warning }),
       ...(vendor.nonce && { nonce: { ...vendor.nonce, ...(how !== undefined && { how }) } }),
       features: vendor.features.map((f) => {
         const given = overlay.features?.[f.id];

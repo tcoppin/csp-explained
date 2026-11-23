@@ -56,6 +56,13 @@ const checkLink = localePath(t.locale, `/#v=${vendor.id}:${vendor.features.filte
         </>
       ))}
     </p>
+    {
+      vendor.warning && (
+        <p class="tool-warning">
+          <strong>{t('vendors.warning')}:</strong> {vendor.warning}
+        </p>
+      )
+    }
     <p><a class="button" href={checkLink}>{t(m('check'), { name: vendor.name })}</a></p>
 
     {vendor.notes && <p>{vendor.notes}</p>}

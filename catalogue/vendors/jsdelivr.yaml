@@ -1,0 +1,28 @@
+id: jsdelivr
+name: jsDelivr
+category: cdn
+website: https://www.jsdelivr.com
+sources:
+  - https://www.jsdelivr.com/documentation
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  jsDelivr's documentation gives one address for every file it serves, https://cdn.jsdelivr.net (npm packages,
+  GitHub, WordPress plugins and themes, and /combine/ for several files at once). A /combine/ address isn't under
+  any one library's folder: if you allow libraries one by one, load them separately.
+warning: >-
+  Allowing all of jsDelivr lets code from anyone run on your site. Anyone can publish files there, so an
+  attacker who manages to slip a script into one of your pages can load their own code from jsDelivr, and your
+  policy won't stop it. Allow only the libraries you use, by their own address
+  (https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/): each library in this catalogue gives one.
+features:
+  - id: whole-host
+    label: Any file from jsDelivr
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net]
+        reason: Loads scripts from jsDelivr.
+      - type: style
+        sources: [https://cdn.jsdelivr.net]
+        reason: Loads stylesheets from jsDelivr.

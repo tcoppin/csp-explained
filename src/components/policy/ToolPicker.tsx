@@ -27,6 +27,7 @@ interface Option {
   id: string;
   name: string;
   partial?: boolean;
+  risky?: boolean;
 }
 
 const LISTBOX_ID = 'tool-listbox';
@@ -52,7 +53,7 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
         ...groupByCategory(vendors, t).map((g) => ({
           id: g.id,
           label: g.label,
-          options: g.vendors.filter((v) => matchesTool(v, query, g.label)).map((v) => ({ id: v.id, name: v.name, partial: v.confidence === 'partial' })),
+          options: g.vendors.filter((v) => matchesTool(v, query, g.label)).map((v) => ({ id: v.id, name: v.name, partial: v.confidence === 'partial', risky: Boolean(v.warning) })),
         })),
       ].filter((g) => g.options.length > 0),
     [vendors, own, query, t],
@@ -209,7 +210,13 @@ export function ToolPicker({ vendors, selected, onToggle, own = [], onDescribe }
                             </svg>
                           </span>
                           {v.name}
-                          {v.partial && <span class="option-note">{t('vendors.partialShort')}</span>}
+                          {(v.risky || v.partial) && (
+                            <span class="option-note">
+                              {v.risky && <span class="option-risky">{t('vendors.riskyShort')}</span>}
+                              {v.risky && v.partial && ', '}
+                              {v.partial && t('vendors.partialShort')}
+                            </span>
+                          )}
                         </li>
                       );
                     })}

@@ -292,6 +292,20 @@ pre {
   }
 }
 
+/* A risk a tool brings to the site (ToolWarning.tsx, the tool pages): the label marked with the highlighter's
+   "unsafe" colour, the border in the blocked status colour. The words say it; the colours repeat it. */
+.tool-warning {
+  border-left: 4px solid var(--bad);
+  padding: 0.15rem 0 0.15rem 0.75rem;
+  margin-block: 0.75rem;
+}
+.tool-warning strong {
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  background: var(--hl-unsafe);
+  color: var(--ink);
+}
+
 /* Code block with a caption bar and an in-box copy control (CodeBlock.astro, CodeBox.tsx) */
 .code-block {
   margin: 0.75rem 0 1rem;

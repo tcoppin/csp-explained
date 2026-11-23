@@ -55,6 +55,8 @@ export const VendorSchema = z.object({
     .optional(),
   notes: z.string().optional(),
   fields: z.array(FieldSchema).optional(),
+  /** A risk the tool brings to the site itself, in plain words: shown to everyone as a warning, wherever the tool appears. */
+  warning: z.string().optional(),
   features: z.array(FeatureSchema).min(1),
 });
 

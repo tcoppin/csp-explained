@@ -1,0 +1,21 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Addresses with a version range or no version redirect to the exact version: after a redirect the browser only checks the host, so a package address still works.
+  { en: ba0e1a57, text: "Les adresses avec une plage de versions ou sans version redirigent vers la version exacte : après une redirection, le navigateur ne vérifie plus que l'hôte, donc l'adresse d'un paquet fonctionne toujours." }
+features:
+  whole-host:
+    label:
+      # Any file from unpkg
+      { en: d773c2d4, text: "N'importe quel fichier d'unpkg" }
+    reasons:
+      script:
+        # Loads scripts from unpkg.
+        { en: 5cad1072, text: "Charge des scripts depuis unpkg." }
+      style:
+        # Loads stylesheets from unpkg.
+        { en: 939d3e85, text: "Charge des feuilles de style depuis unpkg." }
+warning:
+  # Allowing all of unpkg lets code from anyone run on your site. Anyone can publish a package on npm and unpkg serves every one, so an attacker who manages to slip a script into one of your pages can load their own code from it, and your policy won't stop it. Allow only the packages you use, by their own address (https://unpkg.com/vue@3/).
+  { en: bf5af5f9, text: "Autoriser tout unpkg permet au code de n'importe qui de s'exécuter sur votre site. Tout le monde peut publier un paquet sur npm et unpkg les sert tous : un attaquant qui parvient à glisser un script dans l'une de vos pages peut y charger son propre code depuis unpkg, et votre politique ne l'arrêtera pas. N'autorisez que les paquets que vous utilisez, par leur propre adresse (https://unpkg.com/vue@3/)." }

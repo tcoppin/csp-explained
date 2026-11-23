@@ -1,0 +1,24 @@
+id: google-hosted-libraries
+name: Google Hosted Libraries
+category: cdn
+website: https://developers.google.com/speed/libraries
+sources:
+  - https://developers.google.com/speed/libraries
+lastVerified: 2026-11-23
+confidence: verified
+warning: >-
+  Allowing all of Google Hosted Libraries lets every library Google hosts run on your site, including old ones
+  attackers know how to use to get around a policy. If an attacker manages to slip a script into one of your
+  pages, your policy won't stop it. Allow only the libraries you use, by their own folder
+  (https://ajax.googleapis.com/ajax/libs/jquery/).
+features:
+  - id: libraries
+    label: Any library from Google Hosted Libraries
+    default: true
+    requirements:
+      - type: script
+        sources: [https://ajax.googleapis.com/ajax/libs/]
+        reason: Loads the libraries' scripts.
+      - type: style
+        sources: [https://ajax.googleapis.com/ajax/libs/]
+        reason: Loads the libraries' stylesheets (jQuery UI themes, …).

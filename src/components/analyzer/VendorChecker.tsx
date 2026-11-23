@@ -8,6 +8,7 @@ import { track } from '../../scripts/track';
 import { NewTabLink } from '../ui/NewTabLink';
 import { ToolPicker } from '../policy/ToolPicker';
 import { ToolFields } from '../policy/ToolFields';
+import { ToolWarning } from '../policy/ToolWarning';
 import { useT } from '../ui/i18n';
 
 interface Props {
@@ -75,6 +76,7 @@ export function VendorChecker({ vendors, selected, checks, audience, onChange }:
               {t(verdict === 'allowed' && reported ? 'vendors.verdict.allowedReported' : `vendors.verdict.${verdict}`)}
             </p>
           </header>
+          <ToolWarning text={vendor.warning} />
 
           {vendor.features.length > 1 && (
             <fieldset class="features">

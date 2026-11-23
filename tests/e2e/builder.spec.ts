@@ -88,6 +88,16 @@ test('each step takes the focus to its question, and the tool picker says what i
   await expect(picker).toBeFocused();
 });
 
+test('a tool that puts the site at risk says so when it is offered and once it is picked', async ({ page }) => {
+  await openBuilder(page, '/build#b=allowlist&step=tools');
+  await page.getByRole('combobox', { name: 'Add a tool' }).fill('unpkg');
+  await expect(page.getByRole('option', { name: 'unpkg' })).toHaveAccessibleName('unpkg risky');
+  await page.getByRole('option', { name: 'unpkg' }).click();
+  await page.getByRole('combobox', { name: 'Add a tool' }).press('Escape');
+  const heard = (await readAloud(page, '.tool-list')).join(' ').replace(/\s*(?:strong|end of strong)\s*/g, ' ').replace(/ :/g, ':');
+  expect(heard).toContain('Risk: Allowing all of unpkg lets code from anyone run on your site.');
+});
+
 test('an address of your own account is typed once, fills the tool in, and travels in the link', async ({ page }) => {
   await openBuilder(page, '/build#b=allowlist&step=tools');
   await pickTool(page, 'Matomo');

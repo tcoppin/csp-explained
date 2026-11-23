@@ -1,0 +1,36 @@
+id: cdnjs
+name: cdnjs
+category: cdn
+website: https://cdnjs.com
+sources:
+  - https://cdnjs.com/about
+  - https://blog.cloudflare.com/polyfill-io-now-available-on-cdnjs-reduce-your-supply-chain-risk/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  cdnjs gives an integrity (SRI) hash for every file.
+warning: >-
+  Allowing all of cdnjs lets thousands of libraries run on your site, including old ones attackers know how to
+  use to get around a policy. If an attacker manages to slip a script into one of your pages, your policy won't
+  stop it. Allow only the libraries you use, by their own folder (https://cdnjs.cloudflare.com/ajax/libs/jquery/):
+  each library in this catalogue gives one.
+features:
+  - id: whole-host
+    label: Any file from cdnjs
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdnjs.cloudflare.com]
+        reason: Loads scripts from cdnjs.
+      - type: style
+        sources: [https://cdnjs.cloudflare.com]
+        reason: Loads stylesheets from cdnjs.
+  - id: polyfill
+    label: Polyfill service (replaces polyfill.io)
+    description: >-
+      Cloudflare's copy of the polyfill.io service, after the polyfill.io domain changed hands in 2024.
+      Replace any polyfill.io address in your pages and policy with this one.
+    requirements:
+      - type: script
+        sources: [https://cdnjs.cloudflare.com/polyfill/]
+        reason: Loads the polyfills the visitor's browser needs.

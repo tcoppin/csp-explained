@@ -225,6 +225,8 @@
     "noMatch": "No tool matches “{query}” yet.",
     "suggest": "Missing a tool? Suggest it",
     "partialShort": "partly verified",
+    "warning": "Risk",
+    "riskyShort": "risky",
     "fieldChoose": "Choose…",
     "fieldInvalid": "This doesn't look like an address. Type it as it appears in your account, without spaces."
   },

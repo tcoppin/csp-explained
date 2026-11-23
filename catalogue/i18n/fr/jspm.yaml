@@ -1,0 +1,37 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Packages and their dependencies all load from ga.jspm.io, each at its exact version (https://ga.jspm.io/npm:lit@3.3.0/). JSPM recommends import maps with integrity hashes, which protect against a compromised file. The older jspm.dev and dev.jspm.io CDNs are deprecated.
+  { en: 8ddccaa9, text: "Les paquets et leurs dépendances se chargent tous depuis ga.jspm.io, chacun à sa version exacte (https://ga.jspm.io/npm:lit@3.3.0/). JSPM recommande des import maps avec des hashs d'intégrité, qui protègent contre un fichier compromis. Les anciens CDN jspm.dev et dev.jspm.io sont abandonnés." }
+warning:
+  # Allowing all of ga.jspm.io lets code from anyone run on your site. It serves any package published on npm, so an attacker who manages to slip a script into one of your pages can load their own code from it, and your policy won't stop it. A nonce with 'strict-dynamic' protects you without listing the host.
+  { en: 65fe4c5a, text: "Autoriser tout ga.jspm.io permet au code de n'importe qui de s'exécuter sur votre site. Il sert n'importe quel paquet publié sur npm : un attaquant qui parvient à glisser un script dans l'une de vos pages peut y charger son propre code depuis ga.jspm.io, et votre politique ne l'arrêtera pas. Un nonce avec 'strict-dynamic' vous protège sans lister l'hôte." }
+features:
+  modules:
+    label:
+      # Modules from ga.jspm.io
+      { en: 6f4ddcc1, text: "Modules depuis ga.jspm.io" }
+    reasons:
+      script:
+        # Loads the modules, their dependencies and ES Module Shims.
+        { en: e6ef68c6, text: "Charge les modules, leurs dépendances et ES Module Shims." }
+  import-map:
+    description:
+      # JSPM writes the import map into the page as a <script>. Give it your nonce or its hash rather than allowing every inline script.
+      { en: b5a36d68, text: "JSPM écrit l'import map dans la page sous forme de <script>. Donnez-lui votre nonce ou son hash plutôt que d'autoriser tous les scripts écrits dans la page." }
+    label:
+      # Import map written in the page
+      { en: 00892be7, text: "Import map écrite dans la page" }
+    reasons:
+      inline-script:
+        # The import map is a script written in the page.
+        { en: b2a2ec30, text: "L'import map est un script écrit dans la page." }
+  systemjs:
+    label:
+      # SystemJS builds
+      { en: 578a2cff, text: "Versions SystemJS" }
+    reasons:
+      script:
+        # Loads the SystemJS versions of the modules.
+        { en: 44d56c56, text: "Charge les versions SystemJS des modules." }

@@ -412,6 +412,21 @@
     "respond.js",
     "select.form"
   ],
+  "https://cdnjs.com/about": [
+    "my-library.min.js"
+  ],
+  "https://blog.cloudflare.com/polyfill-io-now-available-on-cdnjs-reduce-your-supply-chain-risk/": [
+    "cdnjs.cloudflare.com",
+    "href.hostname",
+    "https://cdnjs.cloudflare.com",
+    "node.js",
+    "polyfill.io",
+    "request.url",
+    "response.headers",
+    "security.txt",
+    "src.hostname",
+    "src.pathname"
+  ],
   "https://docs.crisp.chat/guides/others/whitelisting-our-systems/crisp-domain-names/": [
     "'unsafe-inline'",
     "connect-src",
@@ -1054,6 +1069,12 @@
     "window.missingvariable",
     "withsnowwhite.length"
   ],
+  "https://unpkg.com/": [
+    "esm.unpkg.com",
+    "https://esm.unpkg.com",
+    "https://unpkg.com",
+    "unpkg.com"
+  ],
   "https://vuejs.org/guide/quick-start.html": [
     "https://unpkg.com",
     "index.html",
@@ -1134,6 +1155,115 @@
     "style-src",
     "wss://*.zendesk.com",
     "wss://*.zopim.com"
+  ],
+  "https://esm.sh/": [
+    "deno.lock",
+    "e.data",
+    "editor.worker",
+    "esm.sh",
+    "https://esm.sh",
+    "https://raw.esm.sh",
+    "https://unpkg.com",
+    "https://www.jsdelivr.net",
+    "import.meta.url",
+    "jsdelivr.net",
+    "package.json",
+    "pkg.pr.new",
+    "process.env",
+    "self.onmessage",
+    "self.postmessage",
+    "unpkg.com"
+  ],
+  "https://github.com/esm-dev/esm.sh": [
+    "agents.md",
+    "changelog-cli.md",
+    "changelog-server.md",
+    "config.example.jsonc",
+    "contributing.md",
+    "e.data",
+    "editor.worker",
+    "esm.sh",
+    "go.mod",
+    "go.sum",
+    "hosting.md",
+    "https://esm.sh",
+    "https://raw.esm.sh",
+    "https://unpkg.com",
+    "https://www.jsdelivr.net",
+    "import.meta.url",
+    "jsdelivr.net",
+    "main.go",
+    "node.js",
+    "package.json",
+    "pkg.pr.new",
+    "process.env",
+    "readme.md",
+    "self.onmessage",
+    "self.postmessage",
+    "unpkg.com"
+  ],
+  "https://jspm.org/cdn/jspm-io": [
+    "https://ga.jspm.io",
+    "https://ga.system.jspm.io",
+    "jspm.dev",
+    "jspm.io",
+    "module.exports",
+    "node.js",
+    "package.json",
+    "require.resolve",
+    "system.jspm.io"
+  ],
+  "https://jspm.org/getting-started": [
+    "app.html",
+    "claude.md",
+    "customelements.define",
+    "document.adoptedstylesheets.includes",
+    "document.adoptedstylesheets.push",
+    "document.body",
+    "document.body.innerhtml",
+    "document.createelement",
+    "document.currentscript.src",
+    "document.head.appendchild",
+    "esm.sh",
+    "https://ga.jspm.io",
+    "https://github.com",
+    "https://lit.dev",
+    "https://server.com",
+    "importmap.js",
+    "importmap.production.js",
+    "index.html",
+    "index.ts",
+    "json.stringify",
+    "jspm.dev",
+    "jspm.io",
+    "landing.css",
+    "landing.js",
+    "lit.html",
+    "lit.litelement",
+    "map.imports",
+    "map.scopes",
+    "node.js",
+    "object.assign",
+    "object.entries",
+    "object.fromentries",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "https://docs.skypack.dev/": [
+    "https://cdn.skypack.dev",
+    "llms.txt",
+    "window.react"
+  ],
+  "https://docs.skypack.dev/skypack-cdn/api-reference/lookup-urls.md": [
+    "cdn.skypack.dev",
+    "common.js",
+    "console.log",
+    "https://cdn.skypack.dev",
+    "https://docs.npmjs.com",
+    "https://docs.skypack.dev",
+    "https://nodejs.org",
+    "llms.txt",
+    "node.js"
   ],
   "https://experienceleague.adobe.com/en/docs/experience-platform/tags/client-side/content-security-policy": [
     "'self'",
@@ -1574,5 +1704,11 @@
     "this.opencategory",
     "this.timeoutid"
   ],
-  "https://developers.google.com/fonts/faq": []
+  "https://developers.google.com/fonts/faq": [],
+  "https://www.jsdelivr.com/documentation": [
+    "esm.run",
+    "esm.sh",
+    "jsdelivr.com",
+    "package.json"
+  ]
 }

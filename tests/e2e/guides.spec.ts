@@ -132,7 +132,7 @@ test('a screen reader hears which tools use an address, once typing pauses, and 
   expect(await live(async () => {
     await find.fill('goo');
     await page.waitForTimeout(600);
-  })).toEqual(['polite: Found: Google Tag Manager, Google Analytics 4, Google Ads, Google reCAPTCHA, Google Fonts, and Google Maps JavaScript API.']);
+  })).toEqual(['polite: Found: Google Tag Manager, Google Analytics 4, Google Ads, Google reCAPTCHA, Google Fonts, Google Hosted Libraries, and Google Maps JavaScript API.']);
   await expect(find).toBeFocused();
 
   await find.fill('csxd.contentsquare.net');
@@ -157,6 +157,19 @@ test('the address search knows every intake address a tool lists to pick from', 
   await expect(page.locator('[data-name="datadog rum"] [data-uses]')).toContainText('https://browser-intake-datadoghq.eu in connect-src');
   await page.goto('/vendors/datadog-rum');
   await expect(page.locator('.field-options')).toContainText('EU1 (datadoghq.eu): browser-intake-datadoghq.eu');
+});
+
+test('a tool that puts the site at risk says so in words, in the catalogue and on its page', async ({ page }) => {
+  await page.goto('/vendors');
+  // The highlight repeats what the words say.
+  expect((await readAloud(page, '[data-name="jsdelivr"]')).join(' ')).toContain('Risky for your site');
+  expect((await readAloud(page, '[data-name="hotjar"]')).join(' ')).not.toContain('Risky');
+
+  await page.goto('/vendors/jsdelivr');
+  const heard = (await readAloud(page, 'main')).join(' ').replace(/\s*(?:strong|end of strong)\s*/g, ' ').replace(/ :/g, ':');
+  expect(heard).toContain('Risk: Allowing all of jsDelivr lets code from anyone run on your site.');
+  // Heard before the button to check a policy against the tool.
+  expect(heard.indexOf('Risk:')).toBeLessThan(heard.indexOf('Check jsDelivr against my policy'));
 });
 
 test('find my CSP shows one method at a time', async ({ page }) => {

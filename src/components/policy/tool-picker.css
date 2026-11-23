@@ -134,6 +134,13 @@
   font-size: var(--step--1);
   color: var(--ink-soft);
 }
+/* The word says it; the highlighter's "unsafe" colour repeats it, as on the tool pages. */
+.option-risky {
+  padding: 0 0.3em;
+  border-radius: 3px;
+  background: var(--hl-unsafe);
+  color: var(--ink);
+}
 .no-match {
   padding: 0.5rem 0.9rem;
   margin: 0;

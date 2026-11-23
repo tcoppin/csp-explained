@@ -44,6 +44,10 @@ needs our own server comes last, because it changes the site's promise that the 
       (2026-11-21): after "Try an example", the focus lands on "What the 138 reports say" and that is heard;
       "Change" puts it back in the box, "Done" on the heading again; the summary's highlighted counts are heard as
       plain words, and each row is heard with its level first ("Check first, A script from…, 5 reports").
+      And the warning on public CDNs (2026-11-23): on the Tools page, jsDelivr's line says "Risky for your site";
+      on its page, "Risk:" and the warning are heard before "Check jsDelivr against my policy"; in the tool
+      picker, cdnjs is heard as "cdnjs risky" (not "cdnjsrisky"); once picked, in the builder and the analyzer, the
+      warning is the first thing heard under the tool's name.
       And the account address fields (2026-11-23): picking Matomo in the builder, "Your Matomo address, edit text" is
       heard with its hint; typing "stats shop" makes it invalid and the error is heard with it; Piwik PRO's "Your
       account name" in the analyzer, and the same field in the comparator's tools. Datadog RUM's "Your Datadog site" is a list:
@@ -172,6 +176,9 @@ Everything here runs on the visitor's device, like the analyzer: nothing typed, 
       choices, Trusted Types.
 - [ ] **Hashes: the remaining cases**: inline event handlers by hash (`'unsafe-hashes'`), and hashes of external
       scripts (CSP3, Chromium only).
+- [ ] **Domains that changed hands** (2026-11-23): warn when a policy allows a domain known to serve malicious code
+      after a change of owner, starting with `polyfill.io` (2024), and point to the replacement (cdnjs's polyfill
+      copy is in the catalogue). Sourced from the official statements, like the catalogue.
 
 ## 4. Outside the site, still without our server
 

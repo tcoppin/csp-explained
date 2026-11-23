@@ -479,6 +479,7 @@
     "checked": "Checked {date}",
     "partial": "Partly checked {date}",
     "nonce": "Works with a nonce",
+    "risky": "Risky for your site",
     "find": "Find a tool or an address",
     "findPlaceholder": "Hotjar, static.hotjar.com…",
     "noMatch": "No tool matches. Suggest it below.",

@@ -1,0 +1,29 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # esm.sh rewrites each module's imports to its dependencies, and its docs don't say at which addresses: a package's own address (https://esm.sh/react@19.2.4) may not be enough, so this entry allows the host. raw.esm.sh serves the same files untouched; add it if you use it.
+  { en: 4840526a, text: "esm.sh réécrit les imports de chaque module vers ses dépendances, et sa documentation ne dit pas à quelles adresses : l'adresse d'un paquet (https://esm.sh/react@19.2.4) peut ne pas suffire, donc cette fiche autorise l'hôte. raw.esm.sh sert les mêmes fichiers sans les modifier ; ajoutez-le si vous l'utilisez." }
+warning:
+  # Allowing all of esm.sh lets code from anyone run on your site. It serves any package published on npm, JSR or GitHub, so an attacker who manages to slip a script into one of your pages can load their own code from it, and your policy won't stop it. A nonce with 'strict-dynamic' protects you without listing the host.
+  { en: d8121fdd, text: "Autoriser tout esm.sh permet au code de n'importe qui de s'exécuter sur votre site. Il sert n'importe quel paquet publié sur npm, JSR ou GitHub : un attaquant qui parvient à glisser un script dans l'une de vos pages peut y charger son propre code depuis esm.sh, et votre politique ne l'arrêtera pas. Un nonce avec 'strict-dynamic' vous protège sans lister l'hôte." }
+features:
+  modules:
+    label:
+      # Modules from esm.sh
+      { en: 236d8739, text: "Modules depuis esm.sh" }
+    reasons:
+      script:
+        # Loads the modules and their dependencies.
+        { en: 251e38e8, text: "Charge les modules et leurs dépendances." }
+  import-map:
+    description:
+      # The import map esm.sh's docs show is a <script> written in the page. Give it your nonce or its hash rather than allowing every inline script.
+      { en: 240d2318, text: "L'import map que montre la documentation d'esm.sh est un <script> écrit dans la page. Donnez-lui votre nonce ou son hash plutôt que d'autoriser tous les scripts écrits dans la page." }
+    label:
+      # Import map written in the page
+      { en: 00892be7, text: "Import map écrite dans la page" }
+    reasons:
+      inline-script:
+        # The import map is a script written in the page.
+        { en: b2a2ec30, text: "L'import map est un script écrit dans la page." }

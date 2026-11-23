@@ -281,6 +281,17 @@ test("a tool shows what's missing first, and folds what already works", async ({
   await expect(gtm.locator('details.working summary')).toHaveText(/^Show the \d+ that already work$/);
 });
 
+test('a tool that puts the site at risk says so first, even when the policy allows it', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com");
+  await page.getByRole('tab', { name: /Will my tools work/ }).click();
+  await pickTool(page, 'cdnjs');
+  const heard = (await readAloud(page, '[aria-labelledby="v-cdnjs"]')).join(' ').replace(/\s*(?:strong|end of strong)\s*/g, ' ').replace(/ :/g, ':');
+  expect(heard).toContain('Risk: Allowing all of cdnjs lets thousands of libraries run on your site');
+  // Said right after the tool's name and verdict, before its features and lines.
+  expect(heard.indexOf('Risk:')).toBeLessThan(heard.indexOf('Polyfill service'));
+});
+
 test('allowing all of a CDN anyone can publish to is a risk, said in plain words and as a high finding', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://unpkg.com; object-src 'none'");

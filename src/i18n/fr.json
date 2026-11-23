@@ -225,6 +225,8 @@
     "noMatch": "Aucun outil ne correspond à « {query} » pour l'instant.",
     "suggest": "Un outil manque ? Proposez-le",
     "partialShort": "partiellement vérifié",
+    "warning": "Risque",
+    "riskyShort": "risqué",
     "fieldChoose": "Choisir…",
     "fieldInvalid": "Cela ne ressemble pas à une adresse. Tapez-la comme elle apparaît dans votre compte, sans espaces."
   },
