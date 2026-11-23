@@ -54,6 +54,8 @@ function uses(v: Vendor) {
 }
 /** "{source} in {directives}, for {feature}." → its text and placeholders apart, so each placeholder can be an element. */
 const useParts = t(m('use')).split(/(\{\w+\})/).filter(Boolean);
+/** The tools of a folded category, named in its summary so they can be read (and found) without opening it. */
+const names = (vendors: Vendor[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).format(vendors.map((v) => v.name));
 const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type: 'conjunction' }).formatToParts(names);
 ---
 
@@ -80,7 +82,11 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
     {
       groups.map((g) => (
         <section data-group>
-          <h2>{g.label}</h2>
+          <details data-fold>
+            <summary>
+              <span class="fold-head"><h2>{g.label}</h2> <span class="fold-count">{t(m('count'), { count: g.vendors.length })}</span></span>
+              <span class="fold-names">{names(g.vendors)}</span>
+            </summary>
           <ul class="tools">
             {g.vendors.map((v) => {
               const n = needs(v);
@@ -126,6 +132,7 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
               );
             })}
           </ul>
+          </details>
         </section>
       ))
     }
@@ -143,11 +150,15 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
   // Find a tool by its name, or by an address it uses: hides the tools that don't match and the groups left empty.
   // For an address, each tool left shows the lines that cover it; when no tool uses the address itself, the tools
   // using addresses under it (google.com → www.google.com). Without JavaScript the field stays hidden and every
-  // tool shows.
+  // tool shows. Categories are folded; a search opens those with a match, and clearing it folds back what the visitor
+  // hadn't opened.
   const finder = document.querySelector<HTMLElement>('[data-finder]');
   const input = finder?.querySelector('input');
   const tools = [...document.querySelectorAll<HTMLElement>('[data-name]')];
   const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
+  const folds = groups.map((g) => g.querySelector('details')!);
+  /** Which categories the visitor had open before searching. */
+  let opened: boolean[] | undefined;
   const none = document.querySelector<HTMLElement>('[data-no-match]');
   const near = document.querySelector<HTMLElement>('[data-near]');
   const status = document.querySelector<HTMLElement>('[data-status]');
@@ -175,6 +186,13 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
       if (uses) uses.hidden = !address || tool.hidden;
     });
     for (const g of groups) g.hidden = !g.querySelector('[data-name]:not([hidden])');
+    if (query) {
+      opened ??= folds.map((d) => d.open);
+      for (const d of folds) d.open = true;
+    } else if (opened) {
+      folds.forEach((d, i) => (d.open = opened![i]!));
+      opened = undefined;
+    }
 
     const shown = tools.filter((tool) => !tool.hidden).map((tool) => tool.dataset.label!);
     const host = address?.host ?? '';
@@ -234,6 +252,70 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
   }
   section {
     margin-top: 2.25rem;
+  }
+
+  /* One fold per category: its name and count, then the names of its tools; the arrow points right while closed,
+     down once open (as the reports reader's folds) */
+  section[data-group] {
+    margin-top: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  [data-near] + section[data-group] {
+    margin-top: 1.5rem;
+  }
+  summary {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.15rem 0.75rem;
+    padding: 0.85rem 0;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: '';
+    grid-row: span 2;
+    align-self: start;
+    width: 0.45em;
+    height: 0.45em;
+    margin: 0.55em 0.1em 0;
+    border: solid var(--action);
+    border-width: 0 0.15em 0.15em 0;
+    transform: rotate(-45deg);
+    transition: transform 0.15s;
+  }
+  details[open] > summary::before {
+    transform: rotate(45deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    summary::before {
+      transition: none;
+    }
+  }
+  .fold-head h2 {
+    display: inline;
+    margin: 0;
+    font-size: var(--step-1);
+  }
+  summary:hover h2 {
+    text-decoration: underline;
+  }
+  .fold-count {
+    color: var(--ink-soft);
+    margin-left: 0.35rem;
+  }
+  .fold-names {
+    grid-column: 2;
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+  details[open] > .tools {
+    padding-left: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  details > .tools > li:last-child {
+    border-bottom: none;
   }
 
   /* One row per tool: its name and when it was checked, then what it needs */

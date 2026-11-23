@@ -479,6 +479,7 @@
     "checked": "Vérifié le {date}",
     "partial": "Vérifié en partie le {date}",
     "nonce": "Fonctionne avec un nonce",
+    "count": { "one": "1 outil", "other": "{count} outils" },
     "risky": "Risqué pour votre site",
     "find": "Trouver un outil ou une adresse",
     "findPlaceholder": "Hotjar, static.hotjar.com…",

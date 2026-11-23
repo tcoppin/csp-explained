@@ -48,6 +48,11 @@ needs our own server comes last, because it changes the site's promise that the 
       on its page, "Risk:" and the warning are heard before "Check jsDelivr against my policy"; in the tool
       picker, cdnjs is heard as "cdnjs risky" (not "cdnjsrisky"); once picked, in the builder and the analyzer, the
       warning is the first thing heard under the tool's name.
+      And the folded categories on the Tools page (2026-11-23): each category is heard as a heading inside a
+      collapsed control, with its count and the names of its tools ("Analytics, 4 tools, Amplitude, …, collapsed"),
+      and moving by headings still reaches every category (VoiceOver with Safari is known to drop headings inside a
+      summary: check it there). Enter opens it and says expanded; typing "jquery" in the search opens Libraries and
+      frameworks, and clearing it folds that back.
       And partly verified tools in the builder (2026-11-23): picking Tealium iQ, its open card says "Partly verified:"
       and what's missing before its lines; on the last step, "Things to know" counts one more note, and its heading
       "Check these tools before you enforce the policy" is followed by the tools' names.

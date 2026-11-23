@@ -141,6 +141,36 @@ test('a screen reader hears which tools use an address, once typing pauses, and 
   expect(heard).toContain('csxd.contentsquare.net in frame-src, for Cross-domain tracking (frame hosted by Contentsquare).');
 });
 
+test('the catalogue folds each category, naming its tools, and a search opens those with a match', async ({ page }) => {
+  await page.goto('/vendors');
+  const fold = (name: string) => page.locator('section[data-group]').filter({ has: page.getByRole('heading', { name, exact: true }) }).locator('details');
+  const analytics = fold('Analytics');
+  const libraries = fold('Libraries & frameworks');
+
+  // Folded: the category stays a heading, said with its count and the names of its tools.
+  const heard = await readAloud(page, 'section[data-group]:nth-of-type(2) summary');
+  expect(heard).toEqual(expect.arrayContaining(['heading, Analytics, level 2', '8 tools', 'Amplitude, Google Analytics 4, HubSpot, Matomo (on your own server), Piano Analytics, Piwik PRO, PostHog, and Segment (Analytics.js)']));
+  await expect(page.getByRole('link', { name: 'Amplitude' })).toBeHidden();
+
+  // Opened from the keyboard.
+  await analytics.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(analytics).toHaveAttribute('open');
+  await expect(page.getByRole('link', { name: 'Amplitude' })).toBeVisible();
+
+  // A search opens the categories with a match, and only those show.
+  const find = page.getByRole('searchbox', { name: 'Find a tool or an address' });
+  await find.fill('jquery');
+  await expect(libraries).toHaveAttribute('open');
+  await expect(page.getByRole('link', { name: 'jQuery' })).toBeVisible();
+  await expect(analytics.locator('xpath=..')).toBeHidden();
+
+  // Cleared: what the visitor opened stays open, what the search opened folds back.
+  await find.fill('');
+  await expect(analytics).toHaveAttribute('open');
+  await expect(libraries).not.toHaveAttribute('open');
+});
+
 test("a tool page shows an account address as its example, and says to replace it", async ({ page }) => {
   await page.goto('/vendors/matomo');
   await expect(page.locator('.field-note')).toContainText('Your Matomo address: in the lines below, matomo.example.com stands for it.');
