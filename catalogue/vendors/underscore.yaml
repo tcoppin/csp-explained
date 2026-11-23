@@ -1,0 +1,30 @@
+id: underscore
+name: Underscore.js
+category: library
+website: https://underscorejs.org
+sources:
+  - https://underscorejs.org/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  On jsDelivr and unpkg the address includes the version: when you upgrade, change it in your policy too.
+features:
+  - id: jsdelivr
+    label: From jsDelivr
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/underscore@1.13.8/]
+        reason: Loads Underscore.
+  - id: unpkg
+    label: From unpkg
+    requirements:
+      - type: script
+        sources: [https://unpkg.com/underscore@1.13.8/]
+        reason: Loads Underscore.
+  - id: cdnjs
+    label: From cdnjs
+    requirements:
+      - type: script
+        sources: [https://cdnjs.cloudflare.com/ajax/libs/underscore.js/]
+        reason: Loads Underscore.

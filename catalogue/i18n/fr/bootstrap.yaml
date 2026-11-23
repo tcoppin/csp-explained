@@ -1,0 +1,63 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The CDN addresses include the version: when you upgrade Bootstrap, change the version in your policy too. Bootstrap's docs give an integrity hash for every CDN file; keep it on the tag. Bootstrap 5.3's colour mode script is meant to sit at the top of the page: if you paste it inline, give it your nonce or move it to a file.
+  { en: 2fd60a32, text: "Les adresses du CDN contiennent la version : quand vous mettez à jour Bootstrap, changez aussi la version dans votre politique. La documentation de Bootstrap donne un hash d'intégrité pour chaque fichier du CDN ; gardez-le sur la balise. Le script des modes de couleur de Bootstrap 5.3 doit être placé en haut de la page : si vous le collez dans la page, donnez-lui votre nonce ou mettez-le dans un fichier." }
+features:
+  v5:
+    label:
+      # Bootstrap 5.3 from jsDelivr
+      { en: bfbe6470, text: "Bootstrap 5.3 depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads Bootstrap's stylesheet.
+        { en: 4f25b0d3, text: "Charge la feuille de style de Bootstrap." }
+      script:
+        # Loads Bootstrap's JavaScript (the bundle includes Popper).
+        { en: d18728d7, text: "Charge le JavaScript de Bootstrap (le bundle contient Popper)." }
+  v5-popper:
+    description:
+      # Only when you use bootstrap.min.js instead of the bundle.
+      { en: 044aea6e, text: "Seulement si vous utilisez bootstrap.min.js au lieu du bundle." }
+    label:
+      # Popper loaded separately (Bootstrap 5.3)
+      { en: 2fe942a5, text: "Popper chargé à part (Bootstrap 5.3)" }
+    reasons:
+      script:
+        # Loads Popper, which places dropdowns, tooltips and popovers.
+        { en: 012e236d, text: "Charge Popper, qui place les menus déroulants, infobulles et popovers." }
+  v4:
+    description:
+      # Bootstrap 4 no longer gets updates.
+      { en: 5dd93eb7, text: "Bootstrap 4 n'est plus mis à jour." }
+    label:
+      # Bootstrap 4.6 from jsDelivr
+      { en: 774a8e67, text: "Bootstrap 4.6 depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads Bootstrap's stylesheet.
+        { en: 4f25b0d3, text: "Charge la feuille de style de Bootstrap." }
+      script:
+        # Loads Bootstrap's JavaScript, jQuery and Popper.
+        { en: 9c239ac3, text: "Charge le JavaScript de Bootstrap, jQuery et Popper." }
+      img:
+        # Icons drawn as embedded SVGs in background images (close button, checkboxes, switches, validation icons, select, carousel controls, navbar toggler).
+        { en: babdd491, text: "Icônes dessinées en SVG intégrés dans des images de fond (bouton de fermeture, cases à cocher, interrupteurs, icônes de validation, select, contrôles du carrousel, bouton de la barre de navigation)." }
+  v3:
+    description:
+      # Bootstrap 3 no longer gets updates.
+      { en: 7b46460b, text: "Bootstrap 3 n'est plus mis à jour." }
+    label:
+      # Bootstrap 3.4 from jsDelivr
+      { en: 5b9d501f, text: "Bootstrap 3.4 depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads Bootstrap's stylesheet and optional theme.
+        { en: e0cc4860, text: "Charge la feuille de style de Bootstrap et son thème facultatif." }
+      script:
+        # Loads Bootstrap's JavaScript and jQuery.
+        { en: 7a5ece79, text: "Charge le JavaScript de Bootstrap et jQuery." }
+      font:
+        # The Glyphicons font, loaded by the stylesheet.
+        { en: b364cce7, text: "La police Glyphicons, chargée par la feuille de style." }

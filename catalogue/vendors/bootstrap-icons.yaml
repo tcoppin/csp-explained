@@ -1,0 +1,22 @@
+id: bootstrap-icons
+name: Bootstrap Icons
+category: fonts
+website: https://icons.getbootstrap.com
+sources:
+  - https://github.com/twbs/icons/blob/main/README.md
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  The address includes the version: when you upgrade, change it in your policy too. The icon font sits
+  next to the stylesheet, so the same address covers it.
+features:
+  - id: icon-font
+    label: Icon font from jsDelivr
+    default: true
+    requirements:
+      - type: style
+        sources: [https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/]
+        reason: Loads the icons' stylesheet.
+      - type: font
+        sources: [https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/]
+        reason: Loads the icon font.

@@ -1,0 +1,26 @@
+id: youtube
+name: YouTube embeds
+category: other
+website: https://www.youtube.com
+sources:
+  - https://developers.google.com/youtube/player_parameters
+  - https://developers.google.com/youtube/iframe_api_reference
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  YouTube publishes no CSP page: these are the addresses its embedding docs use. The privacy-enhanced mode
+  (www.youtube-nocookie.com) isn't covered; allow it in frame-src if you use it.
+features:
+  - id: embed
+    label: Embedded player
+    default: true
+    requirements:
+      - type: frame
+        sources: [https://www.youtube.com]
+        reason: Shows the player.
+  - id: iframe-api
+    label: IFrame Player API
+    requirements:
+      - type: script
+        sources: [https://www.youtube.com]
+        reason: Loads the API that controls the player from your scripts.

@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Tailwind says the Play CDN is for development only, not for production. Its page doesn't say how it adds the styles it generates, so what that needs under a CSP isn't listed here.
+  { en: 174563c7, text: "Tailwind indique que le Play CDN sert au développement seulement, pas à la production. Sa page ne dit pas comment il ajoute les styles qu'il génère, donc ce que cela demande dans une CSP n'est pas listé ici." }
+features:
+  play-cdn:
+    label:
+      # Play CDN script
+      { en: 9e8708ed, text: "Script du Play CDN" }
+    reasons:
+      script:
+        # Loads the script that builds Tailwind's styles in the browser.
+        { en: c62e2b28, text: "Charge le script qui génère les styles de Tailwind dans le navigateur." }

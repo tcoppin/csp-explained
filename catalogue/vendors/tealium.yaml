@@ -1,0 +1,22 @@
+id: tealium
+name: Tealium iQ
+category: tag-management
+website: https://tealium.com
+sources:
+  - https://docs.tealium.com/server-side/settings/tealium-content-security-policies-reference-guide/
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Be careful with this entry: Tealium's page lists domains without saying which directive each one belongs to,
+  so only the tag management domains are checked here, in script-src. The same page lists the Tealium Collect,
+  data layer enrichment and API domains (collect.tealiumiq.com, visitor-service.tealiumiq.com, api.tealiumiq.com
+  and one per region): add them where your browser's console says they are blocked. Tags loaded through Tealium
+  iQ have their own requirements: check those tools too.
+features:
+  - id: tag-management
+    label: Tag management
+    default: true
+    requirements:
+      - type: script
+        sources: [https://tags.tiqcdn.com, https://tags-eu.tiqcdn.com, https://tags.tiqcdn.cn]
+        reason: Loads the Tealium iQ profile and its tags.

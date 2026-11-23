@@ -1,0 +1,21 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Amplitude has no CSP page: its Browser SDK guide only mentions the policy in its troubleshooting table. The script loader is an inline snippet; the guide doesn't say how to allow it, so 'unsafe-inline' is listed.
+  { en: 4b6c54cd, text: "Amplitude n'a pas de page sur la CSP : le guide de son Browser SDK n'en parle que dans son tableau de dépannage. Le chargeur est un snippet dans la page ; le guide ne dit pas comment l'autoriser, d'où 'unsafe-inline'." }
+features:
+  browser-sdk:
+    label:
+      # Browser SDK (script loader)
+      { en: 1b91a7bc, text: "Browser SDK (chargeur de script)" }
+    reasons:
+      script:
+        # Loads the SDK.
+        { en: 0a636ba6, text: "Charge le SDK." }
+      inline-script:
+        # The script loader is an inline snippet.
+        { en: 1bde720f, text: "Le chargeur est un snippet dans la page." }
+      connect:
+        # Sends events.
+        { en: 3574a0b2, text: "Envoie les événements." }

@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Covers the UMD bundle at the exact address D3's docs give. The ES module bundle (d3@7/+esm), which D3 recommends, may import other packages from jsDelivr; its docs don't say which.
+  { en: 1c876b1e, text: "Couvre le bundle UMD à l'adresse exacte donnée par la documentation de D3. Le bundle en module ES (d3@7/+esm), que D3 recommande, peut importer d'autres paquets depuis jsDelivr ; sa documentation ne dit pas lesquels." }
+features:
+  umd:
+    label:
+      # UMD bundle from jsDelivr
+      { en: 4ec9e3fc, text: "Bundle UMD depuis jsDelivr" }
+    reasons:
+      script:
+        # Loads D3.
+        { en: 1b8a2b1e, text: "Charge D3." }

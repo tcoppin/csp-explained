@@ -1,0 +1,52 @@
+id: livechat
+name: LiveChat
+category: chat
+website: https://www.livechat.com
+sources:
+  - https://www.livechat.com/help/use-livechat-with-content-security-policy/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Put your nonce on the LiveChat script tag and in script-src, with *.livechatinc.com: 'unsafe-inline' is then
+    not needed for the snippet.
+notes: >-
+  Follows LiveChat's list of exact hosts. Its other example also puts 'unsafe-eval', *.youtube.com and
+  *.google.com in several directives, without saying what needs them: add them only if your console shows them
+  blocked.
+features:
+  - id: widget
+    label: Chat widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.livechatinc.com, https://secure.livechatinc.com, https://cdn.livechat-static.com]
+        reason: Loads the widget.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The snippet is written in the page (or use a nonce).
+      - type: connect
+        sources: [https://api.livechatinc.com, https://cdn.livechatinc.com, https://secure.livechatinc.com, https://api.text.com]
+        reason: Sends and receives messages.
+      - type: frame
+        sources: [https://api.livechatinc.com, https://cdn.livechatinc.com, https://secure.livechatinc.com]
+        reason: Shows the chat window.
+      - type: font
+        sources: [https://cdn.livechatinc.com, https://secure.livechatinc.com]
+        reason: The widget's fonts.
+      - type: media
+        sources: [https://cdn.livechatinc.com, https://secure.livechatinc.com, https://cdn.livechat-static.com]
+        reason: Sounds and media.
+      - type: img
+        sources:
+          - "data:"
+          - https://cdn.livechatinc.com
+          - https://secure.livechatinc.com
+          - https://cdn.livechat-static.com
+          - https://cdn.livechat-files.com
+          - https://cdn.files-text.com
+        reason: Avatars, images and shared files.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The widget adds styles to the page.

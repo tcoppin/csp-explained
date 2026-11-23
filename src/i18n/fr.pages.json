@@ -473,7 +473,7 @@
   },
   "vendors": {
     "title": "Outils",
-    "description": "Ce dont les outils marketing et de mesure d'audience courants ont besoin dans votre Content-Security-Policy, d'après leur documentation officielle.",
+    "description": "Ce dont les outils marketing, widgets et bibliothèques JavaScript courants ont besoin dans votre Content-Security-Policy, d'après leur documentation officielle.",
     "heading": "Ce dont chaque outil a besoin",
     "lead": "Chaque fiche vient de la documentation officielle de l'éditeur, avec la date de dernière vérification. Choisissez un outil pour voir ce dont il a besoin, ou tapez une adresse vue dans la console de votre navigateur pour trouver l'outil qui l'utilise.",
     "checked": "Vérifié le {date}",

@@ -1,0 +1,25 @@
+id: trustcommander
+name: TrustCommander (Commanders Act)
+category: consent
+website: https://www.commandersact.com
+sources:
+  - https://doc.commandersact.com/developers/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+features:
+  - id: cmp
+    label: Consent banner (CMP)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.tagcommander.com, https://cdn.trustcommander.net]
+        reason: Loads the consent banner.
+      - type: img
+        sources: [https://*.tagcommander.com, https://*.commander1.com, https://*.trustcommander.net]
+        reason: Saves the visitor's choice as image pixels.
+      - type: frame
+        sources: [https://cdn.tagcommander.com, https://cdn.trustcommander.net]
+        reason: Shows parts of the banner in frames.
+      - type: connect
+        sources: [https://*.commander1.com, https://*.trustcommander.net]
+        reason: Saves the visitor's choice.

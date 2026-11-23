@@ -1,0 +1,24 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # hCaptcha asks not to list its exact asset hosts, which change over time and by region. Its Enterprise plan offers an optional setup with 'unsafe-eval' and 'unsafe-inline' for extra checks; it isn't needed otherwise.
+  { en: 6c475b95, text: "hCaptcha demande de ne pas lister ses hôtes de fichiers exacts, qui changent avec le temps et selon la région. Son offre Enterprise propose une configuration facultative avec 'unsafe-eval' et 'unsafe-inline' pour des vérifications supplémentaires ; elle n'est pas nécessaire sinon." }
+features:
+  widget:
+    label:
+      # hCaptcha widget
+      { en: 2c2552f4, text: "Widget hCaptcha" }
+    reasons:
+      script:
+        # Loads hCaptcha.
+        { en: 0fccb0f3, text: "Charge hCaptcha." }
+      frame:
+        # Shows the challenge.
+        { en: d64a271a, text: "Affiche le défi." }
+      style:
+        # The widget's styles.
+        { en: d4f81df6, text: "Les styles du widget." }
+      connect:
+        # Sends the challenge's answers.
+        { en: 60331d0f, text: "Envoie les réponses au défi." }

@@ -1,0 +1,30 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Put the nonce on the Alpine script tag and on the script where you register your components with Alpine.data(). Alpine's own example pairs it with 'strict-dynamic'.
+    { en: a532aa92, text: "Mettez le nonce sur la balise script d'Alpine et sur le script où vous déclarez vos composants avec Alpine.data(). L'exemple d'Alpine l'associe à 'strict-dynamic'." }
+features:
+  standard:
+    label:
+      # Standard build
+      { en: 676b1404, text: "Version standard" }
+    reasons:
+      script:
+        # Loads Alpine.
+        { en: f283fe6e, text: "Charge Alpine." }
+      eval:
+        # Alpine runs the expressions in your x- attributes with Function, which needs 'unsafe-eval'.
+        { en: cb9f6527, text: "Alpine exécute les expressions de vos attributs x- avec Function, ce qui demande 'unsafe-eval'." }
+  csp-build:
+    description:
+      # Use it instead of the standard build. Expressions can't reach globals such as document.title or console.log(), and x-html isn't available.
+      { en: ab6d58a2, text: "À utiliser à la place de la version standard. Les expressions n'ont pas accès aux variables globales comme document.title ou console.log(), et x-html n'est pas disponible." }
+    label:
+      # CSP build (no 'unsafe-eval')
+      { en: "65692341", text: "Version CSP (sans 'unsafe-eval')" }
+    reasons:
+      script:
+        # Loads Alpine's CSP build.
+        { en: 93acf5fd, text: "Charge la version CSP d'Alpine." }

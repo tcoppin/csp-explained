@@ -1,0 +1,18 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The address includes the major version; change it in your policy when you move to the next one.
+  { en: 5b5d3b43, text: "L'adresse contient la version majeure ; changez-la dans votre politique quand vous passez à la suivante." }
+features:
+  bundle:
+    label:
+      # Swiper bundle from jsDelivr
+      { en: 41ff2e81, text: "Bundle Swiper depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads Swiper's stylesheet.
+        { en: 7faa70f8, text: "Charge la feuille de style de Swiper." }
+      script:
+        # Loads Swiper.
+        { en: f6cfb663, text: "Charge Swiper." }

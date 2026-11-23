@@ -1,0 +1,21 @@
+id: vue
+name: Vue
+category: library
+website: https://vuejs.org
+sources:
+  - https://vuejs.org/guide/quick-start.html
+  - https://vuejs.org/guide/scaling-up/tooling.html
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Vue's docs give the CDN address but say nothing about a Content-Security-Policy. The build they show
+  (vue.global.js) compiles templates in the browser; what that needs under a CSP isn't documented, so
+  'unsafe-eval' isn't listed here. Builds named vue.runtime.* don't include the compiler.
+features:
+  - id: unpkg
+    label: Load Vue 3 from unpkg
+    default: true
+    requirements:
+      - type: script
+        sources: [https://unpkg.com/vue@3/]
+        reason: Loads Vue.

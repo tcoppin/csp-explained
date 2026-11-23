@@ -1,0 +1,135 @@
+id: hubspot
+name: HubSpot
+category: analytics
+website: https://www.hubspot.com
+sources:
+  - https://knowledge.hubspot.com/domains-and-urls/ssl-and-domain-security-in-hubspot
+lastVerified: 2026-11-23
+confidence: partial
+nonce:
+  supported: true
+  how: >-
+    On pages hosted by HubSpot, the "Enable nonce" setting adds a nonce to every script from HubSpot. On
+    your own site, HubSpot's page doesn't say how its scripts take a nonce.
+notes: >-
+  HubSpot's list is written for pages hosted on HubSpot; it's the only public list, so this entry applies it
+  to HubSpot's code on your own site. It covers accounts in HubSpot's main US data centre (NA1): EU1, NA2,
+  NA3 and AP1 accounts use other addresses, listed on the same page.
+features:
+  - id: tracking
+    label: Tracking code
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.hs-scripts.com, https://*.hs-analytics.net]
+        reason: Loads the tracking code and analytics.
+  - id: ads
+    label: Ads
+    requirements:
+      - type: script
+        sources: [https://*.hsadspixel.net]
+        reason: Loads HubSpot's ads pixel.
+  - id: cookie-banner
+    label: Cookie banner
+    requirements:
+      - type: script
+        sources: [https://*.hs-banner.com]
+        reason: Loads the cookie banner.
+      - type: connect
+        sources: [https://*.hs-banner.com]
+        reason: Saves the visitor's choice.
+  - id: forms
+    label: Forms and surveys
+    requirements:
+      - type: script
+        sources: [https://*.hsforms.net, https://*.hsforms.com, https://*.hsleadflows.net, https://*.hubspotfeedback.com, https://feedback.hubapi.com]
+        reason: Loads forms, pop-up forms and surveys.
+      - type: img
+        sources: [https://*.hsforms.net, https://*.hsforms.com]
+        reason: Form images.
+      - type: frame
+        sources: [https://*.hsforms.net, https://*.hsforms.com]
+        reason: Shows forms in frames.
+      - type: connect
+        sources: [https://*.hsforms.com, https://*.hubapi.com]
+        reason: Sends form submissions.
+  - id: collected-forms
+    label: Collect data from your own forms
+    requirements:
+      - type: script
+        sources: [https://*.hscollectedforms.net]
+        reason: Loads the script that reads non-HubSpot forms.
+      - type: connect
+        sources: [https://*.hscollectedforms.net]
+        reason: Sends what the forms collected.
+  - id: chat
+    label: Chat and chatflows
+    requirements:
+      - type: script
+        sources: [https://*.usemessages.com, https://*.hubspot.com]
+        reason: Loads the chat.
+      - type: img
+        sources: [https://*.hubspot.com]
+        reason: The chat's images.
+      - type: connect
+        sources: [https://*.hubspot.com]
+        reason: Sends and receives messages.
+      - type: frame
+        sources: [https://*.hubspot.com]
+        reason: Shows the chat.
+  - id: cta
+    label: Calls to action
+    requirements:
+      - type: script
+        sources: [https://js.hscta.net, https://js.hscta.com, https://*.hubspot.com]
+        reason: Loads calls to action.
+      - type: img
+        sources: [https://js.hscta.net, https://no-cache.hubspot.com, https://hsctaimages.net, https://*.hubspot.com]
+        reason: Call-to-action images and tracking pixel.
+      - type: connect
+        sources: [https://js.hscta.net, https://*.hubspot.com]
+        reason: Sends call-to-action events.
+      - type: frame
+        sources: [https://*.hs-sites.com, https://*.hubspot.com]
+        reason: Shows call-to-action pop-ups.
+  - id: files
+    label: Files hosted on HubSpot
+    requirements:
+      - type: script
+        sources:
+          - https://*.hubspotusercontent00.net
+          - https://*.hubspotusercontent10.net
+          - https://*.hubspotusercontent20.net
+          - https://*.hubspotusercontent30.net
+          - https://*.hubspotusercontent40.net
+          - https://*.hubspot.net
+          - https://static.hsappstatic.net
+        reason: Scripts stored in HubSpot.
+      - type: img
+        sources:
+          - https://*.hubspotusercontent00.net
+          - https://*.hubspotusercontent10.net
+          - https://*.hubspotusercontent20.net
+          - https://*.hubspotusercontent30.net
+          - https://*.hubspotusercontent40.net
+          - https://*.hubspot.net
+          - https://cdn2.hubspot.net
+        reason: Images stored in HubSpot.
+      - type: style
+        sources:
+          - https://*.hubspotusercontent00.net
+          - https://*.hubspotusercontent10.net
+          - https://*.hubspotusercontent20.net
+          - https://*.hubspotusercontent30.net
+          - https://*.hubspotusercontent40.net
+          - https://cdn2.hubspot.net
+        reason: Stylesheets stored in HubSpot.
+      - type: frame
+        sources: [https://*.hubspot.net]
+        reason: Files shown in frames.
+  - id: video
+    label: Videos
+    requirements:
+      - type: frame
+        sources: [https://play.hubspotvideo.com]
+        reason: Shows HubSpot videos.

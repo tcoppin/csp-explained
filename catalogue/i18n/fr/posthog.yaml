@@ -1,0 +1,50 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Set the nonce in posthog.init's prepare_external_dependency_script and prepare_external_dependency_stylesheet options: PostHog then puts it on the scripts and styles it loads.
+    { en: 0ba5515e, text: "Renseignez le nonce dans les options prepare_external_dependency_script et prepare_external_dependency_stylesheet de posthog.init : PostHog le met alors sur les scripts et styles qu'il charge." }
+notes:
+  # PostHog asks to allow *.posthog.com rather than its exact hosts, which change over time.
+  { en: 62c4e9d9, text: "PostHog demande d'autoriser *.posthog.com plutôt que ses hôtes exacts, qui changent avec le temps." }
+features:
+  tracking:
+    label:
+      # Product analytics and session replay
+      { en: a329f207, text: "Analyse produit et replay de sessions" }
+    reasons:
+      script:
+        # Loads the SDK and its features.
+        { en: 0e1c29d8, text: "Charge le SDK et ses fonctions." }
+      connect:
+        # Sends events and recordings.
+        { en: 669c8398, text: "Envoie les événements et les enregistrements." }
+      worker:
+        # Runs the session replay workers.
+        { en: e9b3310b, text: "Exécute les workers du replay de sessions." }
+  toolbar:
+    label:
+      # Toolbar
+      { en: 451aa51a, text: "Barre d'outils" }
+    reasons:
+      img:
+        # The toolbar's images.
+        { en: b48db704, text: "Images de la barre d'outils." }
+      style:
+        # The toolbar's styles.
+        { en: 0b042b85, text: "Styles de la barre d'outils." }
+      font:
+        # The toolbar's fonts.
+        { en: b969b873, text: "Polices de la barre d'outils." }
+      media:
+        # The toolbar's media.
+        { en: ab0a8ea4, text: "Médias de la barre d'outils." }
+  hedgehog:
+    label:
+      # Hedgehog mode (toolbar)
+      { en: ba446478, text: "Mode hérisson (barre d'outils)" }
+    reasons:
+      eval:
+        # Hedgehog mode needs 'unsafe-eval'; without it, it's turned off.
+        { en: 63346d4d, text: "Le mode hérisson demande 'unsafe-eval' ; sans lui, il est désactivé." }

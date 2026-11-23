@@ -1,0 +1,31 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # On jsDelivr and unpkg the address includes the version: when you upgrade, change it in your policy too.
+  { en: 146b2501, text: "Sur jsDelivr et unpkg, l'adresse contient la version : quand vous mettez à jour, changez-la aussi dans votre politique." }
+features:
+  jsdelivr:
+    label:
+      # From jsDelivr
+      { en: 478a577a, text: "Depuis jsDelivr" }
+    reasons:
+      script:
+        # Loads Underscore.
+        { en: a2c520e5, text: "Charge Underscore." }
+  unpkg:
+    label:
+      # From unpkg
+      { en: 57f93e1b, text: "Depuis unpkg" }
+    reasons:
+      script:
+        # Loads Underscore.
+        { en: a2c520e5, text: "Charge Underscore." }
+  cdnjs:
+    label:
+      # From cdnjs
+      { en: 9f07882b, text: "Depuis cdnjs" }
+    reasons:
+      script:
+        # Loads Underscore.
+        { en: a2c520e5, text: "Charge Underscore." }

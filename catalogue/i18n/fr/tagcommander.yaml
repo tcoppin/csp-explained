@@ -1,0 +1,49 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Tags fired by the container (analytics, ads, …) have their own requirements: check those tools too. With Commanders Act Gateway, scripts and measurement go through a path or domain of your own: allow 'self' (or that domain) in script-src, connect-src, img-src and frame-src instead. The consent banner is TrustCommander, a separate entry.
+  { en: d075f040, text: "Les tags déclenchés par le conteneur (mesure, publicité, …) ont leurs propres besoins : vérifiez aussi ces outils. Avec Commanders Act Gateway, les scripts et les mesures passent par un chemin ou un domaine à vous : autorisez plutôt 'self' (ou ce domaine) dans script-src, connect-src, img-src et frame-src. La bannière de consentement est TrustCommander, une fiche à part." }
+features:
+  tms:
+    label:
+      # Tag management (containers)
+      { en: "43631261", text: "Gestion de balises (conteneurs)" }
+    reasons:
+      script:
+        # Loads the containers.
+        { en: 1cc6d5f2, text: "Charge les conteneurs." }
+      img:
+        # Sends measurement as image pixels.
+        { en: 8bddfc37, text: "Envoie les mesures par des pixels." }
+      connect:
+        # Sends measurement requests.
+        { en: 2b2c992c, text: "Envoie les requêtes de mesure." }
+      frame:
+        # Frames some measurement methods use, Google's among them.
+        { en: e661fb56, text: "Cadres qu'utilisent certaines méthodes de mesure, dont celles de Google." }
+  campaign-analytics:
+    label:
+      # Campaign Analytics
+      { en: eb4d69e4, text: "Campaign Analytics" }
+    reasons:
+      script:
+        # Loads the Campaign Analytics script.
+        { en: "84382444", text: "Charge le script de Campaign Analytics." }
+      img:
+        # Sends campaign data as image pixels.
+        { en: 180f819e, text: "Envoie les données de campagne par des pixels." }
+  enrichment:
+    label:
+      # Enrichment & Segmentation
+      { en: f50d7e09, text: "Enrichment & Segmentation" }
+    reasons:
+      script:
+        # Loads the enrichment script.
+        { en: a29c5a39, text: "Charge le script d'enrichissement." }
+      img:
+        # Sends data as image pixels.
+        { en: ef40ebe7, text: "Envoie les données par des pixels." }
+      connect:
+        # Sends data to Commanders Act.
+        { en: 230bacdb, text: "Envoie les données à Commanders Act." }

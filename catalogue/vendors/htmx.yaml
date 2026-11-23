@@ -1,0 +1,49 @@
+id: htmx
+name: htmx
+category: library
+website: https://htmx.org
+sources:
+  - https://htmx.org/docs/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Set htmx.config.inlineStyleNonce and htmx.config.inlineScriptNonce to your page's nonce: htmx then
+    adds it to the styles and scripts it puts in the page.
+notes: >-
+  The address includes the version: when you upgrade htmx, change it in your policy too.
+features:
+  - id: library
+    label: Load htmx from jsDelivr
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/]
+        reason: Loads htmx.
+  - id: indicator-styles
+    label: Indicator styles
+    default: true
+    description: >-
+      On by default. Turn them off with htmx.config.includeIndicatorStyles = false, or set
+      htmx.config.inlineStyleNonce.
+    requirements:
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: htmx adds the loading indicators' styles to the page.
+  - id: eval
+    label: "Event filters, hx-on and js: values"
+    description: These features use eval. Turn them off with htmx.config.allowEval = false.
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: "Event filters, hx-on attributes and js: values in hx-vals and hx-headers run through eval."
+  - id: script-tags
+    label: Scripts in loaded content
+    description: >-
+      htmx runs <script> tags found in the HTML it loads. Set htmx.config.inlineScriptNonce instead,
+      or turn them off with htmx.config.allowScriptTags = false.
+    requirements:
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Runs the inline scripts in the content htmx loads.

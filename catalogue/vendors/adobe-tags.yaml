@@ -1,0 +1,39 @@
+id: adobe-tags
+name: Adobe Experience Platform Tags
+category: tag-management
+website: https://business.adobe.com/products/experience-platform/adobe-experience-platform.html
+sources:
+  - https://experienceleague.adobe.com/en/docs/experience-platform/tags/client-side/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Put your nonce in the data layer, create a data element that reads it, and set the Core extension to use
+    that data element; then publish. Adobe's tags then run custom code with the nonce, so 'unsafe-inline' isn't
+    needed. This needs the tag library loaded asynchronously.
+notes: >-
+  Formerly Adobe Launch. Tools fired by your rules (Analytics, Target, …) have their own requirements: check those
+  tools too.
+features:
+  - id: adobe-hosting
+    label: Library hosted by Adobe
+    default: true
+    requirements:
+      - type: script
+        sources: [https://assets.adobedtm.com]
+        reason: Loads the tag library.
+  - id: self-hosting
+    label: Library hosted on your site
+    requirements:
+      - type: script
+        sources: ["'self'"]
+        reason: Loads the tag library from your site.
+  - id: custom-code
+    label: Custom code in rules
+    default: true
+    description: Adobe calls this the least secure option; a nonce avoids it (see above).
+    requirements:
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Runs the custom code actions of your rules.

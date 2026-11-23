@@ -1,0 +1,25 @@
+id: amplitude
+name: Amplitude
+category: analytics
+website: https://amplitude.com
+sources:
+  - https://amplitude.com/docs/sdks/analytics/browser/browser-sdk-2/get-started
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Amplitude has no CSP page: its Browser SDK guide only mentions the policy in its troubleshooting table.
+  The script loader is an inline snippet; the guide doesn't say how to allow it, so 'unsafe-inline' is listed.
+features:
+  - id: browser-sdk
+    label: Browser SDK (script loader)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.amplitude.com]
+        reason: Loads the SDK.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The script loader is an inline snippet.
+      - type: connect
+        sources: [https://*.amplitude.com]
+        reason: Sends events.

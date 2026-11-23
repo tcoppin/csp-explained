@@ -1,0 +1,28 @@
+id: hcaptcha
+name: hCaptcha
+category: forms
+website: https://www.hcaptcha.com
+sources:
+  - https://docs.hcaptcha.com/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  hCaptcha asks not to list its exact asset hosts, which change over time and by region. Its Enterprise plan
+  offers an optional setup with 'unsafe-eval' and 'unsafe-inline' for extra checks; it isn't needed otherwise.
+features:
+  - id: widget
+    label: hCaptcha widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://hcaptcha.com, https://*.hcaptcha.com]
+        reason: Loads hCaptcha.
+      - type: frame
+        sources: [https://hcaptcha.com, https://*.hcaptcha.com]
+        reason: Shows the challenge.
+      - type: style
+        sources: [https://hcaptcha.com, https://*.hcaptcha.com]
+        reason: The widget's styles.
+      - type: connect
+        sources: [https://hcaptcha.com, https://*.hcaptcha.com]
+        reason: Sends the challenge's answers.

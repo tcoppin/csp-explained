@@ -1,0 +1,47 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Instead of 'unsafe-inline', Fullstory suggests adding the hash of your snippet to script-src, or loading the snippet from a file on your site. If the worker is blocked, recording carries on.
+  { en: 0dbbfbdd, text: "Au lieu de 'unsafe-inline', Fullstory propose d'ajouter le hash de votre snippet à script-src, ou de charger le snippet depuis un fichier de votre site. Si le worker est bloqué, l'enregistrement continue." }
+features:
+  capture:
+    label:
+      # Recording (US)
+      { en: e10c52eb, text: "Enregistrement (US)" }
+    reasons:
+      script:
+        # Loads the recording script.
+        { en: "02215310", text: "Charge le script d'enregistrement." }
+      inline-script:
+        # The snippet is written in the page (or allow its hash).
+        { en: 114b2504, text: "Le snippet est écrit dans la page (ou autorisez son hash)." }
+      connect:
+        # Sends recordings.
+        { en: c554f5a5, text: "Envoie les enregistrements." }
+      img:
+        # Sends data as image requests.
+        { en: 2dfff314, text: "Envoie des données par des requêtes d'image." }
+      worker:
+        # Runs the recording worker.
+        { en: 91f2f826, text: "Exécute le worker d'enregistrement." }
+  capture-eu:
+    label:
+      # Recording (EU)
+      { en: "02e04644", text: "Enregistrement (UE)" }
+    reasons:
+      script:
+        # Loads the recording script.
+        { en: "02215310", text: "Charge le script d'enregistrement." }
+      inline-script:
+        # The snippet is written in the page (or allow its hash).
+        { en: 114b2504, text: "Le snippet est écrit dans la page (ou autorisez son hash)." }
+      connect:
+        # Sends recordings.
+        { en: c554f5a5, text: "Envoie les enregistrements." }
+      img:
+        # Sends data as image requests.
+        { en: 2dfff314, text: "Envoie des données par des requêtes d'image." }
+      worker:
+        # Runs the recording worker.
+        { en: 91f2f826, text: "Exécute le worker d'enregistrement." }

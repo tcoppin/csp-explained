@@ -1,0 +1,52 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Set htmx.config.inlineStyleNonce and htmx.config.inlineScriptNonce to your page's nonce: htmx then adds it to the styles and scripts it puts in the page.
+    { en: b9cc755d, text: "Donnez le nonce de votre page à htmx.config.inlineStyleNonce et htmx.config.inlineScriptNonce : htmx l'ajoute alors aux styles et scripts qu'il met dans la page." }
+notes:
+  # The address includes the version: when you upgrade htmx, change it in your policy too.
+  { en: aebda417, text: "L'adresse contient la version : quand vous mettez à jour htmx, changez-la aussi dans votre politique." }
+features:
+  library:
+    label:
+      # Load htmx from jsDelivr
+      { en: e41f919a, text: "Charger htmx depuis jsDelivr" }
+    reasons:
+      script:
+        # Loads htmx.
+        { en: b252f0d3, text: "Charge htmx." }
+  indicator-styles:
+    description:
+      # On by default. Turn them off with htmx.config.includeIndicatorStyles = false, or set htmx.config.inlineStyleNonce.
+      { en: "193840e4", text: "Activés par défaut. Désactivez-les avec htmx.config.includeIndicatorStyles = false, ou renseignez htmx.config.inlineStyleNonce." }
+    label:
+      # Indicator styles
+      { en: 74dce415, text: "Styles des indicateurs" }
+    reasons:
+      inline-style:
+        # htmx adds the loading indicators' styles to the page.
+        { en: d2a2a63d, text: "htmx ajoute à la page les styles des indicateurs de chargement." }
+  eval:
+    description:
+      # These features use eval. Turn them off with htmx.config.allowEval = false.
+      { en: 0c4e3859, text: "Ces fonctions utilisent eval. Désactivez-les avec htmx.config.allowEval = false." }
+    label:
+      # Event filters, hx-on and js: values
+      { en: 8ec2ed04, text: "Filtres d'événements, hx-on et valeurs js:" }
+    reasons:
+      eval:
+        # Event filters, hx-on attributes and js: values in hx-vals and hx-headers run through eval.
+        { en: 0c989b70, text: "Les filtres d'événements, les attributs hx-on et les valeurs js: dans hx-vals et hx-headers passent par eval." }
+  script-tags:
+    description:
+      # htmx runs <script> tags found in the HTML it loads. Set htmx.config.inlineScriptNonce instead, or turn them off with htmx.config.allowScriptTags = false.
+      { en: "092698e7", text: "htmx exécute les balises <script> du HTML qu'il charge. Renseignez plutôt htmx.config.inlineScriptNonce, ou désactivez-les avec htmx.config.allowScriptTags = false." }
+    label:
+      # Scripts in loaded content
+      { en: d6199680, text: "Scripts dans le contenu chargé" }
+    reasons:
+      inline-script:
+        # Runs the inline scripts in the content htmx loads.
+        { en: 99db982e, text: "Exécute les scripts du contenu que charge htmx." }

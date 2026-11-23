@@ -1,0 +1,20 @@
+id: swiper
+name: Swiper
+category: library
+website: https://swiperjs.com
+sources:
+  - https://swiperjs.com/get-started
+lastVerified: 2026-11-23
+confidence: verified
+notes: The address includes the major version; change it in your policy when you move to the next one.
+features:
+  - id: bundle
+    label: Swiper bundle from jsDelivr
+    default: true
+    requirements:
+      - type: style
+        sources: [https://cdn.jsdelivr.net/npm/swiper@12/]
+        reason: Loads Swiper's stylesheet.
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/swiper@12/]
+        reason: Loads Swiper.

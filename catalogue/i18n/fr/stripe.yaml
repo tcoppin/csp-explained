@@ -1,0 +1,97 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # With Trusted Types, Stripe asks to let scripts from https://js.stripe.com and https://*.js.stripe.com through your default policy. Stripe doesn't support cross-origin isolated sites.
+  { en: 9baf6131, text: "Avec les Trusted Types, Stripe demande de laisser passer les scripts de https://js.stripe.com et https://*.js.stripe.com dans votre politique par défaut. Stripe ne prend pas en charge les sites isolés entre origines (cross-origin isolated)." }
+features:
+  stripe-js:
+    label:
+      # Stripe.js and Elements
+      { en: 8ecca9cb, text: "Stripe.js et Elements" }
+    reasons:
+      script:
+        # Loads Stripe.js.
+        { en: b12f662f, text: "Charge Stripe.js." }
+      frame:
+        # Shows the payment fields, and 3D Secure or other redirect-based payment methods.
+        { en: dc6cdd31, text: "Affiche les champs de paiement, ainsi que 3D Secure et les autres moyens de paiement avec redirection." }
+      connect:
+        # Sends payment details to Stripe.
+        { en: 6de3deed, text: "Envoie les informations de paiement à Stripe." }
+  address-autocomplete:
+    label:
+      # Address Element with your own Google Maps key
+      { en: 4fe8258d, text: "Address Element avec votre propre clé Google Maps" }
+    reasons:
+      script:
+        # Loads Google's address suggestions.
+        { en: 02302b70, text: "Charge les suggestions d'adresses de Google." }
+      connect:
+        # Asks Google for address suggestions.
+        { en: 74c1ea36, text: "Demande des suggestions d'adresses à Google." }
+  checkout:
+    label:
+      # Stripe Checkout
+      { en: 89ff22b1, text: "Stripe Checkout" }
+    reasons:
+      script:
+        # Loads Checkout.
+        { en: 1228a252, text: "Charge Checkout." }
+      frame:
+        # Shows Checkout.
+        { en: d290c94a, text: "Affiche Checkout." }
+      connect:
+        # Sends requests to Checkout.
+        { en: 58805ea9, text: "Envoie des requêtes à Checkout." }
+      img:
+        # Stripe's images.
+        { en: 94f545ae, text: "Images de Stripe." }
+  connect-embedded:
+    description:
+      # Adding a hash to style-src makes browsers ignore 'unsafe-inline' for styles, which can block your existing inline styles.
+      { en: 717dc0d7, text: "Ajouter un hash à style-src fait ignorer 'unsafe-inline' pour les styles par les navigateurs, ce qui peut bloquer vos styles existants écrits dans la page." }
+    label:
+      # Connect embedded components
+      { en: b2126d20, text: "Composants intégrés Connect" }
+    reasons:
+      script:
+        # Loads the embedded components.
+        { en: b533f565, text: "Charge les composants intégrés." }
+      frame:
+        # Shows the embedded components.
+        { en: b7dc307a, text: "Affiche les composants intégrés." }
+      img:
+        # Stripe's images.
+        { en: 94f545ae, text: "Images de Stripe." }
+      inline-style:
+        # Hash of the empty style element the components add.
+        { en: f186aeb7, text: "Hash de l'élément style vide qu'ajoutent les composants." }
+  link:
+    label:
+      # Link
+      { en: a6a32dbc, text: "Link" }
+    reasons:
+      frame:
+        # Shows Link.
+        { en: a04ef7ce, text: "Affiche Link." }
+      connect:
+        # Sends requests to Link.
+        { en: 44bfbaca, text: "Envoie des requêtes à Link." }
+      img:
+        # Link's images.
+        { en: aa62951c, text: "Images de Link." }
+  crypto:
+    label:
+      # Crypto onramp
+      { en: fa740c25, text: "Crypto onramp" }
+    reasons:
+      script:
+        # Loads the onramp script (don't host it yourself).
+        { en: 798da6bf, text: "Charge le script de l'onramp (ne l'hébergez pas vous-même)." }
+      frame:
+        # Shows the onramp.
+        { en: af2fbec6, text: "Affiche l'onramp." }
+      connect:
+        # Sends requests to the onramp.
+        { en: 4320a384, text: "Envoie des requêtes à l'onramp." }

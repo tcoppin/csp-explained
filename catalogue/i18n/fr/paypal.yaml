@@ -1,0 +1,37 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Add your nonce to script-src and style-src, and put it on the SDK's script tag twice: as nonce and as data-csp-nonce. PayPal then uses it instead of 'unsafe-inline'.
+    { en: "16251962", text: "Ajoutez votre nonce à script-src et style-src, et mettez-le deux fois sur la balise script du SDK : en nonce et en data-csp-nonce. PayPal l'utilise alors à la place de 'unsafe-inline'." }
+notes:
+  # For JavaScript SDK v5. PayPal also recommends the Cross-Origin-Opener-Policy header same-origin-allow-popups on pages that use the SDK.
+  { en: cdf8f9d0, text: "Pour le JavaScript SDK v5. PayPal recommande aussi l'en-tête Cross-Origin-Opener-Policy same-origin-allow-popups sur les pages qui utilisent le SDK." }
+features:
+  sdk:
+    label:
+      # Payment buttons and card fields
+      { en: 7eb69222, text: "Boutons de paiement et champs de carte" }
+    reasons:
+      script:
+        # Loads the SDK.
+        { en: 0a636ba6, text: "Charge le SDK." }
+      inline-script:
+        # Scripts the buttons need (or use a nonce).
+        { en: b605caac, text: "Scripts dont les boutons ont besoin (ou utilisez un nonce)." }
+      connect:
+        # Sends payment requests.
+        { en: 6394edba, text: "Envoie les demandes de paiement." }
+      frame:
+        # Shows the buttons and card fields.
+        { en: f289cb50, text: "Affiche les boutons et les champs de carte." }
+      img:
+        # Logos and images.
+        { en: 236f41be, text: "Logos et images." }
+      style:
+        # The buttons' styles.
+        { en: fb59fa9e, text: "Les styles des boutons." }
+      inline-style:
+        # Styles the buttons add (or use a nonce).
+        { en: 455df581, text: "Styles qu'ajoutent les boutons (ou utilisez un nonce)." }

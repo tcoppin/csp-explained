@@ -1,0 +1,62 @@
+id: google-maps
+name: Google Maps JavaScript API
+category: other
+website: https://developers.google.com/maps
+sources:
+  - https://developers.google.com/maps/documentation/javascript/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Google's recommended policy uses a nonce with 'strict-dynamic' in script-src (no Google addresses needed
+    there, but still 'unsafe-eval' and blob:), and a nonce in style-src instead of 'unsafe-inline'.
+notes: >-
+  Follows Google's allowlist example, which Google marks with a caution because 'unsafe-inline' lets injected
+  scripts run. Google's nonce-based example is safer: see how above.
+features:
+  - id: maps
+    label: Maps JavaScript API
+    default: true
+    requirements:
+      - type: script
+        sources:
+          - https://*.googleapis.com
+          - https://*.gstatic.com
+          - "*.google.com"
+          - https://*.ggpht.com
+          - "*.googleusercontent.com"
+          - "blob:"
+        reason: Loads the Maps scripts.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: In Google's allowlist example (not needed with a nonce).
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Needed in both of Google's examples.
+      - type: img
+        sources:
+          - https://*.googleapis.com
+          - https://*.gstatic.com
+          - "*.google.com"
+          - "*.googleusercontent.com"
+          - "data:"
+        reason: Map tiles, markers and images.
+      - type: frame
+        sources: ["*.google.com"]
+        reason: Frames Google adds to the map.
+      - type: connect
+        sources: [https://*.googleapis.com, "*.google.com", https://*.gstatic.com, "data:", "blob:"]
+        reason: Downloads map data.
+      - type: font
+        sources: [https://fonts.gstatic.com]
+        reason: The map's fonts.
+      - type: style
+        sources: [https://fonts.googleapis.com]
+        reason: The map's font stylesheet.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The map adds its styles to the page (or use a nonce).
+      - type: worker
+        sources: ["blob:"]
+        reason: Runs web workers created by the map.

@@ -1,0 +1,27 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Cloudflare recommends a nonce-based policy: put your nonce on the api.js script tag and Turnstile passes it on to what it loads. Turnstile works with 'strict-dynamic'.
+    { en: 2e21ae3c, text: "Cloudflare recommande une politique avec nonce : mettez votre nonce sur la balise script d'api.js et Turnstile le transmet à ce qu'il charge. Turnstile fonctionne avec 'strict-dynamic'." }
+features:
+  widget:
+    label:
+      # Turnstile widget
+      { en: e4561d41, text: "Widget Turnstile" }
+    reasons:
+      script:
+        # Loads Turnstile.
+        { en: 9ac02319, text: "Charge Turnstile." }
+      frame:
+        # Shows the challenge.
+        { en: d64a271a, text: "Affiche le défi." }
+  pre-clearance:
+    label:
+      # Pre-clearance
+      { en: e8fa7bae, text: "Pré-autorisation (pre-clearance)" }
+    reasons:
+      connect:
+        # Gets the clearance from your own site.
+        { en: 716c9cd0, text: "Obtient l'autorisation depuis votre propre site." }

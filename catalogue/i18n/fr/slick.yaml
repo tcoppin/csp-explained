@@ -1,0 +1,41 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Slick needs jQuery: see jQuery in the catalogue. Version 1.8.1 works with jQuery 3 or older; for jQuery 4, Slick's README points to its master branch on jsDelivr.
+  { en: fffbe3f4, text: "Slick a besoin de jQuery : voir jQuery dans le catalogue. La version 1.8.1 fonctionne avec jQuery 3 ou plus ancien ; pour jQuery 4, le README de Slick renvoie à sa branche master sur jsDelivr." }
+features:
+  v1-8:
+    label:
+      # Slick 1.8.1 from jsDelivr
+      { en: bf0a6630, text: "Slick 1.8.1 depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads Slick's stylesheets.
+        { en: 2cd08f1a, text: "Charge les feuilles de style de Slick." }
+      script:
+        # Loads Slick.
+        { en: 20a3e1d8, text: "Charge Slick." }
+      font:
+        # The arrows and dots font of the default theme, next to its stylesheet.
+        { en: 3fb86016, text: "La police des flèches et des points du thème par défaut, à côté de sa feuille de style." }
+      img:
+        # The default theme's loading image, next to its stylesheet.
+        { en: 96fe3062, text: "L'image de chargement du thème par défaut, à côté de sa feuille de style." }
+  master:
+    label:
+      # Slick master from jsDelivr (jQuery 4)
+      { en: 51ebc3a6, text: "Slick master depuis jsDelivr (jQuery 4)" }
+    reasons:
+      style:
+        # Loads Slick's stylesheets.
+        { en: 2cd08f1a, text: "Charge les feuilles de style de Slick." }
+      script:
+        # Loads Slick.
+        { en: 20a3e1d8, text: "Charge Slick." }
+      font:
+        # The arrows and dots font of the default theme, next to its stylesheet.
+        { en: 3fb86016, text: "La police des flèches et des points du thème par défaut, à côté de sa feuille de style." }
+      img:
+        # The default theme's loading image, next to its stylesheet.
+        { en: 96fe3062, text: "L'image de chargement du thème par défaut, à côté de sa feuille de style." }

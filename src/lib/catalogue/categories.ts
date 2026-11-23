@@ -10,6 +10,12 @@ export const CATEGORIES: Vendor['category'][] = [
   'session-replay',
   'consent',
   'chat',
+  'payments',
+  'forms',
+  'monitoring',
+  'library',
+  'fonts',
+  'cdn',
   'other',
 ];
 

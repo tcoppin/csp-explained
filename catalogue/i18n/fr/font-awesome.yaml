@@ -1,0 +1,26 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Font Awesome's public docs only name kit.fontawesome.com. A Kit then loads its icons and fonts from other Font Awesome addresses the docs don't list: check the browser console for what is blocked. The docs give no CDN address for version 6 or later.
+  { en: 43c87dbb, text: "La documentation publique de Font Awesome ne cite que kit.fontawesome.com. Un Kit charge ensuite ses icônes et polices depuis d'autres adresses de Font Awesome que la documentation ne liste pas : regardez dans la console du navigateur ce qui est bloqué. La documentation ne donne pas d'adresse de CDN pour la version 6 et suivantes." }
+features:
+  kit:
+    label:
+      # Kit (script embed code)
+      { en: "04303763", text: "Kit (code d'intégration en script)" }
+    reasons:
+      script:
+        # Loads your Kit.
+        { en: 29f5ada3, text: "Charge votre Kit." }
+  svg-js-styles:
+    description:
+      # To avoid this, add data-auto-add-css="false" to the script tag and link Font Awesome's svg-with-js.css stylesheet yourself.
+      { en: 4e62490d, text: "Pour l'éviter, ajoutez data-auto-add-css=\"false\" à la balise script et liez vous-même la feuille de style svg-with-js.css de Font Awesome." }
+    label:
+      # SVG with JavaScript, styles added automatically
+      { en: 30d7ed71, text: "SVG avec JavaScript, styles ajoutés automatiquement" }
+    reasons:
+      inline-style:
+        # The SVG with JavaScript library adds its CSS to the page's head.
+        { en: 7f5ad6c9, text: "La bibliothèque SVG avec JavaScript ajoute son CSS dans le head de la page." }

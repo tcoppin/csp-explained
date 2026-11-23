@@ -1,0 +1,25 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Since agent 1.247.0, put your nonce on the agent's inline script: the agent passes it on to what it loads, and only connect-src then needs New Relic. Not for the npm package.
+    { en: beaae748, text: "Depuis l'agent 1.247.0, mettez votre nonce sur le script de l'agent écrit dans la page : l'agent le transmet à ce qu'il charge, et seul connect-src a alors besoin de New Relic. Pas pour le paquet npm." }
+notes:
+  # New Relic's page writes unsafe-inline without its quotes; it needs them in a policy. Instead of *.nr-data.net you can list your region's hosts (bam.nr-data.net and bam-cell.nr-data.net in the US, bam.eu01.nr-data.net in the EU).
+  { en: 68b29e5c, text: "La page de New Relic écrit unsafe-inline sans ses apostrophes ; une politique en a besoin. Au lieu de *.nr-data.net, vous pouvez lister les hôtes de votre région (bam.nr-data.net et bam-cell.nr-data.net aux États-Unis, bam.eu01.nr-data.net dans l'UE)." }
+features:
+  agent:
+    label:
+      # Browser agent
+      { en: 3d0eb74d, text: "Agent navigateur" }
+    reasons:
+      script:
+        # Loads the agent's other files.
+        { en: f07a7740, text: "Charge les autres fichiers de l'agent." }
+      inline-script:
+        # The agent is installed as a script written in the page (or use a nonce).
+        { en: 050575c3, text: "L'agent s'installe par un script écrit dans la page (ou utilisez un nonce)." }
+      connect:
+        # Sends errors and performance data.
+        { en: f2399bf2, text: "Envoie les erreurs et les données de performance." }

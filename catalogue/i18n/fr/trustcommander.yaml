@@ -1,0 +1,21 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+features:
+  cmp:
+    label:
+      # Consent banner (CMP)
+      { en: "47675398", text: "Bannière de consentement (CMP)" }
+    reasons:
+      script:
+        # Loads the consent banner.
+        { en: 4dd94111, text: "Charge la bannière de consentement." }
+      img:
+        # Saves the visitor's choice as image pixels.
+        { en: 58219ac6, text: "Enregistre le choix du visiteur par des pixels." }
+      frame:
+        # Shows parts of the banner in frames.
+        { en: 6293fdee, text: "Affiche des parties de la bannière dans des cadres." }
+      connect:
+        # Saves the visitor's choice.
+        { en: 93c03b66, text: "Enregistre le choix du visiteur." }

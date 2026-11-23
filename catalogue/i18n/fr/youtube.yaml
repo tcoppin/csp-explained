@@ -1,0 +1,23 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # YouTube publishes no CSP page: these are the addresses its embedding docs use. The privacy-enhanced mode (www.youtube-nocookie.com) isn't covered; allow it in frame-src if you use it.
+  { en: e6bcb1f8, text: "YouTube ne publie pas de page sur la CSP : voici les adresses qu'utilise sa documentation d'intégration. Le mode de confidentialité renforcée (www.youtube-nocookie.com) n'est pas couvert ; autorisez-le dans frame-src si vous l'utilisez." }
+features:
+  embed:
+    label:
+      # Embedded player
+      { en: 4ac608bf, text: "Lecteur intégré" }
+    reasons:
+      frame:
+        # Shows the player.
+        { en: b3345190, text: "Affiche le lecteur." }
+  iframe-api:
+    label:
+      # IFrame Player API
+      { en: 20db2744, text: "API IFrame Player" }
+    reasons:
+      script:
+        # Loads the API that controls the player from your scripts.
+        { en: f4adbb1d, text: "Charge l'API qui contrôle le lecteur depuis vos scripts." }

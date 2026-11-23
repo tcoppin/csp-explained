@@ -1,0 +1,18 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Drift's example puts a semicolon between its two hosts, which would end the directive: both hosts belong in the same directive, separated by a space, as here.
+  { en: 026c10eb, text: "L'exemple de Drift met un point-virgule entre ses deux hôtes, ce qui terminerait la directive : les deux hôtes vont dans la même directive, séparés par une espace, comme ici." }
+features:
+  widget:
+    label:
+      # Chat widget
+      { en: ac7ef7fe, text: "Widget de chat" }
+    reasons:
+      script:
+        # Loads the widget.
+        { en: 0cca323b, text: "Charge le widget." }
+      frame:
+        # Shows the widget, which runs in a frame.
+        { en: 7aef1fac, text: "Affiche le widget, qui s'exécute dans un cadre." }

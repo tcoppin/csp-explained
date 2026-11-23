@@ -1,0 +1,22 @@
+id: drift
+name: Drift
+category: chat
+website: https://www.salesloft.com/platform/drift
+sources:
+  - https://devdocs.drift.com/docs/enabling-drift-in-your-apps-content-security-policy-csp
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Drift's example puts a semicolon between its two hosts, which would end the directive: both hosts belong in
+  the same directive, separated by a space, as here.
+features:
+  - id: widget
+    label: Chat widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://js.driftt.com, https://widget.drift.com]
+        reason: Loads the widget.
+      - type: frame
+        sources: [https://js.driftt.com, https://widget.drift.com]
+        reason: Shows the widget, which runs in a frame.

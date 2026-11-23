@@ -1,0 +1,51 @@
+id: tagcommander
+name: TagCommander (Commanders Act)
+category: tag-management
+website: https://www.commandersact.com
+sources:
+  - https://doc.commandersact.com/developers/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Tags fired by the container (analytics, ads, …) have their own requirements: check those tools too. With
+  Commanders Act Gateway, scripts and measurement go through a path or domain of your own: allow 'self' (or that
+  domain) in script-src, connect-src, img-src and frame-src instead. The consent banner is TrustCommander, a
+  separate entry.
+features:
+  - id: tms
+    label: Tag management (containers)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.tagcommander.com, https://*.commander1.com]
+        reason: Loads the containers.
+      - type: img
+        sources: [https://*.tagcommander.com, https://*.commander1.com]
+        reason: Sends measurement as image pixels.
+      - type: connect
+        sources: [https://*.commander1.com]
+        reason: Sends measurement requests.
+      - type: frame
+        sources: [https://*.tagcommander.com]
+        reason: Frames some measurement methods use, Google's among them.
+  - id: campaign-analytics
+    label: Campaign Analytics
+    requirements:
+      - type: script
+        sources: [https://*.tagcommander.com]
+        reason: Loads the Campaign Analytics script.
+      - type: img
+        sources: [https://*.commander1.com]
+        reason: Sends campaign data as image pixels.
+  - id: enrichment
+    label: Enrichment & Segmentation
+    requirements:
+      - type: script
+        sources: [https://*.tagcommander.com]
+        reason: Loads the enrichment script.
+      - type: img
+        sources: [https://*.commander1.com]
+        reason: Sends data as image pixels.
+      - type: connect
+        sources: [https://*.commander1.com]
+        reason: Sends data to Commanders Act.

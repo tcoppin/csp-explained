@@ -1,0 +1,30 @@
+id: turnstile
+name: Cloudflare Turnstile
+category: forms
+website: https://www.cloudflare.com/application-services/products/turnstile/
+sources:
+  - https://developers.cloudflare.com/turnstile/reference/content-security-policy/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Cloudflare recommends a nonce-based policy: put your nonce on the api.js script tag and Turnstile passes
+    it on to what it loads. Turnstile works with 'strict-dynamic'.
+features:
+  - id: widget
+    label: Turnstile widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://challenges.cloudflare.com]
+        reason: Loads Turnstile.
+      - type: frame
+        sources: [https://challenges.cloudflare.com]
+        reason: Shows the challenge.
+  - id: pre-clearance
+    label: Pre-clearance
+    requirements:
+      - type: connect
+        sources: ["'self'"]
+        reason: Gets the clearance from your own site.

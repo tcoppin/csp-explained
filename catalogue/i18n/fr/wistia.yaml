@@ -1,0 +1,38 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+features:
+  player:
+    label:
+      # Video player
+      { en: cf631351, text: "Lecteur vidéo" }
+    reasons:
+      script:
+        # Loads the player, its playback monitoring and its error reporting.
+        { en: 023354aa, text: "Charge le lecteur, son suivi de lecture et son signalement d'erreurs." }
+      connect:
+        # Player data, playback monitoring and transcript search.
+        { en: bb9c4ca1, text: "Données du lecteur, suivi de lecture et recherche dans les transcriptions." }
+      img:
+        # Thumbnails and player images.
+        { en: 30f1a0b5, text: "Vignettes et images du lecteur." }
+      media:
+        # Streams the videos.
+        { en: df3e03b1, text: "Diffuse les vidéos." }
+      font:
+        # The player's fonts.
+        { en: 8d5f8dc0, text: "Polices du lecteur." }
+      inline-style:
+        # The player's styles.
+        { en: ffd897f7, text: "Styles du lecteur." }
+      worker:
+        # The player's workers.
+        { en: 83c96566, text: "Workers du lecteur." }
+  iframe:
+    label:
+      # Iframe embeds
+      { en: efc893b7, text: "Intégrations en iframe" }
+    reasons:
+      frame:
+        # Shows the video in a frame.
+        { en: "43733570", text: "Affiche la vidéo dans un cadre." }

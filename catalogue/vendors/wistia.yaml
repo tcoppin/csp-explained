@@ -1,0 +1,40 @@
+id: wistia
+name: Wistia
+category: other
+website: https://wistia.com
+sources:
+  - https://docs.wistia.com/docs/how-to-create-a-wistia-friendly-content-security-policy-csp
+lastVerified: 2026-11-23
+confidence: verified
+features:
+  - id: player
+    label: Video player
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.wistia.com, https://*.wistia.net, https://src.litix.io, https://*.sentry-cdn.com]
+        reason: Loads the player, its playback monitoring and its error reporting.
+      - type: connect
+        sources: [https://*.wistia.com, https://*.wistia.net, https://*.litix.io, https://*.algolia.net]
+        reason: Player data, playback monitoring and transcript search.
+      - type: img
+        sources: [https://*.wistia.com, https://*.wistia.net, "data:"]
+        reason: Thumbnails and player images.
+      - type: media
+        sources: [https://*.wistia.com, https://*.wistia.net, "blob:", "data:"]
+        reason: Streams the videos.
+      - type: font
+        sources: [https://*.wistia.com, "data:"]
+        reason: The player's fonts.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The player's styles.
+      - type: worker
+        sources: ["blob:"]
+        reason: The player's workers.
+  - id: iframe
+    label: Iframe embeds
+    requirements:
+      - type: frame
+        sources: [https://fast.wistia.com, https://fast.wistia.net]
+        reason: Shows the video in a frame.

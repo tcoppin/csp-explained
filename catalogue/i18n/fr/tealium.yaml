@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Be careful with this entry: Tealium's page lists domains without saying which directive each one belongs to, so only the tag management domains are checked here, in script-src. The same page lists the Tealium Collect, data layer enrichment and API domains (collect.tealiumiq.com, visitor-service.tealiumiq.com, api.tealiumiq.com and one per region): add them where your browser's console says they are blocked. Tags loaded through Tealium iQ have their own requirements: check those tools too.
+  { en: 70f144d4, text: "Prudence avec cette fiche : la page de Tealium liste des domaines sans dire à quelle directive chacun appartient, donc seuls les domaines de gestion de balises sont vérifiés ici, dans script-src. La même page liste les domaines de Tealium Collect, d'enrichissement du data layer et de l'API (collect.tealiumiq.com, visitor-service.tealiumiq.com, api.tealiumiq.com et un par région) : ajoutez-les là où la console de votre navigateur les montre bloqués. Les tags chargés par Tealium iQ ont leurs propres besoins : vérifiez aussi ces outils." }
+features:
+  tag-management:
+    label:
+      # Tag management
+      { en: 94489e9e, text: "Gestion de balises" }
+    reasons:
+      script:
+        # Loads the Tealium iQ profile and its tags.
+        { en: 12fad0b9, text: "Charge le profil Tealium iQ et ses tags." }

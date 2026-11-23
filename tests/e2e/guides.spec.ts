@@ -128,11 +128,11 @@ test('a screen reader hears which tools use an address, once typing pauses, and 
   expect(await live(async () => {
     await find.fill('google.com');
     await page.waitForTimeout(600);
-  })).toEqual(['polite: No tool uses google.com itself. Addresses under it are used by Google Tag Manager, Google Analytics 4, and Google Ads.']);
+  })).toEqual(['polite: No tool uses google.com itself. Addresses under it are used by Google Tag Manager, Google Analytics 4, Google Ads, Google reCAPTCHA, and Google Maps JavaScript API.']);
   expect(await live(async () => {
     await find.fill('goo');
     await page.waitForTimeout(600);
-  })).toEqual(['polite: Found: Google Tag Manager, Google Analytics 4, and Google Ads.']);
+  })).toEqual(['polite: Found: Google Tag Manager, Google Analytics 4, Google Ads, Google reCAPTCHA, Google Fonts, and Google Maps JavaScript API.']);
   await expect(find).toBeFocused();
 
   await find.fill('csxd.contentsquare.net');

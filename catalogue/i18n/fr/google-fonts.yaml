@@ -1,0 +1,18 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+features:
+  embed:
+    label:
+      # Embed with a <link> tag
+      { en: da8a261b, text: "Intégration avec une balise <link>" }
+    reasons:
+      style:
+        # Loads the stylesheet that declares the fonts.
+        { en: 63b41a7d, text: "Charge la feuille de style qui déclare les polices." }
+      font:
+        # Loads the font files.
+        { en: dda14026, text: "Charge les fichiers de police." }
+notes:
+  # Google Fonts' FAQ says its requests go to fonts.googleapis.com and fonts.gstatic.com, and that the stylesheet comes first, then the font files it lists. Its other pages show the stylesheet coming from fonts.googleapis.com, and Google's Maps CSP page lists fonts.gstatic.com in font-src.
+  { en: 91d7d212, text: "La FAQ de Google Fonts dit que ses requêtes vont vers fonts.googleapis.com et fonts.gstatic.com, et que la feuille de style vient d'abord, puis les fichiers de polices qu'elle liste. Ses autres pages montrent la feuille de style venant de fonts.googleapis.com, et la page CSP de Google Maps liste fonts.gstatic.com dans font-src." }

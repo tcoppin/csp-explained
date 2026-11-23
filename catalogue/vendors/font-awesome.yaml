@@ -1,0 +1,30 @@
+id: font-awesome
+name: Font Awesome
+category: fonts
+website: https://fontawesome.com
+sources:
+  - https://docs.fontawesome.com/web/setup/use-kit
+  - https://docs.fontawesome.com/web/dig-deeper/security
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Font Awesome's public docs only name kit.fontawesome.com. A Kit then loads its icons and fonts from other
+  Font Awesome addresses the docs don't list: check the browser console for what is blocked. The docs give no
+  CDN address for version 6 or later.
+features:
+  - id: kit
+    label: Kit (script embed code)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://kit.fontawesome.com]
+        reason: Loads your Kit.
+  - id: svg-js-styles
+    label: SVG with JavaScript, styles added automatically
+    description: >-
+      To avoid this, add data-auto-add-css="false" to the script tag and link Font Awesome's svg-with-js.css
+      stylesheet yourself.
+    requirements:
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The SVG with JavaScript library adds its CSS to the page's head.

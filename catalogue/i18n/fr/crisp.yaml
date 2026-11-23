@@ -1,0 +1,36 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+features:
+  chatbox:
+    label:
+      # Chatbox
+      { en: 64cd3b34, text: "Chatbox" }
+    reasons:
+      script:
+        # Loads the chatbox.
+        { en: 4072663e, text: "Charge la chatbox." }
+      style:
+        # Loads the chatbox's styles.
+        { en: e5266984, text: "Charge les styles de la chatbox." }
+      inline-style:
+        # The chatbox adds styles to the page.
+        { en: cde4dc0f, text: "La chatbox ajoute des styles à la page." }
+      img:
+        # Avatars and images.
+        { en: 1d80cb74, text: "Avatars et images." }
+      font:
+        # The chatbox's fonts.
+        { en: 6adcead2, text: "Polices de la chatbox." }
+      media:
+        # Sounds and media.
+        { en: 7bfed9a4, text: "Sons et médias." }
+      frame:
+        # Frames in the chatbox, including Helpdesk articles.
+        { en: 736e76ac, text: "Cadres dans la chatbox, y compris les articles du centre d'aide." }
+      worker:
+        # The chatbox's web workers.
+        { en: 153625a3, text: "Web workers de la chatbox." }
+      connect:
+        # Sends and receives messages (over WebSocket), and uploads files.
+        { en: eec03340, text: "Envoie et reçoit les messages (par WebSocket) et envoie les fichiers." }

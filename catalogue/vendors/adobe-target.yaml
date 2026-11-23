@@ -1,0 +1,30 @@
+id: adobe-target
+name: Adobe Target
+category: experimentation
+website: https://business.adobe.com/products/target/adobe-target.html
+sources:
+  - https://experienceleague.adobe.com/en/docs/target-dev/developer/implementation/privacy/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Since at.js 2.3.0, set cspScriptNonce and cspStyleNonce in targetGlobalSettings: at.js puts them on the
+    scripts and styles it adds for offers, so 'unsafe-inline' isn't needed.
+notes: >-
+  For at.js 2.1 or later. Adobe's page writes unsafe-inline without its quotes; it needs them in a policy. When
+  at.js is loaded by Adobe Experience Platform Tags, see that entry too.
+features:
+  - id: at-js
+    label: at.js
+    default: true
+    requirements:
+      - type: connect
+        sources: [https://*.tt.omtrdc.net]
+        reason: Asks the Target edge which offers to show.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Pre-hiding and flicker control.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Runs the JavaScript an HTML offer may contain.

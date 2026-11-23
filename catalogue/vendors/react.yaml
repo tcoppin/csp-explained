@@ -1,0 +1,19 @@
+id: react
+name: React (CDN builds)
+category: library
+website: https://react.dev
+sources:
+  - https://legacy.reactjs.org/docs/cdn-links.html
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Only React's old documentation (React 18) gives CDN addresses; the current docs install React with a
+  build tool, which needs no CDN in the policy.
+features:
+  - id: react-18
+    label: React 18 from unpkg
+    default: true
+    requirements:
+      - type: script
+        sources: [https://unpkg.com/react@18/, https://unpkg.com/react-dom@18/]
+        reason: Loads React and React DOM.

@@ -1,0 +1,49 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # jQuery adds no scripts of its own. For the scripts it loads or runs for you, pass your page's nonce: the scriptAttrs option of $.ajax, or the nonce option of jQuery.globalEval (both since jQuery 3.4).
+    { en: f0b5db6a, text: "jQuery n'ajoute aucun script de lui-même. Pour les scripts qu'il charge ou exécute pour vous, passez le nonce de votre page : l'option scriptAttrs de $.ajax, ou l'option nonce de jQuery.globalEval (toutes deux depuis jQuery 3.4)." }
+notes:
+  # jQuery Migrate and jQuery UI from code.jquery.com are covered by the same source. HTML given to .html(), .append() and most other methods runs the scripts it contains: inline ones are blocked unless the policy allows them. jQuery 4 supports Trusted Types for all its manipulation methods. jQuery's download page also lists Microsoft's CDN, cdnjs and jsDelivr: see those CDNs in the catalogue.
+  { en: d2d6cf74, text: "jQuery Migrate et jQuery UI depuis code.jquery.com sont couverts par la même source. Le HTML passé à .html(), .append() et à la plupart des autres méthodes exécute les scripts qu'il contient : ceux écrits dans la page sont bloqués si la politique ne les autorise pas. jQuery 4 prend en charge les Trusted Types dans toutes ses méthodes de manipulation. La page de téléchargement de jQuery cite aussi le CDN de Microsoft, cdnjs et jsDelivr : voir ces CDN dans le catalogue." }
+features:
+  jquery-cdn:
+    label:
+      # From the jQuery CDN (code.jquery.com)
+      { en: bf22d1be, text: "Depuis le CDN de jQuery (code.jquery.com)" }
+    reasons:
+      script:
+        # Loads jQuery, jQuery Migrate or jQuery UI.
+        { en: 5481667e, text: "Charge jQuery, jQuery Migrate ou jQuery UI." }
+  jquery-ui-theme:
+    label:
+      # jQuery UI theme from the jQuery CDN
+      { en: f058e402, text: "Thème jQuery UI depuis le CDN de jQuery" }
+    reasons:
+      style:
+        # Loads the jQuery UI theme stylesheet.
+        { en: 782b6039, text: "Charge la feuille de style du thème jQuery UI." }
+      img:
+        # The theme's icon images, next to its stylesheet.
+        { en: ad0bac30, text: "Images des icônes du thème, à côté de sa feuille de style." }
+  google:
+    label:
+      # From Google Hosted Libraries
+      { en: b76a001f, text: "Depuis Google Hosted Libraries" }
+    reasons:
+      script:
+        # Loads jQuery from Google's CDN.
+        { en: a3902fab, text: "Charge jQuery depuis le CDN de Google." }
+  scripts-from-site:
+    description:
+      # jQuery 4 always runs these through a <script> element, so the policy must allow where they come from. On your own site that is 'self'; add other addresses if you fetch scripts from elsewhere.
+      { en: e7cab602, text: "jQuery 4 les exécute toujours par un élément <script>, donc la politique doit autoriser leur provenance. Sur votre propre site, c'est 'self' ; ajoutez d'autres adresses si vous chargez des scripts d'ailleurs." }
+    label:
+      # Scripts fetched with $.getScript or $.ajax
+      { en: 80d4f465, text: "Scripts chargés avec $.getScript ou $.ajax" }
+    reasons:
+      script:
+        # Runs scripts fetched with $.getScript or dataType "script".
+        { en: d8438410, text: "Exécute les scripts chargés avec $.getScript ou dataType \"script\"." }

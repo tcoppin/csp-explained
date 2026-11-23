@@ -1,0 +1,46 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Google's recommended policy uses a nonce with 'strict-dynamic' in script-src (no Google addresses needed there, but still 'unsafe-eval' and blob:), and a nonce in style-src instead of 'unsafe-inline'.
+    { en: c65b3873, text: "La politique recommandée par Google utilise un nonce avec 'strict-dynamic' dans script-src (sans adresse Google, mais toujours avec 'unsafe-eval' et blob:), et un nonce dans style-src au lieu de 'unsafe-inline'." }
+notes:
+  # Follows Google's allowlist example, which Google marks with a caution because 'unsafe-inline' lets injected scripts run. Google's nonce-based example is safer: see how above.
+  { en: d2594449, text: "Suit l'exemple par liste d'adresses de Google, que Google accompagne d'une mise en garde, car 'unsafe-inline' laisse s'exécuter les scripts injectés. L'exemple avec nonce de Google est plus sûr : voir comment ci-dessus." }
+features:
+  maps:
+    label:
+      # Maps JavaScript API
+      { en: 08755b90, text: "API Maps JavaScript" }
+    reasons:
+      script:
+        # Loads the Maps scripts.
+        { en: e6242a88, text: "Charge les scripts de Maps." }
+      inline-script:
+        # In Google's allowlist example (not needed with a nonce).
+        { en: 2c5c3bf8, text: "Présent dans l'exemple par liste d'adresses de Google (inutile avec un nonce)." }
+      eval:
+        # Needed in both of Google's examples.
+        { en: 04dfb7af, text: "Nécessaire dans les deux exemples de Google." }
+      img:
+        # Map tiles, markers and images.
+        { en: fb49f632, text: "Tuiles, marqueurs et images de la carte." }
+      frame:
+        # Frames Google adds to the map.
+        { en: 2a1cf8bb, text: "Cadres que Google ajoute à la carte." }
+      connect:
+        # Downloads map data.
+        { en: f908bfb9, text: "Télécharge les données de la carte." }
+      font:
+        # The map's fonts.
+        { en: 1fa8e05f, text: "Polices de la carte." }
+      style:
+        # The map's font stylesheet.
+        { en: 61a7a4da, text: "Feuille de style des polices de la carte." }
+      inline-style:
+        # The map adds its styles to the page (or use a nonce).
+        { en: aa28cf3e, text: "La carte ajoute ses styles à la page (ou utilisez un nonce)." }
+      worker:
+        # Runs web workers created by the map.
+        { en: 8b8dca1c, text: "Exécute les web workers créés par la carte." }

@@ -1,0 +1,30 @@
+id: recaptcha
+name: Google reCAPTCHA
+category: forms
+website: https://developers.google.com/recaptcha
+sources:
+  - https://developers.google.com/recaptcha/docs/faq
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Google recommends a nonce-based policy: put your nonce on the api.js script tag. reCAPTCHA also works
+    with 'strict-dynamic', and then none of the addresses below are needed in script-src.
+notes: >-
+  Google lets you load reCAPTCHA from www.recaptcha.net instead of www.google.com, but its CSP answer only
+  lists www.google.com: this entry follows it.
+features:
+  - id: widget
+    label: reCAPTCHA widget
+    default: true
+    requirements:
+      - type: script
+        sources: [https://www.google.com/recaptcha/, https://www.gstatic.com/recaptcha/]
+        reason: Loads reCAPTCHA.
+      - type: frame
+        sources: [https://www.google.com/recaptcha/, https://recaptcha.google.com/recaptcha/]
+        reason: Shows the challenge.
+      - type: connect
+        sources: [https://www.google.com/recaptcha/]
+        reason: Sends the challenge's answers to Google.

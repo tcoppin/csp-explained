@@ -1,0 +1,44 @@
+id: slick
+name: Slick carousel
+category: library
+website: https://kenwheeler.github.io/slick/
+sources:
+  - https://kenwheeler.github.io/slick/
+  - https://github.com/kenwheeler/slick
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Slick needs jQuery: see jQuery in the catalogue. Version 1.8.1 works with jQuery 3 or older; for jQuery 4,
+  Slick's README points to its master branch on jsDelivr.
+features:
+  - id: v1-8
+    label: Slick 1.8.1 from jsDelivr
+    default: true
+    requirements:
+      - type: style
+        sources: [https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/]
+        reason: Loads Slick's stylesheets.
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/]
+        reason: Loads Slick.
+      - type: font
+        sources: [https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/]
+        reason: The arrows and dots font of the default theme, next to its stylesheet.
+      - type: img
+        sources: [https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/]
+        reason: The default theme's loading image, next to its stylesheet.
+  - id: master
+    label: Slick master from jsDelivr (jQuery 4)
+    requirements:
+      - type: style
+        sources: [https://cdn.jsdelivr.net/gh/kenwheeler/slick@master/]
+        reason: Loads Slick's stylesheets.
+      - type: script
+        sources: [https://cdn.jsdelivr.net/gh/kenwheeler/slick@master/]
+        reason: Loads Slick.
+      - type: font
+        sources: [https://cdn.jsdelivr.net/gh/kenwheeler/slick@master/]
+        reason: The arrows and dots font of the default theme, next to its stylesheet.
+      - type: img
+        sources: [https://cdn.jsdelivr.net/gh/kenwheeler/slick@master/]
+        reason: The default theme's loading image, next to its stylesheet.

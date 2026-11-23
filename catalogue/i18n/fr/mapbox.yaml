@@ -1,0 +1,40 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Mapbox also offers a CSP build (mapbox-gl-csp.js) whose worker is a file on your site, for policies that can't allow blob: workers, and a list of exact API paths for stricter policies.
+  { en: 7b980c7b, text: "Mapbox propose aussi une version CSP (mapbox-gl-csp.js) dont le worker est un fichier de votre site, pour les politiques qui ne peuvent pas autoriser les workers blob:, et une liste de chemins d'API exacts pour des politiques plus strictes." }
+features:
+  map:
+    label:
+      # Map
+      { en: be176b00, text: "Carte" }
+    reasons:
+      worker:
+        # Draws the map in workers.
+        { en: 12dd4e82, text: "Dessine la carte dans des workers." }
+      img:
+        # Map images built in the page.
+        { en: 6803939e, text: "Images de la carte construites dans la page." }
+      connect:
+        # Downloads map data and sends usage events.
+        { en: 464004bd, text: "Télécharge les données de la carte et envoie les événements d'usage." }
+  cdn:
+    label:
+      # Mapbox GL JS from Mapbox's CDN
+      { en: "631582e4", text: "Mapbox GL JS depuis le CDN de Mapbox" }
+    reasons:
+      script:
+        # Loads Mapbox GL JS.
+        { en: c0142d88, text: "Charge Mapbox GL JS." }
+      style:
+        # Loads its stylesheet.
+        { en: 345d71bc, text: "Charge sa feuille de style." }
+  standard-3d:
+    label:
+      # Standard style or 3D models
+      { en: a187775a, text: "Style Standard ou modèles 3D" }
+    reasons:
+      eval:
+        # Runs WebAssembly.
+        { en: 3b889e5b, text: "Exécute du WebAssembly." }

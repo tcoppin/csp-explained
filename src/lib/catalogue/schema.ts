@@ -23,7 +23,7 @@ const FeatureSchema = z.object({
 export const VendorSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   name: z.string().min(1),
-  category: z.enum(['tag-management', 'analytics', 'advertising', 'experimentation', 'session-replay', 'consent', 'chat', 'other']),
+  category: z.enum(['tag-management', 'analytics', 'advertising', 'experimentation', 'session-replay', 'consent', 'chat', 'payments', 'forms', 'monitoring', 'library', 'fonts', 'cdn', 'other']),
   website: z.url(),
   /** Official documentation every requirement comes from. */
   sources: z.array(z.url()).min(1),

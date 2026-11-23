@@ -1,0 +1,25 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Since at.js 2.3.0, set cspScriptNonce and cspStyleNonce in targetGlobalSettings: at.js puts them on the scripts and styles it adds for offers, so 'unsafe-inline' isn't needed.
+    { en: 6faed696, text: "Depuis at.js 2.3.0, renseignez cspScriptNonce et cspStyleNonce dans targetGlobalSettings : at.js les met sur les scripts et styles qu'il ajoute pour les offres, donc 'unsafe-inline' n'est pas nécessaire." }
+notes:
+  # For at.js 2.1 or later. Adobe's page writes unsafe-inline without its quotes; it needs them in a policy. When at.js is loaded by Adobe Experience Platform Tags, see that entry too.
+  { en: 7f538e81, text: "Pour at.js 2.1 ou plus récent. La page d'Adobe écrit unsafe-inline sans ses apostrophes ; une politique en a besoin. Quand at.js est chargé par Adobe Experience Platform Tags, voyez aussi cette fiche." }
+features:
+  at-js:
+    label:
+      # at.js
+      { en: f5f220f6, text: "at.js" }
+    reasons:
+      connect:
+        # Asks the Target edge which offers to show.
+        { en: d27de47b, text: "Demande au serveur de Target quelles offres afficher." }
+      inline-style:
+        # Pre-hiding and flicker control.
+        { en: 073511f9, text: "Masquage préalable et contrôle du scintillement." }
+      inline-script:
+        # Runs the JavaScript an HTML offer may contain.
+        { en: e0f6164e, text: "Exécute le JavaScript que peut contenir une offre HTML." }

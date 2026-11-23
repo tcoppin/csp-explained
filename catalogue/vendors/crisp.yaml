@@ -1,0 +1,40 @@
+id: crisp
+name: Crisp
+category: chat
+website: https://crisp.chat
+sources:
+  - https://docs.crisp.chat/guides/others/whitelisting-our-systems/crisp-domain-names/
+lastVerified: 2026-11-23
+confidence: verified
+features:
+  - id: chatbox
+    label: Chatbox
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.crisp.chat]
+        reason: Loads the chatbox.
+      - type: style
+        sources: [https://*.crisp.chat]
+        reason: Loads the chatbox's styles.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The chatbox adds styles to the page.
+      - type: img
+        sources: [https://*.crisp.chat, "data:"]
+        reason: Avatars and images.
+      - type: font
+        sources: [https://*.crisp.chat]
+        reason: The chatbox's fonts.
+      - type: media
+        sources: [https://*.crisp.chat]
+        reason: Sounds and media.
+      - type: frame
+        sources: [https://*.crisp.chat, https://*.crisp.help]
+        reason: Frames in the chatbox, including Helpdesk articles.
+      - type: worker
+        sources: [https://*.crisp.chat, "blob:"]
+        reason: The chatbox's web workers.
+      - type: connect
+        sources: [https://*.crisp.chat, wss://*.relay.crisp.chat, wss://*.relay.rescue.crisp.chat]
+        reason: Sends and receives messages (over WebSocket), and uploads files.

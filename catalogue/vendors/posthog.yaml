@@ -1,0 +1,51 @@
+id: posthog
+name: PostHog
+category: analytics
+website: https://posthog.com
+sources:
+  - https://posthog.com/docs/advanced/content-security-policy
+  - https://posthog.com/docs/libraries/js/security
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Set the nonce in posthog.init's prepare_external_dependency_script and prepare_external_dependency_stylesheet
+    options: PostHog then puts it on the scripts and styles it loads.
+notes: >-
+  PostHog asks to allow *.posthog.com rather than its exact hosts, which change over time.
+features:
+  - id: tracking
+    label: Product analytics and session replay
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.posthog.com]
+        reason: Loads the SDK and its features.
+      - type: connect
+        sources: [https://*.posthog.com]
+        reason: Sends events and recordings.
+      - type: worker
+        sources: ["blob:", "data:"]
+        reason: Runs the session replay workers.
+  - id: toolbar
+    label: Toolbar
+    requirements:
+      - type: img
+        sources: [https://*.posthog.com]
+        reason: The toolbar's images.
+      - type: style
+        sources: [https://*.posthog.com]
+        reason: The toolbar's styles.
+      - type: font
+        sources: [https://*.posthog.com]
+        reason: The toolbar's fonts.
+      - type: media
+        sources: [https://*.posthog.com]
+        reason: The toolbar's media.
+  - id: hedgehog
+    label: Hedgehog mode (toolbar)
+    requirements:
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Hedgehog mode needs 'unsafe-eval'; without it, it's turned off.

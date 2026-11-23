@@ -1,0 +1,26 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Moment.js is a legacy project in maintenance mode.
+  { en: 9f1d7fad, text: "Moment.js est un projet ancien, en maintenance." }
+features:
+  cdnjs:
+    label:
+      # From cdnjs
+      { en: 9f07882b, text: "Depuis cdnjs" }
+    reasons:
+      script:
+        # Loads Moment.js.
+        { en: 4dde0746, text: "Charge Moment.js." }
+  jsdelivr:
+    description:
+      # The address includes the version; change it in your policy when you upgrade.
+      { en: 5ad57f57, text: "L'adresse contient la version ; changez-la dans votre politique quand vous mettez à jour." }
+    label:
+      # From jsDelivr
+      { en: 478a577a, text: "Depuis jsDelivr" }
+    reasons:
+      script:
+        # Loads Moment.js.
+        { en: 4dde0746, text: "Charge Moment.js." }

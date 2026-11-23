@@ -1,0 +1,40 @@
+id: mapbox
+name: Mapbox GL JS
+category: other
+website: https://www.mapbox.com
+sources:
+  - https://docs.mapbox.com/mapbox-gl-js/guides/security-and-testing/
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Mapbox also offers a CSP build (mapbox-gl-csp.js) whose worker is a file on your site, for policies that can't
+  allow blob: workers, and a list of exact API paths for stricter policies.
+features:
+  - id: map
+    label: Map
+    default: true
+    requirements:
+      - type: worker
+        sources: ["blob:"]
+        reason: Draws the map in workers.
+      - type: img
+        sources: ["data:", "blob:"]
+        reason: Map images built in the page.
+      - type: connect
+        sources: [https://api.mapbox.com, https://events.mapbox.com]
+        reason: Downloads map data and sends usage events.
+  - id: cdn
+    label: Mapbox GL JS from Mapbox's CDN
+    requirements:
+      - type: script
+        sources: [https://api.mapbox.com/mapbox-gl-js/]
+        reason: Loads Mapbox GL JS.
+      - type: style
+        sources: [https://api.mapbox.com/mapbox-gl-js/]
+        reason: Loads its stylesheet.
+  - id: standard-3d
+    label: Standard style or 3D models
+    requirements:
+      - type: eval
+        sources: ["'wasm-unsafe-eval'"]
+        reason: Runs WebAssembly.

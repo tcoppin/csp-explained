@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Vue's docs give the CDN address but say nothing about a Content-Security-Policy. The build they show (vue.global.js) compiles templates in the browser; what that needs under a CSP isn't documented, so 'unsafe-eval' isn't listed here. Builds named vue.runtime.* don't include the compiler.
+  { en: 386c9f93, text: "La documentation de Vue donne l'adresse du CDN, mais ne dit rien de la Content-Security-Policy. La version qu'elle montre (vue.global.js) compile les templates dans le navigateur ; ce que cela demande dans une CSP n'est pas documenté, donc 'unsafe-eval' n'est pas listé ici. Les versions nommées vue.runtime.* ne contiennent pas le compilateur." }
+features:
+  unpkg:
+    label:
+      # Load Vue 3 from unpkg
+      { en: ab0683dd, text: "Charger Vue 3 depuis unpkg" }
+    reasons:
+      script:
+        # Loads Vue.
+        { en: 1ce5b931, text: "Charge Vue." }

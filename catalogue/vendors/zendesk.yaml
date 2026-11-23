@@ -1,0 +1,66 @@
+id: zendesk
+name: Zendesk Web Widget
+category: chat
+website: https://www.zendesk.com
+sources:
+  - https://developer.zendesk.com/documentation/zendesk-web-widget-sdks/sdks/web/csp/
+  - https://developer.zendesk.com/documentation/classic-web-widget-sdks/web-widget/integrating-with-google/csp/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Zendesk recommends Google's strict CSP: add your nonce to the Web Widget snippet. Zendesk doesn't guarantee
+    the widget under other policies.
+notes: >-
+  Zendesk lists these addresses in default-src and asks to add them to script-src and connect-src when you
+  have those directives. Its list also has https://*.ingest.*.sentry.io, which isn't a valid CSP source (a
+  wildcard can only come first) and is left out.
+features:
+  - id: messaging
+    label: Web Widget (messaging)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.zdassets.com, https://*.zendesk.com, https://*.smooch.io, https://*.twilio.com]
+        reason: Loads the widget.
+      - type: connect
+        sources:
+          - https://*.zdassets.com
+          - https://*.zendesk.com
+          - https://*.smooch.io
+          - https://*.twilio.com
+          - wss://*.zendesk.com
+          - wss://api.smooch.io
+          - wss://voice-js.roaming.twilio.com
+        reason: Sends and receives messages (including over WebSocket) and voice calls.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The widget adds styles to the page.
+      - type: img
+        sources:
+          - https://static.zdassets.com
+          - https://*.zendesk.com
+          - https://media.smooch.io
+          - https://*.zdusercontent.com
+          - "blob:"
+          - "data:"
+        reason: Images and attachments in conversations.
+      - type: media
+        sources: [https://static.zdassets.com]
+        reason: The widget's sounds.
+  - id: classic
+    label: Web Widget (Classic)
+    requirements:
+      - type: script
+        sources: [https://*.zdassets.com, https://*.zendesk.com, https://*.zopim.com]
+        reason: Loads the widget.
+      - type: connect
+        sources: [https://*.zdassets.com, https://*.zendesk.com, https://*.zopim.com, wss://*.zendesk.com, wss://*.zopim.com]
+        reason: Sends and receives messages (including over WebSocket).
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The widget adds styles to the page.
+      - type: img
+        sources: [https://v2assets.zopim.io, https://static.zdassets.com, "data:"]
+        reason: The widget's images.

@@ -1,0 +1,19 @@
+id: d3
+name: D3
+category: library
+website: https://d3js.org
+sources:
+  - https://d3js.org/getting-started
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Covers the UMD bundle at the exact address D3's docs give. The ES module bundle (d3@7/+esm), which D3
+  recommends, may import other packages from jsDelivr; its docs don't say which.
+features:
+  - id: umd
+    label: UMD bundle from jsDelivr
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/d3@7]
+        reason: Loads D3.

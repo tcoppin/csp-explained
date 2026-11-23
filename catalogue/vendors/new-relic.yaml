@@ -1,0 +1,31 @@
+id: new-relic
+name: New Relic Browser
+category: monitoring
+website: https://newrelic.com
+sources:
+  - https://docs.newrelic.com/docs/browser/new-relic-browser/getting-started/compatibility-requirements-browser-monitoring/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Since agent 1.247.0, put your nonce on the agent's inline script: the agent passes it on to what it loads, and
+    only connect-src then needs New Relic. Not for the npm package.
+notes: >-
+  New Relic's page writes unsafe-inline without its quotes; it needs them in a policy. Instead of *.nr-data.net
+  you can list your region's hosts (bam.nr-data.net and bam-cell.nr-data.net in the US, bam.eu01.nr-data.net in
+  the EU).
+features:
+  - id: agent
+    label: Browser agent
+    default: true
+    requirements:
+      - type: script
+        sources: [https://js-agent.newrelic.com]
+        reason: Loads the agent's other files.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The agent is installed as a script written in the page (or use a nonce).
+      - type: connect
+        sources: [https://*.nr-data.net]
+        reason: Sends errors and performance data.

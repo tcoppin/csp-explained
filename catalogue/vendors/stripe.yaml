@@ -1,0 +1,91 @@
+id: stripe
+name: Stripe.js
+category: payments
+website: https://stripe.com
+sources:
+  - https://docs.stripe.com/security/guide
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  With Trusted Types, Stripe asks to let scripts from https://js.stripe.com and https://*.js.stripe.com
+  through your default policy. Stripe doesn't support cross-origin isolated sites.
+features:
+  - id: stripe-js
+    label: Stripe.js and Elements
+    default: true
+    requirements:
+      - type: script
+        sources: [https://js.stripe.com, https://*.js.stripe.com]
+        reason: Loads Stripe.js.
+      - type: frame
+        sources: [https://js.stripe.com, https://*.js.stripe.com, https://hooks.stripe.com]
+        reason: Shows the payment fields, and 3D Secure or other redirect-based payment methods.
+      - type: connect
+        sources: [https://api.stripe.com]
+        reason: Sends payment details to Stripe.
+  - id: address-autocomplete
+    label: Address Element with your own Google Maps key
+    requirements:
+      - type: script
+        sources: [https://maps.googleapis.com]
+        reason: Loads Google's address suggestions.
+      - type: connect
+        sources: [https://maps.googleapis.com]
+        reason: Asks Google for address suggestions.
+  - id: checkout
+    label: Stripe Checkout
+    requirements:
+      - type: script
+        sources: [https://checkout.stripe.com]
+        reason: Loads Checkout.
+      - type: frame
+        sources: [https://checkout.stripe.com]
+        reason: Shows Checkout.
+      - type: connect
+        sources: [https://checkout.stripe.com]
+        reason: Sends requests to Checkout.
+      - type: img
+        sources: [https://*.stripe.com]
+        reason: Stripe's images.
+  - id: connect-embedded
+    label: Connect embedded components
+    description: >-
+      Adding a hash to style-src makes browsers ignore 'unsafe-inline' for styles, which can block your
+      existing inline styles.
+    requirements:
+      - type: script
+        sources: [https://connect-js.stripe.com, https://js.stripe.com]
+        reason: Loads the embedded components.
+      - type: frame
+        sources: [https://connect-js.stripe.com, https://js.stripe.com]
+        reason: Shows the embedded components.
+      - type: img
+        sources: [https://*.stripe.com]
+        reason: Stripe's images.
+      - type: inline-style
+        sources: ["'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk='"]
+        reason: Hash of the empty style element the components add.
+  - id: link
+    label: Link
+    requirements:
+      - type: frame
+        sources: [https://link.com, https://*.link.com]
+        reason: Shows Link.
+      - type: connect
+        sources: [https://link.com, https://*.link.com]
+        reason: Sends requests to Link.
+      - type: img
+        sources: [https://*.link.com]
+        reason: Link's images.
+  - id: crypto
+    label: Crypto onramp
+    requirements:
+      - type: script
+        sources: [https://crypto-js.stripe.com]
+        reason: Loads the onramp script (don't host it yourself).
+      - type: frame
+        sources: [https://crypto.link.com]
+        reason: Shows the onramp.
+      - type: connect
+        sources: [https://crypto.link.com]
+        reason: Sends requests to the onramp.

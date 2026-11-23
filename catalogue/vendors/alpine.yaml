@@ -1,0 +1,34 @@
+id: alpine
+name: Alpine.js
+category: library
+website: https://alpinejs.dev
+sources:
+  - https://alpinejs.dev/essentials/installation
+  - https://alpinejs.dev/advanced/csp
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Put the nonce on the Alpine script tag and on the script where you register your components with
+    Alpine.data(). Alpine's own example pairs it with 'strict-dynamic'.
+features:
+  - id: standard
+    label: Standard build
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/]
+        reason: Loads Alpine.
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Alpine runs the expressions in your x- attributes with Function, which needs 'unsafe-eval'.
+  - id: csp-build
+    label: CSP build (no 'unsafe-eval')
+    description: >-
+      Use it instead of the standard build. Expressions can't reach globals such as document.title or
+      console.log(), and x-html isn't available.
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/@alpinejs/csp@3.x.x/]
+        reason: Loads Alpine's CSP build.

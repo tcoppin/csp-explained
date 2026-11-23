@@ -85,6 +85,20 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
       confirm with Didomi. Its documented nonce covers injected styles only.
 - [ ] Piano Analytics: the official page covers the CDN-hosted SDK only; add a self-hosted SDK and custom
       collection domains (CDDC) if Piano documents them.
+- [ ] Font Awesome: the public docs only name `kit.fontawesome.com`, not the hosts a Kit loads icons and fonts from,
+      and give no CDN address for version 6 or later.
+- [ ] Vue: the docs don't say what the in-browser template compiler (`vue.global.js`) needs (`'unsafe-eval'`?).
+- [ ] Tailwind Play CDN: the docs don't say how the generated styles are added (injected `<style>`?).
+- [ ] D3: the recommended ES module bundle (`d3@7/+esm`) may import other jsDelivr packages; only the UMD bundle
+      is covered.
+- [ ] Amplitude: no CSP page, only two rows of the Browser SDK troubleshooting table; nothing on the inline loader.
+- [ ] YouTube: no CSP page; the entry uses the embedding docs' addresses. `www.youtube-nocookie.com` isn't covered.
+- [ ] HubSpot: the public list is written for HubSpot-hosted pages; the entry covers the NA1 data centre only
+      (EU1, NA2, NA3 and AP1 addresses as separate features).
+- [ ] Libraries on jsDelivr and unpkg are pinned to the version their docs show (Bootstrap 5.3.9, htmx 2.0.11, …):
+      update them when the docs move to a new version (the weekly watcher reports the new address).
+- [ ] Tealium iQ: the official page lists the Collect, data layer enrichment and API domains without directives;
+      only the tag management domains are checked (script-src). Ask Tealium which directive each belongs to.
 - Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
 
 ### To add from public documentation (contributions welcome)
@@ -97,8 +111,17 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
       tag code.
 - [ ] Matomo: the public FAQ is complete, but describes the site's own Matomo server, an address the catalogue
       can't know (Matomo Cloud domains, or a field to type it in, would solve it).
-- [ ] Not looked into yet: Segment, Mixpanel, Amplitude, HubSpot, Zendesk, Crisp, Stripe.js, YouTube and Vimeo
-      embeds, reCAPTCHA, Cloudflare Turnstile.
+- [ ] No official CSP page found (2026-11-23): Mouseflow, Quantum Metric, Heap, Plausible, Microsoft Advertising
+      UET, Sentry (its pages cover sending CSP reports to Sentry, not what the browser SDK needs).
+- [ ] Vimeo: the developer site only renders with JavaScript, and the help centre has no CSP article.
+- [ ] Mixpanel: no CSP page; the JavaScript SDK page names `cdn.mxpnl.com` and regional API hosts only.
+- [ ] Libraries whose docs couldn't give a CDN address (checked 2026-11-23): GSAP and Three.js (install pages
+      render with JavaScript), AngularJS (docs render with JavaScript), Lodash (links to jsDelivr's project page
+      only), Chart.js (links to the CDNs' pages only), Select2 and Fancybox (version unreadable in the page),
+      Lottie and Modernizr (no CDN address). Modernizr's ES5 detect is said to use `eval()`: confirm on its
+      download page.
+- [ ] Microsoft Ajax CDN (`ajax.aspnetcdn.com`), listed on jQuery's download page: check whether Microsoft still
+      documents it.
 
 ### Private documentation (only with the vendor's approval)
 

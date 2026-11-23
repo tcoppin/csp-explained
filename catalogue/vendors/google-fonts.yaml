@@ -1,0 +1,26 @@
+id: google-fonts
+name: Google Fonts
+category: fonts
+website: https://fonts.google.com
+sources:
+  - https://developers.google.com/fonts/docs/getting_started
+  - https://developers.google.com/fonts/docs/css2
+  - https://developers.google.com/fonts/faq
+  - https://developers.google.com/maps/documentation/javascript/content-security-policy
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Google Fonts' FAQ says its requests go to fonts.googleapis.com and fonts.gstatic.com, and that the stylesheet
+  comes first, then the font files it lists. Its other pages show the stylesheet coming from fonts.googleapis.com,
+  and Google's Maps CSP page lists fonts.gstatic.com in font-src.
+features:
+  - id: embed
+    label: Embed with a <link> tag
+    default: true
+    requirements:
+      - type: style
+        sources: [https://fonts.googleapis.com]
+        reason: Loads the stylesheet that declares the fonts.
+      - type: font
+        sources: [https://fonts.gstatic.com]
+        reason: Loads the font files.

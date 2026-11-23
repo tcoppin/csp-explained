@@ -1,0 +1,48 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Zendesk recommends Google's strict CSP: add your nonce to the Web Widget snippet. Zendesk doesn't guarantee the widget under other policies.
+    { en: 39a60b1e, text: "Zendesk recommande la CSP stricte de Google : ajoutez votre nonce au snippet du Web Widget. Zendesk ne garantit pas le widget avec d'autres politiques." }
+notes:
+  # Zendesk lists these addresses in default-src and asks to add them to script-src and connect-src when you have those directives. Its list also has https://*.ingest.*.sentry.io, which isn't a valid CSP source (a wildcard can only come first) and is left out.
+  { en: 91c4eebc, text: "Zendesk liste ces adresses dans default-src et demande de les ajouter à script-src et connect-src si vous avez ces directives. Sa liste contient aussi https://*.ingest.*.sentry.io, qui n'est pas une source CSP valide (un joker ne peut venir qu'en premier) et n'est pas reprise." }
+features:
+  messaging:
+    label:
+      # Web Widget (messaging)
+      { en: 74def7c5, text: "Web Widget (messagerie)" }
+    reasons:
+      script:
+        # Loads the widget.
+        { en: 0cca323b, text: "Charge le widget." }
+      connect:
+        # Sends and receives messages (including over WebSocket) and voice calls.
+        { en: 8bc80b7c, text: "Envoie et reçoit les messages (y compris par WebSocket) et les appels vocaux." }
+      inline-style:
+        # The widget adds styles to the page.
+        { en: 7c10cdec, text: "Le widget ajoute des styles à la page." }
+      img:
+        # Images and attachments in conversations.
+        { en: def76ef6, text: "Images et pièces jointes des conversations." }
+      media:
+        # The widget's sounds.
+        { en: 5c7d2323, text: "Sons du widget." }
+  classic:
+    label:
+      # Web Widget (Classic)
+      { en: 985a0b20, text: "Web Widget (Classic)" }
+    reasons:
+      script:
+        # Loads the widget.
+        { en: 0cca323b, text: "Charge le widget." }
+      connect:
+        # Sends and receives messages (including over WebSocket).
+        { en: e8edd4ed, text: "Envoie et reçoit les messages (y compris par WebSocket)." }
+      inline-style:
+        # The widget adds styles to the page.
+        { en: 7c10cdec, text: "Le widget ajoute des styles à la page." }
+      img:
+        # The widget's images.
+        { en: 0ea9fc72, text: "Images du widget." }

@@ -406,6 +406,12 @@
     "session-replay": "Replay de sessions et heatmaps",
     "consent": "Gestion du consentement",
     "chat": "Chat et support",
+    "payments": "Paiement",
+    "forms": "Formulaires et protection anti-robots",
+    "monitoring": "Suivi des erreurs et des performances",
+    "library": "Bibliothèques et frameworks",
+    "fonts": "Polices et icônes",
+    "cdn": "CDN publics",
     "other": "Autres"
   },
   "sketch": {

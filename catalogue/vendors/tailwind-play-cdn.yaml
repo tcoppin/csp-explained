@@ -1,0 +1,19 @@
+id: tailwind-play-cdn
+name: Tailwind CSS Play CDN
+category: library
+website: https://tailwindcss.com
+sources:
+  - https://tailwindcss.com/docs/installation/play-cdn
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Tailwind says the Play CDN is for development only, not for production. Its page doesn't say how it
+  adds the styles it generates, so what that needs under a CSP isn't listed here.
+features:
+  - id: play-cdn
+    label: Play CDN script
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4/]
+        reason: Loads the script that builds Tailwind's styles in the browser.

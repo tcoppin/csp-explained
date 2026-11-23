@@ -1,0 +1,49 @@
+id: fullstory
+name: Fullstory
+category: session-replay
+website: https://www.fullstory.com
+sources:
+  - https://help.fullstory.com/hc/en-us/articles/360020622854-Can-I-use-Content-Security-Policy-CSP-with-Fullstory
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Instead of 'unsafe-inline', Fullstory suggests adding the hash of your snippet to script-src, or loading the
+  snippet from a file on your site. If the worker is blocked, recording carries on.
+features:
+  - id: capture
+    label: Recording (US)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://edge.fullstory.com, https://rs.fullstory.com]
+        reason: Loads the recording script.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The snippet is written in the page (or allow its hash).
+      - type: connect
+        sources: [https://edge.fullstory.com, https://rs.fullstory.com]
+        reason: Sends recordings.
+      - type: img
+        sources: [https://rs.fullstory.com]
+        reason: Sends data as image requests.
+      - type: worker
+        sources: ["blob:"]
+        reason: Runs the recording worker.
+  - id: capture-eu
+    label: Recording (EU)
+    requirements:
+      - type: script
+        sources: [https://edge.eu1.fullstory.com, https://rs.eu1.fullstory.com]
+        reason: Loads the recording script.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The snippet is written in the page (or allow its hash).
+      - type: connect
+        sources: [https://edge.eu1.fullstory.com, https://rs.eu1.fullstory.com]
+        reason: Sends recordings.
+      - type: img
+        sources: [https://rs.eu1.fullstory.com]
+        reason: Sends data as image requests.
+      - type: worker
+        sources: ["blob:"]
+        reason: Runs the recording worker.

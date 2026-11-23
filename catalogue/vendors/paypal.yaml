@@ -1,0 +1,42 @@
+id: paypal
+name: PayPal JavaScript SDK
+category: payments
+website: https://developer.paypal.com
+sources:
+  - https://developer.paypal.com/sdk/js/csp/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Add your nonce to script-src and style-src, and put it on the SDK's script tag twice: as nonce and as
+    data-csp-nonce. PayPal then uses it instead of 'unsafe-inline'.
+notes: >-
+  For JavaScript SDK v5. PayPal also recommends the Cross-Origin-Opener-Policy header same-origin-allow-popups on
+  pages that use the SDK.
+features:
+  - id: sdk
+    label: Payment buttons and card fields
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.paypal.com, https://*.paypalobjects.com, https://*.venmo.com]
+        reason: Loads the SDK.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: Scripts the buttons need (or use a nonce).
+      - type: connect
+        sources: [https://*.paypal.com, https://*.paypalobjects.com, https://*.venmo.com]
+        reason: Sends payment requests.
+      - type: frame
+        sources: [https://*.paypal.com, https://*.paypalobjects.com, https://*.venmo.com]
+        reason: Shows the buttons and card fields.
+      - type: img
+        sources: [https://*.paypal.com, https://*.paypalobjects.com, https://*.venmo.com, "data:"]
+        reason: Logos and images.
+      - type: style
+        sources: [https://*.paypal.com, https://*.paypalobjects.com, https://*.venmo.com]
+        reason: The buttons' styles.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Styles the buttons add (or use a nonce).

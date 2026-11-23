@@ -1,0 +1,35 @@
+id: friendly-captcha
+name: Friendly Captcha
+category: forms
+website: https://friendlycaptcha.com
+sources:
+  - https://developer.friendlycaptcha.com/docs/v2/guides/csp
+  - https://developer.friendlycaptcha.com/docs/v1/guides/csp
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: For version 1, Friendly Captcha recommends putting your nonce on the widget's script tags.
+features:
+  - id: v2
+    label: Version 2
+    default: true
+    requirements:
+      - type: frame
+        sources: [https://*.frcapi.com]
+        reason: Shows the widget, which runs in a frame.
+  - id: v1
+    label: Version 1, widget from jsDelivr
+    description: >-
+      Friendly Captcha suggests narrowing the address to the widget's own files, as here, rather than all of
+      jsDelivr.
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.18/]
+        reason: Loads the widget.
+      - type: eval
+        sources: ["'wasm-unsafe-eval'"]
+        reason: Solves the puzzle with WebAssembly.
+      - type: worker
+        sources: ["blob:"]
+        reason: Solves the puzzle in a worker.

@@ -1,0 +1,55 @@
+id: jquery
+name: jQuery
+category: library
+website: https://jquery.com
+sources:
+  - https://jquery.com/download/
+  - https://releases.jquery.com/
+  - https://developers.google.com/speed/libraries
+  - https://jquery.com/upgrade-guide/4.0/
+  - https://api.jquery.com/jQuery.ajax/
+  - https://api.jquery.com/jQuery.globalEval/
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    jQuery adds no scripts of its own. For the scripts it loads or runs for you, pass your page's nonce:
+    the scriptAttrs option of $.ajax, or the nonce option of jQuery.globalEval (both since jQuery 3.4).
+notes: >-
+  jQuery Migrate and jQuery UI from code.jquery.com are covered by the same source. HTML given to
+  .html(), .append() and most other methods runs the scripts it contains: inline ones are blocked unless
+  the policy allows them. jQuery 4 supports Trusted Types for all its manipulation methods. jQuery's
+  download page also lists Microsoft's CDN, cdnjs and jsDelivr: see those CDNs in the catalogue.
+features:
+  - id: jquery-cdn
+    label: From the jQuery CDN (code.jquery.com)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://code.jquery.com]
+        reason: Loads jQuery, jQuery Migrate or jQuery UI.
+  - id: jquery-ui-theme
+    label: jQuery UI theme from the jQuery CDN
+    requirements:
+      - type: style
+        sources: [https://code.jquery.com]
+        reason: Loads the jQuery UI theme stylesheet.
+      - type: img
+        sources: [https://code.jquery.com]
+        reason: The theme's icon images, next to its stylesheet.
+  - id: google
+    label: From Google Hosted Libraries
+    requirements:
+      - type: script
+        sources: [https://ajax.googleapis.com/ajax/libs/jquery/]
+        reason: Loads jQuery from Google's CDN.
+  - id: scripts-from-site
+    label: Scripts fetched with $.getScript or $.ajax
+    description: >-
+      jQuery 4 always runs these through a <script> element, so the policy must allow where they come
+      from. On your own site that is 'self'; add other addresses if you fetch scripts from elsewhere.
+    requirements:
+      - type: script
+        sources: ["'self'"]
+        reason: Runs scripts fetched with $.getScript or dataType "script".

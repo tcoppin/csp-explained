@@ -1,0 +1,18 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # The address includes the version: when you upgrade, change it in your policy too. The icon font sits next to the stylesheet, so the same address covers it.
+  { en: a8fc126b, text: "L'adresse contient la version : quand vous mettez à jour, changez-la aussi dans votre politique. La police d'icônes est à côté de la feuille de style, donc la même adresse la couvre." }
+features:
+  icon-font:
+    label:
+      # Icon font from jsDelivr
+      { en: ea3f9062, text: "Police d'icônes depuis jsDelivr" }
+    reasons:
+      style:
+        # Loads the icons' stylesheet.
+        { en: 0ce48192, text: "Charge la feuille de style des icônes." }
+      font:
+        # Loads the icon font.
+        { en: 0e01e258, text: "Charge la police d'icônes." }

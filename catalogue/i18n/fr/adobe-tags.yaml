@@ -1,0 +1,38 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Put your nonce in the data layer, create a data element that reads it, and set the Core extension to use that data element; then publish. Adobe's tags then run custom code with the nonce, so 'unsafe-inline' isn't needed. This needs the tag library loaded asynchronously.
+    { en: 67143b97, text: "Mettez votre nonce dans le data layer, créez un data element qui le lit, et réglez l'extension Core pour utiliser ce data element ; puis publiez. Les tags d'Adobe exécutent alors le code personnalisé avec le nonce, donc 'unsafe-inline' n'est pas nécessaire. Il faut pour cela charger la bibliothèque de tags de façon asynchrone." }
+notes:
+  # Formerly Adobe Launch. Tools fired by your rules (Analytics, Target, …) have their own requirements: check those tools too.
+  { en: 692d2391, text: "Anciennement Adobe Launch. Les outils déclenchés par vos règles (Analytics, Target, …) ont leurs propres besoins : vérifiez aussi ces outils." }
+features:
+  adobe-hosting:
+    label:
+      # Library hosted by Adobe
+      { en: 9622ad4f, text: "Bibliothèque hébergée par Adobe" }
+    reasons:
+      script:
+        # Loads the tag library.
+        { en: 64d44353, text: "Charge la bibliothèque de tags." }
+  self-hosting:
+    label:
+      # Library hosted on your site
+      { en: 10a78330, text: "Bibliothèque hébergée sur votre site" }
+    reasons:
+      script:
+        # Loads the tag library from your site.
+        { en: 38b069d8, text: "Charge la bibliothèque de tags depuis votre site." }
+  custom-code:
+    description:
+      # Adobe calls this the least secure option; a nonce avoids it (see above).
+      { en: 091aaa35, text: "Adobe la présente comme l'option la moins sûre ; un nonce l'évite (voir plus haut)." }
+    label:
+      # Custom code in rules
+      { en: ffd02c25, text: "Code personnalisé dans les règles" }
+    reasons:
+      inline-script:
+        # Runs the custom code actions of your rules.
+        { en: a546e245, text: "Exécute les actions de code personnalisé de vos règles." }

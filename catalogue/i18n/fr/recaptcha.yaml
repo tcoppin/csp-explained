@@ -1,0 +1,25 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Google recommends a nonce-based policy: put your nonce on the api.js script tag. reCAPTCHA also works with 'strict-dynamic', and then none of the addresses below are needed in script-src.
+    { en: a481ddf8, text: "Google recommande une politique avec nonce : mettez votre nonce sur la balise script d'api.js. reCAPTCHA fonctionne aussi avec 'strict-dynamic', et aucune des adresses ci-dessous n'est alors nécessaire dans script-src." }
+notes:
+  # Google lets you load reCAPTCHA from www.recaptcha.net instead of www.google.com, but its CSP answer only lists www.google.com: this entry follows it.
+  { en: 59fbc8d7, text: "Google permet de charger reCAPTCHA depuis www.recaptcha.net au lieu de www.google.com, mais sa réponse sur la CSP ne liste que www.google.com : cette fiche la suit." }
+features:
+  widget:
+    label:
+      # reCAPTCHA widget
+      { en: c96febe7, text: "Widget reCAPTCHA" }
+    reasons:
+      script:
+        # Loads reCAPTCHA.
+        { en: f10c39bc, text: "Charge reCAPTCHA." }
+      frame:
+        # Shows the challenge.
+        { en: d64a271a, text: "Affiche le défi." }
+      connect:
+        # Sends the challenge's answers to Google.
+        { en: "08412313", text: "Envoie les réponses au défi à Google." }

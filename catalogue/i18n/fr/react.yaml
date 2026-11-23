@@ -1,0 +1,15 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Only React's old documentation (React 18) gives CDN addresses; the current docs install React with a build tool, which needs no CDN in the policy.
+  { en: ad9b1905, text: "Seule l'ancienne documentation de React (React 18) donne des adresses de CDN ; la documentation actuelle installe React avec un outil de build, qui ne demande aucun CDN dans la politique." }
+features:
+  react-18:
+    label:
+      # React 18 from unpkg
+      { en: 1378d1d2, text: "React 18 depuis unpkg" }
+    reasons:
+      script:
+        # Loads React and React DOM.
+        { en: 9dd366d8, text: "Charge React et React DOM." }

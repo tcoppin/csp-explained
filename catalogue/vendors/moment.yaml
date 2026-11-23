@@ -1,0 +1,24 @@
+id: moment
+name: Moment.js
+category: library
+website: https://momentjs.com
+sources:
+  - https://momentjs.com/docs/#/use-it/browser/
+lastVerified: 2026-11-23
+confidence: verified
+notes: Moment.js is a legacy project in maintenance mode.
+features:
+  - id: cdnjs
+    label: From cdnjs
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdnjs.cloudflare.com/ajax/libs/moment.js/]
+        reason: Loads Moment.js.
+  - id: jsdelivr
+    label: From jsDelivr
+    description: The address includes the version; change it in your policy when you upgrade.
+    requirements:
+      - type: script
+        sources: [https://cdn.jsdelivr.net/npm/moment@2.31.0/]
+        reason: Loads Moment.js.

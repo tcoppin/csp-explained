@@ -1,0 +1,125 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # On pages hosted by HubSpot, the "Enable nonce" setting adds a nonce to every script from HubSpot. On your own site, HubSpot's page doesn't say how its scripts take a nonce.
+    { en: c6038e6f, text: "Sur les pages hébergées par HubSpot, le réglage « Enable nonce » ajoute un nonce à chaque script de HubSpot. Sur votre propre site, la page de HubSpot ne dit pas comment ses scripts reçoivent un nonce." }
+notes:
+  # HubSpot's list is written for pages hosted on HubSpot; it's the only public list, so this entry applies it to HubSpot's code on your own site. It covers accounts in HubSpot's main US data centre (NA1): EU1, NA2, NA3 and AP1 accounts use other addresses, listed on the same page.
+  { en: 5decb240, text: "La liste de HubSpot est écrite pour les pages hébergées par HubSpot ; c'est la seule liste publique, donc cette fiche l'applique au code de HubSpot sur votre propre site. Elle couvre les comptes du principal centre de données américain de HubSpot (NA1) : les comptes EU1, NA2, NA3 et AP1 utilisent d'autres adresses, listées sur la même page." }
+features:
+  tracking:
+    label:
+      # Tracking code
+      { en: 1f0877cd, text: "Code de suivi" }
+    reasons:
+      script:
+        # Loads the tracking code and analytics.
+        { en: b7a5f106, text: "Charge le code de suivi et la mesure d'audience." }
+  ads:
+    label:
+      # Ads
+      { en: 9210f3b6, text: "Publicité" }
+    reasons:
+      script:
+        # Loads HubSpot's ads pixel.
+        { en: "11531477", text: "Charge le pixel publicitaire de HubSpot." }
+  cookie-banner:
+    label:
+      # Cookie banner
+      { en: fa6388fc, text: "Bannière de cookies" }
+    reasons:
+      script:
+        # Loads the cookie banner.
+        { en: a6718da3, text: "Charge la bannière de cookies." }
+      connect:
+        # Saves the visitor's choice.
+        { en: 93c03b66, text: "Enregistre le choix du visiteur." }
+  forms:
+    label:
+      # Forms and surveys
+      { en: 3550b044, text: "Formulaires et questionnaires" }
+    reasons:
+      script:
+        # Loads forms, pop-up forms and surveys.
+        { en: ff0c1883, text: "Charge les formulaires, formulaires pop-up et questionnaires." }
+      img:
+        # Form images.
+        { en: 6d1afb3d, text: "Images des formulaires." }
+      frame:
+        # Shows forms in frames.
+        { en: "071e2426", text: "Affiche les formulaires dans des cadres." }
+      connect:
+        # Sends form submissions.
+        { en: 2743331a, text: "Envoie les réponses aux formulaires." }
+  collected-forms:
+    label:
+      # Collect data from your own forms
+      { en: febaf318, text: "Collecter les données de vos propres formulaires" }
+    reasons:
+      script:
+        # Loads the script that reads non-HubSpot forms.
+        { en: ad152176, text: "Charge le script qui lit les formulaires non HubSpot." }
+      connect:
+        # Sends what the forms collected.
+        { en: 35d984c6, text: "Envoie ce que les formulaires ont collecté." }
+  chat:
+    label:
+      # Chat and chatflows
+      { en: "975782e6", text: "Chat et chatflows" }
+    reasons:
+      script:
+        # Loads the chat.
+        { en: 69dd2c36, text: "Charge le chat." }
+      img:
+        # The chat's images.
+        { en: 5980a403, text: "Images du chat." }
+      connect:
+        # Sends and receives messages.
+        { en: 75eba12d, text: "Envoie et reçoit les messages." }
+      frame:
+        # Shows the chat.
+        { en: a1b880c4, text: "Affiche le chat." }
+  cta:
+    label:
+      # Calls to action
+      { en: f96864a2, text: "Calls-to-action" }
+    reasons:
+      script:
+        # Loads calls to action.
+        { en: 8dca81ff, text: "Charge les calls-to-action." }
+      img:
+        # Call-to-action images and tracking pixel.
+        { en: c0df9899, text: "Images des calls-to-action et pixel de suivi." }
+      connect:
+        # Sends call-to-action events.
+        { en: d8ff23fe, text: "Envoie les événements des calls-to-action." }
+      frame:
+        # Shows call-to-action pop-ups.
+        { en: 1375b3be, text: "Affiche les pop-ups des calls-to-action." }
+  files:
+    label:
+      # Files hosted on HubSpot
+      { en: 9aaa3e9b, text: "Fichiers hébergés par HubSpot" }
+    reasons:
+      script:
+        # Scripts stored in HubSpot.
+        { en: 9ab83e2a, text: "Scripts stockés chez HubSpot." }
+      img:
+        # Images stored in HubSpot.
+        { en: 5e1ade50, text: "Images stockées chez HubSpot." }
+      style:
+        # Stylesheets stored in HubSpot.
+        { en: 6afd19b4, text: "Feuilles de style stockées chez HubSpot." }
+      frame:
+        # Files shown in frames.
+        { en: fea0d0af, text: "Fichiers affichés dans des cadres." }
+  video:
+    label:
+      # Videos
+      { en: c9a96394, text: "Vidéos" }
+    reasons:
+      frame:
+        # Shows HubSpot videos.
+        { en: 29cbb621, text: "Affiche les vidéos HubSpot." }
