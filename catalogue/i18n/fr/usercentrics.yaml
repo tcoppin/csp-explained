@@ -1,0 +1,104 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Usercentrics' V3 works with a strict policy through a nonce: generate one for every page, add it to script-src and style-src, and put it on the CMP script tag. If a tag manager or your CMS adds that tag, set window.ucCmpConfig.nonce in a nonced script that runs before it.
+    { en: 7bc01df4, text: "La V3 d'Usercentrics fonctionne avec une politique stricte grâce à un nonce : générez-en un pour chaque page, ajoutez-le à script-src et style-src, et mettez-le sur la balise script de la CMP. Si un gestionnaire de balises ou votre CMS ajoute cette balise, renseignez window.ucCmpConfig.nonce dans un script avec nonce qui s'exécute avant." }
+notes:
+  # Checked by hand against Usercentrics' help articles, which block automated reads. Every address Usercentrics lists (consent API, configuration, EU mode, crash reports) is under usercentrics.eu, which the wildcard covers, as Usercentrics recommends. CMP V1 is no longer supported.
+  { en: c979d57a, text: "Vérifiée à la main avec les articles d'aide d'Usercentrics, qui bloquent la lecture automatique. Toutes les adresses que liste Usercentrics (API de consentement, configuration, mode UE, rapports de plantage) sont sous usercentrics.eu, que le joker couvre, comme le recommande Usercentrics. La CMP V1 n'est plus prise en charge." }
+features:
+  v3:
+    label:
+      # CMP V3 (loader.js)
+      { en: a320d8cf, text: "CMP V3 (loader.js)" }
+    reasons:
+      script:
+        # Loads the consent banner.
+        { en: 4dd94111, text: "Charge la bannière de consentement." }
+      inline-style:
+        # The banner's styles (or the nonce, as Usercentrics recommends).
+        { en: f9bc6745, text: "Les styles de la bannière (ou le nonce, comme le recommande Usercentrics)." }
+      connect:
+        # Saves and reads the visitor's consent.
+        { en: 8568c342, text: "Enregistre et lit le consentement du visiteur." }
+      img:
+        # The banner's images.
+        { en: 4a1f414a, text: "Images de la bannière." }
+  v2-loader:
+    description:
+      # bundle.js (or bundle_legacy.js for older browsers) needs neither 'unsafe-eval' nor blob:.
+      { en: 91227c70, text: "bundle.js (ou bundle_legacy.js pour les anciens navigateurs) ne demande ni 'unsafe-eval' ni blob:." }
+    label:
+      # CMP V2 with loader.js
+      { en: 9a30e1ce, text: "CMP V2 avec loader.js" }
+    reasons:
+      script:
+        # Loads the banner, part of it from a blob URL.
+        { en: 255a2bfd, text: "Charge la bannière, en partie depuis une URL blob." }
+      eval:
+        # A polyfill for older browsers.
+        { en: e0ba21eb, text: "Un polyfill pour les anciens navigateurs." }
+      connect:
+        # Saves and reads the visitor's consent.
+        { en: 8568c342, text: "Enregistre et lit le consentement du visiteur." }
+      img:
+        # The banner's images.
+        { en: 4a1f414a, text: "Images de la bannière." }
+  v2-bundle:
+    label:
+      # CMP V2 with bundle.js
+      { en: d6979df7, text: "CMP V2 avec bundle.js" }
+    reasons:
+      script:
+        # Loads the banner.
+        { en: 43d03b9e, text: "Charge la bannière." }
+      connect:
+        # Saves and reads the visitor's consent.
+        { en: 8568c342, text: "Enregistre et lit le consentement du visiteur." }
+      img:
+        # The banner's images.
+        { en: 4a1f414a, text: "Images de la bannière." }
+      object:
+        # Usercentrics confirms it for V2's bundle.js only.
+        { en: 7a8cd44c, text: "Usercentrics le confirme pour le bundle.js de la V2 seulement." }
+  cross-domain:
+    label:
+      # Cross-Domain Consent Sharing
+      { en: 5d387644, text: "Cross-Domain Consent Sharing" }
+    reasons:
+      frame:
+        # A hidden frame shares consent across your websites.
+        { en: e795feb5, text: "Un cadre caché partage le consentement entre vos sites." }
+  sandbox:
+    label:
+      # Testing in the sandbox
+      { en: 1346fb0b, text: "Tests dans le sandbox" }
+    reasons:
+      script:
+        # Loads the draft banner.
+        { en: 0ca96d64, text: "Charge la bannière en brouillon." }
+      connect:
+        # Saves and reads consent in the sandbox.
+        { en: 02fea2e9, text: "Enregistre et lit le consentement dans le sandbox." }
+      img:
+        # The draft banner's images.
+        { en: c7daa34a, text: "Images de la bannière en brouillon." }
+      frame:
+        # Cross-Domain Consent Sharing, in the sandbox.
+        { en: c4a6bf91, text: "Cross-Domain Consent Sharing, dans le sandbox." }
+  smart-data-protector:
+    label:
+      # Smart Data Protector
+      { en: 0875a6e6, text: "Smart Data Protector" }
+    reasons:
+      script:
+        # Loads the Smart Data Protector.
+        { en: 202f6751, text: "Charge le Smart Data Protector." }
+      connect:
+        # Loads its files and previews.
+        { en: a8305a02, text: "Charge ses fichiers et ses aperçus." }
+      img:
+        # Shows previews (YouTube covers, …) without disclosing the visitor's data.
+        { en: 0d5573ba, text: "Affiche des aperçus (couvertures YouTube, …) sans dévoiler les données du visiteur." }

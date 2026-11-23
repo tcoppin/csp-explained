@@ -5,7 +5,7 @@ website: https://www.cookiebot.com
 sources:
   - https://support.cookiebot.com/hc/en-us/articles/360018907220
   - https://www.cookiebot.com/en/developer/
-lastVerified: 2026-10-29
+lastVerified: 2026-11-23
 confidence: verified
 nonce:
   supported: true
@@ -15,7 +15,10 @@ nonce:
 notes: >-
   Checked by hand against the support article, which blocks automated reads. The article lists the image
   host with http:// (http://imgsct.cookiebot.com/), so it is kept as written. Accounts on the European CDN
-  use the same hosts ending in .eu.
+  use the same hosts ending in .eu. Its example meta tag has no semicolon after the img-src line, which would
+  turn base-uri 'none' into an image source: end each directive with a semicolon. Cookiebot warns that its CSP
+  support doesn't fully work with Automatic Cookie Blocking: inline scripts without a src run whatever the
+  policy says, so test your site before using both.
 features:
   - id: banner
     label: Consent banner

@@ -1,0 +1,83 @@
+id: adyen
+name: Adyen Web (Drop-in and Components)
+category: payments
+website: https://www.adyen.com
+sources:
+  - https://docs.adyen.com/development-resources/pci-dss-compliance-guide/script-security
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Checked by hand against Adyen's script security page, which blocks automated reads. Adyen's example writes a
+  colon after each directive name (script-src: …), which a browser would not read: directives are written without
+  it, as here. Adyen recommends allowing any address (*) in frame-src, because 3D Secure pages come from each card
+  issuer's own address and can't all be listed; it also writes * for img-src, connect-src and form-action without
+  saying why. Those wildcards let a lot through: you can narrow them once your console shows what your payment page
+  really uses. Adyen recommends Subresource Integrity on its script and stylesheet, with the hashes it publishes for
+  each version.
+warning: >-
+  Adyen's policy allows any address in connect-src and form-action. On a payment page, that means a script
+  slipped into the page can send what the visitor types, card details included, to any server, and a form can be
+  posted anywhere: your policy won't stop either. Keep the * in frame-src for 3D Secure, but narrow connect-src,
+  form-action and img-src to the addresses your console shows your payment page using.
+features:
+  - id: web
+    label: Drop-in and Components
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.adyen.com]
+        reason: Loads Adyen's scripts for payments.
+      - type: frame
+        sources: ["*"]
+        reason: Shows 3D Secure pages, which come from each card issuer's address.
+      - type: img
+        sources: ["*"]
+        reason: Adyen's recommended policy allows images from any address.
+      - type: connect
+        sources: ["*"]
+        reason: Adyen's recommended policy allows connections to any address.
+      - type: form
+        sources: ["*"]
+        reason: Adyen's recommended policy allows forms to send to any address.
+  - id: google-pay
+    label: Google Pay
+    requirements:
+      - type: script
+        sources: [https://pay.google.com]
+        reason: Loads Google Pay.
+  - id: amazon-pay
+    label: Amazon Pay
+    requirements:
+      - type: script
+        sources: [https://*.payments-amazon.com]
+        reason: Loads Amazon Pay.
+  - id: paypal
+    label: PayPal
+    requirements:
+      - type: script
+        sources: [https://*.paypal.com]
+        reason: Loads PayPal.
+  - id: ratepay
+    label: Ratepay
+    requirements:
+      - type: script
+        sources: [https://*.ratepay.com]
+        reason: Loads Ratepay.
+  - id: cash-app
+    label: Cash App Pay
+    requirements:
+      - type: script
+        sources: [https://*.cash.app]
+        reason: Loads Cash App Pay.
+      - type: style
+        sources: [https://*.cash.app]
+        reason: Cash App Pay's styles.
+      - type: font
+        sources: [https://cash-f.squarecdn.com]
+        reason: Cash App Pay's fonts.
+  - id: click-to-pay
+    label: Click to Pay
+    requirements:
+      - type: script
+        sources: [https://*.mastercard.com, https://*.visa.com]
+        reason: Loads Click to Pay with Mastercard and Visa.

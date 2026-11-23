@@ -1,0 +1,38 @@
+id: adobe-fonts
+name: Adobe Fonts
+category: fonts
+website: https://fonts.adobe.com
+sources:
+  - https://helpx.adobe.com/fonts/web/web-design-and-development/content-security-policy.html
+lastVerified: 2026-11-23
+confidence: partial
+notes: >-
+  Checked by hand against Adobe's CSP page, which blocks automated reads. Adobe itself advises against using a CSP
+  with Adobe Fonts: its font events need 'unsafe-inline' in style-src, which lets inline styles from any address
+  through. The page says the service also uses fonts as data: URIs but doesn't name the font-src it needs: if your
+  console shows fonts blocked, add use.typekit.net (and data: if Adobe's fonts still fail) to font-src. Adobe warns
+  that a policy blocking its tracking image can break its Terms of Use.
+features:
+  - id: web-project
+    label: Web project
+    default: true
+    requirements:
+      - type: script
+        sources: [https://use.typekit.net]
+        reason: Loads the font kit's script.
+      - type: style
+        sources: [https://use.typekit.net]
+        reason: Loads the font kit's stylesheet.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The kit adds inline styles, which font events need.
+      - type: img
+        sources: [https://p.typekit.net]
+        reason: Counts font use with a tracking image, so foundries are paid.
+  - id: performance
+    label: Performance metrics
+    default: false
+    requirements:
+      - type: connect
+        sources: [https://performance.typekit.net]
+        reason: Sends performance metrics about Adobe's font network.

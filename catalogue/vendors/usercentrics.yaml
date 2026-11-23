@@ -1,0 +1,101 @@
+id: usercentrics
+name: Usercentrics CMP
+category: consent
+website: https://usercentrics.com
+sources:
+  - https://support.usercentrics.com/hc/en-us/articles/17272941107996-Usercentrics-CMP-and-Content-Security-Policy-CSP
+  - https://support.usercentrics.com/hc/en-us/articles/17328859437852-Which-Usercentrics-domains-do-I-need-to-define-if-I-use-Content-Security-Policy-CSP
+lastVerified: 2026-11-23
+confidence: verified
+nonce:
+  supported: true
+  how: >-
+    Usercentrics' V3 works with a strict policy through a nonce: generate one for every page, add it to script-src
+    and style-src, and put it on the CMP script tag. If a tag manager or your CMS adds that tag, set
+    window.ucCmpConfig.nonce in a nonced script that runs before it.
+notes: >-
+  Checked by hand against Usercentrics' help articles, which block automated reads. Every address Usercentrics lists
+  (consent API, configuration, EU mode, crash reports) is under usercentrics.eu, which the wildcard covers, as
+  Usercentrics recommends. CMP V1 is no longer supported.
+features:
+  - id: v3
+    label: CMP V3 (loader.js)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: Loads the consent banner.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The banner's styles (or the nonce, as Usercentrics recommends).
+      - type: connect
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: Saves and reads the visitor's consent.
+      - type: img
+        sources: ["data:", https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: The banner's images.
+  - id: v2-loader
+    label: CMP V2 with loader.js
+    description: >-
+      bundle.js (or bundle_legacy.js for older browsers) needs neither 'unsafe-eval' nor blob:.
+    requirements:
+      - type: script
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu, "blob:"]
+        reason: Loads the banner, part of it from a blob URL.
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: A polyfill for older browsers.
+      - type: connect
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: Saves and reads the visitor's consent.
+      - type: img
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: The banner's images.
+  - id: v2-bundle
+    label: CMP V2 with bundle.js
+    requirements:
+      - type: script
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: Loads the banner.
+      - type: connect
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: Saves and reads the visitor's consent.
+      - type: img
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: The banner's images.
+      - type: object
+        sources: [https://*.usercentrics.eu]
+        reason: Usercentrics confirms it for V2's bundle.js only.
+  - id: cross-domain
+    label: Cross-Domain Consent Sharing
+    requirements:
+      - type: frame
+        sources: [https://*.usercentrics.eu, https://*.cmp.usercentrics.eu]
+        reason: A hidden frame shares consent across your websites.
+  - id: sandbox
+    label: Testing in the sandbox
+    requirements:
+      - type: script
+        sources: [https://*.usercentrics-sandbox.eu]
+        reason: Loads the draft banner.
+      - type: connect
+        sources: [https://*.usercentrics-sandbox.eu]
+        reason: Saves and reads consent in the sandbox.
+      - type: img
+        sources: [https://*.usercentrics-sandbox.eu]
+        reason: The draft banner's images.
+      - type: frame
+        sources: [https://*.usercentrics-sandbox.eu]
+        reason: Cross-Domain Consent Sharing, in the sandbox.
+  - id: smart-data-protector
+    label: Smart Data Protector
+    requirements:
+      - type: script
+        sources: [https://privacy-proxy.usercentrics.eu]
+        reason: Loads the Smart Data Protector.
+      - type: connect
+        sources: [https://privacy-proxy.usercentrics.eu, https://privacy-proxy-server.usercentrics.eu]
+        reason: Loads its files and previews.
+      - type: img
+        sources: [https://privacy-proxy-server.usercentrics.eu]
+        reason: Shows previews (YouTube covers, …) without disclosing the visitor's data.

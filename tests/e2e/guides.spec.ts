@@ -48,7 +48,7 @@ test('the catalogue finds a tool, and a tool page shows each line once with what
   const errors = watchErrors(page);
   await page.goto('/vendors');
   const hotjar = page.locator('[data-name="hotjar"]');
-  await expect(hotjar).toContainText('Checked Oct 29, 2026');
+  await expect(hotjar).toContainText('Checked Nov 23, 2026');
   await expect(hotjar.locator('.chip.unsafe')).toHaveText("'unsafe-inline'");
 
   await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('goo');
@@ -128,7 +128,7 @@ test('a screen reader hears which tools use an address, once typing pauses, and 
   expect(await live(async () => {
     await find.fill('google.com');
     await page.waitForTimeout(600);
-  })).toEqual(['polite: No tool uses google.com itself. Addresses under it are used by Google Tag Manager, Google Analytics 4, Google Ads, Google reCAPTCHA, and Google Maps JavaScript API.']);
+  })).toEqual(['polite: No tool uses google.com itself. Addresses under it are used by Google Tag Manager, Google Analytics 4, Google Ads, Adyen Web (Drop-in and Components), Google reCAPTCHA, and Google Maps JavaScript API.']);
   expect(await live(async () => {
     await find.fill('goo');
     await page.waitForTimeout(600);

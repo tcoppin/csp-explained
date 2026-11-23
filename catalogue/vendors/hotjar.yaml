@@ -4,7 +4,7 @@ category: session-replay
 website: https://www.hotjar.com
 sources:
   - https://help.hotjar.com/hc/en-us/articles/36820026388881-Content-Security-Policies
-lastVerified: 2026-10-29
+lastVerified: 2026-11-23
 confidence: verified
 notes: >-
   Checked by hand against the help article, which blocks automated reads. Follows its "absolute minimum"

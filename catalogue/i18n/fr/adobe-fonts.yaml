@@ -1,0 +1,32 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Checked by hand against Adobe's CSP page, which blocks automated reads. Adobe itself advises against using a CSP with Adobe Fonts: its font events need 'unsafe-inline' in style-src, which lets inline styles from any address through. The page says the service also uses fonts as data: URIs but doesn't name the font-src it needs: if your console shows fonts blocked, add use.typekit.net (and data: if Adobe's fonts still fail) to font-src. Adobe warns that a policy blocking its tracking image can break its Terms of Use.
+  { en: 5e1fc179, text: "Vérifié à la main sur la page CSP d'Adobe, qui bloque les lectures automatiques. Adobe déconseille lui-même d'utiliser une CSP avec Adobe Fonts : ses événements de police demandent 'unsafe-inline' dans style-src, ce qui laisse passer les styles en ligne de n'importe quelle adresse. La page indique que le service utilise aussi des polices en URI data:, sans dire quel font-src il lui faut : si la console de votre navigateur montre des polices bloquées, ajoutez use.typekit.net (et data: si les polices d'Adobe échouent encore) à font-src. Adobe prévient qu'une politique qui bloque son image de suivi peut enfreindre ses conditions d'utilisation." }
+features:
+  web-project:
+    label:
+      # Web project
+      { en: 6165d175, text: "Projet web" }
+    reasons:
+      script:
+        # Loads the font kit's script.
+        { en: f712b8d9, text: "Charge le script du kit de polices." }
+      style:
+        # Loads the font kit's stylesheet.
+        { en: 907f0517, text: "Charge la feuille de style du kit de polices." }
+      inline-style:
+        # The kit adds inline styles, which font events need.
+        { en: 8064f49a, text: "Le kit ajoute des styles en ligne, dont les événements de police ont besoin." }
+      img:
+        # Counts font use with a tracking image, so foundries are paid.
+        { en: 9f3b336e, text: "Compte l'usage des polices par une image de suivi, pour rémunérer les fonderies." }
+  performance:
+    label:
+      # Performance metrics
+      { en: 5167b9cd, text: "Mesures de performance" }
+    reasons:
+      connect:
+        # Sends performance metrics about Adobe's font network.
+        { en: 6a570209, text: "Envoie des mesures de performance sur le réseau de polices d'Adobe." }

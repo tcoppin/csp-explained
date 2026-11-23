@@ -1,0 +1,84 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Checked by hand against Adyen's script security page, which blocks automated reads. Adyen's example writes a colon after each directive name (script-src: …), which a browser would not read: directives are written without it, as here. Adyen recommends allowing any address (*) in frame-src, because 3D Secure pages come from each card issuer's own address and can't all be listed; it also writes * for img-src, connect-src and form-action without saying why. Those wildcards let a lot through: you can narrow them once your console shows what your payment page really uses. Adyen recommends Subresource Integrity on its script and stylesheet, with the hashes it publishes for each version.
+  { en: "687e3284", text: "Vérifié à la main sur la page d'Adyen sur la sécurité des scripts, qui bloque les lectures automatiques. L'exemple d'Adyen met deux-points après chaque nom de directive (script-src: …), ce qu'un navigateur ne lirait pas : les directives s'écrivent sans, comme ici. Adyen recommande d'autoriser n'importe quelle adresse (*) dans frame-src, car les pages 3D Secure viennent de l'adresse de chaque banque émettrice et ne peuvent pas toutes être listées ; il écrit aussi * pour img-src, connect-src et form-action sans dire pourquoi. Ces jokers laissent passer beaucoup de choses : vous pouvez les restreindre quand la console de votre navigateur montre ce que votre page de paiement utilise vraiment. Adyen recommande l'intégrité des sous-ressources (SRI) sur son script et sa feuille de style, avec les hashs qu'il publie pour chaque version." }
+features:
+  web:
+    label:
+      # Drop-in and Components
+      { en: 7385725d, text: "Drop-in et Components" }
+    reasons:
+      script:
+        # Loads Adyen's scripts for payments.
+        { en: a536e7ef, text: "Charge les scripts de paiement d'Adyen." }
+      frame:
+        # Shows 3D Secure pages, which come from each card issuer's address.
+        { en: 1c5b086a, text: "Affiche les pages 3D Secure, qui viennent de l'adresse de chaque banque émettrice." }
+      img:
+        # Adyen's recommended policy allows images from any address.
+        { en: 2b3c295c, text: "La politique recommandée par Adyen autorise les images de n'importe quelle adresse." }
+      connect:
+        # Adyen's recommended policy allows connections to any address.
+        { en: 7f9f045d, text: "La politique recommandée par Adyen autorise les connexions vers n'importe quelle adresse." }
+      form:
+        # Adyen's recommended policy allows forms to send to any address.
+        { en: 5fc1daaa, text: "La politique recommandée par Adyen autorise l'envoi de formulaires vers n'importe quelle adresse." }
+  google-pay:
+    label:
+      # Google Pay
+      { en: cfe1ae6e, text: "Google Pay" }
+    reasons:
+      script:
+        # Loads Google Pay.
+        { en: 2288f177, text: "Charge Google Pay." }
+  amazon-pay:
+    label:
+      # Amazon Pay
+      { en: 4095ee39, text: "Amazon Pay" }
+    reasons:
+      script:
+        # Loads Amazon Pay.
+        { en: fe25c482, text: "Charge Amazon Pay." }
+  paypal:
+    label:
+      # PayPal
+      { en: ab8a4f6b, text: "PayPal" }
+    reasons:
+      script:
+        # Loads PayPal.
+        { en: d6cd6f4f, text: "Charge PayPal." }
+  ratepay:
+    label:
+      # Ratepay
+      { en: 2843cae2, text: "Ratepay" }
+    reasons:
+      script:
+        # Loads Ratepay.
+        { en: 0031a14f, text: "Charge Ratepay." }
+  cash-app:
+    label:
+      # Cash App Pay
+      { en: 35d088fd, text: "Cash App Pay" }
+    reasons:
+      script:
+        # Loads Cash App Pay.
+        { en: 0ed86084, text: "Charge Cash App Pay." }
+      style:
+        # Cash App Pay's styles.
+        { en: 9fcd61e5, text: "Les styles de Cash App Pay." }
+      font:
+        # Cash App Pay's fonts.
+        { en: 6b94806c, text: "Les polices de Cash App Pay." }
+  click-to-pay:
+    label:
+      # Click to Pay
+      { en: d011908f, text: "Click to Pay" }
+    reasons:
+      script:
+        # Loads Click to Pay with Mastercard and Visa.
+        { en: b0653071, text: "Charge Click to Pay avec Mastercard et Visa." }
+warning:
+  # Adyen's policy allows any address in connect-src and form-action. On a payment page, that means a script slipped into the page can send what the visitor types, card details included, to any server, and a form can be posted anywhere: your policy won't stop either. Keep the * in frame-src for 3D Secure, but narrow connect-src, form-action and img-src to the addresses your console shows your payment page using.
+  { en: 877669ca, text: "La politique d'Adyen autorise n'importe quelle adresse dans connect-src et form-action. Sur une page de paiement, un script glissé dans la page peut donc envoyer ce que le visiteur saisit, coordonnées de carte comprises, vers n'importe quel serveur, et un formulaire peut être envoyé n'importe où : votre politique n'empêchera ni l'un ni l'autre. Gardez le * dans frame-src pour 3D Secure, mais limitez connect-src, form-action et img-src aux adresses que la console montre utilisées par votre page de paiement." }

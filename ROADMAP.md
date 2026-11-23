@@ -110,7 +110,9 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
       update them when the docs move to a new version (the weekly watcher reports the new address).
 - [ ] Tealium iQ: the official page lists the Collect, data layer enrichment and API domains without directives;
       only the tag management domains are checked (script-src). Ask Tealium which directive each belongs to.
-- Hotjar and Cookiebot pages block automated reads: re-check them by hand when the weekly watcher can't.
+- [ ] Segment: its FAQ names cdn.segment.com and api.segment.io without directives; the entry puts the scripts in
+      script-src, the settings and events in connect-src. Confirm with Segment.
+- Hotjar, Cookiebot, Usercentrics, TrustArc, Segment, Adobe Fonts, Adyen, tawk.to and Kameleoon pages block automated reads: re-check them by hand when the weekly watcher can't.
 
 ### To add from public documentation (contributions welcome)
 

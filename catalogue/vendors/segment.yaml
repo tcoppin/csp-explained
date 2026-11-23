@@ -1,0 +1,32 @@
+id: segment
+name: Segment (Analytics.js)
+category: analytics
+website: https://segment.com
+sources:
+  - https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/
+lastVerified: 2026-11-23
+confidence: partial
+nonce:
+  supported: true
+  how: >-
+    Put your policy's nonce on the Segment snippet. Segment then loads its settings, bundles and integrations from
+    cdn.segment.com, which still has to be allowed.
+notes: >-
+  Checked by hand against Segment's Analytics.js page, which blocks automated reads. Segment names its addresses
+  but not the directive each one belongs to: here, the scripts come from cdn.segment.com, and the settings and the
+  events go to cdn.segment.com and api.segment.io. Tools Segment loads as destinations have their own requirements:
+  check those tools too. Segment says its support for CSP issues is limited.
+features:
+  - id: analytics-js
+    label: Analytics.js
+    default: true
+    requirements:
+      - type: script
+        sources: [https://cdn.segment.com]
+        reason: Loads Analytics.js, its bundles and its integrations.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: The Segment snippet is written in the page (or use a nonce).
+      - type: connect
+        sources: [https://cdn.segment.com, https://api.segment.io]
+        reason: Loads your project's settings and sends events.

@@ -1,0 +1,147 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Checked by hand against Kameleoon's developer documentation, which automated reads couldn't open. Follows its complete setup. Kameleoon also offers an easy setup that puts its domains in default-src with wildcards (any address under kameleoon.com, .io, .eu and .net, and experimentation.dev); a script-src line overrides it, so don't mix both. Its policy lists 'unsafe-eval' in script-src and 'unsafe-inline' in style-src without saying which part needs them. The same page names data.kameleoon.net, needed to QA experiments across subdomains with the Simulation tool, without saying which directive it belongs to: add it where your console shows it blocked. Kameleoon adds features over time, which can bring new addresses.
+  { en: ca3cb8b2, text: "Vérifié à la main sur la documentation développeur de Kameleoon, que les lectures automatiques n'ont pas pu ouvrir. Suit sa configuration complète. Kameleoon propose aussi une configuration simple qui met ses domaines dans default-src avec des jokers (toute adresse sous kameleoon.com, .io, .eu et .net, et experimentation.dev) ; une ligne script-src prend le pas sur elle, donc ne mélangez pas les deux. Sa politique met 'unsafe-eval' dans script-src et 'unsafe-inline' dans style-src sans dire ce qui en a besoin. La même page cite data.kameleoon.net, nécessaire pour tester des expériences sur plusieurs sous-domaines avec l'outil Simulation, sans dire à quelle directive il appartient : ajoutez-le là où la console le montre bloqué. Kameleoon ajoute des fonctions au fil du temps, ce qui peut amener de nouvelles adresses." }
+fields:
+  sitecode:
+    description:
+      # As in your Kameleoon script address: the part before .kameleoon.eu or .kameleoon.io (projects use one or the other depending on when they were created; the Kameleoon App shows yours). Left empty, every Kameleoon project is allowed.
+      { en: 900213ff, text: "Comme dans l'adresse de votre script Kameleoon : la partie avant .kameleoon.eu ou .kameleoon.io (les projets utilisent l'un ou l'autre selon leur date de création ; l'application Kameleoon affiche le vôtre). Laissé vide, tous les projets Kameleoon sont autorisés." }
+    label:
+      # Your site code
+      { en: 0cf95f2f, text: "Votre code de site" }
+features:
+  web-experimentation:
+    label:
+      # Web Experimentation
+      { en: 34aad004, text: "Web Experimentation" }
+    reasons:
+      script:
+        # Loads the application script (engine.js, formerly kameleoon.js).
+        { en: 066eed23, text: "Charge le script de l'application (engine.js, anciennement kameleoon.js)." }
+      eval:
+        # Listed in Kameleoon's policy, without saying what needs it.
+        { en: 91a37095, text: "Listé dans la politique de Kameleoon, sans dire ce qui en a besoin." }
+      connect:
+        # Sends tracking data.
+        { en: 391c4845, text: "Envoie les données de suivi." }
+      img:
+        # Images used in experiments.
+        { en: 2cace006, text: "Images utilisées dans les expériences." }
+      inline-style:
+        # Listed in Kameleoon's policy, without saying what needs it.
+        { en: 91a37095, text: "Listé dans la politique de Kameleoon, sans dire ce qui en a besoin." }
+  feature-experimentation:
+    label:
+      # Feature Experimentation (client-side SDKs)
+      { en: c526a8c7, text: "Feature Experimentation (SDK côté client)" }
+    reasons:
+      script:
+        # Listed for scripts in Kameleoon's policy.
+        { en: 98daaa7a, text: "Listé pour les scripts dans la politique de Kameleoon." }
+      connect:
+        # Loads the configuration (client-config for SDKs before 2.1.0, sdk-config from 2.1.0), authenticates requests and sends tracking data.
+        { en: 6b04f773, text: "Charge la configuration (client-config pour les SDK avant 2.1.0, sdk-config à partir de 2.1.0), authentifie les requêtes et envoie les données de suivi." }
+  streaming:
+    label:
+      # Real-time streaming (premium)
+      { en: 2750a4ce, text: "Streaming en temps réel (premium)" }
+    reasons:
+      connect:
+        # Receives real-time updates.
+        { en: ca5e33d4, text: "Reçoit les mises à jour en temps réel." }
+  graphic-editor:
+    label:
+      # Graphic editor
+      { en: 2f35f7ae, text: "Éditeur graphique" }
+    reasons:
+      script:
+        # Loads the editor (static.kameleoon.com is for the old one).
+        { en: c1cc0a8d, text: "Charge l'éditeur (static.kameleoon.com sert à l'ancien)." }
+      style:
+        # The editor's styles.
+        { en: 26f1ed87, text: "Les styles de l'éditeur." }
+      connect:
+        # Used by the editor (editor.kameleoon.com by the old one).
+        { en: 0cae2a73, text: "Utilisé par l'éditeur (editor.kameleoon.com par l'ancien)." }
+      img:
+        # The editor's images.
+        { en: 9eb8d28e, text: "Les images de l'éditeur." }
+      frame:
+        # Shows the editor in a frame.
+        { en: eed79b00, text: "Affiche l'éditeur dans un cadre." }
+  prompt-editor:
+    label:
+      # Prompt-based experimentation
+      { en: 831c60c4, text: "Expérimentation par prompt" }
+    reasons:
+      script:
+        # Loads the prompt-based editor.
+        { en: d4d639fe, text: "Charge l'éditeur par prompt." }
+      style:
+        # The editor's styles.
+        { en: 26f1ed87, text: "Les styles de l'éditeur." }
+      connect:
+        # Exchanges data with the editor, loads account information and feature flags.
+        { en: "68730011", text: "Échange des données avec l'éditeur, charge les informations du compte et les feature flags." }
+  simulation:
+    label:
+      # Simulation
+      { en: "45314e97", text: "Simulation" }
+    reasons:
+      script:
+        # Loads the simulation tool.
+        { en: 783f2d4c, text: "Charge l'outil de simulation." }
+      style:
+        # The simulation tool's styles.
+        { en: 8c28addc, text: "Les styles de l'outil de simulation." }
+      connect:
+        # Used by the simulation tool (api.kameleoon.com by the old one).
+        { en: 38d8de8e, text: "Utilisé par l'outil de simulation (api.kameleoon.com par l'ancien)." }
+      img:
+        # The simulation tool's images.
+        { en: f2a9804e, text: "Les images de l'outil de simulation." }
+  recommendations:
+    label:
+      # Product recommendations
+      { en: dacc04da, text: "Recommandations de produits" }
+    reasons:
+      style:
+        # Loads the module's resources.
+        { en: c80312d6, text: "Charge les ressources du module." }
+      connect:
+        # The module's API.
+        { en: caef6ce2, text: "L'API du module." }
+      img:
+        # Product images.
+        { en: 72b5ba57, text: "Images des produits." }
+  apis:
+    label:
+      # APIs and integrations
+      { en: 4718cdce, text: "API et intégrations" }
+    reasons:
+      connect:
+        # The Automation API from the browser, the SDK API and integrations built by Kameleoon.
+        { en: 7a2f0c0e, text: "L'API Automation depuis le navigateur, l'API des SDK et les intégrations développées par Kameleoon." }
+  internal:
+    label:
+      # Full script (kameleoonFull.js)
+      { en: 19aab9c5, text: "Script complet (kameleoonFull.js)" }
+    reasons:
+      script:
+        # Loads internal resources.
+        { en: 0b0b066c, text: "Charge des ressources internes." }
+      style:
+        # Internal styles.
+        { en: 2c62244c, text: "Styles internes." }
+      connect:
+        # Loads internal resources and feature flags, and sends logging data.
+        { en: 5f5e1e28, text: "Charge des ressources internes et des feature flags, et envoie des données de journalisation." }
+      img:
+        # Internal images.
+        { en: 8a086a1b, text: "Images internes." }
+      frame:
+        # Listed for frames in Kameleoon's policy.
+        { en: "69904817", text: "Listé pour les cadres dans la politique de Kameleoon." }

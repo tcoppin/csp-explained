@@ -1,0 +1,43 @@
+id: trustarc
+name: TrustArc Cookie Consent Manager
+category: consent
+website: https://trustarc.com
+sources:
+  - https://trustarchelp.zendesk.com/hc/en-us/articles/34719133513747-Deploying-Script
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Checked by hand against TrustArc's help article, which blocks automated reads. For CCM Pro. TrustArc writes a
+  colon after each directive name, which a policy doesn't have. The consent manager also needs the page to send its
+  address to TrustArc: a Referrer-Policy of origin-when-cross-origin, strict-origin-when-cross-origin or unsafe-url
+  (no-referrer and same-origin break consent reporting), or referrerpolicy="origin-when-cross-origin" on its
+  script tag. TrustArc mentions no nonce.
+features:
+  - id: ccm-pro
+    label: Consent banner (CCM Pro)
+    default: true
+    requirements:
+      - type: script
+        sources: [https://*.trustarc.com]
+        reason: Loads the consent banner.
+      - type: inline-script
+        sources: ["'unsafe-inline'"]
+        reason: TrustArc's recommended rules allow scripts written in the page.
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: TrustArc's recommended rules allow code built from text.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: The banner adds styles to the page.
+      - type: frame
+        sources: [https://*.trustarc.com]
+        reason: Shows parts of the banner in frames.
+      - type: connect
+        sources: [https://*.trustarc.com]
+        reason: Saves and reports the visitor's consent.
+      - type: font
+        sources: [https://*.trustarc.com]
+        reason: The banner's fonts.
+      - type: img
+        sources: ["data:", https://*.trustarc.com, https://*.truste.com]
+        reason: The banner's images.

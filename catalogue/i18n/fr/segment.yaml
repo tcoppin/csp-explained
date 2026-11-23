@@ -1,0 +1,25 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+nonce:
+  how:
+    # Put your policy's nonce on the Segment snippet. Segment then loads its settings, bundles and integrations from cdn.segment.com, which still has to be allowed.
+    { en: b4f012c7, text: "Mettez le nonce de votre politique sur le snippet Segment. Segment charge ensuite ses réglages, ses bundles et ses intégrations depuis cdn.segment.com, qui doit toujours être autorisé." }
+notes:
+  # Checked by hand against Segment's Analytics.js page, which blocks automated reads. Segment names its addresses but not the directive each one belongs to: here, the scripts come from cdn.segment.com, and the settings and the events go to cdn.segment.com and api.segment.io. Tools Segment loads as destinations have their own requirements: check those tools too. Segment says its support for CSP issues is limited.
+  { en: ac4e5157, text: "Vérifiée à la main avec la page Analytics.js de Segment, qui bloque la lecture automatique. Segment nomme ses adresses, mais pas la directive de chacune : ici, les scripts viennent de cdn.segment.com, et les réglages et les événements vont vers cdn.segment.com et api.segment.io. Les outils que Segment charge comme destinations ont leurs propres besoins : vérifiez aussi ces outils. Segment indique que son support sur les questions de CSP est limité." }
+features:
+  analytics-js:
+    label:
+      # Analytics.js
+      { en: 2a2743ee, text: "Analytics.js" }
+    reasons:
+      script:
+        # Loads Analytics.js, its bundles and its integrations.
+        { en: 35cb36eb, text: "Charge Analytics.js, ses bundles et ses intégrations." }
+      inline-script:
+        # The Segment snippet is written in the page (or use a nonce).
+        { en: 3bd5375e, text: "Le snippet Segment est écrit dans la page (ou utilisez un nonce)." }
+      connect:
+        # Loads your project's settings and sends events.
+        { en: 343ba127, text: "Charge les réglages de votre projet et envoie les événements." }

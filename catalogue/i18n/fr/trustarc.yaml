@@ -1,0 +1,36 @@
+# fr text for the English entry of the same name. Text only: hosts, types and dates come from English.
+# en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
+
+notes:
+  # Checked by hand against TrustArc's help article, which blocks automated reads. For CCM Pro. TrustArc writes a colon after each directive name, which a policy doesn't have. The consent manager also needs the page to send its address to TrustArc: a Referrer-Policy of origin-when-cross-origin, strict-origin-when-cross-origin or unsafe-url (no-referrer and same-origin break consent reporting), or referrerpolicy="origin-when-cross-origin" on its script tag. TrustArc mentions no nonce.
+  { en: 29adc638, text: "Vérifiée à la main avec l'article d'aide de TrustArc, qui bloque la lecture automatique. Pour CCM Pro. TrustArc écrit deux-points après chaque nom de directive, ce qu'une politique n'a pas. Le gestionnaire de consentement a aussi besoin que la page envoie son adresse à TrustArc : une Referrer-Policy origin-when-cross-origin, strict-origin-when-cross-origin ou unsafe-url (no-referrer et same-origin cassent le suivi du consentement), ou referrerpolicy=\"origin-when-cross-origin\" sur sa balise script. TrustArc ne parle pas de nonce." }
+features:
+  ccm-pro:
+    label:
+      # Consent banner (CCM Pro)
+      { en: 48e9a6a5, text: "Bannière de consentement (CCM Pro)" }
+    reasons:
+      script:
+        # Loads the consent banner.
+        { en: 4dd94111, text: "Charge la bannière de consentement." }
+      inline-script:
+        # TrustArc's recommended rules allow scripts written in the page.
+        { en: 2b88d860, text: "Les règles recommandées par TrustArc autorisent les scripts écrits dans la page." }
+      eval:
+        # TrustArc's recommended rules allow code built from text.
+        { en: 213bb2d7, text: "Les règles recommandées par TrustArc autorisent le code construit à partir de texte." }
+      inline-style:
+        # The banner adds styles to the page.
+        { en: 8823cb12, text: "La bannière ajoute des styles à la page." }
+      frame:
+        # Shows parts of the banner in frames.
+        { en: 6293fdee, text: "Affiche des parties de la bannière dans des cadres." }
+      connect:
+        # Saves and reports the visitor's consent.
+        { en: 42fd5877, text: "Enregistre et transmet le consentement du visiteur." }
+      font:
+        # The banner's fonts.
+        { en: 7df9e4dc, text: "Polices de la bannière." }
+      img:
+        # The banner's images.
+        { en: 4a1f414a, text: "Images de la bannière." }

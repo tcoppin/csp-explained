@@ -5,9 +5,6 @@ nonce:
   how:
     # Cookiebot's policy uses 'nonce-…' and 'strict-dynamic' in script-src: generate a new nonce on every page load and put it on the uc.js script tag (and on cd.js for the cookie declaration). A hash also works.
     { en: e1602ab5, text: "La politique de Cookiebot utilise 'nonce-…' et 'strict-dynamic' dans script-src : générez un nouveau nonce à chaque chargement de page et mettez-le sur la balise script de uc.js (et sur cd.js pour la déclaration des cookies). Un hash fonctionne aussi." }
-notes:
-  # Checked by hand against the support article, which blocks automated reads. The article lists the image host with http:// (http://imgsct.cookiebot.com/), so it is kept as written. Accounts on the European CDN use the same hosts ending in .eu.
-  { en: eda728db, text: "Vérifiée à la main avec l'article d'aide, qui bloque la lecture automatique. L'article liste l'hôte des images en http:// (http://imgsct.cookiebot.com/) : il est gardé tel quel. Les comptes sur le CDN européen utilisent les mêmes hôtes en .eu." }
 features:
   banner:
     label:
@@ -46,3 +43,6 @@ features:
       img:
         # Images on the European CDN.
         { en: dc1decca, text: "Images sur le CDN européen." }
+notes:
+  # Checked by hand against the support article, which blocks automated reads. The article lists the image host with http:// (http://imgsct.cookiebot.com/), so it is kept as written. Accounts on the European CDN use the same hosts ending in .eu. Its example meta tag has no semicolon after the img-src line, which would turn base-uri 'none' into an image source: end each directive with a semicolon. Cookiebot warns that its CSP support doesn't fully work with Automatic Cookie Blocking: inline scripts without a src run whatever the policy says, so test your site before using both.
+  { en: 41533ce9, text: "Vérifié à la main sur l'article d'aide, qui bloque les lectures automatiques. L'article écrit l'hôte des images avec http:// (http://imgsct.cookiebot.com/) ; il est gardé tel quel. Les comptes sur le CDN européen utilisent les mêmes hôtes en .eu. Son exemple de balise meta n'a pas de point-virgule après la ligne img-src, ce qui ferait de base-uri 'none' une source d'images : terminez chaque directive par un point-virgule. Cookiebot prévient que sa prise en charge de CSP ne fonctionne pas entièrement avec le blocage automatique des cookies (Automatic Cookie Blocking) : les scripts écrits dans la page sans src s'exécutent quelle que soit la politique, donc testez votre site avant d'utiliser les deux." }

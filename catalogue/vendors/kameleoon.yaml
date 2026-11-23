@@ -1,0 +1,174 @@
+id: kameleoon
+name: Kameleoon
+category: experimentation
+website: https://www.kameleoon.com
+sources:
+  - https://docs.kameleoon.com/developer-docs/web-experimentation/implementation-and-deployment/standard-implementation
+lastVerified: 2026-11-23
+confidence: verified
+notes: >-
+  Checked by hand against Kameleoon's developer documentation, which automated reads couldn't open. Follows its
+  complete setup. Kameleoon also offers an easy setup that puts its domains in default-src with wildcards (any
+  address under kameleoon.com, .io, .eu and .net, and experimentation.dev); a script-src line overrides it, so don't
+  mix both. Its policy lists 'unsafe-eval' in script-src and 'unsafe-inline' in style-src without saying which part
+  needs them. The same page names data.kameleoon.net, needed to QA experiments across subdomains with the
+  Simulation tool, without saying which directive it belongs to: add it where your console shows it blocked.
+  Kameleoon adds features over time, which can bring new addresses.
+fields:
+  - id: sitecode
+    label: Your site code
+    description: >-
+      As in your Kameleoon script address: the part before .kameleoon.eu or .kameleoon.io (projects use one or the
+      other depending on when they were created; the Kameleoon App shows yours). Left empty, every Kameleoon project
+      is allowed.
+    kind: subdomain
+    example: abc123def4
+features:
+  - id: web-experimentation
+    label: Web Experimentation
+    default: true
+    requirements:
+      - type: script
+        sources: ["https://{sitecode}.kameleoon.eu", "https://{sitecode}.kameleoon.io"]
+        reason: Loads the application script (engine.js, formerly kameleoon.js).
+      - type: eval
+        sources: ["'unsafe-eval'"]
+        reason: Listed in Kameleoon's policy, without saying what needs it.
+      - type: connect
+        sources:
+          - "https://{sitecode}.kameleoon.eu"
+          - "https://{sitecode}.kameleoon.io"
+          - https://eu-data.kameleoon.io
+          - https://eu-data.kameleoon.eu
+          - https://na-data.kameleoon.io
+          - https://na-data.kameleoon.eu
+          - https://logger.kameleoon.io
+        reason: Sends tracking data.
+      - type: img
+        sources:
+          - "https://{sitecode}.kameleoon.eu"
+          - "https://{sitecode}.kameleoon.io"
+          - https://storage.kameleoon.eu
+          - https://storage.kameleoon.io
+        reason: Images used in experiments.
+      - type: inline-style
+        sources: ["'unsafe-inline'"]
+        reason: Listed in Kameleoon's policy, without saying what needs it.
+  - id: feature-experimentation
+    label: Feature Experimentation (client-side SDKs)
+    default: false
+    requirements:
+      - type: script
+        sources: [https://client-config.kameleoon.com, https://sdk-config.kameleoon.eu]
+        reason: Listed for scripts in Kameleoon's policy.
+      - type: connect
+        sources:
+          - https://client-config.kameleoon.com
+          - https://sdk-config.kameleoon.eu
+          - https://api.kameleoon.com
+          - https://eu-data.kameleoon.io
+          - https://eu-data.kameleoon.eu
+          - https://na-data.kameleoon.io
+          - https://na-data.kameleoon.eu
+          - https://logger.kameleoon.io
+        reason: >-
+          Loads the configuration (client-config for SDKs before 2.1.0, sdk-config from 2.1.0), authenticates requests
+          and sends tracking data.
+  - id: streaming
+    label: Real-time streaming (premium)
+    default: false
+    requirements:
+      - type: connect
+        sources: ["https://events.kameleoon.com:8110"]
+        reason: Receives real-time updates.
+  - id: graphic-editor
+    label: Graphic editor
+    default: false
+    requirements:
+      - type: script
+        sources: [https://graphical-editor.kameleoon.com, https://static.kameleoon.com]
+        reason: Loads the editor (static.kameleoon.com is for the old one).
+      - type: style
+        sources: [https://graphical-editor.kameleoon.com, https://static.kameleoon.com]
+        reason: The editor's styles.
+      - type: connect
+        sources: [https://graphical-editor.kameleoon.com, https://static.kameleoon.com, https://editor.kameleoon.com]
+        reason: Used by the editor (editor.kameleoon.com by the old one).
+      - type: img
+        sources: [https://graphical-editor.kameleoon.com, https://static.kameleoon.com]
+        reason: The editor's images.
+      - type: frame
+        sources: ["'self'", https://graphical-editor.kameleoon.com]
+        reason: Shows the editor in a frame.
+  - id: prompt-editor
+    label: Prompt-based experimentation
+    default: false
+    requirements:
+      - type: script
+        sources: [https://aibuilder.kameleoon.com, https://electra.kameleoon.com]
+        reason: Loads the prompt-based editor.
+      - type: style
+        sources: [https://aibuilder.kameleoon.com, https://electra.kameleoon.com]
+        reason: The editor's styles.
+      - type: connect
+        sources: [wss://electra.kameleoon.com, https://api.kameleoon.com, https://sdk-config.kameleoon.eu]
+        reason: Exchanges data with the editor, loads account information and feature flags.
+  - id: simulation
+    label: Simulation
+    default: false
+    requirements:
+      - type: script
+        sources: [https://simulation.kameleoon.com]
+        reason: Loads the simulation tool.
+      - type: style
+        sources: [https://simulation.kameleoon.com]
+        reason: The simulation tool's styles.
+      - type: connect
+        sources: [https://simulation.kameleoon.com, https://api.kameleoon.com]
+        reason: Used by the simulation tool (api.kameleoon.com by the old one).
+      - type: img
+        sources: [https://simulation.kameleoon.com]
+        reason: The simulation tool's images.
+  - id: recommendations
+    label: Product recommendations
+    default: false
+    requirements:
+      - type: style
+        sources: [https://static.products.kameleoon.com]
+        reason: Loads the module's resources.
+      - type: connect
+        sources: [https://api.products.kameleoon.com]
+        reason: The module's API.
+      - type: img
+        sources: [https://images.products.kameleoon.com]
+        reason: Product images.
+  - id: apis
+    label: APIs and integrations
+    default: false
+    requirements:
+      - type: connect
+        sources: [https://api.kameleoon.com, https://customers.kameleoon.com]
+        reason: The Automation API from the browser, the SDK API and integrations built by Kameleoon.
+  - id: internal
+    label: Full script (kameleoonFull.js)
+    default: false
+    requirements:
+      - type: script
+        sources: [https://static.kameleoon.com, https://static.experimentation.dev]
+        reason: Loads internal resources.
+      - type: style
+        sources: [https://static.experimentation.dev]
+        reason: Internal styles.
+      - type: connect
+        sources:
+          - https://static.kameleoon.com
+          - https://static.experimentation.dev
+          - https://sdk-config.experimentation.dev
+          - https://eu-data.experimentation.dev
+        reason: Loads internal resources and feature flags, and sends logging data.
+      - type: img
+        sources: [https://static.experimentation.dev]
+        reason: Internal images.
+      - type: frame
+        sources: [https://static.experimentation.dev]
+        reason: Listed for frames in Kameleoon's policy.
