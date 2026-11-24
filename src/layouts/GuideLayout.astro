@@ -5,6 +5,7 @@
  * Wide screens keep the contents in the margin on the right; narrower ones get a bar that sticks under the header,
  * naming the section being read.
  */
+import MarginNav from '../components/site/MarginNav.astro';
 import { Rich } from '../components/ui/Rich';
 import { localePath, translatorFor } from '../i18n';
 import Base from './Base.astro';
@@ -85,20 +86,15 @@ const onThisPage = t('pages.guide.onThisPage');
     </article>
     {
       sections.length > 1 && (
-        <aside class="toc-side" aria-labelledby="toc-side-title">
-          <div class="toc-side-inner">
-            <p id="toc-side-title" class="toc-title">
-              {onThisPage}
-            </p>
-            <ol>
-              {sections.map((s) => (
-                <li>
-                  <a href={`#${s.id}`} data-toc-link={s.id} set:html={s.html} />
-                </li>
-              ))}
-            </ol>
-          </div>
-        </aside>
+        <MarginNav title={onThisPage} titleId="toc-side-title">
+          <ol>
+            {sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`} data-toc-link={s.id} set:html={s.html} />
+              </li>
+            ))}
+          </ol>
+        </MarginNav>
       )
     }
   </div>
@@ -231,18 +227,15 @@ const onThisPage = t('pages.guide.onThisPage');
   li {
     padding-block: 0.2rem;
   }
-  .toc-bar a,
-  .toc-side a {
+  .toc-bar a {
     color: var(--ink-soft);
     font-weight: 700;
     text-decoration: none;
   }
-  .toc-bar a:hover,
-  .toc-side a:hover {
+  .toc-bar a:hover {
     color: var(--ink);
   }
-  .toc-bar a[aria-current],
-  .toc-side a[aria-current] {
+  .toc-bar a[aria-current] {
     color: var(--ink);
     background: linear-gradient(transparent 60%, var(--hl-keyword) 60%);
   }
@@ -258,43 +251,13 @@ const onThisPage = t('pages.guide.onThisPage');
     }
   }
 
-  /* Wide screens: the contents stay in view in the margin, right of the guide */
-  .toc-side {
-    display: none;
-  }
+  /* Wide screens: the contents stay in view in the margin, right of the guide (MarginNav) */
   @media (min-width: 80rem) {
     .toc-bar {
       display: none;
     }
     .guide :global(h2) {
       scroll-margin-top: 1rem;
-    }
-    .toc-side {
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: calc(var(--gutter) + 56rem + 3rem);
-      right: var(--gutter);
-    }
-    .toc-side-inner {
-      position: sticky;
-      top: 5.5rem;
-    }
-    .toc-title {
-      font-size: var(--step--1);
-      font-weight: 700;
-      color: var(--ink-soft);
-      margin: 0 0 0.5rem;
-    }
-    .toc-side ol {
-      list-style: none;
-      padding: 0 0 0 1rem;
-      border-left: 2px solid var(--rule);
-    }
-    .toc-side li {
-      padding-block: 0.3rem;
-      font-size: var(--step--1);
     }
   }
 

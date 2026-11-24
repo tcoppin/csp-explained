@@ -71,6 +71,9 @@ needs our own server comes last, because it changes the site's promise that the 
       And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
       "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
       since", the new verdict can be found again easily (it is above the lines, not announced by itself).
+      And the Tools page's categories in the margin (2026-11-24, from 80rem wide): the landmark is heard as
+      "Categories"; each entry reads as the category's link then "4 tools", not a bare number; following one opens
+      that category and the reader lands on it; while searching, only the categories left are heard.
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. The reader goes by field
       and column names (`blocked_uri`, `@csp-report.blocked-uri`, `tags[blocked-uri]`, "Blocked URI"…). Checked on
       2026-11-21 against what is public: Sentry's CSP interface keeps `document_uri`, `violated_directive`,

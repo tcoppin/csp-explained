@@ -92,6 +92,7 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   `<Rich t={t} msg="…" />` with its inline syntax (`code`, **strong**, *em*, [[kbd]], [label](/path)), never HTML.
 - Long pages you read (guides, the directives list, About) use `src/layouts/GuideLayout.astro`: heading, lead, contents
   built from the page's `<h2>`s (margin list on wide screens, a sticky bar below 80rem) and a "Read next" link.
+  The margin list is `src/components/site/MarginNav.astro`, also used by the Tools page for its categories.
 - Pages live in `src/pages/[...lang]/` and are built once per language (`localeParams()`): English at the root,
   French under `/fr`, same slugs. The 404 is English only (CloudFront serves one error page).
 - `src/site-policy.ts`: this site's own CSP (meta part via Astro, header part via CloudFront in `infra/`).

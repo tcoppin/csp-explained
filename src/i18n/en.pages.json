@@ -515,6 +515,7 @@
     "fieldNote": "**{label}**: in the lines below, `{example}` stands for it. The analyzer and the builder fill it in for you.",
     "fieldOption": "{label}: `{value}`",
     "addToPolicy": "Add to your policy",
+    "categories": "Categories",
     "missingTitle": "Missing a tool?",
     "missing": "The catalogue is open. [Suggest a tool]({url}) with a link to its official CSP documentation.",
     "vendorTitle": "{name} and Content-Security-Policy",

@@ -18,7 +18,7 @@ test('guides list their sections, jump to them, and say what to read next', asyn
 
   if (isMobile) {
     // Phones and narrower screens: a bar under the header, its list opened on demand.
-    await expect(page.locator('.toc-side')).toBeHidden();
+    await expect(page.locator('.margin-nav')).toBeHidden();
     const bar = page.locator('.toc-bar');
     await bar.locator('summary').click();
     await bar.getByRole('link', { name: 'Rolling it out' }).click();
@@ -41,6 +41,46 @@ test('guides list their sections, jump to them, and say what to read next', asyn
     'href',
     '/fr/reporting',
   );
+  expect(errors).toEqual([]);
+});
+
+test('the catalogue lists its categories in the margin: each opens its tools, and the search narrows the list', async ({ page, isMobile }) => {
+  const errors = watchErrors(page);
+  await page.setViewportSize(isMobile ? { width: 390, height: 844 } : { width: 1440, height: 900 });
+  await page.goto('/vendors');
+  const side = page.getByRole('complementary', { name: 'Categories' });
+  if (isMobile) {
+    // No room beside the column: the search and the folds are enough.
+    await expect(side).toBeHidden();
+    expect(errors).toEqual([]);
+    return;
+  }
+  // The count is read as words, not a bare number.
+  const heard = await readAloud(page, '.margin-nav');
+  expect(heard).toContain('link, Session replay & heatmaps');
+  expect(heard).toContain('4 tools');
+  expect(heard.join(' ')).not.toMatch(/heatmaps, 4(?! tools)/);
+
+  // A category opens on the way there, also when it was closed after a first visit.
+  const replay = page.locator('#category-session-replay details');
+  for (let i = 0; i < 2; i++) {
+    await side.getByRole('link', { name: 'Session replay & heatmaps' }).click();
+    await expect(replay).toHaveAttribute('open', '');
+    await expect(page.getByRole('link', { name: 'Hotjar', exact: true })).toBeInViewport();
+    await replay.locator('summary').click();
+    await expect(replay).not.toHaveAttribute('open');
+  }
+  // A link from elsewhere (/vendors#category-…) opens it too.
+  await page.goto('/vendors#category-payments');
+  await expect(page.locator('#category-payments details')).toHaveAttribute('open', '');
+
+  // Searching keeps only the categories that still have tools.
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('hotjar');
+  await expect(side.getByRole('link', { name: 'Session replay & heatmaps' })).toBeVisible();
+  await expect(side.getByRole('link', { name: 'Analytics' })).toBeHidden();
+  await page.getByRole('searchbox', { name: 'Find a tool or an address' }).fill('');
+  await expect(side.getByRole('link', { name: 'Analytics' })).toBeVisible();
+  await expect(side.getByRole('link', { name: 'Missing a tool?' })).toHaveAttribute('href', '#missing');
   expect(errors).toEqual([]);
 });
 

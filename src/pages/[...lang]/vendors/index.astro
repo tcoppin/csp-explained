@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import MarginNav from '../../../components/site/MarginNav.astro';
 import { Rich } from '../../../components/ui/Rich';
 import { REPO_URL } from '../../../config';
 import { groupByCategory } from '../../../lib/catalogue/categories';
@@ -81,7 +82,7 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
     <p class="near" data-near data-template={t(m('near'))} hidden></p>
     {
       groups.map((g) => (
-        <section data-group>
+        <section data-group id={`category-${g.id}`}>
           <details data-fold>
             <summary>
               <span class="fold-head"><h2>{g.label}</h2> <span class="fold-count">{t(m('count'), { count: g.vendors.length })}</span></span>
@@ -137,10 +138,28 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
       ))
     }
     <p class="muted" data-no-match hidden>{t(m('noMatch'))}</p>
-    <section class="missing">
+    <section class="missing" id="missing">
       <h2>{t(m('missingTitle'))}</h2>
       <p><Rich t={t} msg={m('missing')} vars={{ url: missingUrl }} /></p>
     </section>
+    <MarginNav title={t(m('categories'))} titleId="categories-title">
+      <ol>
+        {
+          groups.map((g) => (
+            <li data-nav-group={`category-${g.id}`}>
+              <a href={`#category-${g.id}`}>{g.label}</a>{' '}
+              <span class="nav-count">
+                <span aria-hidden="true">{g.vendors.length}</span>
+                <span class="visually-hidden">{t(m('count'), { count: g.vendors.length })}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+      <p>
+        <a href="#missing">{t(m('missingTitle'))}</a>
+      </p>
+    </MarginNav>
   </div>
 </Base>
 
@@ -157,6 +176,7 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
   const tools = [...document.querySelectorAll<HTMLElement>('[data-name]')];
   const groups = [...document.querySelectorAll<HTMLElement>('[data-group]')];
   const folds = groups.map((g) => g.querySelector('details')!);
+  const navItems = [...document.querySelectorAll<HTMLElement>('[data-nav-group]')];
   /** Which categories the visitor had open before searching. */
   let opened: boolean[] | undefined;
   const none = document.querySelector<HTMLElement>('[data-no-match]');
@@ -186,6 +206,8 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
       if (uses) uses.hidden = !address || tool.hidden;
     });
     for (const g of groups) g.hidden = !g.querySelector('[data-name]:not([hidden])');
+    // The margin's categories follow: only those left by the search.
+    for (const item of navItems) item.hidden = document.getElementById(item.dataset.navGroup!)?.hidden ?? false;
     if (query) {
       opened ??= folds.map((d) => d.open);
       for (const d of folds) d.open = true;
@@ -210,6 +232,22 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
     return fill(template, { tools: list(shown), address: host });
   }
 
+  // A category reached from the margin or the address opens, so its tools show.
+  const openCategory = () => {
+    const group = location.hash.startsWith('#category-') ? document.getElementById(location.hash.slice(1)) : null;
+    const fold = group?.querySelector('details');
+    if (fold) fold.open = true;
+  };
+  addEventListener('hashchange', openCategory);
+  openCategory();
+  // Also when the address doesn't change: the same link again, after closing that category.
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-nav-group] a')) {
+    link.addEventListener('click', () => {
+      const fold = document.getElementById(link.hash.slice(1))?.querySelector('details');
+      if (fold) fold.open = true;
+    });
+  }
+
   if (finder && input && status) {
     const run = () => {
       const line = search(input.value.trim());
@@ -224,6 +262,13 @@ const directiveList = (names: string[]) => new Intl.ListFormat(t.locale, { type:
 </script>
 
 <style>
+  /* Room on the right for the categories (MarginNav) */
+  .catalogue {
+    position: relative;
+  }
+  .nav-count {
+    color: var(--ink-soft);
+  }
   .lead {
     font-size: var(--step-1);
   }
