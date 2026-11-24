@@ -8,10 +8,11 @@ export { expect } from '@playwright/test';
 import { COMPARE_EXAMPLE as EXAMPLE } from '../../src/config';
 
 /**
- * Every test answers the usage events sent to `/e` itself (there is no `/e` in `astro preview`).
- * `sent()` returns them, as query strings, for the tests that check what is counted.
+ * Every test answers the usage events sent to `/e` and our own policy's violations sent to `/csp-violation`
+ * (neither exists in `astro preview`). `sent()` and `violations()` return them, as query strings, for the tests
+ * that check what is sent.
  */
-export const test = base.extend<{ sent: () => string[] }>({
+export const test = base.extend<{ sent: () => string[]; violations: () => string[] }>({
   sent: [
     async ({ context }, use) => {
       const usage: URLSearchParams[] = [];
@@ -20,6 +21,17 @@ export const test = base.extend<{ sent: () => string[] }>({
         return route.fulfill({ status: 204 });
       });
       await use(() => usage.map((q) => q.toString()));
+    },
+    { auto: true },
+  ],
+  violations: [
+    async ({ context }, use) => {
+      const sent: URLSearchParams[] = [];
+      await context.route('**/csp-violation?*', (route) => {
+        sent.push(new URL(route.request().url()).searchParams);
+        return route.fulfill({ status: 204 });
+      });
+      await use(() => sent.map((q) => q.toString()));
     },
     { auto: true },
   ],

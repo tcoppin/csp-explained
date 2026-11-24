@@ -1,5 +1,6 @@
 /** Every page: header, theme, links, metadata, our own CSP, phone widths and accessibility. */
 import type { Page } from '@playwright/test';
+import { violationRecord } from '../../src/own-violations';
 import { test, expect, watchErrors, openAnalyzer, openComparator, inEveryLanguage, CONSOLE, POLICY, accessibilityProblems, invisibleStates, COMPARE_EXAMPLE, openReader } from './helpers';
 
 test('no word is glued to a link or inline code on any page', async ({ page }) => {
@@ -105,7 +106,7 @@ test('search engines get a sitemap of the pages, and robots.txt points to it', a
   expect(sitemap).toContain('<xhtml:link rel="alternate" hreflang="fr" href="https://csp-explained.com/fr/find-my-csp"/>');
 });
 
-test('every page loads without errors under our own CSP', async ({ page }) => {
+test('every page loads without errors under our own CSP', async ({ page, violations }) => {
   const errors = watchErrors(page);
   for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
     const res = await page.goto(path);
@@ -113,6 +114,53 @@ test('every page loads without errors under our own CSP', async ({ page }) => {
     await expect(page.locator('h1')).toBeVisible();
   }
   expect(errors).toEqual([]);
+  expect(violations()).toEqual([]);
+});
+
+test('what our own policy blocks is sent, without code samples, query strings or extensions', async ({ page, violations }) => {
+  await page.goto('/learn?q=jane#secret');
+  // Our pages trigger none: the test above fails on any.
+  expect(violations()).toEqual([]);
+  // Code written into an attribute, twice (Trusted Types refuses it), then an image from elsewhere.
+  await page.evaluate(() => {
+    for (let i = 0; i < 2; i++) {
+      try {
+        document.body.setAttribute('onclick', 'window.ran = true');
+      } catch {
+        // Refused: this document requires Trusted Types for code.
+      }
+    }
+    new Image().src = 'https://tracker.example/p.gif?user=jane';
+  });
+  await expect.poll(() => violations().length).toBe(2);
+  const [attribute, image] = violations().map((q) => new URLSearchParams(q));
+  expect(Object.fromEntries(attribute!)).toMatchObject({ d: 'require-trusted-types-for', b: 'trusted-types-sink', p: '/learn' });
+  expect(image!.get('d')).toBe('img-src');
+  expect(image!.get('b')).toMatch(/^https:\/\/tracker\.example\/(p\.gif)?$/);
+  expect(violations().join('\n')).not.toMatch(/jane|secret/);
+  // What the Lambda keeps: the same checks, since anyone can call it.
+  for (const q of violations()) expect(violationRecord(Object.fromEntries(new URLSearchParams(q))), q).toBeDefined();
+
+  // An extension's, then more than five: only up to five in all (the second attribute above wasn't sent either).
+  await page.evaluate(() => {
+    const report = (blockedURI: string, sourceFile = '') =>
+      document.dispatchEvent(
+        new SecurityPolicyViolationEvent('securitypolicyviolation', {
+          blockedURI,
+          sourceFile,
+          effectiveDirective: 'script-src-elem',
+          violatedDirective: 'script-src-elem',
+          originalPolicy: '',
+          disposition: 'enforce',
+          statusCode: 200,
+        }),
+      );
+    report('chrome-extension://abcdefghijklmnop/content.js');
+    report('inline', 'moz-extension://abcdefghijklmnop/inject.js');
+    for (const n of [1, 2, 3, 4, 5]) report(`https://evil.example/${n}.js`);
+  });
+  await expect.poll(() => violations().length).toBe(5);
+  expect(violations().slice(2).map((q) => new URLSearchParams(q).get('b'))).toEqual(['https://evil.example/1.js', 'https://evil.example/2.js', 'https://evil.example/3.js']);
 });
 
 test('text fits a 360px phone screen', async ({ page }) => {

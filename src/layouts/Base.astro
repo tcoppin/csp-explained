@@ -39,6 +39,29 @@ const themes = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // What our own policy blocks (see src/own-violations.ts, which checks it all again): browsers don't send
+      // reports for a <meta> policy, so we listen before anything else runs. Never a code sample or a query string;
+      // nothing from visitors' extensions; each problem once per page, at most five.
+      (() => {
+        const sent = new Set();
+        const short = (value) => {
+          try {
+            const url = new URL(value);
+            return /^https?:$/.test(url.protocol) ? url.origin + url.pathname : url.protocol;
+          } catch {
+            return value;
+          }
+        };
+        document.addEventListener('securitypolicyviolation', (e) => {
+          if (/^[a-z-]*extension:/i.test(e.blockedURI) || /^[a-z-]*extension:/i.test(e.sourceFile)) return;
+          const query = new URLSearchParams({ d: e.effectiveDirective, b: short(e.blockedURI), s: short(e.sourceFile), l: String(e.lineNumber), p: location.pathname }).toString();
+          if (sent.has(query) || sent.size >= 5) return;
+          sent.add(query);
+          fetch('/csp-violation?' + query, { keepalive: true, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }).catch(() => {});
+        });
+      })();
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
