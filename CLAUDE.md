@@ -122,6 +122,9 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
   what it reveals pushes the page down (layout shift). Mark them `data-js-only`: hidden without JavaScript, shown
   from the first paint with it (`Base.astro` sets `html.js` before anything is painted). Styles that only apply
   once a script has run go under `:global(.js)`; static tabs already work this way (`src/scripts/tabs.ts`).
+- **Widths in `ch` move when the web font swaps in** (`ch` follows whichever font is showing). Use `em`:
+  `--measure` is 68ch of Atkinson Next written in em. The fallback faces in `global.css` are sized to Atkinson's
+  widths; re-measure them if the fonts change.
 - **`astro preview` goes to the background when run by an agent.** Use `--ignore-lock` to keep it in the
   foreground (Playwright's `webServer` already does). Stop stray servers with `pkill -f "astro preview"`.
 - **Yarn 4 refuses versions published in the last few days** (`npmMinimalAgeGate`). If an install fails with

@@ -4,6 +4,58 @@
 @import '@fontsource/atkinson-hyperlegible-mono/400.css';
 @import '@fontsource/atkinson-hyperlegible-mono/700.css';
 
+/* Fallbacks sized like Atkinson Hyperlegible, used until it arrives: lines wrap the same before and after, so text
+   doesn't move when the font swaps in. Arial and Courier New exist everywhere, or a metric-compatible copy does
+   (Liberation on Linux). Width ratios measured on the site's own text (Atkinson ÷ fallback); vertical metrics are
+   Atkinson's (ascent 0.98 em, descent 0.32 em) divided by the ratio. Where none of these fonts exist, the stack
+   goes on to system-ui as before. */
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next Fallback';
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans');
+  font-weight: 100 599;
+  size-adjust: 98.8%;
+  ascent-override: 99.2%;
+  descent-override: 32.4%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold');
+  font-weight: 600 750;
+  size-adjust: 98.8%;
+  ascent-override: 99.2%;
+  descent-override: 32.4%;
+  line-gap-override: 0%;
+}
+/* Headings: Atkinson's 800 is wider than Arial Bold */
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold');
+  font-weight: 751 900;
+  size-adjust: 102.7%;
+  ascent-override: 95.4%;
+  descent-override: 31.2%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('LiberationMono');
+  font-weight: 100 599;
+  size-adjust: 105.3%;
+  ascent-override: 93.1%;
+  descent-override: 30.4%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Mono Fallback';
+  src: local('Courier New Bold'), local('CourierNewPS-BoldMT'), local('Liberation Mono Bold'), local('LiberationMono-Bold');
+  font-weight: 600 900;
+  size-adjust: 105.3%;
+  ascent-override: 93.1%;
+  descent-override: 30.4%;
+  line-gap-override: 0%;
+}
+
 :root {
   color-scheme: light;
   /* Light: aubergine ink, raspberry pen */
@@ -30,8 +82,8 @@
   --warn: #8a5800;
   --info: #625568;
 
-  --font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  --mono: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
+  --font: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible Next Fallback', system-ui, sans-serif;
+  --mono: 'Atkinson Hyperlegible Mono', 'Atkinson Hyperlegible Mono Fallback', ui-monospace, monospace;
 
   /* Type scale (perfect fourth) */
   --step--1: 0.875rem;
@@ -42,7 +94,9 @@
   --step-4: 3.125rem;
 
   --gutter: clamp(1rem, 4vw, 2.5rem);
-  --measure: 68ch;
+  /* 68 characters of Atkinson Next (68ch: its "0" is 0.648 em). In em, not ch: ch follows whichever font is showing,
+     so the width would jump when Atkinson replaces its fallback. */
+  --measure: 44.064em;
   --radius: 6px;
 }
 
