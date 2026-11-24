@@ -125,6 +125,19 @@
         "cloudwatch:DeleteDashboards"
       ],
       "Resource": "arn:aws:cloudwatch::873379166683:dashboard/CspExplained-Usage"
+    },
+    {
+      "Sid": "ViolationsAlarm",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:TagResource",
+        "cloudwatch:UntagResource",
+        "cloudwatch:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:cloudwatch:ca-central-1:873379166683:alarm:CspExplained-*"
     }
   ]
 }

@@ -14,7 +14,8 @@ your own account and domain; after that, every push to `main` that passes CI is 
 3. Set up least-privilege deploys (once, with an administrator account). CloudFormation deploys the stack through
    an execution role limited to what this stack creates, and your everyday user can only use CDK's roles:
    - [`infra/iam/cfn-execution-policy.json`](infra/iam/cfn-execution-policy.json): what CloudFormation may create
-     (the site bucket, CloudFront, DNS records, `CspExplainedSite-*` roles, the usage Lambda, log group and dashboard).
+     (the site bucket, CloudFront, DNS records, `CspExplainedSite-*` roles, the usage and violations Lambdas, their
+     log groups, the dashboard and the `CspExplained-*` alarms).
    - [`infra/iam/deployer-policy.json`](infra/iam/deployer-policy.json): attach it to the IAM user (or group) that
      runs `cdk deploy`. It only allows assuming the `cdk-hnb659fds-*` roles created by `cdk bootstrap`.
 

@@ -14,6 +14,7 @@ import type { Construct } from 'constructs';
 import { buildSync } from 'esbuild';
 import { HEADER_POLICY } from '../../src/site-policy.ts';
 import { USAGE_EVENTS, USAGE_NAMESPACE } from '../../src/usage.ts';
+import { VIOLATION_NAMESPACE } from '../../src/own-violations.ts';
 
 /** Bundles a small handler into one CommonJS file, inlined in the template (no asset to upload). */
 function bundle(entry: string): string {
@@ -50,6 +51,7 @@ export interface SiteStackProps extends StackProps {
  * Static hosting: private S3 bucket behind CloudFront (Origin Access Control),
  * security headers including our own CSP header, and a GitHub Actions deploy role.
  * Usage counts: `/e` goes to a small Lambda that logs one line per event, read by a CloudWatch dashboard.
+ * Our own policy's violations: `/csp-violation` goes to another one, watched by an alarm on the same dashboard.
  */
 export class SiteStack extends Stack {
   constructor(scope: Construct, id: string, props: SiteStackProps) {
@@ -119,35 +121,23 @@ function handler(event) {
       },
     });
 
-    // Usage counts (see src/usage.ts). The function URL only accepts CloudFront, through Origin Access Control.
-    const usageLogs = new logs.LogGroup(this, 'UsageLogs', {
-      retention: logs.RetentionDays.THIRTEEN_MONTHS,
-      removalPolicy: RemovalPolicy.RETAIN,
-    });
-    // Its own role, allowed only to write to its log group (an inline policy, not AWSLambdaBasicExecutionRole).
-    const usageRole = new iam.Role(this, 'UsageRole', {
-      description: 'CSP Explained usage counts: writes its log lines',
-      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-    });
-    usageLogs.grantWrite(usageRole);
-    const usageFunction = new lambda.Function(this, 'Usage', {
-      role: usageRole,
-      description: 'CSP Explained usage counts',
-      code: lambda.Code.fromInline(bundle('../lambda/usage.ts')),
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_22_X,
-      architecture: lambda.Architecture.ARM_64,
-      memorySize: 128,
-      timeout: Duration.seconds(3),
-      logGroup: usageLogs,
-    });
-    const usageUrl = usageFunction.addFunctionUrl({ authType: lambda.FunctionUrlAuthType.AWS_IAM });
-    // Only the query string reaches the function: no cookies, no headers (so no visitor IP).
-    const usageRequests = new cloudfront.OriginRequestPolicy(this, 'UsageRequests', {
-      comment: 'CSP Explained usage counts: query string only',
+    // Usage counts (see src/usage.ts) and our own policy's violations (see src/own-violations.ts): each a small
+    // Lambda writing to its own log group. Their function URLs only accept CloudFront, through Origin Access Control.
+    const usage = this.counter('Usage', 'CSP Explained usage counts', '../lambda/usage.ts', logs.RetentionDays.THIRTEEN_MONTHS);
+    const violations = this.counter('Violations', "CSP Explained: what this site's own policy blocks", '../lambda/violations.ts', logs.RetentionDays.THREE_MONTHS);
+    // Only the query string reaches the functions: no cookies, no headers (so no visitor IP).
+    const counterRequests = new cloudfront.OriginRequestPolicy(this, 'UsageRequests', {
+      comment: 'CSP Explained usage counts and violations: query string only',
       queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.all(),
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.none(),
       cookieBehavior: cloudfront.OriginRequestCookieBehavior.none(),
+    });
+    const counterBehavior = (url: lambda.FunctionUrl): cloudfront.BehaviorOptions => ({
+      origin: origins.FunctionUrlOrigin.withOriginAccessControl(url),
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      originRequestPolicy: counterRequests,
     });
 
     const distribution = new cloudfront.Distribution(this, 'Distribution', {
@@ -170,13 +160,8 @@ function handler(event) {
         functionAssociations: [{ function: cleanUrls, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
       additionalBehaviors: {
-        '/e': {
-          origin: origins.FunctionUrlOrigin.withOriginAccessControl(usageUrl),
-          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-          cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-          originRequestPolicy: usageRequests,
-        },
+        '/e': counterBehavior(usage.url),
+        '/csp-violation': counterBehavior(violations.url),
       },
       errorResponses: [
         // A private bucket answers 403 for missing keys.
@@ -194,7 +179,7 @@ function handler(event) {
       }
     }
 
-    this.usageDashboard(usageLogs);
+    this.usageDashboard(usage.logGroup, violations.logGroup);
 
     // GitHub Actions deploys with short-lived credentials: no AWS keys stored in GitHub.
     const providerArn =
@@ -231,8 +216,36 @@ function handler(event) {
     new CfnOutput(this, 'DeployRoleArn', { value: deployRole.roleArn });
   }
 
-  /** Daily counts per event, and the breakdowns (tools, report copies, landing pages) from the log lines. */
-  private usageDashboard(logGroup: logs.ILogGroup) {
+  /**
+   * A Lambda behind a function URL that only CloudFront may call, logging to its own log group. Its role may only
+   * write there (an inline policy, not AWSLambdaBasicExecutionRole).
+   */
+  private counter(id: string, description: string, entry: string, retention: logs.RetentionDays) {
+    const logGroup = new logs.LogGroup(this, `${id}Logs`, { retention, removalPolicy: RemovalPolicy.RETAIN });
+    const role = new iam.Role(this, `${id}Role`, {
+      description: `${description}: writes its log lines`,
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+    });
+    logGroup.grantWrite(role);
+    const fn = new lambda.Function(this, id, {
+      role,
+      description,
+      code: lambda.Code.fromInline(bundle(entry)),
+      handler: 'index.handler',
+      runtime: lambda.Runtime.NODEJS_22_X,
+      architecture: lambda.Architecture.ARM_64,
+      memorySize: 128,
+      timeout: Duration.seconds(3),
+      logGroup,
+    });
+    return { logGroup, url: fn.addFunctionUrl({ authType: lambda.FunctionUrlAuthType.AWS_IAM }) };
+  }
+
+  /**
+   * Daily counts per event, and the breakdowns (tools, report copies, landing pages) from the log lines.
+   * Below them, our own policy's violations: the alarm, the counts, and what was blocked where.
+   */
+  private usageDashboard(logGroup: logs.ILogGroup, violationLogs: logs.ILogGroup) {
     const count = (event: string) =>
       new cloudwatch.Metric({
         namespace: USAGE_NAMESPACE,
@@ -244,15 +257,39 @@ function handler(event) {
       });
     const events = Object.keys(USAGE_EVENTS);
     const usage = events.filter((e) => e !== 'visit');
-    const table = (title: string, query: string) =>
+    const table = (title: string, query: string, group = logGroup, width = 8) =>
       new cloudwatch.LogQueryWidget({
         title,
-        logGroupNames: [logGroup.logGroupName],
+        logGroupNames: [group.logGroupName],
         view: cloudwatch.LogQueryVisualizationType.TABLE,
         queryLines: [query],
-        width: 8,
+        width,
         height: 8,
       });
+
+    // Violations of our own policy, by kind. Our pages trigger none (the e2e suite fails on any), so a single
+    // script one is worth a look. No notification: the alarm stays in ALARM for a day after the last one, on the
+    // dashboard and in the CloudWatch console.
+    const violationCount = (kind: string, period = Duration.days(1)) =>
+      new cloudwatch.Metric({
+        namespace: VIOLATION_NAMESPACE,
+        metricName: 'Violations',
+        dimensionsMap: { Kind: kind },
+        statistic: cloudwatch.Stats.SUM,
+        period,
+        label: kind,
+      });
+    const scriptAlarm = new cloudwatch.Alarm(this, 'ScriptViolationsAlarm', {
+      alarmName: 'CspExplained-ScriptViolations',
+      alarmDescription: "Something tried to run code that this site's policy blocked, in the last 24 hours. See the CSP violations tables on the CspExplained-Usage dashboard.",
+      metric: violationCount('script', Duration.hours(1)),
+      threshold: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      evaluationPeriods: 24,
+      datapointsToAlarm: 1,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+      actionsEnabled: false,
+    });
 
     new cloudwatch.Dashboard(this, 'UsageDashboard', {
       dashboardName: 'CspExplained-Usage',
@@ -275,6 +312,24 @@ function handler(event) {
           table('Tools added', 'filter Event = "tool" | stats count(*) as times by tool | sort times desc'),
           table('Reports copied', 'filter Event = "copy-report" | stats count(*) as times by audience, kind | sort times desc'),
           table('Visits by landing page', 'filter Event = "visit" | stats count(*) as visits by page | sort visits desc'),
+        ],
+        [
+          new cloudwatch.AlarmStatusWidget({ title: 'Blocked code on this site', alarms: [scriptAlarm], width: 6, height: 8 }),
+          new cloudwatch.GraphWidget({
+            title: "Violations of this site's policy per day",
+            left: [violationCount('script'), violationCount('other')],
+            width: 18,
+            height: 8,
+          }),
+        ],
+        [
+          table(
+            'What was blocked',
+            'stats count(*) as times, latest(@timestamp) as last by Kind, Directive, Blocked | sort times desc',
+            violationLogs,
+            12,
+          ),
+          table('Where', 'stats count(*) as times by Page, Source, Line | sort times desc', violationLogs, 12),
         ],
       ],
     });
