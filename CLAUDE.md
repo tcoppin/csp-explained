@@ -152,7 +152,7 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - Identity: the policy annotated like a highlighted document. The highlighter is the one bold element; keep
   everything else quiet. Avoid generic AI-site defaults (navy/cobalt, card grids, all-caps eyebrows, middle-dot
   meta strings, arrows on buttons).
-- Colours only through the tokens in `src/styles/global.css`. Light is aubergine/raspberry; dark is a
+- Colours only through the tokens in `src/styles/global.css`. Light is aubergine/plum; dark is a
   Monokai-like olive-brown, never navy. The dark token block appears twice (explicit `data-theme` and system
   preference): keep both identical. Text pairs must pass WCAG AA in both themes.
 - Status colours carry meaning: green allowed, yellow/amber warning, vermilion blocked. The accent never

@@ -58,15 +58,16 @@
 
 :root {
   color-scheme: light;
-  /* Light: aubergine ink, raspberry pen */
+  /* Light: aubergine ink, plum pen. Plum, not raspberry: a red-pink action colour read as an error, and for some
+     colour-blind visitors matched the error or the success colour (src/styles/palette.test.ts checks it). */
   --paper: #f6f3f6;
   --surface: #ffffff;
   --ink: #2a1d2e;
   --ink-soft: #625568;
   --rule: #e4dce6;
-  --action: #b0175f;
+  --action: #7a2f8f;
   --action-ink: #ffffff;
-  --focus: #b0175f;
+  --focus: #7a2f8f;
 
   /* Highlighters, one per kind of token */
   --hl-keyword: #ffe66d;
@@ -76,7 +77,7 @@
   --hl-unsafe: #ffb8b0;
   --hl-invalid: #ebe5ec;
 
-  /* Status colours; "bad" leans vermilion so it never reads as the raspberry action colour */
+  /* Status colours: red only means trouble. Each also shows a mark and words, never colour alone */
   --ok: #1e7a3c;
   --bad: #c2361f;
   --warn: #8a5800;
@@ -112,9 +113,9 @@
   --ink: #f8f8f2;
   --ink-soft: #b4ae97;
   --rule: #45463c;
-  --action: #ff5c93;
+  --action: #d29be8;
   --action-ink: #272822;
-  --focus: #ff5c93;
+  --focus: #d29be8;
   --hl-keyword: #6b6322;
   --hl-host: #1f5560;
   --hl-scheme: #4e3b7a;
@@ -134,9 +135,9 @@
     --ink: #f8f8f2;
     --ink-soft: #b4ae97;
     --rule: #45463c;
-    --action: #ff5c93;
+    --action: #d29be8;
     --action-ink: #272822;
-    --focus: #ff5c93;
+    --focus: #d29be8;
     --hl-keyword: #6b6322;
     --hl-host: #1f5560;
     --hl-scheme: #4e3b7a;
