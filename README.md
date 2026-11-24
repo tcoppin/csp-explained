@@ -49,6 +49,20 @@ How it works, so you can check it:
 
 The list above, [`src/usage.ts`](src/usage.ts) and the About page must stay in sync.
 
+### What our own policy blocks
+
+The site's policy is in a `<meta>` tag, where browsers ignore `report-uri` and `report-to`. So the first script of
+every page ([`src/layouts/Base.astro`](src/layouts/Base.astro)) listens for the `securitypolicyviolation` event and
+sends a request to `/csp-violation`, the same way as the usage counts: the directive, what was blocked and the file
+that tried (cut to scheme, host and path: no query string), the line, and the page's path. Never a code sample, which
+could hold what the visitor typed. Violations caused by browser extensions aren't sent, and each page sends at most five.
+
+A second Lambda checks it all again, since anyone can call the address, and writes one line per violation
+([`src/own-violations.ts`](src/own-violations.ts), [`infra/lambda/violations.ts`](infra/lambda/violations.ts)), kept
+3 months. Our pages trigger none (the end-to-end tests fail on any), so the `CspExplained-ScriptViolations` alarm goes
+off after a single violation by code (scripts, `eval`, Trusted Types) and stays on for 24 hours. It doesn't notify
+anyone: check it, and the tables of what was blocked where, on the `CspExplained-Usage` dashboard.
+
 ## Releases
 
 Versions follow [semantic versioning](https://semver.org/). Each one is a `vMAJOR.MINOR.PATCH` tag with a

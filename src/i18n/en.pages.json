@@ -76,7 +76,7 @@
         "recent": "**Your last 10 analyses** (policy, site address, tools picked and the account addresses typed for them), only while the history is on. Delete them under the list."
       }
     },
-    "countTitle": "What we count",
+    "countTitle": "What we track",
     "count": "To know whether the site is useful, we count visits and a few actions: analysing or comparing policies, explaining a console message or a batch of reports, trying the example, opening a share link, adding a tool, copying the snippet, copying, printing or downloading a report or the results of a batch of reports, building a policy and copying it. For each one we keep a line with the time, what happened and the page, tool or report involved, for 13 months. No cookies, no third-party service, nothing that identifies you, and never your policy, your site address or the messages and reports you paste.",
     "sourcesTitle": "Where the information comes from",
     "sourceSpec": "Directive behaviour follows the [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/) specification.",
@@ -86,6 +86,7 @@
     "catalogue": "Vendors change their requirements. If an entry is outdated or a tool is missing, [open an issue]({issues}) with a link to the official documentation.",
     "ownTitle": "This site's own policy",
     "own": "We follow our own advice. This site sends two policies: a header for what only a header can do (refusing to be embedded in other sites), and a `<meta>` tag with strict rules where scripts and styles are allowed by their exact fingerprint (hash).",
+    "ownWatch": "We also track what [this site's own policy](#own-policy) blocks, to notice if someone tries to run code here. Browsers don't send reports for a policy in a `<meta>` tag, so a short script at the top of each page tells us: which rule, what was blocked (its address, without what follows a `?`), the file and line that tried, and the page. Never code, never what you typed, and nothing your browser extensions trigger. Kept 3 months.",
     "analyseOwn": "Analyse this site's policy"
   },
   "find": {

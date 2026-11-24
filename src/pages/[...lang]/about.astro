@@ -41,6 +41,7 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
 
   <h2>{t('pages.about.countTitle')}</h2>
   <p><Rich t={t} msg="pages.about.count" /></p>
+  <p><Rich t={t} msg="pages.about.ownWatch" /></p>
 
   <h2>{t('pages.about.sourcesTitle')}</h2>
   <ul>
@@ -52,7 +53,7 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
   <h2>{t('pages.about.catalogueTitle')}</h2>
   <p><Rich t={t} msg="pages.about.catalogue" vars={{ issues: `${REPO_URL}/issues` }} /></p>
 
-  <h2>{t('pages.about.ownTitle')}</h2>
+  <h2 id="own-policy">{t('pages.about.ownTitle')}</h2>
   <p><Rich t={t} msg="pages.about.own" /></p>
   <pre><code>{ownPolicy}</code></pre>
   <p><a class="button" href={analyzeOwn}>{t('pages.about.analyseOwn')}</a></p>

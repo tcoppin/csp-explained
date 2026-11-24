@@ -76,7 +76,7 @@
         "recent": "**Vos 10 dernières analyses** (politique, adresse du site, outils choisis et adresses de compte tapées pour eux), seulement tant que l'historique est activé. Supprimez-les sous la liste."
       }
     },
-    "countTitle": "Ce que nous comptons",
+    "countTitle": "Ce que nous suivons",
     "count": "Pour savoir si le site est utile, nous comptons les visites et quelques actions : analyser ou comparer des politiques, expliquer un message de la console ou un lot de rapports, essayer l'exemple, ouvrir un lien de partage, ajouter un outil, copier le snippet, copier, imprimer ou télécharger un rapport ou les résultats d'un lot de rapports, construire une politique et la copier. Pour chacune, nous gardons une ligne avec l'heure, ce qui s'est passé et la page, l'outil ou le rapport concerné, pendant 13 mois. Pas de cookies, pas de service tiers, rien qui vous identifie, et jamais votre politique, l'adresse de votre site ni les messages et rapports que vous collez.",
     "sourcesTitle": "D'où viennent les informations",
     "sourceSpec": "Le comportement des directives suit la spécification [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/).",
@@ -86,6 +86,7 @@
     "catalogue": "Les éditeurs changent leurs exigences. Si une fiche est obsolète ou qu'un outil manque, [ouvrez une issue]({issues}) avec un lien vers la documentation officielle.",
     "ownTitle": "La politique de ce site",
     "own": "Nous suivons nos propres conseils. Ce site envoie deux politiques : un en-tête pour ce que seul un en-tête peut faire (refuser d'être intégré dans d'autres sites), et une balise `<meta>` avec des règles strictes où scripts et styles sont autorisés par leur empreinte exacte (hash).",
+    "ownWatch": "Nous suivons aussi ce que bloque [la politique de ce site](#own-policy), pour voir si quelqu'un tente d'y exécuter du code. Les navigateurs n'envoient pas de rapports pour une politique en balise `<meta>` : un court script en haut de chaque page nous le dit. La règle, ce qui a été bloqué (son adresse, sans ce qui suit un `?`), le fichier et la ligne à l'origine, et la page. Jamais de code, jamais ce que vous avez tapé, et rien de ce que déclenchent vos extensions. Gardé 3 mois.",
     "analyseOwn": "Analyser la politique de ce site"
   },
   "find": {
