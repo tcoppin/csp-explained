@@ -84,6 +84,21 @@ test('the catalogue lists its categories in the margin: each opens its tools, an
   expect(errors).toEqual([]);
 });
 
+test('Find my CSP uses the full width, for its tabs and drawings and for its text', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'one column on phones');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/find-my-csp#devtools');
+  const steps = (await page.locator('#browser-chrome .steps').boundingBox())!;
+  const drawing = (await page.locator('#browser-chrome figure').boundingBox())!;
+  // Side by side: the drawing starts right of the steps, at the same height.
+  expect(drawing.x).toBeGreaterThan(steps.x + steps.width);
+  expect(Math.abs(drawing.y - steps.y)).toBeLessThan(40);
+  const tabs = (await page.getByRole('tablist', { name: 'Ways to find your policy' }).boundingBox())!;
+  expect(tabs.width).toBeGreaterThan(1100);
+  // Text runs the column's width too, down to the last list.
+  for (const text of ['.lead', '.pitfalls dl']) expect((await page.locator(text).boundingBox())!.width).toBeGreaterThan(1100);
+});
+
 test('tabs on static pages are in place from the first paint, so the panels never collapse under the reader', async ({ page, browser, baseURL }) => {
   // The page's scripts are held: the tab list and a single panel show anyway.
   await page.route('**/_astro/*.js', () => {});

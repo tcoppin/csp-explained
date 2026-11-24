@@ -177,6 +177,20 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
 </script>
 
 <style>
+  /* The whole column, text included: steps, notes and lists read in full lines next to the tabs and drawings */
+  .guide.page-column > *,
+  .guide :is(p, li, dd) {
+    max-width: none;
+  }
+  /* With room, a browser's steps sit beside the drawing of its DevTools */
+  @media (min-width: 60rem) {
+    :global(.js) .browser {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 2.5rem;
+      align-items: start;
+    }
+  }
   .lead {
     font-size: var(--step-1);
   }
@@ -252,7 +266,6 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
 
   .steps {
     padding-left: 1.4rem;
-    max-width: var(--measure);
   }
   .steps li {
     margin-bottom: 0.6rem;
@@ -272,7 +285,6 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
   }
   .more {
     margin-top: 0.75rem;
-    max-width: var(--measure);
   }
   .more summary {
     cursor: pointer;
@@ -322,7 +334,6 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
     display: grid;
     grid-template-columns: minmax(10rem, 14rem) 1fr;
     gap: 0.6rem 1.5rem;
-    max-width: 52rem;
   }
   .reading dt,
   .pitfalls dt {
