@@ -280,6 +280,11 @@
   justify-content: space-between;
   gap: 0 1rem;
 }
+/* Says when the message waits for, or goes without, another language's tool texts. Kept in the page while
+   empty (a live region must exist before it speaks), without taking room. */
+.message-language-note:empty {
+  margin: 0;
+}
 textarea.message {
   font-size: var(--step--1);
   line-height: 1.55;

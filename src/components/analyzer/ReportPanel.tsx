@@ -19,6 +19,7 @@ import { useT } from '../ui/i18n';
 import { useCopy } from '../ui/useCopy';
 import { downloadFile } from '../ui/document';
 import { documentTitle, printDocument, reportFile, ReportDocument } from './ReportDocument';
+import { useVendorTexts } from './vendor-texts';
 
 type ReportPart = 'message' | 'diff' | 'deploy' | 'markdown';
 
@@ -111,8 +112,8 @@ interface Props {
   analysis: Analysis;
   audience: Audience;
   site: string;
-  /** Each language's tool texts, so the IT message can be written in another language than the page's. */
-  vendorsIn: Partial<Record<Locale, Vendor[]>>;
+  /** The tools' texts in the page's language; another language's are fetched when the IT message is written in it. */
+  vendors: Vendor[];
   /** What each rule means, for the printed report when the visitor asks for it. */
   directives: Record<string, DirectiveDoc>;
   /** What the PDF and .html file include: kept by the analyzer, so they last from one report and view to the next. */
@@ -123,11 +124,12 @@ interface Props {
   onHashes: (policyIndex: number, directive: string) => void;
 }
 
-export function ReportPanel({ analysis, audience, site, vendorsIn, directives, exportOptions, onExportOptions, onPickTools, onHashes }: Props) {
+export function ReportPanel({ analysis, audience, site, vendors, directives, exportOptions, onExportOptions, onPickTools, onHashes }: Props) {
   const t = useT();
   const [format, setFormat] = useState<MessageFormat>('email');
   // A French marketer may write to an English-speaking IT team: the message has its own language.
   const [messageLocale, setMessageLocale] = useState<Locale>(t.locale);
+  const texts = useVendorTexts(messageLocale, t.locale, vendors);
   const [target, setTarget] = useState<Target>('nginx');
   const copied = (kind: ReportPart) => () => track('copy-report', { audience, kind });
   /** The report as a document, built when it's saved: the link is this analysis as the address bar has it then. */
@@ -147,11 +149,17 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, directives, e
   if (audience === 'simple') {
     if (analysis.vendors.length === 0) return noTools;
     const mt = messageLocale === t.locale ? t : translator(messageLocale);
-    const text = itRequest(withVendorText(analysis, vendorsIn[messageLocale] ?? []), mt, {
-      format,
-      site,
-      toolUrl: new URL(localePath(messageLocale, '/'), SITE_URL).href,
-    });
+    // Until another language's tool texts arrive, no message: half of it would be in the page's language.
+    // If they can't be loaded, the message keeps the tools' texts in the page's language, and says so.
+    const text =
+      texts.state === 'loading'
+        ? ''
+        : itRequest(withVendorText(analysis, texts.state === 'ready' ? texts.vendors : vendors), mt, {
+            format,
+            site,
+            toolUrl: new URL(localePath(messageLocale, '/'), SITE_URL).href,
+          });
+    const language = LOCALE_NAMES[messageLocale];
     return (
       <div class="report">
         <div class="report-options">
@@ -164,11 +172,18 @@ export function ReportPanel({ analysis, audience, site, vendorsIn, directives, e
             label={t('report.languageLabel')}
           />
         </div>
-        <textarea class="code message" readOnly rows={Math.min(28, text.split('\n').length + 1)} value={text} aria-label={t('report.title')} />
-        <div class="actions">
-          <CopyButton text={text} onCopy={copied('message')} />
-        </div>
-        <SaveCopy audience={audience} site={site} options={exportOptions} setOptions={onExportOptions} doc={doc({ text, locale: messageLocale })} text={{ format: 'txt', content: text }} />
+        <p class="muted message-language-note" role="status">
+          {texts.state === 'loading' ? t('report.languageLoading', { language }) : texts.state === 'failed' ? t('report.languageFailed', { language }) : ''}
+        </p>
+        {texts.state !== 'loading' && (
+          <>
+            <textarea class="code message" readOnly rows={Math.min(28, text.split('\n').length + 1)} value={text} aria-label={t('report.title')} />
+            <div class="actions">
+              <CopyButton text={text} onCopy={copied('message')} />
+            </div>
+            <SaveCopy audience={audience} site={site} options={exportOptions} setOptions={onExportOptions} doc={doc({ text, locale: messageLocale })} text={{ format: 'txt', content: text }} />
+          </>
+        )}
       </div>
     );
   }

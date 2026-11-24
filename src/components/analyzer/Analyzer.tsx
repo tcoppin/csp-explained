@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/ho
 import { EXAMPLE_POLICY } from '../../config';
 import { localePath, translator, type Locale } from '../../i18n';
 import { analyze, DEFAULT_ORIGIN, selectionsOf, type VendorSelection } from '../../lib/analysis';
-import type { Vendor } from '../../lib/catalogue/schema';
 import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
@@ -61,11 +60,9 @@ function PolicySwitch({ parsed, value, onChange }: { parsed: ParseResult; value:
 interface Props {
   content: ContentBundle;
   locale: Locale;
-  /** The tools' texts in the other languages, for an IT message in another language than the page's. */
-  otherVendors: Partial<Record<Locale, Vendor[]>>;
 }
 
-export default function Analyzer({ content, locale, otherVendors }: Props) {
+export default function Analyzer({ content, locale }: Props) {
   const t = useMemo(() => translator(locale), [locale]);
   const [input, setInput] = useState('');
   const [editing, setEditing] = useState(true);
@@ -536,7 +533,7 @@ export default function Analyzer({ content, locale, otherVendors }: Props) {
                   analysis={analysis}
                   audience={audience}
                   site={site}
-                  vendorsIn={{ ...otherVendors, [locale]: content.vendors }}
+                  vendors={content.vendors}
                   directives={content.directives}
                   exportOptions={exportOptions}
                   onExportOptions={setExportOptions}

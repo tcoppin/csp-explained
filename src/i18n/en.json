@@ -239,6 +239,8 @@
     "copied": "Copied",
     "nothing": "This report is built from the tools you want to use. Pick them first, or switch to Security for a review of the policy itself.",
     "languageLabel": "Message language",
+    "languageLoading": "Loading the tools' texts for the message ({language})…",
+    "languageFailed": "The tools' texts for the message ({language}) couldn't be loaded, so they stay in this page's language. Check your connection, then pick {language} again.",
     "formats": {
       "email": "Email",
       "chat": "Slack / Teams",

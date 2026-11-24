@@ -239,6 +239,8 @@
     "copied": "Copié",
     "nothing": "Ce rapport est construit à partir des outils que vous voulez utiliser. Choisissez-les d'abord, ou passez à Sécurité pour un examen de la politique elle-même.",
     "languageLabel": "Langue du message",
+    "languageLoading": "Chargement des textes des outils pour le message ({language})…",
+    "languageFailed": "Les textes des outils pour le message ({language}) n'ont pas pu être chargés : ils restent dans la langue de cette page. Vérifiez votre connexion, puis choisissez à nouveau {language}.",
     "formats": {
       "email": "E-mail",
       "chat": "Slack / Teams",

@@ -614,6 +614,72 @@ test('the analyzer speaks French, and the IT message can be written in English',
   expect(errors).toEqual([]);
 });
 
+/** A French page with Hotjar picked, its IT message open. */
+async function frenchMessage(page: Page) {
+  await openAnalyzer(page, '/fr');
+  await page.getByRole('textbox', { name: 'Collez une Content-Security-Policy' }).fill(POLICY);
+  await page.getByRole('tab', { name: /Mes outils fonctionneront-ils/ }).click();
+  await page.getByRole('combobox', { name: 'Ajouter un outil' }).fill('Hotjar');
+  await page.getByRole('option', { name: 'Hotjar' }).click();
+  await page.getByRole('button', { name: "Rédiger la demande à l'informatique" }).click();
+  return page.getByRole('textbox', { name: 'Votre rapport' });
+}
+
+test("the home page carries only its own language's tool texts; another language's load when the message needs them", async ({ page, request }) => {
+  // Every language's catalogue in the page made it 487 KB; the other languages' now load on demand.
+  const html = await (await request.get('/')).text();
+  expect(html).not.toContain('otherVendors');
+  const fetched: string[] = [];
+  page.on('request', (r) => r.url().includes('/data/vendors-') && fetched.push(new URL(r.url()).pathname));
+
+  const message = await frenchMessage(page);
+  await expect(message).toHaveValue(/^Objet/);
+  expect(fetched).toEqual([]);
+  await page.getByRole('radio', { name: 'English' }).click();
+  await expect(message).toHaveValue(/^Subject: Website security policy: request to allow Hotjar/);
+  // Back and forth: fetched once.
+  await page.getByRole('radio', { name: 'Français' }).click();
+  await page.getByRole('radio', { name: 'English' }).click();
+  await expect(message).toHaveValue(/^Subject:/);
+  expect(fetched).toEqual(['/data/vendors-en.json']);
+});
+
+test('while the tool texts load, the message waits and a screen reader hears why', async ({ page }) => {
+  let release = () => {};
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route('**/data/vendors-en.json', async (route) => {
+    await held;
+    await route.continue();
+  });
+  const message = await frenchMessage(page);
+  const heard = await announced(page, () => page.getByRole('radio', { name: 'English' }).click());
+  expect(heard).toContain('polite: Chargement des textes des outils pour le message (English)…');
+  // No half-French message to copy meanwhile; the focus stays on the language picked.
+  await expect(message).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Copier', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('radio', { name: 'English' })).toBeFocused();
+  release();
+  await expect(message).toHaveValue(/^Subject:/);
+  await expect(page.locator('.message-language-note')).toBeEmpty();
+});
+
+test("when another language's tool texts can't load, the message keeps the page's and says so, then tries again", async ({ page }) => {
+  await page.route('**/data/vendors-en.json', (route) => route.abort());
+  const message = await frenchMessage(page);
+  const heard = await announced(page, () => page.getByRole('radio', { name: 'English' }).click());
+  const failed = "Les textes des outils pour le message (English) n'ont pas pu être chargés : ils restent dans la langue de cette page. Vérifiez votre connexion, puis choisissez à nouveau English.";
+  expect(heard).toContain(`polite: ${failed}`);
+  // The message is in English, with the tools' texts in French: still something to send.
+  await expect(message).toHaveValue(/^Subject:/);
+  await expect(page.getByRole('button', { name: 'Copier', exact: true })).toBeVisible();
+
+  await page.unroute('**/data/vendors-en.json');
+  await page.getByRole('radio', { name: 'Français' }).click();
+  await page.getByRole('radio', { name: 'English' }).click();
+  await expect(page.locator('.message-language-note')).toBeEmpty();
+  await expect(message).toHaveValue(/^Subject:/);
+});
+
 test("the analyzer offers hashes in place of 'unsafe-inline', also from the security report", async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page);
