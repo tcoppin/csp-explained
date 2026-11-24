@@ -36,7 +36,7 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
     <p class="lead"><Rich t={t} msg={m('lead')} /></p>
 
     <div class="methods" data-tabs data-tabs-hash>
-      <div role="tablist" aria-label={t(m('methodsLabel'))} class="tablist" hidden>
+      <div role="tablist" aria-label={t(m('methodsLabel'))} class="tablist" data-js-only>
         {
           methods.map((method, i) => (
             <button type="button" role="tab" id={`tab-${method.id}`} aria-controls={method.id} aria-selected={i === 0 ? 'true' : 'false'}>
@@ -83,7 +83,7 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
         <p><Rich t={t} msg={m('devtools.intro')} /></p>
 
         <div class="browsers" data-tabs data-tabs-detect>
-          <div role="tablist" aria-label={t(m('devtools.browserLabel'))} class="segmented" hidden>
+          <div role="tablist" aria-label={t(m('devtools.browserLabel'))} class="segmented" data-js-only>
             {
               browsers.map((b, i) => (
                 <button type="button" role="tab" id={`tab-${b.id}`} aria-controls={`browser-${b.id}`} aria-selected={i === 0 ? 'true' : 'false'} data-match={b.match}>
@@ -235,13 +235,13 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
     margin-top: 3rem;
     scroll-margin-top: 1rem;
   }
-  .tabs-ready > .method {
+  :global(.js) .methods > .method {
     margin-top: 0;
     padding-top: 1.75rem;
   }
   /* With tabs, the tab already names the method */
-  .tabs-ready > .method > h2,
-  .browsers.tabs-ready .browser > h3 {
+  :global(.js) .methods > .method > h2,
+  :global(.js) .browsers .browser > h3 {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -307,7 +307,7 @@ const browser = (id: string, key: string) => m(`devtools.${id}.${key}`);
     background: var(--ink);
     color: var(--paper);
   }
-  .browsers:not(.tabs-ready) {
+  :global(html:not(.js)) .browsers {
     display: grid;
     gap: 1rem 2rem;
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));

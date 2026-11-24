@@ -113,6 +113,31 @@ html {
   display: none !important;
 }
 
+/* Static tabs (src/scripts/tabs.ts): with JavaScript, until the script runs, only the first panel shows, or the one
+   the address names (#terminal), so the panels don't collapse when it takes over. */
+html.js [data-tabs]:not(.tabs-ready) > [role='tablist'] ~ * ~ *,
+html.js [data-tabs]:not(.tabs-ready):has(> :target) > [role='tablist'] + * {
+  display: none;
+}
+html.js [data-tabs]:not(.tabs-ready) > [role='tablist'] ~ :target {
+  display: block;
+}
+
+/* The language note (Base.astro): <head> names the language to suggest on <html>, before the first paint.
+   One rule per language the site has (src/i18n/notes.test.ts checks it). */
+[data-language-note] {
+  display: none;
+}
+html[data-note-lang='en'] [data-language-note='en'],
+html[data-note-lang='fr'] [data-language-note='fr'] {
+  display: block;
+}
+
+/* Controls that need JavaScript: hidden without it, shown from the first paint with it (Base.astro sets .js) */
+html:not(.js) [data-js-only] {
+  display: none !important;
+}
+
 body {
   accent-color: var(--action);
   margin: 0;

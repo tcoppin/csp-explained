@@ -162,7 +162,7 @@ end`,
     <h2 id="stacks-title">{t(m('stacks.title'))}</h2>
     <p><Rich t={t} msg={m('stacks.intro')} /></p>
     <div class="stacks" data-tabs data-tabs-hash>
-      <div role="tablist" aria-labelledby="stacks-title" class="tablist" hidden>
+      <div role="tablist" aria-labelledby="stacks-title" class="tablist" data-js-only>
         {
           stacks.map((stack, i) => (
             <button type="button" role="tab" id={`tab-${stack.id}`} aria-controls={stack.id} aria-selected={i === 0 ? 'true' : 'false'}>
@@ -312,12 +312,12 @@ end`,
   .stack {
     margin-top: 2rem;
   }
-  .tabs-ready > .stack {
+  :global(.js) .stacks > .stack {
     margin-top: 0;
     padding-top: 1.25rem;
   }
   /* With tabs, the tab already names the stack */
-  .tabs-ready > .stack > h3 {
+  :global(.js) .stacks > .stack > h3 {
     position: absolute;
     width: 1px;
     height: 1px;

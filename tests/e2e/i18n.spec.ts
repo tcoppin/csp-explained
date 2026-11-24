@@ -49,6 +49,13 @@ test.describe('a visitor whose browser prefers French', () => {
     expect(errors).toEqual([]);
   });
 
+  test('sees the note from the first paint, so it never pushes the page down', async ({ page }) => {
+    // The page's module scripts are held: the note is decided while the page is read.
+    await page.route('**/_astro/*.js', () => {});
+    await page.goto('/learn', { waitUntil: 'commit' });
+    await expect(page.locator('[data-language-note="fr"]')).toBeVisible();
+  });
+
   test('follows the note to the same page in French, keeping the # part, and sees no note there', async ({ page }) => {
     await page.goto('/find-my-csp#terminal');
     await page.getByRole('link', { name: 'La lire en français' }).click();

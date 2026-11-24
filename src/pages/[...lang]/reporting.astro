@@ -89,7 +89,7 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
     <h2>{t(m('format.title'))}</h2>
     <p><Rich t={t} msg={m('format.intro')} /></p>
     <div class="formats" data-tabs>
-      <div role="tablist" aria-label={t(m('format.label'))} class="segmented" hidden>
+      <div role="tablist" aria-label={t(m('format.label'))} class="segmented" data-js-only>
         <button type="button" role="tab" id="tab-current" aria-controls="current" aria-selected="true">{t(m('format.current.tab'))}</button>
         <button type="button" role="tab" id="tab-legacy" aria-controls="legacy" aria-selected="false">{t(m('format.legacy.tab'))}</button>
       </div>
@@ -203,10 +203,10 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
     background: var(--ink);
     color: var(--paper);
   }
-  .tabs-ready > .format {
+  :global(.js) .formats > .format {
     padding-top: 0.75rem;
   }
-  .tabs-ready > .format > h3 {
+  :global(.js) .formats > .format > h3 {
     position: absolute;
     width: 1px;
     height: 1px;

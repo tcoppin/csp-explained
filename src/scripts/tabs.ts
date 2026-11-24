@@ -1,9 +1,10 @@
 /**
  * Progressive tabs for static pages (WAI-ARIA tabs pattern, automatic activation).
  *
- * Markup: an element with `data-tabs` containing a `[role=tablist][hidden]` of `[role=tab]` buttons
- * (each with `aria-controls`) and the panels. Without JavaScript the tab list stays hidden and every
- * panel is shown, so the page still reads top to bottom.
+ * Markup: an element with `data-tabs` containing a `[role=tablist][data-js-only]` of `[role=tab]` buttons
+ * (each with `aria-controls`), then only the panels. Without JavaScript the tab list stays hidden and every
+ * panel is shown, so the page still reads top to bottom. With it, global.css shows the tab list and one
+ * panel from the first paint (pages style the tabbed look under `.js`), so nothing moves when this runs.
  *
  * Options on the `data-tabs` element:
  * - `data-tabs-hash`: select the panel named in the URL fragment, and keep the fragment in sync.
@@ -29,7 +30,6 @@ function setup(root: HTMLElement) {
     }
   };
 
-  list.hidden = false;
   root.classList.add('tabs-ready');
   for (const tab of tabs) {
     const panel = panelOf(tab);

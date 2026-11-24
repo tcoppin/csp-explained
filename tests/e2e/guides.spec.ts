@@ -44,6 +44,57 @@ test('guides list their sections, jump to them, and say what to read next', asyn
   expect(errors).toEqual([]);
 });
 
+test('tabs on static pages are in place from the first paint, so the panels never collapse under the reader', async ({ page, browser, baseURL }) => {
+  // The page's scripts are held: the tab list and a single panel show anyway.
+  await page.route('**/_astro/*.js', () => {});
+  await page.goto('/find-my-csp', { waitUntil: 'commit' });
+  const methods = page.getByRole('tablist', { name: 'Ways to find your policy' });
+  await expect(methods).toBeVisible();
+  await expect(page.locator('#console')).toBeVisible();
+  await expect(page.locator('#terminal')).toBeHidden();
+  // The panel the address names, when there is one.
+  await page.goto('/find-my-csp#terminal', { waitUntil: 'commit' });
+  await expect(page.locator('#terminal')).toBeVisible();
+  await expect(page.locator('#console')).toBeHidden();
+  await page.goto('/reporting', { waitUntil: 'commit' });
+  await expect(page.locator('#current')).toBeVisible();
+  await expect(page.locator('#legacy')).toBeHidden();
+
+  // Without JavaScript the page reads top to bottom: every panel, no tab list.
+  const noJs = await browser.newContext({ javaScriptEnabled: false, baseURL });
+  const plain = await noJs.newPage();
+  await plain.goto('/find-my-csp');
+  await expect(plain.locator('.methods > [role=tablist]')).toBeHidden();
+  for (const id of ['console', 'devtools', 'source', 'terminal', 'errors']) await expect(plain.locator(`#${id}`)).toBeVisible();
+  await noJs.close();
+});
+
+test('the catalogue search field is there from the first paint, so it never pushes the tools down', async ({ page, browser, baseURL }) => {
+  // Hold the page's scripts: the field shows anyway, so nothing moves when they arrive.
+  let release = () => {};
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route('**/_astro/*.js', async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto('/vendors', { waitUntil: 'commit' });
+  const find = page.getByRole('searchbox', { name: 'Find a tool or an address' });
+  await expect(find).toBeVisible();
+  // What was typed before the script loaded is searched once it runs.
+  await find.fill('goo');
+  release();
+  await expect(page.locator('[data-name="hotjar"]')).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Google Tag Manager' })).toBeVisible();
+
+  // Without JavaScript the field can't work: it stays hidden, and every tool shows.
+  const noJs = await browser.newContext({ javaScriptEnabled: false, baseURL });
+  const plain = await noJs.newPage();
+  await plain.goto('/vendors');
+  await expect(plain.locator('[data-finder]')).toBeHidden();
+  await expect(plain.locator('[data-name="hotjar"]')).toBeAttached();
+  await noJs.close();
+});
+
 test('the catalogue finds a tool, and a tool page shows each line once with what it is for', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('/vendors');

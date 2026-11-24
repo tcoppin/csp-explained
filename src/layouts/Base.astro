@@ -80,20 +80,35 @@ const themes = [
     <meta property="og:image:alt" content={`${t('site.name')}: ${t('site.tagline')}`} />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <script is:inline>
-      // Apply the saved theme before the first paint (see the theme switch below).
+    {/* Before the CSP <meta> Astro adds at the end of <head>: Astro doesn't hash is:inline scripts, and a <meta>
+         policy only applies to what follows it. An inline script anywhere after it is blocked. */}
+    <script is:inline define:vars={{ noteLocales: others }}>
+      // Before the first paint, so nothing appears later and pushes the page down.
+      const root = document.documentElement;
+      // JavaScript runs: what only works with it shows from the start (data-js-only).
+      root.classList.add('js');
+      let stored = {};
       try {
-        const theme = localStorage.getItem('csp-explained:theme');
-        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
-      } catch {}
+        stored = { theme: localStorage.getItem('csp-explained:theme'), note: localStorage.getItem('csp-explained:language-note') };
+      } catch {
+        // No storage: the system theme, and the language note when it applies.
+      }
+      // The saved theme (see the theme switch below).
+      if (stored.theme === 'light' || stored.theme === 'dark') root.dataset.theme = stored.theme;
+      // Language note: when the browser prefers another language the page exists in, global.css shows the note in
+      // that language. Never a redirect; dismissing it is remembered on this device (the module script below).
+      if (stored.note !== 'dismissed') {
+        const preferred = navigator.languages.map((l) => l.slice(0, 2).toLowerCase()).find((l) => l === root.lang || noteLocales.includes(l));
+        if (preferred && preferred !== root.lang) root.dataset.noteLang = preferred;
+      }
     </script>
   </head>
   <body data-page={Astro.url.pathname}>
     <a class="skip visually-hidden" href="#main">{t('site.skip')}</a>
     {
-      /* Shown by the script below only to visitors whose browser prefers that language. */
+      /* Shown from the first paint (global.css) only to visitors whose browser prefers that language: see <head>. */
       others.map((l) => (
-        <div class="language-note" lang={l} data-language-note={l} hidden>
+        <div class="language-note" lang={l} data-language-note={l}>
           <p class="wrap note-bar">
             <span class="note-text">
               {translator(l)('site.languageNote.text')}{' '}
@@ -175,24 +190,10 @@ const themes = [
     });
   }
 
-  // Language note: when the browser prefers another language the page exists in, say so in that language.
-  // Never a redirect, and dismissing it is remembered on this device.
-  const notes = [...document.querySelectorAll<HTMLElement>('[data-language-note]')];
-  let dismissed = false;
-  try {
-    dismissed = localStorage.getItem(NOTE_KEY) === 'dismissed';
-  } catch {
-    // No storage: show the note when it applies.
-  }
-  if (notes.length > 0 && !dismissed) {
-    const available = [document.documentElement.lang, ...notes.map((n) => n.dataset.languageNote)];
-    const preferred = navigator.languages.map((l) => l.slice(0, 2).toLowerCase()).find((l) => available.includes(l));
-    const note = notes.find((n) => n.dataset.languageNote === preferred);
-    if (note) note.hidden = false;
-  }
+  // Language note (chosen in <head>): dismissing it is remembered on this device.
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-language-note-dismiss]')) {
     button.addEventListener('click', () => {
-      button.closest<HTMLElement>('[data-language-note]')!.hidden = true;
+      delete document.documentElement.dataset.noteLang;
       remember();
     });
   }
