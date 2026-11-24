@@ -265,6 +265,12 @@ How it would run and what to watch:
 - 2026-11-12: Google's CSP Evaluator stays for its research on allowlist bypasses; our own checks cover what it
   misses.
 - 2026-11-12: features that need our server come last (section 5).
+- 2026-11-24: no font preloads, though PageSpeed's "network dependency tree" suggests them. Measured on the home
+  page with Lighthouse's mobile profile (slow 4G, 4× CPU), median of 5: every set delayed the first paint, because
+  the fonts (`font-display: swap`, text shows in the fallback meanwhile) take bandwidth from the blocking
+  stylesheets. FCP 440 ms without, 524 ms with mono 400 only, 660 ms with the three Next weights, 800 ms with all
+  four. Their only gain was the layout shift (CLS 0.0037 → 0), already far below 0.1. Measure again before
+  revisiting.
 
 ## Done
 
