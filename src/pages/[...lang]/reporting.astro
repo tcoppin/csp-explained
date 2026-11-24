@@ -71,8 +71,20 @@ const fields = ['type', 'page', 'blocked', 'directive', 'disposition', 'where', 
         ))
       }
     </dl>
-    <p class="note"><Rich t={t} msg={m('setup.meta')} /></p>
     <p><Rich t={t} msg={m('setup.reportOnly')} /></p>
+
+    <h2>{t(m('meta.title'))}</h2>
+    <p class="note"><Rich t={t} msg={m('meta.intro')} /></p>
+    <dl class="reading">
+      {
+        t.keys(m('meta.items')).map((item) => (
+          <>
+            <dt>{t(`${item}.term`)}</dt>
+            <dd><Rich t={t} msg={`${item}.definition`} /></dd>
+          </>
+        ))
+      }
+    </dl>
 
     <h2>{t(m('format.title'))}</h2>
     <p><Rich t={t} msg={m('format.intro')} /></p>

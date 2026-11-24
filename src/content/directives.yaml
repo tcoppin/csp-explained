@@ -209,6 +209,7 @@
   simple: Like the report address, but using the browser's newer reporting system.
   developer: >-
     Names a Reporting-Endpoints group. Browsers that support report-to ignore report-uri when both are set.
+    Ignored in <meta> policies.
   security: Same value as report-uri; send both for broad browser support.
 
 - name: upgrade-insecure-requests

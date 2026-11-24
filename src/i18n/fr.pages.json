@@ -259,8 +259,29 @@
           "definition": "L'ancienne méthode, avec l'adresse écrite dans la politique. Les navigateurs qui comprennent `report-to` l'ignorent : elle ne sert que pour les anciens navigateurs. Garder les deux ne coûte rien."
         }
       ],
-      "meta": "Les rapports ne fonctionnent que dans les en-têtes : une politique écrite dans une balise `<meta>` ne peut pas en envoyer.",
-      "reportOnly": "Vous testez une nouvelle politique ? Envoyez-la en `Content-Security-Policy-Report-Only` avec les mêmes lignes de rapport. Rien n'est bloqué, et vous recevez un rapport pour tout ce qui le serait. Quand les rapports cessent, passez à `Content-Security-Policy`."
+      "reportOnly": "Vous testez une nouvelle politique ? Envoyez-la dans un en-tête `Content-Security-Policy-Report-Only` avec les mêmes lignes de rapport. Rien n'est bloqué, et vous recevez un rapport pour tout ce qui le serait. Quand les rapports cessent, passez à `Content-Security-Policy`."
+    },
+    "meta": {
+      "title": "Si votre politique est dans une balise <meta>",
+      "intro": "Les navigateurs ignorent `report-to` et `report-uri` dans une politique écrite dans une balise `<meta>`. La politique bloque toujours ce qu'elle interdit et la console l'affiche toujours, mais aucun rapport n'est envoyé.",
+      "items": [
+        {
+          "term": "Un en-tête ne fait pas de rapport pour la balise",
+          "definition": "Chaque politique ne signale que ses propres violations. Ajouter `report-uri` à un en-tête sans `script-src` n'envoie rien quand la politique en `<meta>` bloque un script."
+        },
+        {
+          "term": "Le mode rapport seul demande aussi un en-tête",
+          "definition": "Une balise `<meta http-equiv=\"Content-Security-Policy-Report-Only\">` est entièrement ignorée. Pour essayer une politique sans rien bloquer, envoyez-la dans un en-tête."
+        },
+        {
+          "term": "Copier la politique dans un en-tête en rapport seul",
+          "definition": "Envoyez la même politique en `Content-Security-Policy-Report-Only`, avec les lignes de rapport. Elle ne bloque rien de plus, et ses rapports correspondent à ce que bloque la balise. Gardez les deux identiques : quand la balise change (une nouvelle empreinte, une nouvelle adresse) et pas l'en-tête, chaque visite envoie des rapports."
+        },
+        {
+          "term": "Ou écouter dans la page",
+          "definition": "Les navigateurs déclenchent un événement `securitypolicyviolation` pour chaque violation, que la politique vienne d'un en-tête ou d'une balise. Un court script placé en premier dans la page peut envoyer ce qu'il indique à votre adresse. Il manque ce qui se passe avant qu'il s'exécute, et il entend aussi ce que déclenchent les extensions des visiteurs : écartez-les."
+        }
+      ]
     },
     "format": {
       "title": "À quoi ressemble un rapport",

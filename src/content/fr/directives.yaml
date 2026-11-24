@@ -308,8 +308,8 @@ report-to:
     # Like the report address, but using the browser's newer reporting system.
     { en: 417fd13a, text: "Comme l'adresse de signalement, mais avec le système de signalement plus récent du navigateur." }
   developer:
-    # Names a Reporting-Endpoints group. Browsers that support report-to ignore report-uri when both are set.
-    { en: 41bd475b, text: "Nomme un groupe Reporting-Endpoints. Les navigateurs qui gèrent report-to ignorent report-uri quand les deux sont présentes." }
+    # Names a Reporting-Endpoints group. Browsers that support report-to ignore report-uri when both are set. Ignored in <meta> policies.
+    { en: 82ceb388, text: "Nomme un groupe Reporting-Endpoints. Les navigateurs qui gèrent report-to ignorent report-uri quand les deux sont présentes. Ignorée dans les politiques en <meta>." }
   security:
     # Same value as report-uri; send both for broad browser support.
     { en: 49d3f117, text: "Même intérêt que report-uri ; envoyez les deux pour couvrir un large éventail de navigateurs." }

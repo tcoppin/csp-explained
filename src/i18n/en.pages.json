@@ -259,8 +259,29 @@
           "definition": "The older way, with the address written in the policy. Browsers that understand `report-to` ignore it, so it only matters for older browsers. Keeping both costs nothing."
         }
       ],
-      "meta": "Reporting only works in headers: a policy written in a `<meta>` tag can't send reports.",
-      "reportOnly": "Trying out a new policy? Send it as `Content-Security-Policy-Report-Only` with the same reporting lines. Nothing is blocked, and you get a report for everything that would be. When the reports stop, switch to `Content-Security-Policy`."
+      "reportOnly": "Trying out a new policy? Send it as a `Content-Security-Policy-Report-Only` header with the same reporting lines. Nothing is blocked, and you get a report for everything that would be. When the reports stop, switch to `Content-Security-Policy`."
+    },
+    "meta": {
+      "title": "If your policy is in a <meta> tag",
+      "intro": "Browsers ignore `report-to` and `report-uri` in a policy written in a `<meta>` tag. The policy still blocks what it forbids and the console still shows it, but no report is sent.",
+      "items": [
+        {
+          "term": "A header doesn't report for the tag",
+          "definition": "Each policy only reports its own violations. Adding `report-uri` to a header that has no `script-src` sends nothing when the `<meta>` policy blocks a script."
+        },
+        {
+          "term": "Report-only needs a header too",
+          "definition": "A `<meta http-equiv=\"Content-Security-Policy-Report-Only\">` tag is ignored entirely. To try a policy without blocking anything, send it as a header."
+        },
+        {
+          "term": "Copy the policy into a report-only header",
+          "definition": "Send the same policy as `Content-Security-Policy-Report-Only`, with the reporting lines. It blocks nothing more, and its reports match what the tag blocks. Keep the two identical: when the tag changes (a new hash, a new address) and the header doesn't, every visit sends reports."
+        },
+        {
+          "term": "Or listen in the page",
+          "definition": "Browsers fire a `securitypolicyviolation` event for each violation, whether the policy came from a header or a tag. A short script placed first in the page can send what it says to your address. It misses what happens before it runs, and it also hears what visitors' extensions trigger: filter those out."
+        }
+      ]
     },
     "format": {
       "title": "What a report looks like",
