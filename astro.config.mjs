@@ -11,7 +11,10 @@ export default defineConfig({
   site: SITE_URL,
   output: 'static',
   trailingSlash: 'ignore',
-  build: { format: 'directory' },
+  // Stylesheets go inside each page: a separate file blocks the first paint until it arrives. On Lighthouse's mobile
+  // profile (slow 4G) the first paint went from ~440 ms to ~230 ms, for 3–6 KB more HTML per page (gzipped).
+  // Our CSP allows them through the hashes Astro adds to style-src.
+  build: { format: 'directory', inlineStylesheets: 'always' },
   // Sitemap addresses match the site's links (no trailing slash), with each page's other languages;
   // the 404 page isn't one to index.
   integrations: [
