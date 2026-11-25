@@ -99,7 +99,8 @@ Each in the spec of the area it touches, in the same commit as the change:
    to the start of what replaced it (a heading with `tabIndex={-1}`, or the field to type in). A test checks
    where it lands with `toBeFocused()`.
 4. **A new page or view** goes in `everyView`, so axe and the high-contrast test run on it.
-5. **A new tool or a redesign of one** gets the manual check below before it ships.
+5. **A new tool or a redesign of one** gets the manual check below before it ships. What to listen for in it goes
+   in [docs/screen-reader-check.md](docs/screen-reader-check.md), under its page.
 
 ### Manual check with a screen reader
 

@@ -9,71 +9,9 @@ needs our own server comes last, because it changes the site's promise that the 
 
 ## 1. Improve what exists
 
-- [ ] **Screen reader check by an experienced user** (VoiceOver or NVDA, ideally someone who uses one daily). The
-      automated checks (see Done) can't tell how code is pronounced, whether the explanations make sense when heard,
-      or how the tools feel to use. The owner tried on 2026-11-16 and found the policy took a Tab stop per part
-      (fixed); a full run needs someone at ease with a screen reader. Give them the script in CONTRIBUTING.md ›
-      Accessibility. Ways to find someone: a request on the repository's issues, accessibility communities, a
-      local association for blind and partially sighted people, or a paid accessibility testing service.
-      Also check "Save a copy" under each report (2026-11-16): the group and its two choices are read with their
-      names; "Print or save as PDF" opens the print window and, once closed, the focus is back on that button;
-      a PDF saved from it, opened in a PDF reader, reads headings and the policy in order; the downloaded .html
-      file reads the same way in a browser.
-      Also the address search on the Tools page (2026-11-17): typing `static.hotjar.com` in "Find a tool or an
-      address", the result is announced once typing pauses ("static.hotjar.com is used by Hotjar"), not after each
-      letter; the lines under a tool make sense heard ("https://static.hotjar.com in script-src, for…"), including
-      how the addresses and directive names are pronounced.
-      And the console-message explainer (2026-11-17): paste a few console messages in the analyzer; "6 messages
-      explained" is heard once; each message reads as a heading, then whether it was blocked or only reported, then
-      the tool and the line; the hash generator under a Safari message is easy to reach and its result is heard.
-      And the reports reader (`/reports`, 2026-11-20): with "Try an example", "117 reports read" is heard once; each
-      problem reads as a heading, then blocked or only reported, then "46 reports on 6 pages from…"; the pages list
-      and "Set apart" open and close with Enter and say so; "Open a file" opens the file picker and, once a file is
-      read, its name is heard; "Clear" puts the focus back in the box. Under "A script from cdn.jquery-libs.example",
-      the warning is heard before the "I know what this is" checkbox; checking it says "…added to the lines" and
-      the focus stays on it. "Only the reports since" is a date field: picking a day says "N reports since…";
-      And "A quicker way, less safe" (2026-11-20), under a style attribute in the reports example and under `eval` in
-      the console example: it is heard after the safe way, says it is collapsed or expanded, and once open the warning
-      is heard before the line to copy.
-      And the "Set apart" sections at the end of the reports example (2026-11-20): one per cause (extensions,
-      software on visitors' devices, translation), each heard as its own collapsed group with its title and counts.
-      And the problems as rows (2026-11-20): each row is heard as one control with what was blocked, its level and
-      its count ("A script from cdn.jquery-libs.example, Check first, 5 reports, collapsed"), says expanded once
-      opened, and its detail reads in order (the reasons it ranks there, the counts, the explanation, the warning
-      before the checkbox). The arrows on folds aren't read. And the bar the box folds into once reports are read
-      (2026-11-21): after "Try an example", the focus lands on "What the 138 reports say" and that is heard;
-      "Change" puts it back in the box, "Done" on the heading again; the summary's highlighted counts are heard as
-      plain words, and each row is heard with its level first ("Check first, A script from…, 5 reports").
-      And the warning on public CDNs (2026-11-23): on the Tools page, jsDelivr's line says "Risky for your site";
-      on its page, "Risk:" and the warning are heard before "Check jsDelivr against my policy"; in the tool
-      picker, cdnjs is heard as "cdnjs risky" (not "cdnjsrisky"); once picked, in the builder and the analyzer, the
-      warning is the first thing heard under the tool's name.
-      And the folded categories on the Tools page (2026-11-23): each category is heard as a heading inside a
-      collapsed control, with its count and the names of its tools ("Analytics, 4 tools, Amplitude, …, collapsed"),
-      and moving by headings still reaches every category (VoiceOver with Safari is known to drop headings inside a
-      summary: check it there). Enter opens it and says expanded; typing "jquery" in the search opens Libraries and
-      frameworks, and clearing it folds that back.
-      And partly verified tools in the builder (2026-11-23): picking Tealium iQ, its open card says "Partly verified:"
-      and what's missing before its lines; on the last step, "Things to know" counts one more note, and its heading
-      "Check these tools before you enforce the policy" is followed by the tools' names.
-      And the account address fields (2026-11-23): picking Matomo in the builder, "Your Matomo address, edit text" is
-      heard with its hint; typing "stats shop" makes it invalid and the error is heard with it; Piwik PRO's "Your
-      account name" in the analyzer, and the same field in the comparator's tools. Datadog RUM's "Your Datadog site" is a list:
-      heard as a pop-up button with its hint, and "Choose…" first.
-      And "Save a copy" at the end of the results (2026-11-21): the group and its two checkboxes are read with their
-      names; after "Print or save as PDF" the focus is back on that button; the downloaded .html file reads in
-      order in a browser (title, the details under it, "In short", each problem as a heading with its level first);
-      a PDF saved from it, opened in a PDF reader, reads the same way.
-      And "… is one of my domains" under an unknown address (2026-11-21): checking it says "…counted as one of your
-      domains", and the focus stays on it although its row can move in the list.
-      And "What the reports quoted" in an opened row (2026-11-21): heard as a fold; the quoted code and the script
-      addresses are read as code, with their counts.
-      And "Can you enforce it?" for a report-only batch (2026-11-20): heard as a heading, the verdict ("Not yet",
-      "It looks ready", "too soon to say") read first and stressed; after picking a day in "Only the reports
-      since", the new verdict can be found again easily (it is above the lines, not announced by itself).
-      And the Tools page's categories in the margin (2026-11-24, from 80rem wide): the landmark is heard as
-      "Categories"; each entry reads as the category's link then "4 tools", not a bare number; following one opens
-      that category and the reader lands on it; while searching, only the categories left are heard.
+- [ ] **Screen reader check by an experienced user** (VoiceOver or NVDA, ideally someone who uses one daily): the
+      script in CONTRIBUTING.md › Accessibility, then the checks in
+      [docs/screen-reader-check.md](docs/screen-reader-check.md). Help is asked for in issue #15.
 - [ ] Reports reader: try a real export from Sentry, Datadog, report-uri.com and URIports. The reader goes by field
       and column names (`blocked_uri`, `@csp-report.blocked-uri`, `tags[blocked-uri]`, "Blocked URI"…). Checked on
       2026-11-21 against what is public: Sentry's CSP interface keeps `document_uri`, `violated_directive`,

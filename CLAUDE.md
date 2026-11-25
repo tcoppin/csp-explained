@@ -18,8 +18,8 @@ ideas to `ROADMAP.md`, not here.
 - Every new feature or redesign comes with its accessibility tests in the same commit (CONTRIBUTING.md ›
   Accessibility): `readAloud` for what is shown by colour or marks, `announced` for what changes, `toBeFocused` when
   the focused control goes away, new views in `everyView`. A new tool or a redesign also needs the manual screen
-  reader check: the owner isn't at ease with VoiceOver, so add what to check to the roadmap's "Screen reader check
-  by an experienced user" item instead of asking them to run it.
+  reader check: add what to listen for to `docs/screen-reader-check.md` (under its page, dated), for someone who
+  uses a screen reader daily, instead of asking the owner to run it.
 
 ## Commands
 
