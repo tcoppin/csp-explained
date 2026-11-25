@@ -50,6 +50,9 @@ const analyzeOwn = localePath(t.locale, `/#${encodeState({ policy: ownPolicy, si
     <li><Rich t={t} msg="pages.about.sourceVendors" /></li>
   </ul>
 
+  <h2>{t('pages.about.makerTitle')}</h2>
+  <p>{t('pages.about.maker')}</p>
+
   <h2>{t('pages.about.catalogueTitle')}</h2>
   <p><Rich t={t} msg="pages.about.catalogue" vars={{ issues: `${REPO_URL}/issues` }} /></p>
 

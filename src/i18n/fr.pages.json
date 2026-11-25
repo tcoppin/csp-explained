@@ -82,6 +82,8 @@
     "sourceSpec": "Le comportement des directives suit la spécification [W3C Content Security Policy Level 3](https://www.w3.org/TR/CSP3/).",
     "sourceEvaluator": "Les constats de sécurité viennent de la bibliothèque [CSP Evaluator](https://github.com/google/csp-evaluator) de Google (Apache-2.0), les mêmes vérifications que csp-evaluator.withgoogle.com.",
     "sourceVendors": "Ce dont chaque outil a besoin vient de la documentation officielle de l'éditeur, liée sur chaque fiche avec la date de dernière vérification. Aucun éditeur ne paie pour être listé ni n'influence les résultats.",
+    "makerTitle": "Qui le fait",
+    "maker": "CSP Explained est un projet personnel de Tanguy Coppin, construit sur son temps libre. Il est gratuit, sans sponsor, sans publicité et sans version payante. Aucun éditeur ne paie pour figurer dans le catalogue ni n'a son mot à dire sur sa fiche : chaque fiche suit les mêmes règles, à partir de la documentation publique de l'éditeur.",
     "catalogueTitle": "Aidez à garder le catalogue juste",
     "catalogue": "Les éditeurs changent leurs exigences. Si une fiche est obsolète ou qu'un outil manque, [ouvrez une issue]({issues}) avec un lien vers la documentation officielle.",
     "ownTitle": "La politique de ce site",
