@@ -1,5 +1,5 @@
 {
-  "name": "csp-explainer",
+  "name": "csp-explained",
   "description": "Understand any Content-Security-Policy, in plain language.",
   "scripts": {
     "dev": "astro dev",

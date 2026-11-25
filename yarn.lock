@@ -2611,9 +2611,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"csp-explainer@workspace:.":
+"csp-explained@workspace:.":
   version: 0.0.0-use.local
-  resolution: "csp-explainer@workspace:."
+  resolution: "csp-explained@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.12"
     "@astrojs/preact": "npm:^6.1.6"
