@@ -103,6 +103,12 @@ button.tok:hover {
   background: var(--hl-invalid);
   text-decoration: wavy underline var(--bad);
 }
+/* Skipped by current browsers (next to a nonce, a hash or 'strict-dynamic'): no colour, since it neither allows
+   nor risks anything there; struck through like the values the "What it allows" view sets aside */
+.hl-ignored {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+}
 
 /* The keyboard hint under the intro, while the policy or its explanation has the keyboard focus (screen readers
    get it in the policy's name) */

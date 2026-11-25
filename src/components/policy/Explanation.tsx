@@ -4,9 +4,10 @@ import { explainSource, type ContentBundle } from '../../lib/content';
 import { directiveInfo, DIRECTIVES } from '../../lib/csp/directives';
 import { resolve } from '../../lib/csp/fallback';
 import { issuesAt } from '../../lib/csp/parser';
-import type { Audience, ParseIssue, Policy } from '../../lib/csp/model';
+import { ignoredSources } from '../../lib/csp/matcher';
+import type { Audience, Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
 import { useT } from '../ui/i18n';
-import { highlightClass, type Selection } from './PolicyView';
+import { ignoredValues, valueTone, type Selection } from './PolicyView';
 import './explanation.css';
 
 interface Props {
@@ -22,6 +23,27 @@ export function issueText(t: Translate, i: ParseIssue): string {
   const own = `issues.deprecated.${i.directive ?? ''}`;
   const key = i.code === 'deprecated-directive' && t.has(own) ? own : `issues.${i.code}`;
   return t(key, { directive: i.directive ?? '', value: (i.value ?? '').replace(/'/g, '') });
+}
+
+/**
+ * Why current browsers skip `value` in `directive`, said before what the value means on its own (which would call
+ * `https:` or 'unsafe-inline' risky). In default-src, only when it is the rule scripts use, and saying so.
+ */
+export function skippedText(t: Translate, policy: Policy, directive: Directive, value: SourceExpression): string | undefined {
+  const params = { directive: directive.name, value: value.raw };
+  const why = (d: Directive) =>
+    d.values.some((v) => v.kind === 'keyword' && v.value === "'strict-dynamic'")
+      ? t('findings.ignored.strict-dynamic', params)
+      : t('findings.ignored.unsafe-inline', params);
+  if (ignoredValues(directive).includes(value)) return directive.name.startsWith('style') ? t('findings.ignored.unsafe-inline', params) : why(directive);
+  if (
+    directive.name === 'default-src' &&
+    resolve(policy, 'script-src-elem').governing === directive &&
+    ignoredSources(directive, 'script').includes(value)
+  ) {
+    return t('explanation.skippedForScripts', { reason: why(directive) });
+  }
+  return undefined;
 }
 
 /**
@@ -50,6 +72,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
   const valueDoc = value ? explainSource(content, value) : undefined;
 
   const relevant = issuesAt(issues, selection.policyIndex, directive, value);
+  const skipped = value ? skippedText(t, policy, directive, value) : undefined;
 
   // Absent directives that fall back to this one, and are therefore governed by it.
   const covers = directive.duplicate
@@ -68,8 +91,9 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
             {doc && <span>{doc.title}</span>}
           </p>
           <h3>
-            <code class={`tok ${highlightClass(value)}`}>{value.raw}</code>
+            <code class={`tok ${valueTone(directive, value)}`}>{value.raw}</code>
           </h3>
+          {skipped && <p class="skipped">{skipped}</p>}
           {valueDoc ? (
             <>
               <p class="lead">{valueDoc.title}</p>

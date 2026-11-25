@@ -14,6 +14,13 @@ describe('evaluateSecurity', () => {
     expect(findings.every((f) => f.reportOnly)).toBe(true);
   });
 
+  it("doesn't call the fallbacks of a strict policy risky: browsers that know 'strict-dynamic' skip them", () => {
+    const findings = evaluateSecurity(
+      parse("script-src 'nonce-r4nd0mR4nd0mR4nd0m' 'strict-dynamic' https: 'unsafe-inline'; object-src 'none'; base-uri 'none'"),
+    );
+    expect(findings.filter((f) => f.level === 'high' || f.level === 'medium')).toEqual([]);
+  });
+
   it('ignores values our parser found invalid', () => {
     const findings = evaluateSecurity(parse("script-src 'self' 'sha256-…'; object-src 'none'; base-uri 'none'"));
     expect(findings.some((f) => f.value === "'sha256-…'")).toBe(false);

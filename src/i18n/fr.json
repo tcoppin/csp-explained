@@ -391,6 +391,7 @@
     "label": "{policy} : les flèches passent d'une partie à l'autre, Entrée en explique une, Tab va à l'explication",
     "keys": "Au clavier : les flèches passent d'une partie à l'autre, Entrée en explique une, Tab va à l'explication.",
     "risky": "risqué",
+    "ignored": "ignoré par les navigateurs actuels",
     "invalid": "non valide",
     "added": "ajouté pour votre site ou vos outils",
     "repeated": "ignorée : cette règle est en double",
@@ -404,7 +405,8 @@
     "moreAbout": "En savoir plus sur {directive}",
     "summaryDirective": "{directive} : {title}",
     "summaryValue": "{value} dans {directive} : {title}",
-    "summaryValueOnly": "{value} dans {directive}"
+    "summaryValueOnly": "{value} dans {directive}",
+    "skippedForScripts": "Pour les scripts : {reason} Les autres contenus qui suivent cette règle l'utilisent toujours."
   },
   "categories": {
     "tag-management": "Gestion de balises",

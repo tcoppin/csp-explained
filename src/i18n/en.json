@@ -391,6 +391,7 @@
     "label": "{policy}: arrow keys move between its parts, Enter explains one, Tab goes to the explanation",
     "keys": "With the keyboard: arrow keys move between the parts, Enter explains one, Tab goes to the explanation.",
     "risky": "risky",
+    "ignored": "ignored by current browsers",
     "invalid": "not valid",
     "added": "added for your site or tools",
     "repeated": "ignored: this rule is repeated",
@@ -404,7 +405,8 @@
     "moreAbout": "More about {directive}",
     "summaryDirective": "{directive}: {title}",
     "summaryValue": "{value} in {directive}: {title}",
-    "summaryValueOnly": "{value} in {directive}"
+    "summaryValueOnly": "{value} in {directive}",
+    "skippedForScripts": "For scripts: {reason} Other content that follows this rule still uses it."
   },
   "categories": {
     "tag-management": "Tag management",

@@ -41,3 +41,11 @@
 .parts dd {
   margin: 0;
 }
+/* Why browsers skip the picked value here, read before what the value means on its own */
+.explanation .skipped {
+  font-weight: 700;
+}
+/* At heading size a line through the value is hard to read: the note under it says it is skipped */
+.explanation h3 .hl-ignored {
+  text-decoration: none;
+}

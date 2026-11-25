@@ -1,6 +1,8 @@
 import { Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 import type { ContentBundle } from '../../lib/content';
+import type { ResourceType } from '../../lib/csp/directives';
+import { ignoredSources } from '../../lib/csp/matcher';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
 import type { Translate } from '../../i18n';
 import { useT } from '../ui/i18n';
@@ -32,11 +34,35 @@ export function highlightClass(v: SourceExpression): string {
   }
 }
 
+// The type whose rules decide which values of these directives browsers skip. default-src is left out: what it
+// skips for scripts it still applies to images, fonts and the rest, so its values keep their own look.
+const SKIPPING_TYPE: Record<string, ResourceType> = {
+  'script-src': 'script',
+  'script-src-elem': 'script',
+  'style-src': 'style',
+  'style-src-elem': 'style',
+};
+
+/**
+ * The values of `d` that current browsers skip: hosts, schemes and 'unsafe-inline' next to 'strict-dynamic', or
+ * 'unsafe-inline' next to a nonce or a hash. Sites keep them for older browsers; they are no risk where ignored.
+ */
+export function ignoredValues(d: Directive): SourceExpression[] {
+  const type = SKIPPING_TYPE[d.name];
+  return type && !d.duplicate ? ignoredSources(d, type) : [];
+}
+
+/** The highlight of `v` within `d`: faded when browsers skip it there, whatever its kind. */
+export function valueTone(d: Directive, v: SourceExpression): string {
+  return ignoredValues(d).includes(v) ? 'hl-ignored' : highlightClass(v);
+}
+
 /**
  * What the highlight says without its colour, read after the value by screen readers ("'unsafe-inline', risky").
  * Empty for the colours that only tell the kind of value apart.
  */
 export function valueNote(t: Translate, highlight: string): string {
+  if (highlight === 'hl-ignored') return t('policyView.ignored');
   if (highlight === 'hl-unsafe') return t('policyView.risky');
   if (highlight === 'hl-invalid') return t('policyView.invalid');
   return '';
@@ -141,7 +167,7 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
             </button>
             {d.values.map((v, vi) => {
               const shown = !highlighted || highlighted(d, v);
-              const hl = shown ? highlightClass(v) : 'hl-none';
+              const hl = !shown ? 'hl-none' : highlighted ? highlightClass(v) : valueTone(d, v);
               // In the builder the highlight means "added for your site or tools", whatever the kind of value.
               const note = highlighted ? (shown ? t('policyView.added') : '') : valueNote(t, hl);
               return (

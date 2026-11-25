@@ -385,6 +385,22 @@ test('a directive written three times is one thing to check', async ({ page }) =
   await expect(page.locator('.policy .line').nth(2).locator('.flag')).toHaveCount(1);
 });
 
+test("values a strict policy keeps for old browsers are heard as ignored, and explained, not called risky", async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill("script-src 'nonce-r4nd0mR4nd0mR4nd0m' 'strict-dynamic' https: 'unsafe-inline'; object-src 'none'; base-uri 'none'");
+  const heard = await readAloud(page, '.policy');
+  expect(heard).toEqual(
+    expect.arrayContaining(["button, https:, ignored by current browsers, not pressed", "button, 'unsafe-inline', ignored by current browsers, not pressed"]),
+  );
+  expect(heard.join(' ')).not.toContain('risky');
+  await page.locator('.policy').getByRole('button', { name: 'https:' }).click();
+  await expect(page.locator('#explanation .skipped')).toHaveText(/https: in script-src is ignored because of 'strict-dynamic'/);
+  expect(errors).toEqual([]);
+});
+
 test('a screen reader hears what the colours and marks of the policy show', async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page);
