@@ -7,7 +7,7 @@ ideas to `ROADMAP.md`, not here.
 
 ## Working with the owner
 
-- Neutral personal project: never brand it for AB Tasty or any vendor. Vendor entries stay factual and sourced.
+- Neutral personal project: never brand it for any vendor. Vendor entries stay factual and sourced.
 - Commit only when asked. One commit per change (they ask for separate commits); every commit must pass the
   tests on its own. Titles follow Conventional Commits (CONTRIBUTING.md › Commit messages): they decide the next
   version. Never tag or create a release by hand: the deploy workflow does it. End messages with the
@@ -171,8 +171,8 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 ## Vendor catalogue rules
 
 - Only from the vendor's **official documentation**, linked in `sources`, with `lastVerified`.
-- Only **public** documentation (CONTRIBUTING.md › Vendor catalogue): never what is shown behind a login, including through
-  the owner's work accounts, unless the vendor approved publishing it in writing. Such tools wait in group 3 of
+- Only **public** documentation (CONTRIBUTING.md › Vendor catalogue): never what is shown behind a login, including
+  through an account someone has access to, unless the vendor approved publishing it in writing. Such tools wait in group 3 of
   the roadmap's catalogue section.
 - `confidence: partial` when the page couldn't be fully read, with what's missing in `notes`.
 - Don't bypass bot protection to read a vendor page; note it and ask the owner to check by hand.
