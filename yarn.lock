@@ -153,7 +153,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/internal-helpers@npm:0.13.2":
+"@astrojs/internal-helpers@npm:^0.13.2":
   version: 0.13.2
   resolution: "@astrojs/internal-helpers@npm:0.13.2"
   dependencies:
@@ -204,46 +204,46 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdown-satteri@npm:0.4.8":
-  version: 0.4.8
-  resolution: "@astrojs/markdown-satteri@npm:0.4.8"
+"@astrojs/markdown-satteri@npm:^0.4.10":
+  version: 0.4.10
+  resolution: "@astrojs/markdown-satteri@npm:0.4.10"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.13.2"
-    "@astrojs/prism": "npm:4.1.2"
+    "@astrojs/internal-helpers": "npm:^0.13.2"
+    "@astrojs/prism": "npm:^4.1.2"
     github-slugger: "npm:^2.0.0"
     satteri: "npm:^0.11.6"
-  checksum: 10c0/b24d5a13c41615445c805b8012ecce3b1240ef62c3f928f0ad685c9d070847e60272a5fa0f57e3c6452559177376a753758b85e3c03f0951a0f4059997a10399
+  checksum: 10c0/0f4ec491d40fde052db1e39e0d77022d981091644e32cbaa5458055edad48810755be902e57ac14a46b445bd4a6f7f980d2ade05e6e917c05b988a290d3ca8fd
   languageName: node
   linkType: hard
 
-"@astrojs/preact-renderer@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@astrojs/preact-renderer@npm:0.1.1"
+"@astrojs/preact-renderer@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@astrojs/preact-renderer@npm:0.1.3"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.13.2"
-    "@astrojs/runtime": "npm:0.1.0"
+    "@astrojs/internal-helpers": "npm:^0.13.2"
+    "@astrojs/runtime": "npm:^0.1.1"
     "@preact/signals": "npm:^2.11.4"
     preact-render-to-string: "npm:^6.8.2"
   peerDependencies:
     preact: ^10.6.5 || ^11.0.0
-  checksum: 10c0/817e94cd62f215ee917555e5cb725e8eafae91f26565d5527265549f6bf2695550156f852f2baa44412f0ba33b50e34c9c7b9828e173d6044b4ec8d71ad7afad
+  checksum: 10c0/26ca53a6e7d9317a5de89ec2d145768a70bbaf785fc6b5bf7a66a6d49901f5b0e8ee83a34ecbff162f177cebf6a176f3ec68fd17050b393632e8615c6d1e03d2
   languageName: node
   linkType: hard
 
-"@astrojs/preact@npm:^6.1.4":
-  version: 6.1.4
-  resolution: "@astrojs/preact@npm:6.1.4"
+"@astrojs/preact@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@astrojs/preact@npm:6.1.6"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.13.2"
-    "@astrojs/preact-renderer": "npm:0.1.1"
+    "@astrojs/internal-helpers": "npm:^0.13.2"
+    "@astrojs/preact-renderer": "npm:^0.1.3"
     "@preact/preset-vite": "npm:^2.10.6"
   peerDependencies:
     preact: ^10.6.5 || ^11.0.0
-  checksum: 10c0/185f4b82cdb7e365e181257231288509664344111ee04e1eb812d09cd86b34cb39e5016ea34242fee5fd01db7afcc5c8897a54d0f7a85bcb6b0b5dd6120de0d0
+  checksum: 10c0/a2decbdacea7911050ca49fa8787c8b265e461cfb7e9c20947a5f86264ffd96684fc49cbb0cc73e33968cc24cc93cff3b3e294f0a89383b26c66c571cf488cff
   languageName: node
   linkType: hard
 
-"@astrojs/prism@npm:4.1.2":
+"@astrojs/prism@npm:^4.1.2":
   version: 4.1.2
   resolution: "@astrojs/prism@npm:4.1.2"
   dependencies:
@@ -252,27 +252,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/runtime@npm:0.1.0":
-  version: 0.1.0
-  resolution: "@astrojs/runtime@npm:0.1.0"
+"@astrojs/runtime@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@astrojs/runtime@npm:0.1.1"
   dependencies:
     "@oslojs/encoding": "npm:^1.1.0"
     clsx: "npm:^2.1.1"
-  checksum: 10c0/460fcea0422013f556612916ce758dc654c2418ea8cad3195287f7d057951931868937359bcc8eeb95bf612bc81fedd046d2ee187551d7c08e3436f104ca0d74
+  checksum: 10c0/087aa330cdc8b4d07f6e39ba06d2cbb5f11ad0d267940019f1434dc792b9fc971dc7ff49f02a6c78f85feaa2db7c9d1fae2f8bd455348f5f0b2e2e40c764d9d4
   languageName: node
   linkType: hard
 
-"@astrojs/sitemap@npm:^3.7.4":
-  version: 3.7.4
-  resolution: "@astrojs/sitemap@npm:3.7.4"
+"@astrojs/sitemap@npm:^3.7.5":
+  version: 3.7.5
+  resolution: "@astrojs/sitemap@npm:3.7.5"
   dependencies:
-    sitemap: "npm:^9.0.0"
-    zod: "npm:^4.3.6"
-  checksum: 10c0/6aff00b6963f00a44e14db1cf26c4682702b43417c145d8d7a6871508ecbf80ba8db689b92acb9ab3b3ca9a14f1a1576b57c54d5c70e9e0e7acf477851329d29
+    sitemap: "npm:^10.0.0"
+    zod: "npm:^4.6.7"
+  checksum: 10c0/d1dd47c67fc98d4e8376a336a3cff9e0c0991f17f947260425f7bb66f50560982aa4be38a73532d6f4bd487bc42e10fd78bf80a453e2ecd4c1d6dce0401bc373
   languageName: node
   linkType: hard
 
-"@astrojs/telemetry@npm:3.4.2":
+"@astrojs/telemetry@npm:^3.4.2":
   version: 3.4.2
   resolution: "@astrojs/telemetry@npm:3.4.2"
   dependencies:
@@ -284,13 +284,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/vite-plugin-astro@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@astrojs/vite-plugin-astro@npm:0.1.1"
+"@astrojs/vite-plugin-astro@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@astrojs/vite-plugin-astro@npm:0.1.3"
   dependencies:
     "@astrojs/compiler-rs": "npm:^0.5.1"
-    "@astrojs/internal-helpers": "npm:0.13.2"
-    "@astrojs/runtime": "npm:0.1.0"
+    "@astrojs/internal-helpers": "npm:^0.13.2"
+    "@astrojs/runtime": "npm:^0.1.1"
     common-ancestor-path: "npm:^2.0.0"
     devalue: "npm:^6.0.2"
     magic-string: "npm:^1.4.2"
@@ -299,7 +299,7 @@ __metadata:
     zod: "npm:^4.6.5"
   peerDependencies:
     vite: ^8.3.3
-  checksum: 10c0/bcccc98fbb1c7b42226b686cc5017c6093cbfbcb4e4c5e7f581a22d3b9b74a60f6cae4ef7fec1b5b5e65210292e918583e53eb23aaac29a0d3397b30734a599a
+  checksum: 10c0/80f08298247678d0353822c2ae3722a4f19e10ef9c9ad8468201b50b683901d16b23d44043a85071cdc6e100d5ae6cb240246b2cc475eab94d088ecd9b37e5c4
   languageName: node
   linkType: hard
 
@@ -1426,14 +1426,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.65.0":
-  version: 1.65.0
-  resolution: "@playwright/test@npm:1.65.0"
+"@playwright/test@npm:^1.65.1":
+  version: 1.65.1
+  resolution: "@playwright/test@npm:1.65.1"
   dependencies:
-    playwright: "npm:1.65.0"
+    playwright: "npm:1.65.1"
   bin:
     playwright: cli.js
-  checksum: 10c0/137a641e1be8035686a165e69d86d242ee7ed5cbe71e5230f9195cb6e65be37a66ba697f16919b508d04c4d682fd4e167d1a755b64ceb545afac780de72b594b
+  checksum: 10c0/f3c0c6ce1d426c84c2ee370e7b7a81fcd4a7a8eaa9d51a880ec853e98ce437482772a09c58c7fbb4444002b127068f076458bec99cecca60c3b51e9ba93e2cc6
   languageName: node
   linkType: hard
 
@@ -1856,16 +1856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^24.9.2":
-  version: 24.19.2
-  resolution: "@types/node@npm:24.19.2"
-  dependencies:
-    undici-types: "npm:>=7.24.0 <7.24.7"
-  checksum: 10c0/b51a7f8854007ad579dffdd0633d8addbfeb2c97cceb380f2eba0ed163638ec52e17565385a6cc04d54ac4ff99c70c64aee68a4ca45b6128c035e828794e29c5
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^26.6.6":
+"@types/node@npm:^22.0.0 || ^24.0.0 || ^26.0.0, @types/node@npm:^26.6.6":
   version: 26.6.6
   resolution: "@types/node@npm:26.6.6"
   dependencies:
@@ -2037,14 +2028,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/mocker@npm:5.1.0":
-  version: 5.1.0
-  resolution: "@vitest/mocker@npm:5.1.0"
+"@vitest/mocker@npm:5.1.1":
+  version: 5.1.1
+  resolution: "@vitest/mocker@npm:5.1.1"
   dependencies:
     "@jridgewell/trace-mapping": "npm:0.3.31"
-    "@vitest/spy": "npm:5.1.0"
+    "@vitest/spy": "npm:5.1.1"
     estree-walker: "npm:^3.0.3"
-    magic-string: "npm:^1.4.3"
+    magic-string: "npm:^1.4.5"
   peerDependencies:
     msw: ^2.4.9 || ^3.0.0
     vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -2053,14 +2044,14 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10c0/b180d01dfcd6fe7065c1415814890bf062f73af2f7de41b1d0c97f22437b6722b39d96567b54081037b04a1e16dc96512aeaa1cff1fe9de94d8b7d2f75001f64
+  checksum: 10c0/08c1e555cf56f6414bdbfa89c386f7e2559ffd978e6cc7535d7835a23f2449e48f6bf1e64f0e5e065bf5fc66968fba3ae5fdd0f31b3d123622dbdbc751827054
   languageName: node
   linkType: hard
 
-"@vitest/spy@npm:5.1.0":
-  version: 5.1.0
-  resolution: "@vitest/spy@npm:5.1.0"
-  checksum: 10c0/6f57b9b0cf8fcf65f89cbe7f7688ee87b2bd64d8678d888c6ea5542b66efe041a0c2be6268de89ced0ee29c685b13d4e925b2e791be435e84236cc6d0394feb6
+"@vitest/spy@npm:5.1.1":
+  version: 5.1.1
+  resolution: "@vitest/spy@npm:5.1.1"
+  checksum: 10c0/bcafafb7bcd975b776c41c07b89452baf1dd441aba8e4214e610722e2d927f697db46fc68b07db5434ea0883772d6378ad21668e9c694528b970e1f43cf88165
   languageName: node
   linkType: hard
 
@@ -2260,13 +2251,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"arg@npm:^5.0.0":
-  version: 5.0.2
-  resolution: "arg@npm:5.0.2"
-  checksum: 10c0/ccaf86f4e05d342af6666c569f844bec426595c567d32a8289715087825c2ca7edd8a3d204e4d2fb2aa4602e09a57d0c13ea8c9eea75aac3dbb4af5514e6800e
-  languageName: node
-  linkType: hard
-
 "aria-query@npm:5.3.0":
   version: 5.3.0
   resolution: "aria-query@npm:5.3.0"
@@ -2290,16 +2274,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:^7.4.10":
-  version: 7.4.10
-  resolution: "astro@npm:7.4.10"
+"astro@npm:^7.4.12":
+  version: 7.4.12
+  resolution: "astro@npm:7.4.12"
   dependencies:
     "@astrojs/compiler-rs": "npm:^0.5.2"
-    "@astrojs/internal-helpers": "npm:0.13.2"
-    "@astrojs/markdown-satteri": "npm:0.4.8"
-    "@astrojs/runtime": "npm:0.1.0"
-    "@astrojs/telemetry": "npm:3.4.2"
-    "@astrojs/vite-plugin-astro": "npm:0.1.1"
+    "@astrojs/internal-helpers": "npm:^0.13.2"
+    "@astrojs/markdown-satteri": "npm:^0.4.10"
+    "@astrojs/runtime": "npm:^0.1.1"
+    "@astrojs/telemetry": "npm:^3.4.2"
+    "@astrojs/vite-plugin-astro": "npm:^0.1.3"
     "@capsizecss/unpack": "npm:^4.0.1"
     "@clack/prompts": "npm:^1.8.1"
     "@oslojs/encoding": "npm:^1.1.0"
@@ -2357,7 +2341,7 @@ __metadata:
       optional: true
   bin:
     astro: ./bin/astro.mjs
-  checksum: 10c0/c8e4c129214a6d26293e43edf3f90e6bbd5da8637faea141c142a453991374cb8189eee7d3a96eeefc4e6a3f2f1560688d505577f6bf81875fcf9cc96b7a2202
+  checksum: 10c0/3e58db1bedc62ccec0bde337eb28986dfbc8b929f7582ee9ade942671f135180ce97da22a07606b2058f39ec44773f33b6cd388ea9d8e0c4c7d85a16c85331fe
   languageName: node
   linkType: hard
 
@@ -2386,12 +2370,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-cdk@npm:^2.1148.0":
-  version: 2.1148.0
-  resolution: "aws-cdk@npm:2.1148.0"
+"aws-cdk@npm:^2.1148.1":
+  version: 2.1148.1
+  resolution: "aws-cdk@npm:2.1148.1"
   bin:
     cdk: bin/cdk
-  checksum: 10c0/86f6e7b3a76b60ca49fde90314f879cbbf7793c161bd40027308d35d05304ef788c6ac6b1912b47c14b13c10fee5e4ae7b871cbaf78cfd7bfd45487531a2e3d5
+  checksum: 10c0/03e5761522aaebf055fd7b8bfdbacbf848de3cabdd546fbcc96f1f428592248ce8ba6c453f1e74d7dc9c9cfeff8b46452bae9adff766f336d36686bd37998c6f
   languageName: node
   linkType: hard
 
@@ -2618,7 +2602,7 @@ __metadata:
   resolution: "csp-explained-infra@workspace:infra"
   dependencies:
     "@types/node": "npm:^26.6.6"
-    aws-cdk: "npm:^2.1148.0"
+    aws-cdk: "npm:^2.1148.1"
     aws-cdk-lib: "npm:^2.278.0"
     constructs: "npm:^10.8.1"
     esbuild: "npm:0.28.2"
@@ -2632,22 +2616,22 @@ __metadata:
   resolution: "csp-explainer@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.12"
-    "@astrojs/preact": "npm:^6.1.4"
-    "@astrojs/sitemap": "npm:^3.7.4"
+    "@astrojs/preact": "npm:^6.1.6"
+    "@astrojs/sitemap": "npm:^3.7.5"
     "@axe-core/playwright": "npm:^4.14.0"
     "@fontsource/atkinson-hyperlegible-mono": "npm:^5.3.0"
     "@fontsource/atkinson-hyperlegible-next": "npm:^5.3.0"
     "@guidepup/virtual-screen-reader": "npm:0.33.0"
-    "@playwright/test": "npm:^1.65.0"
+    "@playwright/test": "npm:^1.65.1"
     "@types/node": "npm:^26.6.6"
-    astro: "npm:^7.4.10"
+    astro: "npm:^7.4.12"
     csp_evaluator: "npm:^1.1.8"
-    playwright-core: "npm:1.65.0"
+    playwright-core: "npm:1.65.1"
     preact: "npm:^11.2.0"
     tsx: "npm:^4.23.15"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.3.8"
-    vitest: "npm:^5.1.0"
+    vitest: "npm:^5.1.1"
     yaml: "npm:^2.9.1"
     zod: "npm:^4.6.7"
   languageName: unknown
@@ -3553,7 +3537,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^1.4.2, magic-string@npm:^1.4.3, magic-string@npm:^1.4.5":
+"magic-string@npm:^1.4.2, magic-string@npm:^1.4.5":
   version: 1.4.5
   resolution: "magic-string@npm:1.4.5"
   dependencies:
@@ -3913,23 +3897,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.65.0":
-  version: 1.65.0
-  resolution: "playwright-core@npm:1.65.0"
+"playwright-core@npm:1.65.1":
+  version: 1.65.1
+  resolution: "playwright-core@npm:1.65.1"
   bin:
     playwright-core: cli.js
-  checksum: 10c0/ed905c6fc2457a725c3fdb3ad4500f43c7a1bb2c6e4e8c708e1e314930c7dce446a5756ad073425bf3c6e3ca975e5a35fb0221118e2d51ef7b4b6c6d13d0644c
+  checksum: 10c0/4406d4f8eff668a93aaada8382d25fcce8da5f679e9f31311888178d631ed0270eb40c0288129e41e15709c957a31932cac9753fdb332547a19bc3541d317e44
   languageName: node
   linkType: hard
 
-"playwright@npm:1.65.0":
-  version: 1.65.0
-  resolution: "playwright@npm:1.65.0"
+"playwright@npm:1.65.1":
+  version: 1.65.1
+  resolution: "playwright@npm:1.65.1"
   dependencies:
-    playwright-core: "npm:1.65.0"
+    playwright-core: "npm:1.65.1"
   bin:
     playwright: cli.js
-  checksum: 10c0/a7d71f3ca5bcad0531b5f3c39ae1a9be0da8e74be6fee8510d99b9f5fc07fd5b3d889aa4ca487c70ca29aba8625f74e3c2c7473b4c8a784dc14fefff80474ac3
+  checksum: 10c0/30ce029c9fb2a6e88cf81b150b978fd60edb59b8af5a6460f5576f0fe6e2bb739454109f0ce4904eac63cb2cf10390518d7d71d335fd695b5897734a5af7250d
   languageName: node
   linkType: hard
 
@@ -4368,17 +4352,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sitemap@npm:^9.0.0":
-  version: 9.0.1
-  resolution: "sitemap@npm:9.0.1"
+"sitemap@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "sitemap@npm:10.0.0"
   dependencies:
-    "@types/node": "npm:^24.9.2"
+    "@types/node": "npm:^22.0.0 || ^24.0.0 || ^26.0.0"
     "@types/sax": "npm:^1.2.1"
-    arg: "npm:^5.0.0"
     sax: "npm:^1.4.1"
   bin:
-    sitemap: dist/esm/cli.js
-  checksum: 10c0/dddd3c9f30fd09655fa2c1bd9bb182ed860717b3ba681fdc1ac66ad25b5f399dafdd8b87d5ba4ee914ea14e7b11841aadc3af61e4a45242a14f28194efe12416
+    sitemap: dist/cli.js
+  checksum: 10c0/9f9e5b5aa83a381c151ad6b02f043ee748c2368e0a7591d559bc6d9283b26b0745c405a814b640a0e077c617e62019f89fd8d68fce5d16163ade4fe5a1ab27b6
   languageName: node
   linkType: hard
 
@@ -4501,10 +4484,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinybench@npm:^6.2.2":
-  version: 6.2.2
-  resolution: "tinybench@npm:6.2.2"
-  checksum: 10c0/f0e6391f4ca86875ce5a64510696323aa841c10495fdd1c6ca530457c7e77f2b3aa82d9d6f1553126420062b1008607257677ce2b25ff1948732a79d7a56514a
+"tinybench@npm:^6.2.3":
+  version: 6.2.3
+  resolution: "tinybench@npm:6.2.3"
+  checksum: 10c0/baf0c2e287e8a38677602243d4169ed217dc740a773479ccb232d48bd0ee72f59ac4370600e12364ce91a111d59dd4c93d5c79c586e412f4cd49c4db6eb6f2e0
   languageName: node
   linkType: hard
 
@@ -4771,13 +4754,6 @@ __metadata:
   version: 0.1.3
   resolution: "uncrypto@npm:0.1.3"
   checksum: 10c0/74a29afefd76d5b77bedc983559ceb33f5bbc8dada84ff33755d1e3355da55a4e03a10e7ce717918c436b4dfafde1782e799ebaf2aadd775612b49f7b5b2998e
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:>=7.24.0 <7.24.7":
-  version: 7.24.6
-  resolution: "undici-types@npm:7.24.6"
-  checksum: 10c0/d9cd8befb643ac904615c280a095ba4240531f6bb4a5e75a22a7483630ca8d3f1016d2ab6ace6ceda1f63b3a2db2fe037fafe121d6917a0187573aa548ff78ca
   languageName: node
   linkType: hard
 
@@ -5078,20 +5054,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "vitest@npm:5.1.0"
+"vitest@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "vitest@npm:5.1.1"
   dependencies:
     "@types/chai": "npm:^5.2.2"
-    "@vitest/mocker": "npm:5.1.0"
+    "@vitest/mocker": "npm:5.1.1"
     chai: "npm:^6.3.0"
     es-module-lexer: "npm:^2.3.2"
     expect-type: "npm:^1.4.0"
-    magic-string: "npm:^1.4.3"
+    magic-string: "npm:^1.4.5"
     obug: "npm:^3.0.0"
     picomatch: "npm:^4.0.7"
     std-env: "npm:^4.3.0"
-    tinybench: "npm:^6.2.2"
+    tinybench: "npm:^6.2.3"
     tinyexec: "npm:^1.3.1"
     tinyglobby: "npm:^0.2.17"
     why-is-node-running: "npm:3.2.1"
@@ -5099,12 +5075,12 @@ __metadata:
     "@edge-runtime/vm": "*"
     "@opentelemetry/api": ^1.9.0
     "@types/node": ^22.0.0 || >=24.0.0
-    "@vitest/browser-playwright": 5.1.0
-    "@vitest/browser-preview": 5.1.0
+    "@vitest/browser-playwright": 5.1.1
+    "@vitest/browser-preview": 5.1.1
     "@vitest/browser-webdriverio": ^5.0.0-beta.5 || >=5.0.0
-    "@vitest/coverage-istanbul": 5.1.0
-    "@vitest/coverage-v8": 5.1.0
-    "@vitest/ui": 5.1.0
+    "@vitest/coverage-istanbul": 5.1.1
+    "@vitest/coverage-v8": 5.1.1
+    "@vitest/ui": 5.1.1
     happy-dom: "*"
     jsdom: "*"
     vite: ^6.4.0 || ^7.0.0 || ^8.0.0
@@ -5135,7 +5111,7 @@ __metadata:
       optional: false
   bin:
     vitest: ./vitest.mjs
-  checksum: 10c0/c1be6065fe9fa73ceef69b4fbd245938c4654ba429066b9283e09527ada3e1c91aa03c2b8520b444af4027e1a8a1ca388dbb6b7b3c973582d053b67ffeeac11c
+  checksum: 10c0/c3f9ac564025fba9f2d6058e22fb1a97747cd9efaa2fd6f210855d3775654d30e1da55054dddfcf1f788f00d47edd54b8cb7d22f78209510413cf9c84e168141
   languageName: node
   linkType: hard
 
@@ -5511,7 +5487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.3.6, zod@npm:^4.6.5, zod@npm:^4.6.7":
+"zod@npm:^4.6.5, zod@npm:^4.6.7":
   version: 4.6.7
   resolution: "zod@npm:4.6.7"
   checksum: 10c0/4ce2eb14034317b7254e347ca37b5ad591cf8333147030cf05b9b5d31692d45073f7f2747aa50cf8c6b29012194d2b22978cecc89969cf34a0d18e89d0ee7d7b
