@@ -26,6 +26,8 @@ needs our own server comes last, because it changes the site's promise that the 
 - [ ] `cspexplained.com` (without the hyphen): retry later. On 2026-11-17, AWS support said the account can't
       register more domains and that they can't lift that restriction for now. Another registrar, with a redirect
       to `csp-explained.com`, is the fallback.
+- [ ] Renew `public/.well-known/security.txt` before 2027-10-25: move `Expires` a year on. The `site` e2e test
+      fails a month before it expires, as a reminder.
 
 ## 2. Vendor catalogue
 

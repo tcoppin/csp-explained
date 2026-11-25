@@ -106,6 +106,16 @@ test('search engines get a sitemap of the pages, and robots.txt points to it', a
   expect(sitemap).toContain('<xhtml:link rel="alternate" hreflang="fr" href="https://csp-explained.com/fr/find-my-csp"/>');
 });
 
+test('security researchers find where to report, in a security.txt that is still valid', async ({ request }) => {
+  const res = await request.get('/.well-known/security.txt');
+  expect(res.ok()).toBe(true);
+  const text = await res.text();
+  expect(text).toContain('Contact: https://github.com/tcoppin/csp-explained/security/advisories/new');
+  // RFC 9116: a file past its date is to be ignored. This fails a month before, as a reminder to renew it.
+  const expires = new Date(/^Expires: (.+)$/m.exec(text)![1]!);
+  expect(expires.getTime() - Date.now(), 'renew public/.well-known/security.txt').toBeGreaterThan(30 * 24 * 3600 * 1000);
+});
+
 test('every page loads without errors under our own CSP', async ({ page, violations }) => {
   const errors = watchErrors(page);
   for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
