@@ -123,6 +123,7 @@
   },
   "issues": {
     "title": "Points à vérifier",
+    "level": {"check": "À vérifier", "note": "Remarque"},
     "securityReview": "L'examen de sécurité complet",
     "empty-input": "Nous n'avons trouvé aucune directive dans ce texte.",
     "violation-message": "C'est un message d'erreur, pas votre politique. Il ne montre que la règle qui a bloqué quelque chose ({directive}). Trouvez la politique complète, puis collez-la ici.",
@@ -404,7 +405,8 @@
     "added": "ajouté pour votre site ou vos outils",
     "repeated": "ignorée : cette règle est en double",
     "unknown": "ignorée : règle inconnue",
-    "flagged": "point à vérifier"
+    "flagged": "point à vérifier",
+    "noted": "une remarque"
   },
   "explanation": {
     "fallsBackTo": "Se replie sur :",
@@ -502,7 +504,11 @@
     },
     "object-allowlist-bypass": {
       "known": "{value} dans {directive} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter du code via un plugin. Mettre object-src à 'none' est en général possible."
-    }
+    },
+    "script-unsafe-eval": "La page peut transformer du texte en code ('unsafe-eval' dans {directive}). Si un attaquant fait entrer du texte dans la page, il pourrait finir par s'exécuter. Gardez-le seulement si un outil indispensable le demande.",
+    "script-unsafe-hashes": "Du code écrit dans les boutons et les liens de la page peut s'exécuter ('unsafe-hashes' dans {directive}). Plus sûr que de tout autoriser, mais déplacer ce code dans des fichiers de script supprimerait le besoin.",
+    "nonce-length": "Le code à usage unique qui laisse s'exécuter vos propres scripts ({value}) est assez court pour être deviné. Vos développeurs devraient en faire une longue valeur aléatoire, nouvelle à chaque chargement de page.",
+    "src-http": {"resource": "{value} dans {directive} est chargé sans chiffrement (http://) : n'importe qui sur le réseau pourrait le modifier. Utilisez l'adresse en https://.", "report": "Les rapports de violation sont envoyés à {value} sans chiffrement (http://) : ils pourraient être lus ou modifiés en route. Utilisez l'adresse en https://."}
   },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' dans {directive} laisse s'exécuter tout script ou gestionnaire d'événement injecté dans la page, ce qui retire l'essentiel de la protection contre le XSS. Les nonces ou les hashes autorisent votre propre code dans la page sans lui.",

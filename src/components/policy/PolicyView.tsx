@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks';
 import type { ContentBundle } from '../../lib/content';
 import type { ResourceType } from '../../lib/csp/directives';
 import { ignoredSources } from '../../lib/csp/matcher';
+import { issueLevel } from '../../lib/csp/parser';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
 import type { Translate } from '../../i18n';
 import { useT } from '../ui/i18n';
@@ -100,13 +101,19 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
   const isSelected = (d: number, v?: number) =>
     selection?.policyIndex === policyIndex && selection.directiveIndex === d && selection.valueIndex === v;
 
-  // Any issue on the directive or one of its values.
-  const flagged = (d: Directive) =>
-    issues.some((i) => i.policyIndex === policyIndex && i.span && i.span.start >= d.span.start && i.span.end <= d.span.end);
+  // The issues on the directive or one of its values. Notes (report-uri, outdated but right to keep) get a neutral
+  // mark, so it doesn't read as something wrong.
+  const issuesOn = (d: Directive) =>
+    issues.filter((i) => i.policyIndex === policyIndex && i.span && i.span.start >= d.span.start && i.span.end <= d.span.end);
+  const flagged = (d: Directive) => issuesOn(d).some((i) => issueLevel(i) === 'check');
+  const noted = (d: Directive) => !flagged(d) && issuesOn(d).length > 0;
 
   // Struck through or flagged in the margin, which screen readers skip: said on the directive's name instead.
   const directiveNote = (d: Directive) =>
-    [d.duplicate ? t('policyView.repeated') : !d.known ? t('policyView.unknown') : '', flagged(d) ? t('policyView.flagged') : '']
+    [
+      d.duplicate ? t('policyView.repeated') : !d.known ? t('policyView.unknown') : '',
+      flagged(d) ? t('policyView.flagged') : noted(d) ? t('policyView.noted') : '',
+    ]
       .filter(Boolean)
       .join(', ');
 
@@ -152,6 +159,7 @@ export function PolicyView({ policy, policyIndex, issues, docs, selection, onSel
           <span class="margin-note" aria-hidden="true">
             {docs[d.name]?.title ?? '?'}
             {flagged(d) && <span class="flag" title={t('issues.title')}>!</span>}
+            {noted(d) && <span class="flag flag-note" title={t('issues.title')}>i</span>}
           </span>
           <code class="tokens">
             <button

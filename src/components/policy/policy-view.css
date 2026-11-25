@@ -38,6 +38,10 @@
   color: var(--surface);
   font-weight: 800;
 }
+/* A note (outdated but right to keep, like report-uri): neutral, so it doesn't read as a warning */
+.flag-note {
+  background: var(--info);
+}
 @media (max-width: 40rem) {
   .line {
     grid-template-columns: 1fr;

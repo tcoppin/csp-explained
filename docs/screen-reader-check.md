@@ -21,6 +21,8 @@ association for blind and partially sighted people, or a paid accessibility test
 - **A report-only policy** (2026-11-25): with `Content-Security-Policy-Report-Only: default-src 'none'`, the note
   "Report only: this policy blocks nothing" is easy to find above the views, before the tabs. In "What it allows",
   rows read "Would be blocked…".
+- **Things to check** (2026-11-25): each item is heard with its level first ("High", "Medium (possible)", "Check",
+  "Note"), then where, then what it means. In the policy, `report-uri` says "a note", not "something to check".
 - **Console messages** (2026-11-17): paste a few console messages. "6 messages explained" is heard once. Each
   message reads as a heading, then whether it was blocked or only reported, then the tool and the line. The hash
   generator under a Safari message is easy to reach, and its result is heard.

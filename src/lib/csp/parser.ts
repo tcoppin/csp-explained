@@ -280,6 +280,14 @@ export function issuesAt(issues: ParseIssue[], policyIndex: number, directive: D
  * One issue per kind of mistake, for the list of things to check: a directive written three times, or the
  * same invalid value in two policies, is one thing to fix and reads as the same sentence.
  */
+/**
+ * How much an issue matters, as "Things to check" labels it: `note` for what is outdated but still right to keep
+ * (report-uri: some browsers only report through it), `check` for everything else.
+ */
+export function issueLevel(i: Pick<ParseIssue, 'code' | 'directive'>): 'check' | 'note' {
+  return i.code === 'deprecated-directive' && i.directive === 'report-uri' ? 'note' : 'check';
+}
+
 export function distinctIssues(issues: ParseIssue[]): ParseIssue[] {
   const seen = new Set<string>();
   return issues.filter((i) => {

@@ -123,6 +123,7 @@
   },
   "issues": {
     "title": "Things to check",
+    "level": {"check": "Check", "note": "Note"},
     "securityReview": "The full security review",
     "empty-input": "We couldn't find any directive in this text.",
     "violation-message": "This is an error message, not your policy. It only shows the rule that blocked something ({directive}). Find the whole policy, then paste it here.",
@@ -404,7 +405,8 @@
     "added": "added for your site or tools",
     "repeated": "ignored: this rule is repeated",
     "unknown": "ignored: unknown rule",
-    "flagged": "something to check"
+    "flagged": "something to check",
+    "noted": "a note"
   },
   "explanation": {
     "fallsBackTo": "Falls back to:",
@@ -502,7 +504,11 @@
     },
     "object-allowlist-bypass": {
       "known": "{value} in {directive} hosts files an attacker can reuse to run code through a plugin. Setting object-src to 'none' is usually possible."
-    }
+    },
+    "script-unsafe-eval": "The page is allowed to turn text into code ('unsafe-eval' in {directive}). If an attacker gets text into the page, it could end up running. Keep it only if a tool you need asks for it.",
+    "script-unsafe-hashes": "Some code written in the page's buttons and links is allowed to run ('unsafe-hashes' in {directive}). Safer than allowing all of it, but moving that code into script files would remove the need.",
+    "nonce-length": "The one-time code that lets your own scripts run ({value}) is short enough to be guessed. Your developers should make it a long random value, new for every page load.",
+    "src-http": {"resource": "{value} in {directive} is loaded without encryption (http://), so anyone on the network could change it. Use the https:// address.", "report": "Violation reports are sent to {value} without encryption (http://), so they could be read or changed on the way. Use the https:// address."}
   },
   "findings": {
     "script-unsafe-inline": "'unsafe-inline' in {directive} lets any injected inline script or event handler run, which removes most of the protection against XSS. Nonces or hashes allow your own inline code without it.",

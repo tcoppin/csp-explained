@@ -528,6 +528,26 @@ test('serious weaknesses are things to check for everyone, in plain words', asyn
   expect(await page.evaluate(() => localStorage.getItem('csp-explained:audience'))).toBe('simple');
 });
 
+test('everything shown as risky is a thing to check, each with its level, and report-uri is only a note', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill("script-src 'self' 'unsafe-eval'; object-src 'none'; base-uri 'none'; report-uri /csp");
+  const issues = page.locator('.issues');
+  await expect(issues.locator('.finding')).toHaveCount(2);
+  await expect(issues.locator('.finding').filter({ hasText: "'unsafe-eval'" }).locator('.level')).toHaveText('Medium (possible)');
+  await expect(issues.locator('.finding').filter({ hasText: 'report-uri' }).locator('.level')).toHaveText('Note');
+  // Heard in order: the level first, then where, then what it means.
+  const heard = (await readAloud(page, '.issue-list')).join(' ');
+  expect(heard).toMatch(/Note.*report-uri.*still works/);
+  // The mark beside report-uri is a note, not a warning.
+  const line = page.locator('.policy .line').filter({ hasText: 'report-uri' });
+  await expect(line.locator('.flag-note')).toHaveCount(1);
+  await expect(line.getByRole('button', { name: /^report-uri/ })).toHaveAccessibleName(/a note/);
+  expect(errors).toEqual([]);
+});
+
 test('switching policy on another view still explains the policy shown', async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self', img-src 'self'");
@@ -574,11 +594,11 @@ test('on phones, the views show numbers, and the explanation opens as a sheet', 
 
   // The row shows "1"; screen readers and the line under the row get the full badge.
   const read = page.getByRole('tab', { name: /Read it/ });
-  // The example has one mistake (report-uri) and one serious weakness ('unsafe-inline' in script-src).
-  await expect(read).toHaveAccessibleName(/^Read it\s*2 to check$/);
-  await expect(read.locator('.count .view-short')).toHaveText('2');
+  // The example has one serious weakness ('unsafe-inline' in script-src). Its report-uri is a note, not counted.
+  await expect(read).toHaveAccessibleName(/^Read it\s*1 to check$/);
+  await expect(read.locator('.count .view-short')).toHaveText('1');
   const status = page.locator('.view-status');
-  await expect(status).toHaveText('2 to check');
+  await expect(status).toHaveText('1 to check');
 
   const sheet = page.locator('.sheet');
   await expect(sheet).toBeHidden();
@@ -588,7 +608,7 @@ test('on phones, the views show numbers, and the explanation opens as a sheet', 
   await page.getByRole('button', { name: 'Close the explanation' }).click();
   await expect(sheet).toBeHidden();
 
-  await status.getByRole('button', { name: '2 to check' }).click();
+  await status.getByRole('button', { name: '1 to check' }).click();
   await expect(page.getByRole('heading', { name: 'Things to check' })).toBeInViewport();
   await page.getByRole('tab', { name: 'What it allows' }).click();
   await expect(status).toBeHidden();

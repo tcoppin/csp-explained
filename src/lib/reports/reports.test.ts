@@ -7,7 +7,7 @@ import { parseVendor } from '../catalogue/schema';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff } from './developer';
-import { findingText, riskText, securityReport, toolNote } from './security';
+import { findingText, risksToCheck, riskText, securityReport, toolNote } from './security';
 import { itRequest } from './simple';
 
 const t = translator('en');
@@ -260,8 +260,8 @@ describe('findingKey', () => {
     expect(messages.filter((k) => !produced.has(k) && !unreachable.includes(k))).toEqual([]);
   });
 
-  it('says every high finding in plain words for everyone, and only those', () => {
-    const high = new Set(POLICIES.flatMap((p) => evaluateSecurity(parse(p)).filter((f) => f.level === 'high').map((f) => findingKey(f))));
+  it('says every finding Things to check lists in plain words for everyone, and only those', () => {
+    const high = new Set(POLICIES.flatMap((p) => risksToCheck(evaluateSecurity(parse(p))).map((f) => findingKey(f))));
     expect([...high].filter((key) => !t.has(`risks.${key}`))).toEqual([]);
     const plain = t.keys('risks').flatMap((k) => (t.has(k) ? [k] : t.keys(k))).map((k) => k.slice('risks.'.length));
     expect(plain.filter((k) => !high.has(k))).toEqual([]);
@@ -296,5 +296,22 @@ describe('a report-only policy', () => {
     const both = analyze("Content-Security-Policy: script-src 'self'\nContent-Security-Policy-Report-Only: default-src 'none'", []);
     expect(securityReport(both, t)).not.toContain(t('report.reportOnly'));
     expect(developerReport(both, t)).toContain(t('report.developer.verify'));
+  });
+});
+
+describe('risksToCheck', () => {
+  const keys = (policy: string) => risksToCheck(evaluateSecurity(parse(policy))).map((f) => `${f.level} ${findingKey(f)}`);
+
+  it("lists medium findings after the high ones, such as 'unsafe-eval', shown as risky in the policy", () => {
+    expect(keys("script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'; base-uri 'none'")).toEqual([
+      'high script-unsafe-inline',
+      'medium script-unsafe-eval',
+    ]);
+  });
+
+  it("leaves possible weaknesses of 'self' or a host to the security review, and syntax to the parser's own list", () => {
+    expect(keys("script-src 'self' https://cdn.example.com; object-src 'none'; base-uri 'none'")).toEqual([]);
+    // The colon makes browsers drop script-src: that is the high finding; the colon itself is the parser's to say.
+    expect(keys("script-src: 'self'; foo-src x; object-src 'none'; base-uri 'none'")).toEqual(['high missing-directives.script-src']);
   });
 });

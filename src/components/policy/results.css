@@ -108,8 +108,12 @@
 .level-medium .level {
   color: var(--warn);
 }
+.level-check .level {
+  color: var(--warn);
+}
 .level-low .level,
-.level-info .level {
+.level-info .level,
+.level-note .level {
   color: var(--info);
 }
 

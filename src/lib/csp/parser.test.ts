@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FIND_CSP_SNIPPET } from '../snippets/find-csp-console';
-import { distinctIssues, issuesAt, parse } from './parser';
+import { distinctIssues, issueLevel, issuesAt, parse } from './parser';
 
 const codes = (input: string) => parse(input).issues.map((i) => i.code);
 
@@ -188,5 +188,13 @@ describe('parse', () => {
   it('treats values of non source-list directives as tokens', () => {
     const d = parse('sandbox allow-scripts allow-forms').policies[0]!.directives[0]!;
     expect(d.values.every((v) => v.kind === 'token')).toBe(true);
+  });
+});
+
+describe('issueLevel', () => {
+  it('makes report-uri a note: outdated, but some browsers only report through it', () => {
+    expect(issueLevel({ code: 'deprecated-directive', directive: 'report-uri' })).toBe('note');
+    expect(issueLevel({ code: 'deprecated-directive', directive: 'plugin-types' })).toBe('check');
+    expect(issueLevel({ code: 'unknown-directive', directive: 'foo-src' })).toBe('check');
   });
 });

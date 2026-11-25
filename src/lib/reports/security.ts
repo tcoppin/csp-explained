@@ -40,15 +40,26 @@ export function toolNote(t: Translate, f: SecurityFinding, a: Pick<Analysis, 've
   return withNonce.length > 0 ? `${needed} ${t('report.security.nonceWay', { tools: list(withNonce.map((v) => v.name)) })}` : needed;
 }
 
-/** The high findings, once per kind of risk (two policies with the same weakness are one thing to fix). */
-export function highRisks(findings: SecurityFinding[]): SecurityFinding[] {
+// Mistakes in how the policy is written: "Things to check" already lists them from our parser, in its own words.
+const SYNTAX = new Set(['unknown-directive', 'missing-semicolon', 'invalid-keyword']);
+
+/**
+ * The findings "Things to check" lists, high first, once per kind of risk (two policies with the same weakness are
+ * one thing to fix): high and medium ones, except possible medium ones ('self' or a host that might serve risky
+ * files), which only the security review lists, unless the value is one shown as risky ('unsafe-eval').
+ */
+export function risksToCheck(findings: SecurityFinding[]): SecurityFinding[] {
   const seen = new Set<string>();
-  return findings.filter((f) => {
-    const key = `${findingKey(f)}|${f.directive}|${f.value ?? ''}`;
-    if (f.level !== 'high' || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const shown = (f: SecurityFinding) =>
+    f.level === 'high' || (f.level === 'medium' && !SYNTAX.has(f.id) && (!f.maybe || (f.value ?? '').startsWith("'unsafe-")));
+  return findings
+    .filter((f) => {
+      const key = `${findingKey(f)}|${f.directive}|${f.value ?? ''}`;
+      if (!shown(f) || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => (a.level === b.level ? 0 : a.level === 'high' ? -1 : 1));
 }
 
 function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean, a: Analysis): string {

@@ -5,9 +5,9 @@ import { analyze, DEFAULT_ORIGIN, selectionsOf, type VendorSelection } from '../
 import type { ContentBundle } from '../../lib/content';
 import type { Audience, ParseResult } from '../../lib/csp/model';
 import { requiresTrustedTypes, resolve } from '../../lib/csp/fallback';
-import { distinctIssues } from '../../lib/csp/parser';
+import { distinctIssues, issueLevel } from '../../lib/csp/parser';
 import { DEFAULT_EXPORT, type ExportOptions } from '../../lib/reports/export';
-import { highRisks, riskText, toolNote } from '../../lib/reports/security';
+import { risksToCheck, riskText, toolNote } from '../../lib/reports/security';
 import { explainViolations } from '../../lib/violations';
 import { track } from '../../scripts/track';
 import { AllowMap } from './AllowMap';
@@ -262,9 +262,11 @@ export default function Analyzer({ content, locale }: Props) {
   const hashOffer = selectedDirective && selectedValue?.raw.toLowerCase() === "'unsafe-inline'" && offersHashes(selectedDirective.name) ? selectedDirective.name : undefined;
 
   const issues = distinctIssues(parsed.issues.filter((i) => i.code !== 'empty-input'));
-  // Serious weaknesses are things to check for every reader, not only in the security review.
-  const risks = highRisks(analysis.findings);
-  const toCheck = issues.length + risks.length;
+  // Weaknesses are things to check for every reader, not only in the security review.
+  const risks = risksToCheck(analysis.findings);
+  // Checks before notes (report-uri: outdated but right to keep), and only checks count as things to check.
+  const listed = [...issues].sort((a, b) => (issueLevel(a) === issueLevel(b) ? 0 : issueLevel(a) === 'check' ? -1 : 1));
+  const toCheck = issues.filter((i) => issueLevel(i) === 'check').length + risks.length;
   const blocked = analysis.vendors.filter((v) => v.verdict === 'blocked').length;
   const nonce = analysis.vendors.filter((v) => v.verdict === 'needs-nonce').length;
   const reported = analysis.vendors.filter((v) => v.reported).length;
@@ -478,25 +480,28 @@ export default function Analyzer({ content, locale }: Props) {
                 <p class="visually-hidden" role="status">
                   {explanationSummary(t, policy, activeSelection, content)}
                 </p>
-                {toCheck > 0 && (
+                {listed.length + risks.length > 0 && (
                   <div class="issues">
                     <h2 id="things-to-check" tabIndex={-1}>
                       {t('issues.title')}
                     </h2>
-                    {issues.length > 0 && (
-                      <ul class="issue-list">
-                        {issues.map((i, n) => (
-                          <li key={n}>{issueText(t, i)}</li>
+                    {risks.length > 0 && <FindingList findings={risks} text={(f) => riskText(t, f, audience)} action={(f) => toolNote(t, f, analysis)} />}
+                    {listed.length > 0 && (
+                      // Laid out like the findings above it: a level, where, then what it means.
+                      <ul class="findings issue-list">
+                        {listed.map((i, n) => (
+                          <li key={n} class={`finding level-${issueLevel(i)}`}>
+                            <span class="level">{t(`issues.level.${issueLevel(i)}`)}</span>
+                            {(i.directive || i.value) && <code>{[i.directive, i.value].filter(Boolean).join(' ')}</code>}
+                            <span class="desc">{issueText(t, i)}</span>
+                          </li>
                         ))}
                       </ul>
                     )}
                     {risks.length > 0 && (
-                      <>
-                        <FindingList findings={risks} text={(f) => riskText(t, f, audience)} action={(f) => toolNote(t, f, analysis)} />
-                        <button type="button" class="link-button" onClick={showSecurityReview}>
-                          {t('issues.securityReview')}
-                        </button>
-                      </>
+                      <button type="button" class="link-button" onClick={showSecurityReview}>
+                        {t('issues.securityReview')}
+                      </button>
                     )}
                   </div>
                 )}
