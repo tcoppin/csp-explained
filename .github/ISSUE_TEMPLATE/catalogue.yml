@@ -1,0 +1,37 @@
+name: Vendor catalogue
+description: A tool that is missing, or an entry that is out of date.
+labels: [catalogue]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Entries only come from the vendor's official, public documentation: a page anyone can read without
+        logging in (see [CONTRIBUTING.md › Vendor catalogue](https://github.com/tcoppin/csp-explained/blob/main/CONTRIBUTING.md#vendor-catalogue)).
+  - type: input
+    id: tool
+    attributes:
+      label: Tool
+      placeholder: Hotjar
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - A missing tool
+        - An entry that is out of date or wrong
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Official documentation
+      description: The vendor's public page about Content-Security-Policy.
+      placeholder: https://…
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What should change? (optional)

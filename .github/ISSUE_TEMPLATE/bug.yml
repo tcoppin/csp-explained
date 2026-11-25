@@ -1,0 +1,35 @@
+name: Something's wrong
+description: A bug, a wrong analysis, or text that is unclear or mistaken.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are public: please don't paste a private policy, report or anything about your company. A cut-down
+        example that shows the problem is enough. A security vulnerability goes through
+        [private reporting](https://github.com/tcoppin/csp-explained/security/advisories/new) instead.
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page, e.g. https://csp-explained.com/build
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong?
+      description: What you did, what you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: policy
+    attributes:
+      label: A policy that shows it (optional)
+      description: Only if it is public or made up for the example.
+      render: text
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device (optional)
+      placeholder: Firefox 147 on Windows, Safari on iPhone…
