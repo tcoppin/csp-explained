@@ -75,8 +75,7 @@ page is the changelog, so there is no `CHANGELOG.md`, and the tag is the version
 - **Patch**: fixes and catalogue corrections.
 
 Releases are automatic. Commit titles say what kind of change each commit is (`feat`, `fix`, `docs`…, see
-[CONTRIBUTING.md](CONTRIBUTING.md#commit-messages)). The site deploys on every push to `main`; once it is live, the
-deploy workflow looks at the commits since the last tag and, if they include a feature, a fix or a breaking change,
+[CONTRIBUTING.md](CONTRIBUTING.md#commit-messages)). Every push to `main` that passes CI is deployed once the maintainer approves it; once it is live, the deploy workflow looks at the commits since the last tag and, if they include a feature, a fix or a breaking change,
 tags the deployed commit and publishes the release with notes listing them. Pushes with only documentation or
 housekeeping deploy without a release; their commits go into the next one. So a tag always names something that
 was in production.

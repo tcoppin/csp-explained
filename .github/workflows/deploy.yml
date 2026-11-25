@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   # Skips the deploy, and its approval, when nothing the site is built from changed since the commit
-  # that is live: workflows, infra/ (deployed by hand), tests, scripts and Markdown docs don't count.
+  # that is live: workflows, infra/ (deployed by hand), tests, scripts and Markdown docs (docs/ too) don't count.
   # A manual run always deploys.
   changes:
     # Only after CI on a push to this repository's main: the branch filter above also matches pull
@@ -48,7 +48,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
-          NOT_SITE: '^(\.github/|\.githooks/|infra/|tests/|scripts/|[^/]+\.md$|LICENSE$|catalogue/doc-snapshots\.json$|playwright\.config\.ts$|vitest\.config\.ts$)|\.test\.ts$'
+          NOT_SITE: '^(\.github/|\.githooks/|infra/|tests/|scripts/|docs/|[^/]+\.md$|LICENSE$|catalogue/doc-snapshots\.json$|playwright\.config\.ts$|vitest\.config\.ts$)|\.test\.ts$'
         run: |
           if [ "$MANUAL" = true ]; then echo "site=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           # The deploy job marks the commit it put live with a "deploy/production" commit status.

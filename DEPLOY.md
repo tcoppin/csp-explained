@@ -41,6 +41,8 @@ your own account and domain; after that, every push to `main` that passes CI is 
    trusts jobs in that environment, so nothing else can reach AWS.
 6. Every push to `main` that passes CI is deployed by `.github/workflows/deploy.yml`, once you approve it
    (the run waits under Actions › Deploy › Review deployments). Pushes that change nothing the site is built
-   from (workflows, `infra/`, tests, scripts, Markdown docs) skip the deploy and ask for nothing. The deploy
+   from (workflows, `infra/`, tests, scripts, Markdown docs, `docs/`) skip the deploy and ask for nothing. The deploy
    marks the commit it put live with a `deploy/production` status, which the next run compares with; a
-   manual run (Actions › Deploy › Run workflow) always deploys.
+   manual run (Actions › Deploy › Run workflow) always deploys. A run you reject, or leave waiting until it times
+   out, shows as failed in Actions: nothing was deployed, and the next approved run deploys everything since the
+   commit that is live.
