@@ -401,6 +401,20 @@ test("values a strict policy keeps for old browsers are heard as ignored, and ex
   expect(errors).toEqual([]);
 });
 
+test('a report-only policy is said to block nothing, above every view and in what it allows', async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("Content-Security-Policy-Report-Only: default-src 'none'");
+  // While the box is still open, before "Done".
+  await expect(page.getByRole('note').filter({ hasText: 'Report only: this policy blocks nothing.' })).toBeVisible();
+  await page.getByRole('tab', { name: 'What it allows' }).click();
+  await expect(page.getByRole('note').filter({ hasText: 'Report only' })).toBeVisible();
+  const map = page.locator('.allow-map');
+  await expect(map.getByRole('row', { name: /^Scripts/ })).toContainText('Would be blocked entirely (only reported for now)');
+  await expect(map).not.toContainText(/(^|\s)Blocked entirely/);
+  expect(errors).toEqual([]);
+});
+
 test('a screen reader hears what the colours and marks of the policy show', async ({ page }) => {
   const errors = watchErrors(page);
   await openAnalyzer(page);

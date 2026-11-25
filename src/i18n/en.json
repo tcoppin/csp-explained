@@ -106,7 +106,8 @@
     "hideEditor": "Done",
     "policiesShort": "{count} policies",
     "yourPolicy": "Your policy",
-    "reportOnlyShort": "report-only"
+    "reportOnlyShort": "report-only",
+    "reportOnlyNote": "**Report only: this policy blocks nothing.** Browsers only report what it would block. Below is what it would do once you enforce it."
   },
   "recent": {
     "title": "Recent analyses",
@@ -155,6 +156,12 @@
     "via": "uses the {directive} rule",
     "nothing": "Blocked entirely",
     "ignored": "ignored by the browser here",
+    "wouldBe": {
+      "nothing": "Would be blocked entirely (only reported for now)",
+      "blocked": "Would be blocked (only reported for now)",
+      "needs-nonce": "Would need the page's nonce (only reported for now)",
+      "embedNone": "No website could show yours in a frame once enforced (only reported for now)"
+    },
     "embed": {
       "label": "Who can embed your site",
       "anyone": "No restriction: any website can show yours in a frame",
@@ -233,6 +240,7 @@
     "partialCheck": "Its official documentation doesn't say everything it needs, so this policy may still block part of it. Put the policy live with `Content-Security-Policy-Report-Only` first, and add what the browser console shows."
   },
   "report": {
+    "reportOnly": "This policy is report-only: it blocks nothing yet, browsers only report what it would block. What follows applies once it is enforced (sent as `Content-Security-Policy`).",
     "needsNonceNoHow": "The vendor's documentation should explain how.",
     "title": "Your report",
     "copy": "Copy",

@@ -28,6 +28,7 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
           const values = governing ? governing.values.filter((v) => sourceApplies(v, type)) : [];
           const none = governing && (values.length === 0 || values.every((v) => v.value === "'none'"));
           const ignored = governing ? ignoredSources(governing, type) : [];
+          // A report-only policy blocks nothing: what it disallows would be blocked once enforced.
           return (
             <tr key={type}>
               <th scope="row">{t(`resources.${type}`)}</th>
@@ -35,7 +36,7 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
                 {!governing ? (
                   <span class="verdict-unrestricted">{t('map.notRestricted')}</span>
                 ) : none ? (
-                  <span class="verdict-none">{t('map.nothing')}</span>
+                  <span class="verdict-none">{t(policy.reportOnly ? 'map.wouldBe.nothing' : 'map.nothing')}</span>
                 ) : (
                   <ul class="chips">
                     {values.map((v, i) =>
@@ -67,7 +68,9 @@ export function AllowMap({ policy, origin, audience, content }: Props) {
             <tr key={type}>
               <th scope="row">{t(`resources.${type}`)}</th>
               <td>
-                <span class={`verdict verdict-${r.verdict}`}>{t(`map.verdict.${r.verdict}`)}</span>
+                <span class={policy.reportOnly && r.verdict !== 'allowed' ? 'verdict verdict-reported' : `verdict verdict-${r.verdict}`}>
+                  {t(policy.reportOnly && r.verdict !== 'allowed' ? `map.wouldBe.${r.verdict}` : `map.verdict.${r.verdict}`)}
+                </span>
               </td>
               <td class="via">{r.directive && t('map.via', { directive: r.directive.name })}</td>
             </tr>
@@ -94,7 +97,7 @@ function EmbedRow({ policy, audience, content }: Pick<Props, 'policy' | 'audienc
         {!d ? (
           <span class="verdict-unrestricted">{t('map.embed.anyone')}</span>
         ) : none ? (
-          <span class="verdict-none">{t('map.embed.none')}</span>
+          <span class="verdict-none">{t(policy.reportOnly ? 'map.wouldBe.embedNone' : 'map.embed.none')}</span>
         ) : (
           <ul class="chips">
             {d.values.map((v, i) => (

@@ -278,3 +278,23 @@ describe('findingKey', () => {
     expect(findingText(t, f)).toBe('From the evaluator.');
   });
 });
+
+describe('a report-only policy', () => {
+  const a = analyze("Content-Security-Policy-Report-Only: script-src 'self' 'unsafe-inline'", []);
+
+  it('is said to block nothing yet at the top of the developer and security reports', () => {
+    for (const report of [developerReport(a, t), securityReport(a, t)]) {
+      expect(report.split('\n').slice(0, 5).join('\n')).toContain(`> ${t('report.reportOnly')}`);
+    }
+  });
+
+  it("doesn't advise testing with a report-only header when the policy already is one", () => {
+    expect(developerReport(a, t)).not.toContain(t('report.developer.verify'));
+  });
+
+  it('is not mentioned when a policy is enforced', () => {
+    const both = analyze("Content-Security-Policy: script-src 'self'\nContent-Security-Policy-Report-Only: default-src 'none'", []);
+    expect(securityReport(both, t)).not.toContain(t('report.reportOnly'));
+    expect(developerReport(both, t)).toContain(t('report.developer.verify'));
+  });
+});

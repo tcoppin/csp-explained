@@ -19,6 +19,7 @@ import { OtherStarts, PolicyEditor, PolicySummary } from './PolicyInput';
 import { PolicyKeysHint, PolicyView, type Selection } from '../policy/PolicyView';
 import { loadRecent, loadRecentOn, keepsRecent, newRecentId, saveRecent, saveRecentOn, upsertRecent, type RecentAnalysis } from '../policy/recent';
 import { RecentAnalyses } from './RecentAnalyses';
+import { Rich } from '../ui/Rich';
 import { ReportPanel } from './ReportPanel';
 import { Segmented } from '../ui/Segmented';
 import { encodeCompareState } from '../policy/compare-state';
@@ -381,6 +382,12 @@ export default function Analyzer({ content, locale }: Props) {
 
         {hasPolicy && policy && (
           <section class="workspace" aria-label={t('views.label')}>
+            {/* Above every view: what they say the policy blocks, it only reports. */}
+            {policy.reportOnly && (
+              <p class="report-only-note" role="note">
+                <Rich msg="analyzer.reportOnlyNote" />
+              </p>
+            )}
             <div class="toolbar">
               <TabList
                 id="view"

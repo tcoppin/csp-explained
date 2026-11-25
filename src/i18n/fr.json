@@ -106,7 +106,8 @@
     "hideEditor": "Terminé",
     "policiesShort": "{count} politiques",
     "yourPolicy": "Votre politique",
-    "reportOnlyShort": "rapport seul"
+    "reportOnlyShort": "rapport seul",
+    "reportOnlyNote": "**Mode rapport seul : cette politique ne bloque rien.** Les navigateurs signalent seulement ce qu'elle bloquerait. Voici ce qu'elle ferait une fois appliquée."
   },
   "recent": {
     "title": "Analyses récentes",
@@ -155,6 +156,12 @@
     "via": "utilise la règle {directive}",
     "nothing": "Entièrement bloqué",
     "ignored": "ignoré ici par le navigateur",
+    "wouldBe": {
+      "nothing": "Serait entièrement bloqué (seulement signalé pour l'instant)",
+      "blocked": "Serait bloqué (seulement signalé pour l'instant)",
+      "needs-nonce": "Demanderait le nonce de la page (seulement signalé pour l'instant)",
+      "embedNone": "Aucun site ne pourrait afficher le vôtre dans un cadre une fois appliquée (seulement signalé pour l'instant)"
+    },
     "embed": {
       "label": "Qui peut intégrer votre site",
       "anyone": "Aucune restriction : n'importe quel site peut afficher le vôtre dans un cadre",
@@ -233,6 +240,7 @@
     "partialCheck": "Sa documentation officielle ne dit pas tout ce dont il a besoin : cette politique peut encore en bloquer une partie. Mettez d'abord la politique en ligne avec `Content-Security-Policy-Report-Only`, et ajoutez ce que montre la console du navigateur."
   },
   "report": {
+    "reportOnly": "Cette politique est en mode rapport seul : elle ne bloque encore rien, les navigateurs signalent seulement ce qu'elle bloquerait. Ce qui suit s'applique une fois qu'elle est appliquée (envoyée en `Content-Security-Policy`).",
     "needsNonceNoHow": "La documentation de l'éditeur devrait expliquer comment.",
     "title": "Votre rapport",
     "copy": "Copier",

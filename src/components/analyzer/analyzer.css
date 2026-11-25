@@ -362,3 +362,10 @@ textarea.message {
 .analyzer > .recent-note {
   margin-top: 2rem;
 }
+
+/* Above the views of a report-only policy: they describe what it would block, and it blocks nothing yet */
+.report-only-note {
+  border-left: 4px solid var(--warn);
+  padding-left: 0.75rem;
+  margin: 0 0 1.25rem;
+}

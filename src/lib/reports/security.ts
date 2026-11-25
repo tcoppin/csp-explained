@@ -62,9 +62,13 @@ function line(f: SecurityFinding, t: Translate, multiplePolicies: boolean, a: An
 }
 
 /** Markdown review: findings in the current policy and those the proposed change would add. */
+/** Every analysed policy is report-only: nothing is blocked yet, and the reports say so first. */
+export const allReportOnly = (a: Pick<Analysis, 'parsed'>) => a.parsed.policies.length > 0 && a.parsed.policies.every((p) => p.reportOnly);
+
 export function securityReport(a: Analysis, t: Translate): string {
   const multiple = a.parsed.policies.length > 1;
   const out: string[] = [`## ${t('report.security.title')}`, '', summaryLine(t, a.findings), ''];
+  if (allReportOnly(a)) out.push(`> ${t('report.reportOnly')}`, '');
   if (a.parsed.policies.filter((p) => !p.reportOnly).length > 1) out.push(`> ${t('report.security.multiplePolicies')}`, '');
 
   // What the policy has today first, then what the proposed change would add to it.

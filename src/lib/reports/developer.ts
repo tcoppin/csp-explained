@@ -2,6 +2,7 @@ import type { Translate } from '../../i18n';
 import { patchedPolicies, type Analysis, type PatchedPolicy } from '../analysis';
 import { directiveInfo } from '../csp/directives';
 import { parseSinglePolicy } from '../csp/parser';
+import { allReportOnly } from './security';
 
 /** Where a developer can deploy the policy, in display order. Labels and captions: `report.developer.targets.*`. */
 export const TARGETS = ['nginx', 'apache', 'cloudfront', 'netlify', 'vercel', 'express', 'meta'] as const;
@@ -222,6 +223,8 @@ export function reportOnlyNote(a: Analysis, t: Translate): string {
 /** Markdown summary for developers: diff, full policies, nonce notes. */
 export function developerReport(a: Analysis, t: Translate): string {
   const out: string[] = [`## ${t('report.developer.title')}`, ''];
+  const reportOnly = allReportOnly(a);
+  if (reportOnly) out.push(`> ${t('report.reportOnly')}`, '');
   if (a.patches.length === 0) out.push(t('report.developer.noChange'));
   else {
     out.push(`### ${t('report.developer.diff')}`, '', '```diff', policyDiff(a), '```', '');
@@ -235,6 +238,7 @@ export function developerReport(a: Analysis, t: Translate): string {
     out.push('', `### ${t('report.developer.needsNonce')}`, '');
     for (const v of nonce) out.push(`- **${v.vendor.name}**: ${v.vendor.nonce?.how ?? t('report.needsNonceNoHow')} (${v.vendor.sources[0]})`);
   }
-  out.push('', `> ${t('report.developer.verify')}`);
+  // Testing with a report-only header first is advice for an enforced policy; this one is already report-only.
+  if (!reportOnly) out.push('', `> ${t('report.developer.verify')}`);
   return out.join('\n');
 }
