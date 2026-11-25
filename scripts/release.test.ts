@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isGitGenerated, nextVersion, parseCommit, releaseNotes, type Commit } from './release';
+import { isGitGenerated, missingSignOff, nextVersion, parseCommit, releaseNotes, SIGN_OFF_FROM, type Commit } from './release';
 
 describe('parseCommit', () => {
   it('reads the type, scope and summary', () => {
@@ -71,5 +71,23 @@ describe('releaseNotes', () => {
         '',
       ].join('\n'),
     );
+  });
+});
+
+describe('missingSignOff', () => {
+  const me = { subject: 'fix(analyzer): a fix', authorName: 'Ada', authorEmail: 'ada@example.com', authorDate: `${SIGN_OFF_FROM}T18:00:00-05:00` };
+
+  it('asks every new commit for a sign-off by its own author', () => {
+    expect(missingSignOff({ ...me, body: '' })).toBe(true);
+    expect(missingSignOff({ ...me, body: 'Signed-off-by: Ada <ada@example.com>' })).toBe(false);
+    expect(missingSignOff({ ...me, body: 'Why.\n\nSigned-off-by: Ada <ADA@example.com>\nCo-Authored-By: X <x@example.com>' })).toBe(false);
+    // Someone else's sign-off doesn't certify the author's work.
+    expect(missingSignOff({ ...me, body: 'Signed-off-by: Bob <bob@example.com>' })).toBe(true);
+  });
+
+  it("leaves out commits from before the rule (by the author's own date), bots, and merges", () => {
+    expect(missingSignOff({ ...me, body: '', authorDate: '2026-11-24T23:20:00-05:00' })).toBe(false);
+    expect(missingSignOff({ ...me, body: '', authorEmail: '49699333+dependabot[bot]@users.noreply.github.com' })).toBe(false);
+    expect(missingSignOff({ ...me, body: '', subject: "Merge branch 'main'" })).toBe(false);
   });
 });

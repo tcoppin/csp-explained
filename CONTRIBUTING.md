@@ -7,6 +7,10 @@ entry that's out of date. Open an issue with a link to the vendor's official, pu
 Conventions and known pitfalls for working on the code, including with Claude Code, are in [CLAUDE.md](CLAUDE.md).
 Deploying the site is described in [DEPLOY.md](DEPLOY.md).
 
+Your contributions are published under the project's licences: [FSL-1.1-MIT](LICENSE) for the code, and
+[CC BY-NC 4.0](catalogue/LICENSE) for the vendor catalogue. Each commit is signed off to say so
+([Commit messages](#commit-messages)).
+
 ## Develop
 
 Uses Yarn 4 (committed in `.yarn/releases`, so any global `yarn` picks the right version). `infra/` is a Yarn workspace.
@@ -49,6 +53,12 @@ convention. To catch them before you push, enable the hook once in your clone:
 ```sh
 git config core.hooksPath .githooks
 ```
+
+Every commit is also signed off: `git commit -s` adds a `Signed-off-by: Your Name <your@email>` line, matching the
+commit's author. It certifies the [Developer Certificate of Origin](https://developercertificate.org/): that you
+wrote the change, or otherwise have the right to submit it under the project's licences. CI refuses commits without
+it (from 2026-11-25; bots are exempt), and so does the hook. `git commit --amend -s --no-edit` signs off the last
+commit; for several, `git rebase --signoff main`.
 
 Yarn refuses package versions published in the last few days (`npmMinimalAgeGate`, a supply-chain safeguard). If an install fails with "quarantined", wait or pick the previous version rather than disabling it.
 

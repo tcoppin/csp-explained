@@ -9,7 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  # Versions come from commit titles: every new commit must follow the convention (CONTRIBUTING.md › Commit messages).
+  # Versions come from commit titles: every new commit must follow the convention, and be signed off (DCO) from
+  # 2026-11-25 on (CONTRIBUTING.md › Commit messages).
   commits:
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +22,7 @@ jobs:
           node-version: 24
           cache: yarn
       - run: yarn install --immutable
-      - name: Check the new commit titles
+      - name: Check the new commit titles and sign-offs
         env:
           RANGE: >-
             ${{ github.event_name == 'pull_request'
