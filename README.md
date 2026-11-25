@@ -93,11 +93,14 @@ What's next and the ideas backlog live in [ROADMAP.md](ROADMAP.md).
 
 ## Licence
 
-Free to use, host, modify and share. Not to be sold.
+Free to use, host, modify and share, except to sell it as a competing service.
 
-- Code: [MIT with the Commons Clause](LICENSE). The Commons Clause removes the right to sell the software,
-  including paid hosting or support services built mainly on it.
+- Code: [Functional Source License 1.1, MIT Future License](LICENSE) (`FSL-1.1-MIT`). You may use, change and
+  share it for any purpose except offering it, or something substantially similar, as a commercial product or
+  service. Two years after each version is released, that version becomes available under the plain MIT licence.
+  Releases before this licence remain under the MIT licence with the Commons Clause they were published with.
 - Vendor catalogue (`catalogue/`): [CC BY-NC 4.0](catalogue/LICENSE). Reuse it with credit, for non-commercial
   purposes: "Vendor catalogue from CSP Explained (https://csp-explained.com)".
 
-Neither is an OSI-approved open source licence, because both restrict commercial use.
+Neither is an OSI-approved open source licence while it restricts commercial use: the code becomes open source
+(MIT) two years after each release. The FSL is one of the [Fair Source](https://fair.io) licences.

@@ -15,7 +15,7 @@
     "infra:synth": "yarn workspace csp-explained-infra synth",
     "infra:deploy": "yarn workspace csp-explained-infra deploy"
   },
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "FSL-1.1-MIT",
   "type": "module",
   "dependencies": {
     "@astrojs/preact": "^6.1.6",
