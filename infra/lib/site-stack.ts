@@ -113,9 +113,12 @@ function handler(event) {
         frameOptions: { frameOption: cloudfront.HeadersFrameOption.DENY, override: true },
         referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
       },
+      // What S3 adds that visitors have no use for: the server's name and how the bucket stores files.
+      removeHeaders: ['server', 'x-amz-server-side-encryption'],
       customHeadersBehavior: {
         customHeaders: [
-          { header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()', override: true },
+          // browsing-topics replaced FLoC's interest-cohort, which browsers no longer recognise (Chrome warns about it).
+          { header: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()', override: true },
           { header: 'Cross-Origin-Opener-Policy', value: 'same-origin', override: true },
         ],
       },
