@@ -1,9 +1,9 @@
 ---
-import ReportReader from '../../components/violation-reports/ReportReader';
+import ReportReaderEn from '../../components/violation-reports/ReportReader.en';
+import ReportReaderFr from '../../components/violation-reports/ReportReader.fr';
 import { Rich } from '../../components/ui/Rich';
 import Base from '../../layouts/Base.astro';
 import { localeOf, localeParams, translatorFor } from '../../i18n';
-import { contentFor } from '../../lib/site-content';
 
 export function getStaticPaths() {
   return localeParams();
@@ -18,7 +18,8 @@ const locale = localeOf(Astro.currentLocale);
     <h1>{t('pages.reports.heading')}</h1>
     <p class="lead"><Rich t={t} msg="pages.reports.lead" /></p>
     <p class="private"><Rich t={t} msg="pages.reports.private" /></p>
-    <ReportReader client:load content={contentFor(locale)} locale={locale} />
+    {/* Its content comes from a cached module per language, not a prop written into the page. */}
+    {locale === 'fr' ? <ReportReaderFr client:load /> : <ReportReaderEn client:load />}
   </div>
 </Base>
 

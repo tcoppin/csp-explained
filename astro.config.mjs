@@ -3,6 +3,7 @@ import preact from '@astrojs/preact';
 import sitemap from '@astrojs/sitemap';
 import { SITE_URL } from './src/config.ts';
 import { META_DIRECTIVES } from './src/site-policy.ts';
+import { contentModule } from './scripts/content-module.ts';
 
 /** `https://site/learn/` → `https://site/learn`, as the site links to its pages. */
 const noSlash = (url) => url.replace(/(?<=.)\/$/, '');
@@ -29,6 +30,8 @@ export default defineConfig({
       }),
     }),
   ],
+  // The islands' content as a cached module, not a prop in every page (scripts/content-module.ts).
+  vite: { plugins: [contentModule()] },
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'fr'],

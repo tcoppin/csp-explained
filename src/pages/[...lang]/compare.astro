@@ -1,8 +1,8 @@
 ---
-import Compare from '../../components/compare/Compare';
+import CompareEn from '../../components/compare/Compare.en';
+import CompareFr from '../../components/compare/Compare.fr';
 import Base from '../../layouts/Base.astro';
 import { localeOf, localeParams, translatorFor } from '../../i18n';
-import { contentFor } from '../../lib/site-content';
 
 export function getStaticPaths() {
   return localeParams();
@@ -16,7 +16,8 @@ const locale = localeOf(Astro.currentLocale);
   <div class="wrap">
     <h1>{t('pages.compare.title')}</h1>
     <p class="lead">{t('pages.compare.lead')}</p>
-    <Compare client:load content={contentFor(locale)} locale={locale} />
+    {/* Its content comes from a cached module per language, not a prop written into the page. */}
+    {locale === 'fr' ? <CompareFr client:load /> : <CompareEn client:load />}
   </div>
 </Base>
 

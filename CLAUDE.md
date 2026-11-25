@@ -78,8 +78,10 @@ A change is ready when all of these pass: `yarn test`, `yarn check`, `yarn build
 - `src/content/*.yaml`: plain-language explanations, three voices: `simple`, `developer`, `security`.
 - `catalogue/vendors/*.yaml`: one file per tool, validated by `scripts/validate-catalogue.ts`.
 - YAML content is loaded at build time only (`src/lib/content-loader.ts`; pages call `contentFor(locale)` from
-  `src/lib/site-content.ts`). `src/lib/content.ts` holds the types and helpers the island uses: keep YAML, zod and
-  `node:` imports out of anything the island imports.
+  `src/lib/site-content.ts`). The islands get it from `virtual:content/<locale>` (`scripts/content-module.ts`), a
+  cached JS file, through one entry per language (`Analyzer.en.tsx`, `Analyzer.fr.tsx`…) that the page picks: never
+  as a prop, which would write the whole catalogue into every page's HTML. `src/lib/content.ts` holds the types and
+  helpers the island uses: keep YAML, zod and `node:` imports out of anything the island imports.
 - Translations of YAML content: `src/content/<locale>/*.yaml` and `catalogue/i18n/<locale>/<id>.yaml`, text only,
   each field `{ en: <hash of the English>, text }`. Missing, empty or stale fields show in English. Reasons are
   keyed by requirement type, so a feature lists each type once.

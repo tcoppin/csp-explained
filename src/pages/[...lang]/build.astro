@@ -1,8 +1,8 @@
 ---
-import Builder from '../../components/builder/Builder';
+import BuilderEn from '../../components/builder/Builder.en';
+import BuilderFr from '../../components/builder/Builder.fr';
 import Base from '../../layouts/Base.astro';
 import { localeOf, localeParams, translatorFor } from '../../i18n';
-import { contentFor } from '../../lib/site-content';
 
 export function getStaticPaths() {
   return localeParams();
@@ -16,7 +16,8 @@ const locale = localeOf(Astro.currentLocale);
   <div class="wrap">
     <h1>{t('pages.build.title')}</h1>
     <p class="lead">{t('pages.build.lead')}</p>
-    <Builder client:load content={contentFor(locale)} locale={locale} />
+    {/* Its content comes from a cached module per language, not a prop written into the page. */}
+    {locale === 'fr' ? <BuilderFr client:load /> : <BuilderEn client:load />}
   </div>
 </Base>
 

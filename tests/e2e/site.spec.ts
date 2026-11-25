@@ -116,6 +116,14 @@ test('security researchers find where to report, in a security.txt that is still
   expect(expires.getTime() - Date.now(), 'renew public/.well-known/security.txt').toBeGreaterThan(30 * 24 * 3600 * 1000);
 });
 
+test("the tools' pages stay light: their content is a cached file, not written into each page", async ({ request }) => {
+  for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports'])) {
+    const html = await (await request.get(path)).text();
+    // 305 KB when the catalogue was a prop of the island; about 65 KB without it.
+    expect(html.length, path).toBeLessThan(100_000);
+  }
+});
+
 test('every page loads without errors under our own CSP', async ({ page, violations }) => {
   const errors = watchErrors(page);
   for (const path of inEveryLanguage(['/', '/build', '/compare', '/reports', COMPARE_EXAMPLE, '/build#b=nonce&v=hotjar:tracking&step=review', '/find-my-csp', '/reporting', '/trusted-types', '/nonces', '/learn', '/vendors', '/vendors/ab-tasty', '/directives', '/directives/script-src', '/about'])) {
