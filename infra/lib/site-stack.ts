@@ -69,7 +69,7 @@ export class SiteStack extends Stack {
       throw new Error('domainName, certificateArn and hostedZoneId must be provided together');
     }
 
-    // Astro builds /learn as /learn/index.html: map clean URLs to their file.
+    // Astro builds /learn as /learn/index.html: map clean URLs to their file, and redirect /learn/ to /learn.
     // With a custom domain, www. redirects to the apex first.
     const cleanUrls = new cloudfront.Function(this, 'CleanUrls', {
       runtime: cloudfront.FunctionRuntime.JS_2_0,
@@ -77,26 +77,40 @@ export class SiteStack extends Stack {
 var WWW_HOST = ${JSON.stringify(domain ? `www.${domain}` : null)};
 var CANONICAL = ${JSON.stringify(domain ? `https://${domain}` : null)};
 
+function queryOf(request) {
+  return Object.keys(request.querystring).map(function (key) {
+    var param = request.querystring[key];
+    var values = param.multiValue ? param.multiValue : [param];
+    return values.map(function (v) { return v.value === '' ? key : key + '=' + v.value; }).join('&');
+  }).join('&');
+}
+
+function redirect(location, request) {
+  var query = queryOf(request);
+  return {
+    statusCode: 301,
+    statusDescription: 'Moved Permanently',
+    headers: {
+      location: { value: location + (query ? '?' + query : '') },
+      'strict-transport-security': { value: 'max-age=31536000; includeSubDomains' },
+    },
+  };
+}
+
 function handler(event) {
   var request = event.request;
   var uri = request.uri;
   if (WWW_HOST && request.headers.host && request.headers.host.value === WWW_HOST) {
-    var query = Object.keys(request.querystring).map(function (key) {
-      var param = request.querystring[key];
-      var values = param.multiValue ? param.multiValue : [param];
-      return values.map(function (v) { return v.value === '' ? key : key + '=' + v.value; }).join('&');
-    }).join('&');
-    return {
-      statusCode: 301,
-      statusDescription: 'Moved Permanently',
-      headers: {
-        location: { value: CANONICAL + uri + (query ? '?' + query : '') },
-        'strict-transport-security': { value: 'max-age=31536000; includeSubDomains' },
-      },
-    };
+    return redirect(CANONICAL + uri, request);
   }
-  if (uri.endsWith('/')) {
-    request.uri = uri + 'index.html';
+  // One address per page: /about/ goes to /about, as the site links to it (the home page stays /).
+  if (uri.length > 1 && uri.endsWith('/')) {
+    var clean = uri;
+    while (clean.length > 1 && clean.endsWith('/')) clean = clean.slice(0, -1);
+    return redirect((CANONICAL || '') + clean, request);
+  }
+  if (uri === '/') {
+    request.uri = '/index.html';
   } else if (!uri.split('/').pop().includes('.')) {
     request.uri = uri + '/index.html';
   }
