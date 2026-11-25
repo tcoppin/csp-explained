@@ -58,7 +58,8 @@ export function unpackTools(value: unknown): CustomTool[] {
 
 export function encodeBuildState(s: BuildState): string {
   const params = new URLSearchParams();
-  if (s.start) params.set('b', s.start);
+  // A blank policy is the default start: links leave it out (older links that name it still read the same).
+  if (s.start && s.start !== 'allowlist') params.set('b', s.start);
   if (s.start === 'nonce' && s.olderBrowsers) params.set('o', '1');
   if (s.start === 'policy' && s.policy) params.set('p', toBase64Url(s.policy));
   if (s.site) params.set('s', s.site);

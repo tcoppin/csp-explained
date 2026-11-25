@@ -72,7 +72,7 @@
   "analyzer": {
     "inputLabel": "Paste a Content-Security-Policy",
     "inputHint": "A header value, the full header line(s), curl -I output, or a <meta> tag all work.",
-    "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
+    "placeholder": "default-src 'self'; script-src 'self' www.googletagmanager.com; …",
     "example": "Try an example",
     "clear": "Clear",
     "more": "More",
@@ -103,7 +103,7 @@
     "edit": "Edit",
     "build": "Open in the builder",
     "compare": "Compare with another policy",
-    "hideEditor": "Done",
+    "hideEditor": "Done editing",
     "policiesShort": "{count} policies",
     "yourPolicy": "Your policy",
     "reportOnlyShort": "report-only",

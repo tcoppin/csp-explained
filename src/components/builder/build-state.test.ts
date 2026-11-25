@@ -27,6 +27,12 @@ describe('build state', () => {
     expect(decodeBuildState('#b=allowlist&o=1').olderBrowsers).toBeUndefined();
   });
 
+  it('leaves the default start, a blank policy, out of links, and still reads older links that name it', () => {
+    const base: BuildState = { start: 'allowlist', policy: '', site: '', needs: [], hashes: {}, vendors: {}, tools: [] };
+    expect(encodeBuildState(base)).not.toContain('b=');
+    expect(decodeBuildState('#b=allowlist').start).toBe('allowlist');
+  });
+
   it('only carries the policy when building on one', () => {
     const hash = encodeBuildState({ start: 'nonce', policy: "img-src 'self'", site: '', needs: [], hashes: {}, vendors: {}, tools: [] });
     expect(decodeBuildState(hash)).toEqual({ start: 'nonce' });

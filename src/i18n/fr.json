@@ -72,7 +72,7 @@
   "analyzer": {
     "inputLabel": "Collez une Content-Security-Policy",
     "inputHint": "Une valeur d'en-tête, la ou les lignes d'en-tête complètes, la sortie de curl -I ou une balise <meta> : tout fonctionne.",
-    "placeholder": "default-src 'self'; script-src 'self' https://www.googletagmanager.com; …",
+    "placeholder": "default-src 'self'; script-src 'self' www.googletagmanager.com; …",
     "example": "Essayer un exemple",
     "clear": "Effacer",
     "more": "Plus",
@@ -103,7 +103,7 @@
     "edit": "Modifier",
     "build": "Ouvrir dans le constructeur",
     "compare": "Comparer avec une autre politique",
-    "hideEditor": "Terminé",
+    "hideEditor": "Terminer la modification",
     "policiesShort": "{count} politiques",
     "yourPolicy": "Votre politique",
     "reportOnlyShort": "rapport seul",

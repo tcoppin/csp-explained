@@ -12,7 +12,8 @@ import { loadAudience, saveAudience, toOrigin } from '../policy/state';
 
 /** The builder's state, kept in the link, and the policy built from it. */
 export function useBuilder(content: ContentBundle, t: Translate) {
-  const [start, setStart] = useState<Start | undefined>();
+  // A blank policy is chosen from the start, so Next works at once; a link or a pasted policy changes it.
+  const [start, setStart] = useState<Start | undefined>('allowlist');
   const [olderBrowsers, setOlderBrowsers] = useState(false);
   const [policyText, setPolicyText] = useState('');
   const [site, setSite] = useState('');

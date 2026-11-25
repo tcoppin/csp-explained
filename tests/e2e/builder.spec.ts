@@ -1,6 +1,15 @@
 /** The builder (/build): its steps, what each choice adds to the policy, and the way back to the analyzer. */
 import { test, expect, watchErrors, openAnalyzer, openBuilder, pickTool, policyAction, readAloud, announced, HELLO, HELLO_HASH } from './helpers';
 
+test('starts from a blank policy, so Next works without a choice first', async ({ page }) => {
+  await openBuilder(page);
+  await expect(page.getByRole('radio', { name: /^A blank policy/ })).toBeChecked();
+  await page.getByRole('button', { name: 'Next: your site' }).click();
+  await expect(page.getByRole('heading', { level: 2 }).first()).toBeFocused();
+  // The default isn't written into the address.
+  expect(new URL(page.url()).hash).not.toContain('b=');
+});
+
 test('builds a policy from nothing, with a catalogue tool and one of our own', async ({ page, context, sent }) => {
   const errors = watchErrors(page);
   await openBuilder(page);
@@ -237,6 +246,8 @@ test('the steps open in order, can be revisited, and the link keeps the step', a
   const errors = watchErrors(page);
   await openBuilder(page);
   const steps = page.getByRole('navigation', { name: 'Steps' });
+  // Building on your own policy waits for it to be pasted.
+  await page.getByRole('radio', { name: /^Your current policy/ }).check();
   await expect(page.getByRole('button', { name: 'Next: your site' })).toBeDisabled();
   await expect(steps.getByRole('button', { name: /Your tools$/ })).toBeDisabled();
 
