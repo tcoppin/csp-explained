@@ -4,7 +4,7 @@ category: analytics
 website: https://www.hubspot.com
 sources:
   - https://knowledge.hubspot.com/domains-and-urls/ssl-and-domain-security-in-hubspot
-lastVerified: 2026-11-23
+lastVerified: 2026-11-27
 confidence: partial
 nonce:
   supported: true
@@ -13,8 +13,9 @@ nonce:
     your own site, HubSpot's page doesn't say how its scripts take a nonce.
 notes: >-
   HubSpot's list is written for pages hosted on HubSpot; it's the only public list, so this entry applies it
-  to HubSpot's code on your own site. It covers accounts in HubSpot's main US data centre (NA1): EU1, NA2,
-  NA3 and AP1 accounts use other addresses, listed on the same page.
+  to HubSpot's code on your own site. The features list the addresses of HubSpot's main US data centre (NA1).
+  An account in EU1, NA2, NA3 or AP1 also needs its data centre's line, with the addresses HubSpot lists there
+  for calls to action, files, videos and surveys.
 features:
   - id: tracking
     label: Tracking code
@@ -133,3 +134,122 @@ features:
       - type: frame
         sources: [https://play.hubspotvideo.com]
         reason: Shows HubSpot videos.
+  - id: eu1
+    label: Account in the EU1 data centre (European data hosting)
+    description: >-
+      Pick it with the features above that you use: it adds the addresses this data centre uses for calls to
+      action, files, videos and surveys.
+    requirements:
+      - type: script
+        sources:
+          - https://js-eu1.hscta.net
+          - https://js-eu1.hscta.com
+          - https://*.hubspotusercontent-eu1.net
+          - https://feedback-eu1.hubapi.com
+          - https://feedback-eu1.hubspotservicehub.com
+        reason: Loads calls to action, surveys and scripts stored in HubSpot.
+      - type: img
+        sources:
+          - https://js-eu1.hscta.net
+          - https://eu1.hsctaimages.net
+          - https://*.hubspotusercontent-eu1.net
+        reason: Call-to-action images and tracking pixel, and images stored in HubSpot.
+      - type: style
+        sources: [https://*.hubspotusercontent-eu1.net]
+        reason: Stylesheets stored in HubSpot.
+      - type: connect
+        sources: [https://js-eu1.hscta.net]
+        reason: Sends call-to-action events.
+      - type: frame
+        sources: [https://*.hs-sites-eu1.com, https://play-eu1.hubspotvideo.com]
+        reason: Shows call-to-action pop-ups and HubSpot videos.
+  - id: na2
+    label: Account in the NA2 data centre
+    description: >-
+      Pick it with the features above that you use: it adds the addresses this data centre uses for calls to
+      action, files, videos and surveys.
+    requirements:
+      - type: script
+        sources:
+          - https://js-na2.hscta.net
+          - https://js-na2.hscta.com
+          - https://*.hubspotusercontent-na2.net
+          - https://feedback-na2.hubapi.com
+          - https://feedback-na2.hubspotservicehub.com
+        reason: Loads calls to action, surveys and scripts stored in HubSpot.
+      - type: img
+        sources:
+          - https://js-na2.hscta.net
+          - https://na2.hsctaimages.net
+          - https://hubspot-no-cache-na2-prod.s3.amazonaws.com
+          - https://*.hubspotusercontent-na2.net
+        reason: Call-to-action images and tracking pixel, and images stored in HubSpot.
+      - type: style
+        sources: [https://*.hubspotusercontent-na2.net]
+        reason: Stylesheets stored in HubSpot.
+      - type: connect
+        sources: [https://js-na2.hscta.net]
+        reason: Sends call-to-action events.
+      - type: frame
+        sources: [https://*.hs-sites-na2.com, https://play-na2.hubspotvideo.com]
+        reason: Shows call-to-action pop-ups and HubSpot videos.
+  - id: na3
+    label: Account in the NA3 data centre
+    description: >-
+      Pick it with the features above that you use: it adds the addresses this data centre uses for calls to
+      action, files, videos and surveys.
+    requirements:
+      - type: script
+        sources:
+          - https://js-na3.hscta.net
+          - https://js-na3.hscta.com
+          - https://*.hubspotusercontent-na3.net
+          - https://feedback-na3.hubapi.com
+          - https://feedback-na3.hubspotservicehub.com
+        reason: Loads calls to action, surveys and scripts stored in HubSpot.
+      - type: img
+        sources:
+          - https://js-na3.hscta.net
+          - https://na3.hsctaimages.net
+          - https://hubspot-no-cache-na3-prod.s3.amazonaws.com
+          - https://*.hubspotusercontent-na3.net
+        reason: Call-to-action images and tracking pixel, and images stored in HubSpot.
+      - type: style
+        sources: [https://*.hubspotusercontent-na3.net]
+        reason: Stylesheets stored in HubSpot.
+      - type: connect
+        sources: [https://js-na3.hscta.net]
+        reason: Sends call-to-action events.
+      - type: frame
+        sources: [https://*.hs-sites-na3.com, https://play-na3.hubspotvideo.com]
+        reason: Shows call-to-action pop-ups and HubSpot videos.
+  - id: ap1
+    label: Account in the AP1 data centre
+    description: >-
+      Pick it with the features above that you use: it adds the addresses this data centre uses for calls to
+      action, files, videos and surveys.
+    requirements:
+      - type: script
+        sources:
+          - https://js-ap1.hscta.net
+          - https://js-ap1.hscta.com
+          - https://*.hubspotusercontent-ap1.net
+          - https://feedback-ap1.hubapi.com
+          - https://feedback-ap1.hubspotservicehub.com
+        reason: Loads calls to action, surveys and scripts stored in HubSpot.
+      - type: img
+        sources:
+          - https://js-ap1.hscta.net
+          - https://ap1.hsctaimages.net
+          - https://hubspot-no-cache-ap1-prod.s3.amazonaws.com
+          - https://*.hubspotusercontent-ap1.net
+        reason: Call-to-action images and tracking pixel, and images stored in HubSpot.
+      - type: style
+        sources: [https://*.hubspotusercontent-ap1.net]
+        reason: Stylesheets stored in HubSpot.
+      - type: connect
+        sources: [https://js-ap1.hscta.net]
+        reason: Sends call-to-action events.
+      - type: frame
+        sources: [https://*.hs-sites-ap1.com, https://play-ap1.hubspotvideo.com]
+        reason: Shows call-to-action pop-ups and HubSpot videos.

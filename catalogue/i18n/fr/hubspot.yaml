@@ -6,8 +6,8 @@ nonce:
     # On pages hosted by HubSpot, the "Enable nonce" setting adds a nonce to every script from HubSpot. On your own site, HubSpot's page doesn't say how its scripts take a nonce.
     { en: c6038e6f, text: "Sur les pages hébergées par HubSpot, le réglage « Enable nonce » ajoute un nonce à chaque script de HubSpot. Sur votre propre site, la page de HubSpot ne dit pas comment ses scripts reçoivent un nonce." }
 notes:
-  # HubSpot's list is written for pages hosted on HubSpot; it's the only public list, so this entry applies it to HubSpot's code on your own site. It covers accounts in HubSpot's main US data centre (NA1): EU1, NA2, NA3 and AP1 accounts use other addresses, listed on the same page.
-  { en: 5decb240, text: "La liste de HubSpot est écrite pour les pages hébergées par HubSpot ; c'est la seule liste publique, donc cette fiche l'applique au code de HubSpot sur votre propre site. Elle couvre les comptes du principal centre de données américain de HubSpot (NA1) : les comptes EU1, NA2, NA3 et AP1 utilisent d'autres adresses, listées sur la même page." }
+  # HubSpot's list is written for pages hosted on HubSpot; it's the only public list, so this entry applies it to HubSpot's code on your own site. The features list the addresses of HubSpot's main US data centre (NA1). An account in EU1, NA2, NA3 or AP1 also needs its data centre's line, with the addresses HubSpot lists there for calls to action, files, videos and surveys.
+  { en: c23995e5, text: "La liste de HubSpot est écrite pour les pages hébergées par HubSpot ; c'est la seule liste publique, donc cette fiche l'applique au code de HubSpot sur votre propre site. Les fonctionnalités listent les adresses du principal centre de données américain de HubSpot (NA1). Un compte en EU1, NA2, NA3 ou AP1 a aussi besoin de la ligne de son centre de données, avec les adresses que HubSpot y liste pour les calls-to-action, les fichiers, les vidéos et les enquêtes." }
 features:
   tracking:
     label:
@@ -123,3 +123,95 @@ features:
       frame:
         # Shows HubSpot videos.
         { en: 29cbb621, text: "Affiche les vidéos HubSpot." }
+  eu1:
+    description:
+      # Pick it with the features above that you use: it adds the addresses this data centre uses for calls to action, files, videos and surveys.
+      { en: 2249fd47, text: "Cochez-la avec les fonctionnalités ci-dessus que vous utilisez : elle ajoute les adresses que ce centre de données utilise pour les calls-to-action, les fichiers, les vidéos et les enquêtes." }
+    label:
+      # Account in the EU1 data centre (European data hosting)
+      { en: 5057cf70, text: "Compte dans le centre de données EU1 (hébergement européen des données)" }
+    reasons:
+      script:
+        # Loads calls to action, surveys and scripts stored in HubSpot.
+        { en: 8a6eb8dd, text: "Charge les calls-to-action, les enquêtes et les scripts stockés chez HubSpot." }
+      img:
+        # Call-to-action images and tracking pixel, and images stored in HubSpot.
+        { en: "6241e339", text: "Images et pixel de suivi des calls-to-action, et images stockées chez HubSpot." }
+      style:
+        # Stylesheets stored in HubSpot.
+        { en: 6afd19b4, text: "Feuilles de style stockées chez HubSpot." }
+      connect:
+        # Sends call-to-action events.
+        { en: d8ff23fe, text: "Envoie les événements des calls-to-action." }
+      frame:
+        # Shows call-to-action pop-ups and HubSpot videos.
+        { en: 5de669be, text: "Affiche les pop-ups des calls-to-action et les vidéos HubSpot." }
+  na2:
+    description:
+      # Pick it with the features above that you use: it adds the addresses this data centre uses for calls to action, files, videos and surveys.
+      { en: 2249fd47, text: "Cochez-la avec les fonctionnalités ci-dessus que vous utilisez : elle ajoute les adresses que ce centre de données utilise pour les calls-to-action, les fichiers, les vidéos et les enquêtes." }
+    label:
+      # Account in the NA2 data centre
+      { en: b856d013, text: "Compte dans le centre de données NA2" }
+    reasons:
+      script:
+        # Loads calls to action, surveys and scripts stored in HubSpot.
+        { en: 8a6eb8dd, text: "Charge les calls-to-action, les enquêtes et les scripts stockés chez HubSpot." }
+      img:
+        # Call-to-action images and tracking pixel, and images stored in HubSpot.
+        { en: "6241e339", text: "Images et pixel de suivi des calls-to-action, et images stockées chez HubSpot." }
+      style:
+        # Stylesheets stored in HubSpot.
+        { en: 6afd19b4, text: "Feuilles de style stockées chez HubSpot." }
+      connect:
+        # Sends call-to-action events.
+        { en: d8ff23fe, text: "Envoie les événements des calls-to-action." }
+      frame:
+        # Shows call-to-action pop-ups and HubSpot videos.
+        { en: 5de669be, text: "Affiche les pop-ups des calls-to-action et les vidéos HubSpot." }
+  na3:
+    description:
+      # Pick it with the features above that you use: it adds the addresses this data centre uses for calls to action, files, videos and surveys.
+      { en: 2249fd47, text: "Cochez-la avec les fonctionnalités ci-dessus que vous utilisez : elle ajoute les adresses que ce centre de données utilise pour les calls-to-action, les fichiers, les vidéos et les enquêtes." }
+    label:
+      # Account in the NA3 data centre
+      { en: 1a98cd5b, text: "Compte dans le centre de données NA3" }
+    reasons:
+      script:
+        # Loads calls to action, surveys and scripts stored in HubSpot.
+        { en: 8a6eb8dd, text: "Charge les calls-to-action, les enquêtes et les scripts stockés chez HubSpot." }
+      img:
+        # Call-to-action images and tracking pixel, and images stored in HubSpot.
+        { en: "6241e339", text: "Images et pixel de suivi des calls-to-action, et images stockées chez HubSpot." }
+      style:
+        # Stylesheets stored in HubSpot.
+        { en: 6afd19b4, text: "Feuilles de style stockées chez HubSpot." }
+      connect:
+        # Sends call-to-action events.
+        { en: d8ff23fe, text: "Envoie les événements des calls-to-action." }
+      frame:
+        # Shows call-to-action pop-ups and HubSpot videos.
+        { en: 5de669be, text: "Affiche les pop-ups des calls-to-action et les vidéos HubSpot." }
+  ap1:
+    description:
+      # Pick it with the features above that you use: it adds the addresses this data centre uses for calls to action, files, videos and surveys.
+      { en: 2249fd47, text: "Cochez-la avec les fonctionnalités ci-dessus que vous utilisez : elle ajoute les adresses que ce centre de données utilise pour les calls-to-action, les fichiers, les vidéos et les enquêtes." }
+    label:
+      # Account in the AP1 data centre
+      { en: 52bb4cf5, text: "Compte dans le centre de données AP1" }
+    reasons:
+      script:
+        # Loads calls to action, surveys and scripts stored in HubSpot.
+        { en: 8a6eb8dd, text: "Charge les calls-to-action, les enquêtes et les scripts stockés chez HubSpot." }
+      img:
+        # Call-to-action images and tracking pixel, and images stored in HubSpot.
+        { en: "6241e339", text: "Images et pixel de suivi des calls-to-action, et images stockées chez HubSpot." }
+      style:
+        # Stylesheets stored in HubSpot.
+        { en: 6afd19b4, text: "Feuilles de style stockées chez HubSpot." }
+      connect:
+        # Sends call-to-action events.
+        { en: d8ff23fe, text: "Envoie les événements des calls-to-action." }
+      frame:
+        # Shows call-to-action pop-ups and HubSpot videos.
+        { en: 5de669be, text: "Affiche les pop-ups des calls-to-action et les vidéos HubSpot." }

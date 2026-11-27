@@ -2,8 +2,8 @@
 # en: hash of the English text this was translated from (yarn i18n:status fr --write adds it).
 
 notes:
-  # YouTube publishes no CSP page: these are the addresses its embedding docs use. The privacy-enhanced mode (www.youtube-nocookie.com) isn't covered; allow it in frame-src if you use it.
-  { en: e6bcb1f8, text: "YouTube ne publie pas de page sur la CSP : voici les adresses qu'utilise sa documentation d'intégration. Le mode de confidentialité renforcée (www.youtube-nocookie.com) n'est pas couvert ; autorisez-le dans frame-src si vous l'utilisez." }
+  # YouTube publishes no CSP page: these are the addresses its embedding docs use. The IFrame Player API's documentation doesn't say whether it works with the privacy-enhanced mode's address.
+  { en: 80ce9192, text: "YouTube ne publie pas de page sur la CSP : ce sont les adresses qu'utilise sa documentation d'intégration. La documentation de l'IFrame Player API ne dit pas si elle fonctionne avec l'adresse du mode confidentialité avancée." }
 features:
   embed:
     label:
@@ -21,3 +21,14 @@ features:
       script:
         # Loads the API that controls the player from your scripts.
         { en: f4adbb1d, text: "Charge l'API qui contrôle le lecteur depuis vos scripts." }
+  privacy-enhanced:
+    description:
+      # Embeds from www.youtube-nocookie.com instead of www.youtube.com: in the embed code, only the address changes.
+      { en: 0cc5b086, text: "Intègre depuis www.youtube-nocookie.com au lieu de www.youtube.com : dans le code d'intégration, seule l'adresse change." }
+    label:
+      # Privacy-enhanced mode
+      { en: 94122c6f, text: "Mode confidentialité avancée" }
+    reasons:
+      frame:
+        # Shows the player in privacy-enhanced mode.
+        { en: 93775b0d, text: "Affiche le lecteur en mode confidentialité avancée." }

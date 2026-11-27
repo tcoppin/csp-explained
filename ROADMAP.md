@@ -36,7 +36,6 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
 ### In the catalogue, with known gaps
 
 - [ ] Google: country domains (`google.<TLD>`) for Ads and GA4 advertising features aren't checked.
-- [ ] Intercom: EU and Australian workspace domains as separate features.
 - [ ] Optimizely: account-specific frame domains (`a<account-id>.cdn.optimizely.com`).
 - [ ] OneTrust: the official page lists domains without directives. Ask OneTrust which directive each domain
       belongs to, and whether the banner needs `'unsafe-inline'` for styles without a nonce.
@@ -51,9 +50,10 @@ Contribution rules for the catalogue are in [CONTRIBUTING.md](CONTRIBUTING.md#ve
 - [ ] D3: the recommended ES module bundle (`d3@7/+esm`) may import other jsDelivr packages; only the UMD bundle
       is covered.
 - [ ] Amplitude: no CSP page, only two rows of the Browser SDK troubleshooting table; nothing on the inline loader.
-- [ ] YouTube: no CSP page; the entry uses the embedding docs' addresses. `www.youtube-nocookie.com` isn't covered.
-- [ ] HubSpot: the public list is written for HubSpot-hosted pages; the entry covers the NA1 data centre only
-      (EU1, NA2, NA3 and AP1 addresses as separate features).
+- [ ] YouTube: no CSP page; the entry uses the embedding docs' addresses. The IFrame Player API's docs don't say
+      whether it works with `www.youtube-nocookie.com`.
+- [ ] HubSpot: the public list is written for HubSpot-hosted pages; the entry applies it to HubSpot's code on your
+      own site.
 - [ ] Libraries on jsDelivr and unpkg are pinned to the version their docs show (Bootstrap 5.3.9, htmx 2.0.11, …):
       update them when the docs move to a new version (the weekly watcher reports the new address).
 - [ ] Tealium iQ: the official page lists the Collect, data layer enrichment and API domains without directives;
@@ -264,6 +264,10 @@ Interface:
 
 ### Features
 
+- [x] **Catalogue gaps** (2026-11-27): Intercom's EU and Australian workspaces as features of their own (only
+      the CDN addresses differ by region, as Intercom's article says), HubSpot's EU1, NA2, NA3 and AP1 data centres
+      (calls to action, files, videos and surveys), and YouTube's privacy-enhanced mode (`www.youtube-nocookie.com`,
+      from YouTube's help centre).
 - [x] **Hashes: the remaining cases** (2026-11-27): event handlers and `style` attributes by hash, and external
       scripts by their `integrity` attribute, in the analyzer's "Replace it with hashes", the builder's questions and
       the console messages. Attribute hashes go in `script-src-attr` or `style-src-attr` with `'unsafe-hashes'`, so

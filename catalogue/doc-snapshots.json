@@ -1887,5 +1887,12 @@
     "esm.sh",
     "jsdelivr.com",
     "package.json"
+  ],
+  "https://support.google.com/youtube/answer/171780": [
+    "http://www.youtube.com",
+    "https://www.youtube-nocookie.com",
+    "https://www.youtube.com",
+    "youtube-nocookie.com",
+    "youtube.com"
   ]
 }
