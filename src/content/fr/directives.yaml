@@ -32,11 +32,11 @@ script-src-elem:
     # Script tags
     { en: fcc739e5, text: "Balises script" }
   simple:
-    # Like the Scripts rule, but only for script files and script blocks in the page, not for small bits of code attached to buttons or links.
-    { en: f05e93f3, text: "Comme la règle Scripts, mais seulement pour les fichiers de script et les blocs de script de la page, pas pour les petits bouts de code attachés aux boutons ou aux liens." }
+    # Like the Scripts rule, but only for script files and script blocks in the page, not for small bits of code attached to buttons.
+    { en: 7a786eae, text: "Comme la règle Scripts, mais seulement pour les fichiers de script et les blocs de script de la page, pas pour les petits bouts de code attachés aux boutons." }
   developer:
-    # Applies to <script> elements (external and inline blocks). Falls back to script-src, then default-src. Does not govern event-handler attributes (script-src-attr) or eval (script-src).
-    { en: 88fa4d48, text: "S'applique aux éléments <script> (externes et blocs dans la page). Se replie sur script-src, puis default-src. Ne régit ni les attributs de gestionnaires d'événements (script-src-attr) ni eval (script-src)." }
+    # Applies to <script> elements (external and inline blocks) and javascript: links. Falls back to script-src, then default-src. Does not govern event-handler attributes (script-src-attr) or eval (script-src).
+    { en: 201461c6, text: "S'applique aux éléments <script> (externes et blocs dans la page) et aux liens javascript:. Se replie sur script-src, puis default-src. Ne régit ni les attributs de gestionnaires d'événements (script-src-attr) ni eval (script-src)." }
   security:
     # Lets you split policies, e.g. allow a vendor's script file without enabling inline event handlers.
     { en: 1b46ac33, text: "Permet de découper la politique, par exemple autoriser le fichier de script d'un éditeur sans activer les gestionnaires d'événements dans la page." }
@@ -48,8 +48,8 @@ script-src-attr:
     # Controls tiny pieces of code written directly on page elements, such as "run this when the button is clicked".
     { en: 220fdbc7, text: "Contrôle les tout petits bouts de code écrits directement sur les éléments de la page, du type « exécuter ceci quand on clique sur le bouton »." }
   developer:
-    # Applies to inline event handlers (onclick="…") and javascript: navigations. Falls back to script-src, then default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
-    { en: 01ee2666, text: "S'applique aux gestionnaires d'événements dans la page (onclick=\"…\") et aux navigations javascript:. Se replie sur script-src, puis default-src. Les nonces ne s'appliquent pas aux attributs ; seuls 'unsafe-inline' ou 'unsafe-hashes' + hash fonctionnent." }
+    # Applies to inline event handlers (onclick="…"); javascript: links go by script-src-elem. Falls back to script-src, then default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
+    { en: a963575f, text: "S'applique aux gestionnaires d'événements dans la page (onclick=\"…\") ; les liens javascript: relèvent de script-src-elem. Se replie sur script-src, puis default-src. Les nonces ne s'appliquent pas aux attributs ; seuls 'unsafe-inline' ou 'unsafe-hashes' + hash fonctionnent." }
   security:
     # Event-handler attributes are a classic XSS vector. Keeping this at 'none' is cheap if the site doesn't use them.
     { en: fbb047de, text: "Les attributs de gestionnaires d'événements sont un vecteur XSS classique. Les garder à 'none' ne coûte rien si le site ne s'en sert pas." }

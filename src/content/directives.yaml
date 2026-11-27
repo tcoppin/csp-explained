@@ -34,10 +34,10 @@
   title: Script tags
   simple: >-
     Like the Scripts rule, but only for script files and script blocks in the page, not for small bits of code
-    attached to buttons or links.
+    attached to buttons.
   developer: >-
-    Applies to <script> elements (external and inline blocks). Falls back to script-src, then default-src.
-    Does not govern event-handler attributes (script-src-attr) or eval (script-src).
+    Applies to <script> elements (external and inline blocks) and javascript: links. Falls back to script-src,
+    then default-src. Does not govern event-handler attributes (script-src-attr) or eval (script-src).
   security: >-
     Lets you split policies, e.g. allow a vendor's script file without enabling inline event handlers.
 
@@ -46,8 +46,8 @@
   simple: >-
     Controls tiny pieces of code written directly on page elements, such as "run this when the button is clicked".
   developer: >-
-    Applies to inline event handlers (onclick="…") and javascript: navigations. Falls back to script-src, then
-    default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
+    Applies to inline event handlers (onclick="…"); javascript: links go by script-src-elem. Falls back to
+    script-src, then default-src. Nonces can't be applied to attributes; only 'unsafe-inline' or 'unsafe-hashes' + hash work.
   security: >-
     Event-handler attributes are a classic XSS vector. Keeping this at 'none' is cheap if the site doesn't use them.
 
