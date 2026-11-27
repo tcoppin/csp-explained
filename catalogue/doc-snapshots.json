@@ -1308,6 +1308,7 @@
     "cdn-4.convertexperiments.com",
     "connect-src",
     "convert.com",
+    "default-src",
     "frame-src",
     "heatmap.com",
     "https://app.convert.com",

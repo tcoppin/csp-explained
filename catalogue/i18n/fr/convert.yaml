@@ -67,6 +67,9 @@ features:
       connect:
         # Visitor Insights and data sent through your domain.
         { en: f96a4261, text: "Visitor Insights et les données envoyées par votre domaine." }
+      img:
+        # Image requests that go through your domain.
+        { en: 8d3a5956, text: "Requêtes d'images qui passent par votre domaine." }
 fields:
   custom-domain:
     description:

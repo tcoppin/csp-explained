@@ -4,7 +4,7 @@ category: experimentation
 website: https://www.convert.com
 sources:
   - https://support.convert.com/hc/en-us/articles/23979373845261-How-to-Configure-Your-Website-s-CSP-Policy-for-Convert-Experiments
-lastVerified: 2026-11-23
+lastVerified: 2026-11-27
 confidence: verified
 nonce:
   supported: true
@@ -68,3 +68,6 @@ features:
       - type: connect
         sources: ["https://{custom-domain}"]
         reason: Visitor Insights and data sent through your domain.
+      - type: img
+        sources: ["https://{custom-domain}"]
+        reason: Image requests that go through your domain.
