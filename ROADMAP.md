@@ -131,9 +131,8 @@ Everything here runs on the visitor's device, like the analyzer: nothing typed, 
       choices, Trusted Types.
 - [ ] **Hashes: the remaining cases**: inline event handlers by hash (`'unsafe-hashes'`), and hashes of external
       scripts (CSP3, Chromium only).
-- [ ] **Domains that changed hands** (2026-11-23): warn when a policy allows a domain known to serve malicious code
-      after a change of owner, starting with `polyfill.io` (2024), and point to the replacement (cdnjs's polyfill
-      copy is in the catalogue). Sourced from the official statements, like the catalogue.
+- [ ] **Domains that changed hands, beyond polyfill.io**: add each new case to `src/lib/csp/changed-hands.ts`
+      with its public statements, and its messages (`findings.changed-hands.<id>`, `risks.…`).
 
 ## 4. Outside the site, still without our server
 
@@ -261,6 +260,11 @@ Interface:
 
 ### Features
 
+- [x] **Domains that changed hands** (2026-11-27): a policy that allows `polyfill.io` (or `cdn.polyfill.io`,
+      `*.polyfill.io`) gets a high finding where it can run code, medium elsewhere, in place of CSP Evaluator's "no
+      known bypass". It says what happened (sold in February 2024, redirects from June 2024) and points to
+      Cloudflare's and Fastly's copies. The policy marks the value risky, and picking it says the same. Sourced from
+      Cloudflare's and Fastly's statements.
 - [x] **Read violation reports** (`/reports`, 2026-11-20): paste or open a batch of reports (`report-to` or
       `report-uri`, a JSON export, one per line, inside log lines or a collector's wrapper). Reports about the same
       address or code, under the same rule and policy, are one problem, with their pages (without query strings) and

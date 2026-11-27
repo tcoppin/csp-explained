@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { translator } from '../../i18n';
 import { analyze } from '../analysis';
 import { parseVendor } from '../catalogue/schema';
+import { CHANGED_HANDS } from '../csp/changed-hands';
 import { parse } from '../csp/parser';
 import { evaluateSecurity, findingKey } from '../csp/security';
 import { deploySnippet, developerReport, headersBesideMeta, metaBesideHeaders, policyDiff } from './developer';
@@ -246,6 +247,8 @@ describe('findingKey', () => {
     "script-src 'nonce-abcdefgh1234' 'unsafe-inline' 'strict-dynamic' https://x.example",
     "default-src 'self'; report-uri http://r.example",
     "script-src 'self' https://unpkg.com; object-src 'none'",
+    // Every domain that changed hands, so each one needs its explanation.
+    ...CHANGED_HANDS.map((d) => `script-src 'self' https://${d.domain}; object-src 'none'; base-uri 'none'`),
   ];
   const produced = new Set(POLICIES.flatMap((p) => evaluateSecurity(parse(p)).map((f) => findingKey(f))));
 

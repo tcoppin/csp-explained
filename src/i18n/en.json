@@ -498,6 +498,9 @@
       "script-src": "The policy doesn't restrict scripts, so it gives no protection against injected code.",
       "base-uri": "The policy doesn't restrict the page's base address (base-uri). An attacker could change where the page's own scripts load from; base-uri 'none' or 'self' prevents it."
     },
+    "changed-hands": {
+      "polyfill-io": "Your policy still trusts polyfill.io ({value} in {directive}). The address was sold in 2024, and its new owner used it to send visitors to other websites. Ask your developers to remove it and use Cloudflare's or Fastly's copy of the service instead."
+    },
     "script-allowlist-bypass": {
       "open-cdn": "{value} serves files anyone can publish, so an attacker could put their own code there and your policy would let it run. Allow only the libraries your site uses, by their own address.",
       "known": "{value} hosts files an attacker can reuse to run their own code, so allowing it weakens the policy. Remove it if nothing on your site needs it."
@@ -520,6 +523,9 @@
       "object-src": "Plugins (<object>, <embed>) aren't restricted, and they can run JavaScript. Set object-src 'none'.",
       "script-src": "Scripts aren't restricted: there is no script-src and no default-src to fall back on. This is the rule that protects against XSS.",
       "base-uri": "No base-uri: an injected <base> tag could send every relative script address to an attacker's server, even with nonces. Set base-uri 'none' or 'self'."
+    },
+    "changed-hands": {
+      "polyfill-io": "The policy allows polyfill.io ({value} in {directive}), which changed owner in February 2024; in June 2024 it served code that sent visitors to other websites. Remove it, and load the polyfills from Cloudflare's copy (https://cdnjs.cloudflare.com/polyfill/) or Fastly's (https://polyfill-fastly.io), or drop them: current browsers rarely need them."
     },
     "script-allowlist-bypass": {
       "open-cdn": "{value} serves every package published on npm, and anyone can publish one: an attacker can put their code there and this policy lets it run. Allow only the packages you use, by their address with a path, or move to nonces with 'strict-dynamic'.",

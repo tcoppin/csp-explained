@@ -303,6 +303,23 @@ test('allowing all of a CDN anyone can publish to is a risk, said in plain words
   await expect(page.getByText('anyone can publish')).toHaveCount(0);
 });
 
+test('a domain that changed hands is a high risk, said with what happened and what to use instead', async ({ page }) => {
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://cdn.polyfill.io; object-src 'none'; base-uri 'none'");
+  const heard = (await readAloud(page, '.findings')).join(' ');
+  expect(heard).toMatch(/High.*Your policy still trusts polyfill\.io \(https:\/\/cdn\.polyfill\.io in script-src\)/);
+  expect(heard).toContain('its new owner used it to send visitors to other websites');
+  expect(heard).toContain("Cloudflare's or Fastly's copy");
+  // The policy marks it risky, and picking it says what happened before what a host means.
+  expect(await readAloud(page, '.policy')).toContain('button, https://cdn.polyfill.io, risky, not pressed');
+  await page.locator('.policy').getByRole('button', { name: 'https://cdn.polyfill.io' }).click();
+  await expect(page.locator('#explanation .changed-hands')).toContainText('The address was sold in 2024');
+  // Cloudflare's copy is not flagged.
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("script-src 'self' https://cdnjs.cloudflare.com/polyfill/; object-src 'none'; base-uri 'none'");
+  await expect(page.getByText('changed owner')).toHaveCount(0);
+  await expect(page.getByText('new owner')).toHaveCount(0);
+});
+
 test("a tool's account name fills in its lines, and every account is allowed while it is empty", async ({ page }) => {
   await openAnalyzer(page);
   await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("default-src 'self'; connect-src 'self' https://acme.piwik.pro");

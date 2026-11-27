@@ -1,6 +1,7 @@
 import { Fragment } from 'preact';
 import { localePath, type Translate } from '../../i18n';
 import { explainSource, type ContentBundle } from '../../lib/content';
+import { changedHandsOf } from '../../lib/csp/changed-hands';
 import { directiveInfo, DIRECTIVES } from '../../lib/csp/directives';
 import { resolve } from '../../lib/csp/fallback';
 import { issuesAt } from '../../lib/csp/parser';
@@ -73,6 +74,10 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
 
   const relevant = issuesAt(issues, selection.policyIndex, directive, value);
   const skipped = value ? skippedText(t, policy, directive, value) : undefined;
+  // What happened to a domain that changed hands, in the same words as Things to check or the security review.
+  const changed = value?.kind === 'host' ? changedHandsOf(value.raw) : undefined;
+  const changedText =
+    changed && t(`${audience === 'simple' ? 'risks' : 'findings'}.changed-hands.${changed.id}`, { directive: directive.name, value: value!.raw });
 
   // Absent directives that fall back to this one, and are therefore governed by it.
   const covers = directive.duplicate
@@ -94,6 +99,7 @@ export function Explanation({ policy, selection, issues, audience, content }: Pr
             <code class={`tok ${valueTone(directive, value)}`}>{value.raw}</code>
           </h3>
           {skipped && <p class="skipped">{skipped}</p>}
+          {changedText && <p class="changed-hands">{changedText}</p>}
           {valueDoc ? (
             <>
               <p class="lead">{valueDoc.title}</p>

@@ -498,6 +498,9 @@
       "script-src": "La politique ne limite pas les scripts, elle ne protège donc pas contre du code injecté.",
       "base-uri": "La politique ne limite pas l'adresse de base de la page (base-uri). Un attaquant pourrait changer l'endroit d'où se chargent les scripts de la page ; base-uri 'none' ou 'self' l'empêche."
     },
+    "changed-hands": {
+      "polyfill-io": "Votre politique fait encore confiance à polyfill.io ({value} dans {directive}). Cette adresse a été vendue en 2024, et son nouveau propriétaire s'en est servi pour envoyer les visiteurs vers d'autres sites. Demandez à vos développeurs de la retirer et d'utiliser à la place la copie du service de Cloudflare ou de Fastly."
+    },
     "script-allowlist-bypass": {
       "open-cdn": "{value} sert des fichiers que tout le monde peut publier : un attaquant pourrait y déposer son propre code et votre politique le laisserait s'exécuter. N'autorisez que les bibliothèques qu'utilise votre site, par leur propre adresse.",
       "known": "{value} héberge des fichiers qu'un attaquant peut réutiliser pour exécuter son propre code, donc l'autoriser affaiblit la politique. Retirez-le si rien sur votre site n'en a besoin."
@@ -520,6 +523,9 @@
       "object-src": "Les plugins (<object>, <embed>) ne sont pas restreints, et ils peuvent exécuter du JavaScript. Définissez object-src 'none'.",
       "script-src": "Les scripts ne sont pas restreints : il n'y a ni script-src ni default-src sur lequel se replier. C'est la règle qui protège contre le XSS.",
       "base-uri": "Pas de base-uri : une balise <base> injectée pourrait envoyer toutes les adresses de script relatives vers le serveur d'un attaquant, même avec des nonces. Définissez base-uri 'none' ou 'self'."
+    },
+    "changed-hands": {
+      "polyfill-io": "La politique autorise polyfill.io ({value} dans {directive}), qui a changé de propriétaire en février 2024 ; en juin 2024, il a servi du code qui envoyait les visiteurs vers d'autres sites. Retirez-le, et chargez les polyfills depuis la copie de Cloudflare (https://cdnjs.cloudflare.com/polyfill/) ou celle de Fastly (https://polyfill-fastly.io), ou supprimez-les : les navigateurs actuels en ont rarement besoin."
     },
     "script-allowlist-bypass": {
       "open-cdn": "{value} sert tous les paquets publiés sur npm, et tout le monde peut en publier : un attaquant peut y déposer son code et cette politique le laisse s'exécuter. N'autorisez que les paquets que vous utilisez, par leur adresse avec un chemin, ou passez aux nonces avec 'strict-dynamic'.",

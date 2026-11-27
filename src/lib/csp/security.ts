@@ -2,6 +2,7 @@ import type { Csp } from 'csp_evaluator/dist/csp.js';
 import { CspEvaluator, DEFAULT_CHECKS } from 'csp_evaluator/dist/evaluator.js';
 import { Finding, Severity, Type } from 'csp_evaluator/dist/finding.js';
 import { CspParser } from 'csp_evaluator/dist/parser.js';
+import { changedHandsOf } from './changed-hands';
 import { directiveInfo, KEYWORDS } from './directives';
 import type { ParseResult, Policy } from './model';
 import { parseHostSource } from './parser';
@@ -107,6 +108,8 @@ export function findingKey(f: Pick<SecurityFinding, 'id' | 'directive' | 'value'
       return `${f.id}.${f.directive.endsWith(':') ? 'colon' : 'unknown'}`;
     case 'invalid-keyword':
       return `${f.id}.${value.startsWith("'") ? 'invalid' : 'quotes'}`;
+    case 'changed-hands':
+      return `${f.id}.${changedHandsOf(value)?.id ?? 'unknown'}`;
     case 'ignored':
       return `${f.id}.${value === "'unsafe-inline'" ? 'unsafe-inline' : 'strict-dynamic'}`;
     default:
@@ -125,6 +128,32 @@ function outdated(f: Finding): boolean {
   return false;
 }
 
+/** Where a source can make code run on the page: the scripts and workers it loads (and what falls back to them). */
+const RUNS_CODE = new Set(['default-src', 'script-src', 'script-src-elem', 'worker-src', 'child-src']);
+
+/**
+ * Domains that served malicious code after a change of owner (`changed-hands.ts`): high where they can run code,
+ * medium elsewhere (the new owner still decides what the page shows or sends).
+ */
+function changedHandsFindings(policy: Policy, policyIndex: number): SecurityFinding[] {
+  return policy.directives
+    .filter((d) => !d.duplicate && d.known)
+    .flatMap((d) =>
+      d.values
+        .filter((v) => v.kind === 'host' && changedHandsOf(v.raw))
+        .map((v) => ({
+          id: 'changed-hands',
+          level: RUNS_CODE.has(d.name) ? ('high' as const) : ('medium' as const),
+          maybe: false,
+          directive: d.name,
+          value: v.raw,
+          description: `${v.raw} changed owner and has served malicious code since. Remove it.`,
+          policyIndex,
+          reportOnly: policy.reportOnly,
+        })),
+    );
+}
+
 export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
   parsed.policies.forEach((policy, policyIndex) => {
@@ -132,7 +161,11 @@ export function evaluateSecurity(parsed: Pick<ParseResult, 'policies'>): Securit
     const csp = new CspParser(sanitized(policy)).csp;
     // Some checks run once per kind of script (script-src-elem, script-src-attr…) and raise the same finding each time.
     const seen = new Set<string>();
-    for (const f of runChecks(csp).filter((f) => !outdated(f))) {
+    const changedHands = changedHandsFindings(policy, policyIndex);
+    findings.push(...changedHands);
+    // The evaluator would only call such a domain "no known bypass"; ours says what happened instead.
+    const known = (f: Finding) => changedHands.some((c) => c.directive === f.directive && c.value === f.value);
+    for (const f of runChecks(csp).filter((f) => !outdated(f) && !known(f))) {
       const key = `${f.type}|${f.directive}|${f.value ?? ''}`;
       if (seen.has(key)) continue;
       seen.add(key);

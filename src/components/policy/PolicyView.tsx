@@ -2,6 +2,7 @@ import { Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 import type { ContentBundle } from '../../lib/content';
 import type { ResourceType } from '../../lib/csp/directives';
+import { changedHandsOf } from '../../lib/csp/changed-hands';
 import { ignoredSources } from '../../lib/csp/matcher';
 import { issueLevel } from '../../lib/csp/parser';
 import type { Directive, ParseIssue, Policy, SourceExpression } from '../../lib/csp/model';
@@ -22,7 +23,8 @@ export function highlightClass(v: SourceExpression): string {
       // 'unsafe-allow-redirects' does nothing: its name alone doesn't make it a risk.
       return v.value.startsWith("'unsafe-") && v.value !== "'unsafe-allow-redirects'" ? 'hl-unsafe' : 'hl-keyword';
     case 'host':
-      return v.host?.host === '*' ? 'hl-unsafe' : 'hl-host';
+      // A domain that served malicious code after a change of owner is a risk wherever it is allowed.
+      return v.host?.host === '*' || changedHandsOf(v.raw) ? 'hl-unsafe' : 'hl-host';
     case 'scheme':
       return v.value === 'https:' || v.value === 'http:' ? 'hl-unsafe' : 'hl-scheme';
     case 'nonce':

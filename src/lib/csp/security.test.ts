@@ -88,3 +88,26 @@ describe('CDNs anyone can publish to', () => {
     }
   });
 });
+
+describe('domains that changed hands', () => {
+  const policy = "script-src 'self' https://cdn.polyfill.io; img-src polyfill.io; object-src 'none'; base-uri 'none'";
+
+  it('flags polyfill.io as high where it runs code, medium elsewhere', () => {
+    const findings = evaluateSecurity(parse(policy)).filter((f) => f.id === 'changed-hands');
+    expect(findings).toEqual([
+      expect.objectContaining({ directive: 'script-src', value: 'https://cdn.polyfill.io', level: 'high', maybe: false }),
+      expect.objectContaining({ directive: 'img-src', value: 'polyfill.io', level: 'medium', maybe: false }),
+    ]);
+    expect(findingKey(findings[0]!)).toBe('changed-hands.polyfill-io');
+  });
+
+  it("replaces the evaluator's 'no known bypass' on that value", () => {
+    const findings = evaluateSecurity(parse(policy));
+    expect(findings.filter((f) => f.value === 'https://cdn.polyfill.io').map((f) => f.id)).toEqual(['changed-hands']);
+  });
+
+  it("leaves Cloudflare's copy alone", () => {
+    const findings = evaluateSecurity(parse("script-src 'self' https://cdnjs.cloudflare.com/polyfill/; object-src 'none'; base-uri 'none'"));
+    expect(findings.some((f) => f.id === 'changed-hands')).toBe(false);
+  });
+});
