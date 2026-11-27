@@ -189,10 +189,13 @@ export function checkResource(
     return kw ? { ...base, verdict: 'allowed', matchedBy: kw, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
   }
 
-  if (hash && (type === 'inline-script' || type === 'inline-style')) {
-    // Asked for by its hash: only the listed hash counts, even where 'unsafe-inline' would allow the block today.
+  if (hash && (type === 'inline-script' || type === 'inline-style' || type === 'inline-handler' || type === 'style-attr')) {
+    // Asked for by its hash: only the listed hash counts, even where 'unsafe-inline' would allow the code today.
+    // An attribute's hash only counts next to 'unsafe-hashes' (CSP3 §6.7.3.3).
     const listed = governing.values.find((v) => v.kind === 'hash' && v.raw === hash);
-    return listed ? { ...base, verdict: 'allowed', matchedBy: listed, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
+    const attribute = type === 'inline-handler' || type === 'style-attr';
+    const counts = listed && (!attribute || has(governing, "'unsafe-hashes'"));
+    return counts ? { ...base, verdict: 'allowed', matchedBy: listed, ignored: [] } : { ...base, verdict: 'blocked', ignored: [] };
   }
 
   if (type === 'inline-script' || type === 'inline-handler' || type === 'inline-style' || type === 'style-attr') {

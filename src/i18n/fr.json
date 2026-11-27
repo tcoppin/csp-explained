@@ -452,36 +452,48 @@
     "paste": {
       "script": "Collez un script intégré, avec ou sans ses balises <script>",
       "style": "Collez un style intégré, avec ou sans ses balises <style>",
-      "any": "Collez du code intégré, avec ou sans ses balises <script> ou <style>"
+      "handler": "Collez les éléments qui ont des attributs onclick=\"…\", ou le code de l'un d'eux",
+      "style-attr": "Collez les éléments qui ont des attributs style=\"…\", ou la valeur de l'un d'eux",
+      "scriptAndHandlers": "Collez un script intégré, avec ou sans ses balises <script>, ou des éléments qui ont des attributs onclick=\"…\"",
+      "styleAndAttributes": "Collez un style intégré, avec ou sans ses balises <style>, ou des éléments qui ont des attributs style=\"…\"",
+      "any": "Collez du code intégré, avec ou sans ses balises <script> ou <style>, ou des éléments qui ont des attributs onclick=\"…\" ou style=\"…\""
     },
     "exact": "Copiez-le exactement tel qu'il est dans la page : une espace de plus ou de moins change l'empreinte. Plusieurs blocs à la fois fonctionnent aussi, avec leurs balises. Quand Chrome bloque un bloc, sa console affiche l'empreinte attendue.",
+    "exactAttributes": "Copiez-le exactement tel qu'il est dans la page : une espace de plus ou de moins change l'empreinte. Plusieurs éléments à la fois fonctionnent aussi.",
     "untagged": "Le code sans balises est",
-    "kind": { "script": "un script", "style": "un style" },
+    "kind": { "script": "un script", "style": "un style", "handler": "un gestionnaire d'événement", "style-attr": "un attribut style" },
     "add": "Calculer l'empreinte",
     "listLabel": "Empreintes",
     "remove": "Retirer",
     "skipped": {
-      "external": "Un <script src=…> charge un fichier : il est autorisé par l'adresse du fichier, pas par une empreinte.",
+      "external": "Un <script src=…> sans attribut integrity charge un fichier : il est autorisé par l'adresse du fichier. Avec un attribut integrity, les empreintes qu'il liste peuvent l'autoriser à la place.",
       "data": "Un <script> contenant des données, comme du JSON-LD, ne s'exécute pas et n'a pas besoin d'empreinte.",
-      "empty": "Un bloc vide a été ignoré.",
+      "empty": "Un bloc ou un attribut vide a été ignoré.",
+      "nothing": "Aucun code intégré trouvé : collez des blocs <script> ou <style>, ou des éléments qui ont des attributs onclick=\"…\" ou style=\"…\".",
+      "javascript-link": "Un lien javascript: a été ignoré : les navigateurs le vérifient comme un bloc <script>, donc son empreinte irait dans script-src, où elle empêche 'unsafe-inline' d'autoriser vos autres scripts intégrés. Un bouton avec un écouteur fonctionne quelle que soit la politique.",
       "known": "Un bloc déjà dans la liste a été ignoré.",
       "other": {
-        "script": "Un bloc <script> a été ignoré : cette liste est pour les styles.",
-        "style": "Un bloc <style> a été ignoré : cette liste est pour les scripts."
+        "script": "Un bloc <script> a été ignoré : il ne va pas dans cette liste.",
+        "style": "Un bloc <style> a été ignoré : il ne va pas dans cette liste.",
+        "handler": "Un gestionnaire d'événement (onclick=\"…\") a été ignoré : il ne va pas dans cette liste.",
+        "style-attr": "Un attribut style=\"…\" a été ignoré : il ne va pas dans cette liste."
       }
     },
+    "external": "Un <script src=…> est autorisé par les empreintes de son attribut integrity : gardez l'attribut sur la balise, et mettez les empreintes à jour quand le fichier change.",
     "fix": {
       "title": "Le remplacer par des empreintes",
       "intro": {
         "simple": "Si le code écrit dans vos pages change rarement, chaque bloc peut être approuvé un par un plutôt que tous à la fois. Collez-les ici pour obtenir la politique à utiliser.",
-        "technical": "Listez chaque bloc intégré par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans la directive, les navigateurs y ignorent `'unsafe-inline'` : il ne reste que pour les très vieux navigateurs."
+        "technical": "Listez chaque bloc ou attribut intégré par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans la directive, les navigateurs y ignorent `'unsafe-inline'` : il ne reste que pour les très vieux navigateurs."
       },
       "fromFinding": "Le remplacer par des empreintes",
       "orNonces": "ou [passer aux nonces](/nonces).",
       "caption": "Votre politique avec les empreintes",
       "warning": {
-        "script": "Tout autre script intégré à vos pages cesse de s'exécuter tant que son empreinte n'est pas listée, de même que les attributs `onclick=\"…\"`. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
+        "script": "Tout autre script intégré à vos pages cesse de s'exécuter tant que son empreinte n'est pas listée, de même que les attributs `onclick=\"…\"`, à moins de les lister ici aussi. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
+        "handler": "Les gestionnaires d'événements vont dans `script-src-attr`, avec `'unsafe-hashes'` : tout autre attribut `onclick=\"…\"` de vos pages cesse de s'exécuter tant que son empreinte n'est pas listée. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
         "style": "Tout autre bloc `<style>` de vos pages a alors aussi besoin de son empreinte. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
+        "style-attr": "Les attributs style vont dans `style-src-attr`, avec `'unsafe-hashes'` : tout autre attribut `style=\"…\"` de vos pages cesse de s'appliquer tant que son empreinte n'est pas listée. Testez d'abord avec `Content-Security-Policy-Report-Only`.",
         "styleAttr": "Les attributs `style=\"…\"` continuent de fonctionner : `style-src-attr 'unsafe-inline'` est ajouté pour eux."
       }
     }
@@ -727,7 +739,9 @@
         "listed": "Seulement ceux que je liste",
         "unrestricted": {
           "script": "Votre politique n'a encore ni `script-src` ni `default-src` : rien ne restreint les scripts, donc tout script intégré s'exécute déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre.",
-          "style": "Votre politique n'a encore ni `style-src` ni `default-src` : rien ne restreint les styles, donc tout style intégré s'applique déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre."
+          "style": "Votre politique n'a encore ni `style-src` ni `default-src` : rien ne restreint les styles, donc tout style intégré s'applique déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre.",
+          "handler": "Votre politique n'a encore ni `script-src` ni `default-src` : rien ne restreint les scripts, donc tout gestionnaire d'événement s'exécute déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre.",
+          "style-attr": "Votre politique n'a encore ni `style-src` ni `default-src` : rien ne restreint les styles, donc tout attribut style s'applique déjà et ces empreintes ne changent rien. Partez d'une politique vierge, ou ajoutez l'une de ces lignes à la vôtre."
         },
         "explain": {
           "script": {
@@ -737,6 +751,14 @@
           "style": {
             "simple": "Collez chacun ci-dessous. Seuls ces blocs exacts s'appliqueront : quand l'un change, son empreinte doit aussi être mise à jour dans la politique.",
             "technical": "Chaque bloc est listé par son empreinte `'sha256-…'`. Dès qu'une empreinte est dans `style-src`, les navigateurs y ignorent `'unsafe-inline'` : chaque bloc `<style>` a besoin de son empreinte, et les attributs `style=\"…\"` reçoivent leur propre `style-src-attr`."
+          },
+          "handler": {
+            "simple": "Collez ci-dessous les éléments. Seuls ces bouts de code exacts s'exécuteront : quand l'un change, son empreinte doit aussi être mise à jour dans la politique. Déplacer le code dans un fichier de script est plus sûr, quand c'est possible.",
+            "technical": "La valeur de chaque attribut est listée par son empreinte `'sha256-…'`, dans `script-src-attr` avec `'unsafe-hashes'`. Un attaquant qui peut injecter du HTML peut encore réutiliser un gestionnaire listé sur un autre élément : passer à `addEventListener` est plus sûr."
+          },
+          "style-attr": {
+            "simple": "Collez ci-dessous les éléments. Seuls ces styles exacts s'appliqueront : quand l'un change, son empreinte doit aussi être mise à jour dans la politique.",
+            "technical": "La valeur de chaque attribut est listée par son empreinte `'sha256-…'`, dans `style-src-attr` avec `'unsafe-hashes'`. Les styles posés par un script (`element.style`) ne sont pas concernés."
           }
         }
       },
@@ -764,7 +786,7 @@
         "style-attributes": {
           "label": "Utilisent des attributs style=\"…\"",
           "hint": "Des éléments mis en forme un par un, fréquent avec les constructeurs de pages et les contenus riches.",
-          "detail": "Attributs style (style-src-attr). Demande 'unsafe-inline'."
+          "detail": "Attributs style (style-src-attr). Autorisés avec 'unsafe-inline', ou un par un avec 'unsafe-hashes' et leurs empreintes."
         },
         "data-images": {
           "label": "Affichent des images écrites en adresses data:",

@@ -129,8 +129,12 @@ Everything here runs on the visitor's device, like the analyzer: nothing typed, 
   - Common mistakes.
 - [ ] **Builder: directives beyond fetch**: `report-to` with a `Reporting-Endpoints` header, `frame-ancestors`
       choices, Trusted Types.
-- [ ] **Hashes: the remaining cases**: inline event handlers by hash (`'unsafe-hashes'`), and hashes of external
-      scripts (CSP3, Chromium only).
+- [ ] **`javascript:` links** (2026-11-27): browsers check them under `script-src-elem`, like `<script>` blocks
+      (tested in Chrome, Firefox and Safari). Their console messages aren't recognised yet: Chrome's "Running the
+      JavaScript URL violates…" gives nothing, Firefox calls it an inline script with `Source: javascript:…`,
+      Safari only says "Refused to execute a script". Explain them (a button with a listener is the way out), and
+      perhaps list them by hash, with `'unsafe-hashes'` in `script-src-elem`: Chrome hashes the address with its
+      `%` escapes decoded, Firefox and Safari as written, so both hashes when they differ.
 - [ ] **Domains that changed hands, beyond polyfill.io**: add each new case to `src/lib/csp/changed-hands.ts`
       with its public statements, and its messages (`findings.changed-hands.<id>`, `risks.…`).
 
@@ -260,6 +264,11 @@ Interface:
 
 ### Features
 
+- [x] **Hashes: the remaining cases** (2026-11-27): event handlers and `style` attributes by hash, and external
+      scripts by their `integrity` attribute, in the analyzer's "Replace it with hashes", the builder's questions and
+      the console messages. Attribute hashes go in `script-src-attr` or `style-src-attr` with `'unsafe-hashes'`, so
+      `<script>` blocks keep their own rule. The values are hashed as browsers do: entities decoded, line breaks
+      normalised. Tested in Chrome, Firefox and Safari, which all support both (not Chromium only, as noted before).
 - [x] **Domains that changed hands** (2026-11-27): a policy that allows `polyfill.io` (or `cdn.polyfill.io`,
       `*.polyfill.io`) gets a high finding where it can run code, medium elsewhere, in place of CSP Evaluator's "no
       known bypass". It says what happened (sold in February 2024, redirects from June 2024) and points to

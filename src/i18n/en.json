@@ -452,36 +452,48 @@
     "paste": {
       "script": "Paste an inline script, with or without its <script> tags",
       "style": "Paste an inline style, with or without its <style> tags",
-      "any": "Paste inline code, with or without its <script> or <style> tags"
+      "handler": "Paste the elements with onclick=\"…\" attributes, or the code in one",
+      "style-attr": "Paste the elements with style=\"…\" attributes, or the value of one",
+      "scriptAndHandlers": "Paste an inline script, with or without its <script> tags, or elements with onclick=\"…\" attributes",
+      "styleAndAttributes": "Paste an inline style, with or without its <style> tags, or elements with style=\"…\" attributes",
+      "any": "Paste inline code, with or without its <script> or <style> tags, or elements with onclick=\"…\" or style=\"…\" attributes"
     },
     "exact": "Copy it exactly as it is in the page: one space more or less changes the hash. Several blocks at once work too, with their tags. When Chrome blocks a block, its console shows the hash it expects.",
+    "exactAttributes": "Copy it exactly as it is in the page: one space more or less changes the hash. Several elements at once work too.",
     "untagged": "Code without tags is",
-    "kind": { "script": "a script", "style": "a style" },
+    "kind": { "script": "a script", "style": "a style", "handler": "an event handler", "style-attr": "a style attribute" },
     "add": "Get the hash",
     "listLabel": "Hashes",
     "remove": "Remove",
     "skipped": {
-      "external": "A <script src=…> loads a file: it's allowed by the file's address, not by a hash.",
+      "external": "A <script src=…> without an integrity attribute loads a file: it's allowed by the file's address. With an integrity attribute, the hashes it lists can allow it instead.",
       "data": "A <script> holding data, such as JSON-LD, doesn't run and needs no hash.",
-      "empty": "An empty block was left out.",
+      "empty": "An empty block or attribute was left out.",
+      "nothing": "No inline code found: paste <script> or <style> blocks, or elements with onclick=\"…\" or style=\"…\" attributes.",
+      "javascript-link": "A javascript: link was left out: browsers check it like a <script> block, so its hash would go in script-src, where it stops 'unsafe-inline' from allowing your other inline scripts. A button with a listener works under any policy.",
       "known": "A block already in the list was left out.",
       "other": {
-        "script": "A <script> block was left out: this list is for styles.",
-        "style": "A <style> block was left out: this list is for scripts."
+        "script": "A <script> block was left out: it doesn't go in this list.",
+        "style": "A <style> block was left out: it doesn't go in this list.",
+        "handler": "An event handler (onclick=\"…\") was left out: it doesn't go in this list.",
+        "style-attr": "A style=\"…\" attribute was left out: it doesn't go in this list."
       }
     },
+    "external": "A <script src=…> is allowed by the hashes in its integrity attribute: keep the attribute on the tag, and update the hashes when the file changes.",
     "fix": {
       "title": "Replace it with hashes",
       "intro": {
         "simple": "If the code written in your pages rarely changes, each block can be approved one by one instead of all at once. Paste them here to get the policy to use.",
-        "technical": "List each inline block by its `'sha256-…'` hash. Once a hash is in the directive, browsers ignore `'unsafe-inline'` there: it stays only for very old browsers."
+        "technical": "List each inline block or attribute by its `'sha256-…'` hash. Once a hash is in the directive, browsers ignore `'unsafe-inline'` there: it stays only for very old browsers."
       },
       "fromFinding": "Replace it with hashes",
       "orNonces": "or [move to nonces](/nonces).",
       "caption": "Your policy with the hashes",
       "warning": {
-        "script": "Every other inline script on your pages stops running until its hash is listed, and so do `onclick=\"…\"` attributes. Test with `Content-Security-Policy-Report-Only` first.",
+        "script": "Every other inline script on your pages stops running until its hash is listed, and so do `onclick=\"…\"` attributes, unless you list them here too. Test with `Content-Security-Policy-Report-Only` first.",
+        "handler": "Event handlers go in `script-src-attr`, with `'unsafe-hashes'`: every other `onclick=\"…\"` attribute on your pages stops running until its hash is listed. Test with `Content-Security-Policy-Report-Only` first.",
         "style": "Every other `<style>` block on your pages then needs its hash too. Test with `Content-Security-Policy-Report-Only` first.",
+        "style-attr": "Style attributes go in `style-src-attr`, with `'unsafe-hashes'`: every other `style=\"…\"` attribute on your pages stops applying until its hash is listed. Test with `Content-Security-Policy-Report-Only` first.",
         "styleAttr": "`style=\"…\"` attributes keep working: `style-src-attr 'unsafe-inline'` is added for them."
       }
     }
@@ -727,7 +739,9 @@
         "listed": "Only the ones I list",
         "unrestricted": {
           "script": "Your policy has no `script-src` or `default-src` yet: nothing restricts scripts, so every inline script already runs and these hashes change nothing. Start from a blank policy, or add one of those lines to your own.",
-          "style": "Your policy has no `style-src` or `default-src` yet: nothing restricts styles, so every inline style already applies and these hashes change nothing. Start from a blank policy, or add one of those lines to your own."
+          "style": "Your policy has no `style-src` or `default-src` yet: nothing restricts styles, so every inline style already applies and these hashes change nothing. Start from a blank policy, or add one of those lines to your own.",
+          "handler": "Your policy has no `script-src` or `default-src` yet: nothing restricts scripts, so every event handler already runs and these hashes change nothing. Start from a blank policy, or add one of those lines to your own.",
+          "style-attr": "Your policy has no `style-src` or `default-src` yet: nothing restricts styles, so every style attribute already applies and these hashes change nothing. Start from a blank policy, or add one of those lines to your own."
         },
         "explain": {
           "script": {
@@ -737,6 +751,14 @@
           "style": {
             "simple": "Paste each one below. Only these exact blocks will apply: when one changes, its hash must be updated in the policy too.",
             "technical": "Each block is listed by its `'sha256-…'` hash. Once a hash is in `style-src`, browsers ignore `'unsafe-inline'` there: every `<style>` block needs its hash, and `style=\"…\"` attributes get `style-src-attr` of their own."
+          },
+          "handler": {
+            "simple": "Paste the elements below. Only these exact pieces of code will run: when one changes, its hash must be updated in the policy too. Moving the code into a script file is safer, when you can.",
+            "technical": "Each attribute's value is listed by its `'sha256-…'` hash, in `script-src-attr` with `'unsafe-hashes'`. An attacker who can inject HTML can still reuse a listed handler on another element: moving them to `addEventListener` is safer."
+          },
+          "style-attr": {
+            "simple": "Paste the elements below. Only these exact styles will apply: when one changes, its hash must be updated in the policy too.",
+            "technical": "Each attribute's value is listed by its `'sha256-…'` hash, in `style-src-attr` with `'unsafe-hashes'`. Styles set from a script (`element.style`) aren't affected."
           }
         }
       },
@@ -764,7 +786,7 @@
         "style-attributes": {
           "label": "Use style=\"…\" attributes",
           "hint": "Elements styled one by one, common with page builders and rich-text content.",
-          "detail": "Style attributes (style-src-attr). Needs 'unsafe-inline'."
+          "detail": "Style attributes (style-src-attr). Allowed with 'unsafe-inline', or one by one with 'unsafe-hashes' and their hashes."
         },
         "data-images": {
           "label": "Show images written as data: addresses",

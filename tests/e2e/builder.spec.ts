@@ -217,9 +217,29 @@ test('the builder lists inline scripts by hash, and keeps them in the link', asy
   await page.getByRole('textbox', { name: /Paste an inline script/ }).fill(`<script>${HELLO}</script>\n<style>p {}</style>`);
   await page.getByRole('button', { name: 'Get the hash' }).click();
   await expect(page.getByRole('list', { name: 'Hashes' })).toContainText(HELLO_HASH);
-  await expect(page.getByText('A <style> block was left out: this list is for scripts.')).toBeVisible();
+  await expect(page.getByText("A <style> block was left out: it doesn't go in this list.")).toBeVisible();
   const preview = page.getByRole('complementary', { name: 'Your policy so far' });
   await expect(preview).toContainText(`script-src 'self' ${HELLO_HASH}`);
+  await expect(preview).not.toContainText("'unsafe-inline'");
+
+  const again = await context.newPage();
+  await openBuilder(again, page.url().replace(/^.*?\/\/[^/]+/, ''));
+  await expect(again.getByRole('list', { name: 'Hashes' })).toContainText(HELLO_HASH);
+  expect(errors).toEqual([]);
+});
+
+test("the builder lists onclick attributes by hash, in their own rule with 'unsafe-hashes', and keeps them in the link", async ({ page, context }) => {
+  const errors = watchErrors(page);
+  await openBuilder(page, '/build#b=allowlist&step=site');
+  await page.getByRole('checkbox', { name: /Use onclick="…" attributes/ }).check();
+  const choice = page.locator('.inline-choice');
+  await choice.getByRole('radio', { name: 'Only the ones I list' }).click();
+  await choice.getByRole('textbox', { name: /Paste the elements with onclick/ }).fill(`<button onclick="${HELLO}">Hi</button>\n<a href="javascript:void(0)">x</a>`);
+  await choice.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(choice.getByRole('list', { name: 'Hashes' })).toContainText(HELLO_HASH);
+  await expect(choice.getByRole('note').filter({ hasText: 'A javascript: link was left out' })).toBeVisible();
+  const preview = page.getByRole('complementary', { name: 'Your policy so far' });
+  await expect(preview).toContainText(`script-src-attr 'unsafe-hashes' ${HELLO_HASH}`);
   await expect(preview).not.toContainText("'unsafe-inline'");
 
   const again = await context.newPage();

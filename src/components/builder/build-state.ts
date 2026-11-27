@@ -35,8 +35,8 @@ const isNeed = (v: string): v is SiteNeed => v in SITE_NEEDS;
 const isType = (v: unknown): v is ResourceType => typeof v === 'string' && v in EFFECTIVE_DIRECTIVE;
 const isText = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
 
-/** Hashes travel without their quotes: `hi` for inline scripts, `hc` for inline styles. */
-const HASH_PARAMS: Record<HashableNeed, string> = { 'inline-scripts': 'hi', 'inline-styles': 'hc' };
+/** Hashes travel without their quotes: `hi` for inline scripts, `hh` for event handlers, `hc` for inline styles, `ha` for style attributes. */
+const HASH_PARAMS: Record<HashableNeed, string> = { 'inline-scripts': 'hi', 'inline-handlers': 'hh', 'inline-styles': 'hc', 'style-attributes': 'ha' };
 const HASH = /^sha(256|384|512)-[A-Za-z0-9+/_-]+={0,2}$/;
 
 /** Compact form: `[name, [[type, [sources]], …]]`. The id is rebuilt from the position. */

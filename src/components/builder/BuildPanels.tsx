@@ -2,7 +2,7 @@ import { Fragment, type ComponentChildren } from 'preact';
 import { useMemo, useState } from 'preact/hooks';
 import { localePath, type Translate } from '../../i18n';
 import { analyze } from '../../lib/analysis';
-import { askedFor, HASHABLE, isHashable, NONCE_PLACEHOLDER, SITE_NEEDS, type BuiltPolicy, type CustomTool, type HashableNeed, type PlacedRequirement, type SiteNeed } from '../../lib/build';
+import { askedFor, isHashable, NONCE_PLACEHOLDER, SITE_NEEDS, type BuiltPolicy, type CustomTool, type HashableNeed, type PlacedRequirement, type SiteNeed } from '../../lib/build';
 import type { ContentBundle } from '../../lib/content';
 import { requiresTrustedTypes } from '../../lib/csp/fallback';
 import type { Audience, Policy } from '../../lib/csp/model';
@@ -11,6 +11,7 @@ import { track } from '../../scripts/track';
 import { CodeBox } from '../ui/CodeBox';
 import { Explanation, explanationSummary } from '../policy/Explanation';
 import { TrustedTypesNote } from '../policy/TrustedTypesNote';
+import type { HashKind } from '../../lib/csp/hash';
 import { HashTool } from '../policy/HashTool';
 import { useT } from '../ui/i18n';
 import { OwnToolEditor } from './OwnTools';
@@ -270,11 +271,16 @@ export function StartPanel({ b }: { b: BuilderModel }) {
   );
 }
 
-/** For inline code the visitor ticked: allow all of it, or only the blocks listed by hash. */
+/** The kind of code each need lists by hash. */
+const KIND_OF_NEED: Record<HashableNeed, HashKind> = { 'inline-scripts': 'script', 'inline-handlers': 'handler', 'inline-styles': 'style', 'style-attributes': 'style-attr' };
+
+/** For inline code the visitor ticked: allow all of it, or only the pieces listed by hash. */
 function InlineChoice({ b, need }: { b: BuilderModel; need: HashableNeed }) {
   const t = useT();
   const listed = b.hashes[need];
-  const kind = HASHABLE[need] === 'inline-script' ? 'script' : 'style';
+  const kind = KIND_OF_NEED[need];
+  // Nonces reach <script> and <style> blocks only, never attributes.
+  const byNonce = b.start === 'nonce' && (kind === 'script' || kind === 'style');
   // Hashes only limit inline code when a directive restricts it: without one, everything already runs.
   const unrestricted = b
     .placedBy('site', 'site')
@@ -285,7 +291,7 @@ function InlineChoice({ b, need }: { b: BuilderModel; need: HashableNeed }) {
         class="segmented"
         label={t('build.site.inline.question')}
         items={[
-          { id: 'all', label: t(b.start === 'nonce' ? 'build.site.inline.nonce' : 'build.site.inline.all') },
+          { id: 'all', label: t(byNonce ? 'build.site.inline.nonce' : 'build.site.inline.all') },
           { id: 'listed', label: t('build.site.inline.listed') },
         ]}
         value={listed ? 'listed' : 'all'}
@@ -300,7 +306,7 @@ function InlineChoice({ b, need }: { b: BuilderModel; need: HashableNeed }) {
           </p>
           <HashTool
             id={`hash-${need}`}
-            kind={kind}
+            kinds={[kind]}
             hashes={listed.map((source) => ({ kind, source }))}
             onChange={(hashes) => b.setHashes(need, hashes.map((h) => h.source))}
           />

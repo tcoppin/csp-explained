@@ -1,6 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
-import type { InlineHash } from '../../lib/csp/hash';
+import type { HashKind, InlineHash } from '../../lib/csp/hash';
 import type { ExplainedMessages, ExplainedViolation, PolicyLine, ToolUse, WeakerFix } from '../../lib/violations';
 import { HashTool } from './HashTool';
 import { CodeBox } from '../ui/CodeBox';
@@ -132,7 +132,7 @@ export function ViolationItem({
           <Rich msg="violations.reportOnlyFix" />
         </p>
       )}
-      {e.case === 'inline' && !e.fix && !setApart && !paper && <HashOffer id={`violation-${index}`} e={e} folded={source === 'reports'} />}
+      {(e.case === 'inline' || e.case === 'handler' || e.case === 'style-attr') && !e.fix && !setApart && !paper && <HashOffer id={`violation-${index}`} e={e} folded={source === 'reports' || e.case !== 'inline'} />}
       {/* After the safe way, hash generator included. */}
       <Weaker e={e} paper={paper} />
     </Tag>
@@ -282,19 +282,27 @@ function Weaker({ e, paper = false }: { e: ExplainedViolation; paper?: boolean }
 
 const captionOf = (w: WeakerFix) => (w.created ? 'add' : 'replace');
 
+const KIND_OF_VIOLATION: Partial<Record<string, HashKind>> = { 'inline-script': 'script', 'inline-style': 'style', 'inline-handler': 'handler', 'style-attr': 'style-attr' };
+const ATTRIBUTE_RULE: Partial<Record<HashKind, string>> = { handler: 'script-src-attr', 'style-attr': 'style-src-attr' };
+
 /**
- * Safari gives no hash for blocked inline code, nor do reports: the generator makes one from the code itself. Folded
- * under the reports, where most problems don't need it.
+ * Safari gives no hash for blocked inline code, nor do reports, nor Chrome for event handlers: the generator makes
+ * one from the code itself. Folded under the reports, where most problems don't need it, and for attributes, where
+ * moving the code into a script is the better way.
  */
 function HashOffer({ id, e, folded }: { id: string; e: ExplainedViolation; folded: boolean }) {
   const t = useT();
   const [hashes, setHashes] = useState<InlineHash[]>([]);
-  const kind = e.violation.kind === 'inline-style' ? 'style' : 'script';
-  const directive = e.violation.directive && e.violation.directive !== 'default-src' ? e.violation.directive : `${kind}-src`;
+  const kind = KIND_OF_VIOLATION[e.violation.kind] ?? 'script';
+  // An attribute's hashes go in its own rule, next to 'unsafe-hashes': in script-src or style-src they would stop
+  // 'unsafe-inline' from allowing the blocks.
+  const attribute = ATTRIBUTE_RULE[kind];
+  const directive = attribute ?? (e.violation.directive && e.violation.directive !== 'default-src' ? e.violation.directive : `${kind}-src`);
+  const values = [...(attribute ? ["'unsafe-hashes'"] : []), ...hashes.map((h) => h.source)];
   const tool = (
     <>
-      <HashTool id={id} kind={kind} hashes={hashes} onChange={setHashes} />
-      {hashes.length > 0 && <CodeBox caption={t('violations.hashCaption', { directive })} copyText={hashes.map((h) => h.source).join(' ')} />}
+      <HashTool id={id} kinds={[kind]} hashes={hashes} onChange={setHashes} />
+      {hashes.length > 0 && <CodeBox caption={t('violations.hashCaption', { directive })} copyText={values.join(' ')} />}
     </>
   );
   return folded ? (

@@ -137,6 +137,14 @@ describe('buildPolicy with hashes', () => {
     expect(placed.addedTo).toBeUndefined();
   });
 
+  it("lists event handlers and style attributes by hash in their own rules, with 'unsafe-hashes'", () => {
+    const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-handlers', 'style-attributes'], { 'inline-handlers': [HASH], 'style-attributes': [STYLE_HASH] })], SELF);
+    expect(built.text).toContain(`script-src-attr 'unsafe-hashes' ${HASH}`);
+    expect(built.text).toContain(`style-src-attr 'unsafe-hashes' ${STYLE_HASH}`);
+    expect(built.text).not.toContain("'unsafe-inline'");
+    expect(askedFor(built, 'script-src-attr', "'unsafe-hashes'").map((r) => r.result.requirement.reason)).toEqual(['inline-handlers']);
+  });
+
   it('records changes from both passes on the same directive', () => {
     const tool: Contribution = { by: { kind: 'custom', id: 'own-1', label: 'CDN' }, requirements: [{ type: 'script', source: 'https://cdn.example.org', reason: '' }] };
     const built = buildPolicy(baselinePolicy('allowlist'), [siteContribution(['inline-scripts'], { 'inline-scripts': [HASH] }), tool], SELF);
@@ -171,6 +179,16 @@ describe('withHashes', () => {
     const fixed = withHashes("default-src 'self' 'unsafe-inline'", [{ kind: 'style', source: HASH }], SELF);
     expect(fixed.text).toBe(`default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' ${HASH}; style-src-attr 'unsafe-inline'`);
     expect(fixed.styleAttributes).toBe(true);
+  });
+
+  it('lists style attributes by hash instead of allowing them all, when they are listed too', () => {
+    const fixed = withHashes("style-src 'self' 'unsafe-inline'", [{ kind: 'style', source: HASH }, { kind: 'style-attr', source: HASH }], SELF);
+    expect(fixed).toEqual({ text: `style-src 'self' 'unsafe-inline' ${HASH}; style-src-attr 'unsafe-hashes' ${HASH}`, styleAttributes: false });
+  });
+
+  it("keeps <script> blocks on 'unsafe-inline' when only event handlers are listed", () => {
+    const fixed = withHashes("script-src 'self' 'unsafe-inline'", [{ kind: 'handler', source: HASH }], SELF);
+    expect(fixed.text).toBe(`script-src 'self' 'unsafe-inline'; script-src-attr 'unsafe-hashes' ${HASH}`);
   });
 
   it('leaves a policy alone when nothing restricts styles', () => {

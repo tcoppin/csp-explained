@@ -1,6 +1,7 @@
 import { allChecks, probeFor, type Requirement, type RequirementResult } from './compat';
 import { CANONICAL_DIRECTIVE } from './directives';
 import { findDirective } from './fallback';
+import { UNSAFE_HASHES } from './hash';
 import { expressionMatchesUrl, ignoredSources } from './matcher';
 import type { Directive, ParseResult, Policy } from './model';
 import { classify } from './parser';
@@ -35,6 +36,10 @@ interface Pending {
 }
 
 const valuesOf = (d: Directive) => d.values.map((v) => v.raw);
+
+/** The rule of their own for event handlers and style attributes. */
+const ATTRIBUTE_DIRECTIVE: Partial<Record<Requirement['type'], string>> = { 'inline-handler': 'script-src-attr', 'style-attr': 'style-src-attr' };
+const isHash = (source: string) => classify(source, { start: 0, end: source.length }).kind === 'hash';
 
 /** Would the browser skip `source` in this directive (e.g. 'unsafe-inline' next to a nonce or a hash)? */
 function ignoredIn(governing: Directive, source: string, type: Requirement['type']): boolean {
@@ -76,7 +81,26 @@ export function buildPatches(parsed: ParseResult, results: RequirementResult[], 
       let pending: Pending;
       const changes = perPolicy.get(check.policyIndex) ?? new Map<string, Pending>();
 
-      if (ignoredIn(governing, r.requirement.source, r.requirement.type)) {
+      const attributeRule = isHash(r.requirement.source) ? ATTRIBUTE_DIRECTIVE[r.requirement.type] : undefined;
+      if (attributeRule) {
+        // An attribute's hash goes in the attribute's own rule, next to 'unsafe-hashes': in script-src or style-src,
+        // a hash would make browsers ignore 'unsafe-inline' for every <script> or <style> block too.
+        target = attributeRule;
+        pending =
+          changes.get(target) ??
+          (governing.name === target
+            ? { created: false, base: valuesOf(governing), added: [], requestedBy: {} }
+            : { created: true, base: [], added: [], requestedBy: {} });
+        if (!pending.base.some((v) => v.toLowerCase() === UNSAFE_HASHES)) {
+          if (!pending.added.includes(UNSAFE_HASHES)) {
+            pending.added.unshift(UNSAFE_HASHES);
+            pending.requestedBy[UNSAFE_HASHES] = [];
+          }
+          pending.requestedBy[UNSAFE_HASHES]!.push(r.requirement);
+          changes.set(target, pending);
+          perPolicy.set(check.policyIndex, changes);
+        }
+      } else if (ignoredIn(governing, r.requirement.source, r.requirement.type)) {
         // Style attributes can get their own directive, which nonces and hashes don't reach. Inline event
         // handlers could too, but script-src-attr 'unsafe-inline' would undo the protection the nonce gives:
         // they stay blocked, and the UI says so.

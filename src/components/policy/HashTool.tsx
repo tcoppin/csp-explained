@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 import { withHashes } from '../../lib/build';
-import { hashSource, inlineBlocks, type InlineHash, type InlineKind } from '../../lib/csp/hash';
+import { hashSource, inlineBlocks, isAttributeKind, type HashKind, type InlineHash, type InlineKind } from '../../lib/csp/hash';
 import type { Audience } from '../../lib/csp/model';
 import { CodeBox } from '../ui/CodeBox';
 import { useT } from '../ui/i18n';
@@ -16,36 +16,61 @@ const preview = (content: string) => {
   return line.length > 60 ? `${line.slice(0, 59)}…` : line;
 };
 
+/** What the field asks for, by the kinds the list takes. */
+function pasteKey(kinds: HashKind[]): string {
+  if (kinds.length === 4) return 'any';
+  if (kinds.length === 2) return kinds[0] === 'script' ? 'scriptAndHandlers' : 'styleAndAttributes';
+  return kinds[0]!;
+}
+
 interface Props {
   id: string;
-  /** The kind the hashes are for; when absent, the visitor says what untagged code is. */
-  kind?: InlineKind;
+  /**
+   * The kinds of code the list takes; code pasted without tags is the first one, unless the list takes both
+   * scripts and styles: the visitor then says which it is.
+   */
+  kinds: HashKind[];
   hashes: InlineHash[];
   onChange: (hashes: InlineHash[]) => void;
 }
 
 /**
  * Turns pasted inline code into `'sha256-…'` values: the builder adds them to the policy, the analyzer offers them
- * in place of 'unsafe-inline'. Everything happens in the browser.
+ * in place of 'unsafe-inline'. A `<script src>` with an `integrity` attribute gives the hashes it lists. Everything
+ * happens in the browser.
  */
-export function HashTool({ id, kind, hashes, onChange }: Props) {
+export function HashTool({ id, kinds, hashes, onChange }: Props) {
   const t = useT();
   const [text, setText] = useState('');
-  const [untagged, setUntagged] = useState<InlineKind>(kind ?? 'script');
+  const chooses = kinds.includes('script') && kinds.includes('style');
+  const [untagged, setUntagged] = useState<InlineKind>('script');
   const [notes, setNotes] = useState<string[]>([]);
 
   const add = async () => {
     const found: InlineHash[] = [];
     const skipped: string[] = [];
-    for (const block of inlineBlocks(text)) {
-      const blockKind = block.kind ?? (kind ?? untagged);
+    // The same code as a block and as an attribute has one hash, needed in two rules.
+    const same = (kind: HashKind, source: string) => (h: InlineHash) => h.kind === kind && h.source === source;
+    const keep = (kind: HashKind, source: string) => {
+      if (!hashes.some(same(kind, source)) && !found.some(same(kind, source))) found.push({ kind, source });
+      else skipped.push(t('hashes.skipped.known'));
+    };
+    const blocks = inlineBlocks(text);
+    if (blocks.length === 0) skipped.push(t('hashes.skipped.nothing'));
+    for (const block of blocks) {
+      const blockKind = block.kind ?? (chooses ? untagged : kinds[0]!);
       if (block.skipped) skipped.push(t(`hashes.skipped.${block.skipped}`));
-      else if (kind && blockKind !== kind) skipped.push(t(`hashes.skipped.other.${blockKind}`));
-      else {
+      else if (!kinds.includes(blockKind)) skipped.push(t(`hashes.skipped.other.${blockKind}`));
+      else if (block.integrity) {
+        for (const source of block.integrity) {
+          previews.set(source, preview(`<script src="${block.src ?? ''}">`));
+          keep(blockKind, source);
+        }
+        skipped.push(t('hashes.external'));
+      } else {
         const source = await hashSource(block.content);
         previews.set(source, preview(block.content));
-        if (!hashes.some((h) => h.source === source) && !found.some((h) => h.source === source)) found.push({ kind: blockKind, source });
-        else skipped.push(t('hashes.skipped.known'));
+        keep(blockKind, source);
       }
     }
     setNotes(skipped);
@@ -57,7 +82,7 @@ export function HashTool({ id, kind, hashes, onChange }: Props) {
 
   return (
     <div class="hash-tool">
-      <label for={`${id}-code`}>{t(`hashes.paste.${kind ?? 'any'}`)}</label>
+      <label for={`${id}-code`}>{t(`hashes.paste.${pasteKey(kinds)}`)}</label>
       <textarea
         id={`${id}-code`}
         class="code"
@@ -67,9 +92,9 @@ export function HashTool({ id, kind, hashes, onChange }: Props) {
         value={text}
         onInput={(e) => setText(e.currentTarget.value)}
       />
-      <p class="muted">{t('hashes.exact')}</p>
+      <p class="muted">{t(kinds.every(isAttributeKind) ? 'hashes.exactAttributes' : 'hashes.exact')}</p>
       <div class="hash-actions">
-        {!kind && (
+        {chooses && (
           <Segmented
             class="segmented"
             label={t('hashes.untagged')}
@@ -90,11 +115,11 @@ export function HashTool({ id, kind, hashes, onChange }: Props) {
       {hashes.length > 0 && (
         <ul class="hash-list" aria-label={t('hashes.listLabel')}>
           {hashes.map((h) => (
-            <li key={h.source}>
+            <li key={`${h.kind}|${h.source}`}>
               <code class="hash-value">{h.source}</code>
-              {!kind && <span class="tag">{t(`hashes.kind.${h.kind}`)}</span>}
+              {kinds.length > 1 && <span class="tag">{t(`hashes.kind.${h.kind}`)}</span>}
               {previews.has(h.source) && <code class="hash-preview">{previews.get(h.source)}</code>}
-              <button type="button" class="link-button" onClick={() => onChange(hashes.filter((x) => x.source !== h.source))}>
+              <button type="button" class="link-button" onClick={() => onChange(hashes.filter((x) => x !== h))}>
                 {t('hashes.remove')}
               </button>
             </li>
@@ -105,16 +130,19 @@ export function HashTool({ id, kind, hashes, onChange }: Props) {
   );
 }
 
-const KIND_OF: Record<string, InlineKind | undefined> = {
-  'script-src': 'script',
-  'script-src-elem': 'script',
-  'style-src': 'style',
-  'style-src-elem': 'style',
-  'default-src': undefined,
+/** What each directive's 'unsafe-inline' allows, which hashes can replace. */
+const KINDS_OF: Record<string, HashKind[]> = {
+  'script-src': ['script', 'handler'],
+  'script-src-elem': ['script'],
+  'script-src-attr': ['handler'],
+  'style-src': ['style', 'style-attr'],
+  'style-src-elem': ['style'],
+  'style-src-attr': ['style-attr'],
+  'default-src': ['script', 'style', 'handler', 'style-attr'],
 };
 
 /** Directives where the analyzer offers hashes in place of 'unsafe-inline'. */
-export const offersHashes = (directive: string) => directive in KIND_OF;
+export const offersHashes = (directive: string) => directive in KINDS_OF;
 
 /** The analyzer's offer, under the explanation of 'unsafe-inline': the same generator, and the policy it gives. */
 interface FixProps {
@@ -129,9 +157,9 @@ interface FixProps {
 export function HashFix({ policyText, directive, origin, audience, open }: FixProps) {
   const t = useT();
   const [hashes, setHashes] = useState<InlineHash[]>([]);
-  const kind = KIND_OF[directive];
+  const kinds = KINDS_OF[directive] ?? [];
   const fixed = useMemo(() => (hashes.length > 0 ? withHashes(policyText, hashes, origin) : undefined), [policyText, hashes, origin]);
-  const kinds = new Set(hashes.map((h) => h.kind));
+  const listed = new Set(hashes.map((h) => h.kind));
 
   return (
     <details class="hash-fix" open={open}>
@@ -139,12 +167,12 @@ export function HashFix({ policyText, directive, origin, audience, open }: FixPr
       <p>
         <Rich msg={`hashes.fix.intro.${audience === 'simple' ? 'simple' : 'technical'}`} />
       </p>
-      <HashTool id="hash-fix" kind={kind} hashes={hashes} onChange={setHashes} />
+      <HashTool id="hash-fix" kinds={kinds} hashes={hashes} onChange={setHashes} />
       {fixed && (
         <>
           <CodeBox caption={t('hashes.fix.caption')} copyText={fixed.text} />
-          {(['script', 'style'] as const)
-            .filter((k) => kinds.has(k))
+          {(['script', 'handler', 'style', 'style-attr'] as const)
+            .filter((k) => listed.has(k))
             .map((k) => (
               <p key={k} class="hash-warning">
                 <Rich msg={`hashes.fix.warning.${k}`} />

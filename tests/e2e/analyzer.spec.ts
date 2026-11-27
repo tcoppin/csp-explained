@@ -199,6 +199,23 @@ test('a console message cut short still gets the one-line answer', async ({ page
   await expect(page.locator('.violations')).toHaveCount(0);
 });
 
+test("a blocked event handler offers its hash, folded after the safer way, with 'unsafe-hashes' in its own rule", async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page
+    .getByRole('textbox', { name: 'Paste a Content-Security-Policy' })
+    .fill(
+      "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'nonce-n0nce''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+    );
+  const handler = page.locator('.violation');
+  await expect(handler).toContainText('The safest way is to move this code into a script');
+  await handler.getByText('Get the hash from the code').click();
+  await handler.getByRole('textbox', { name: /Paste the elements with onclick/ }).fill(`<button onclick="${HELLO}">Hi</button>`);
+  await handler.getByRole('button', { name: 'Get the hash' }).click();
+  await expect(handler.locator('.code-block', { hasText: 'Add to your script-src-attr rule' }).locator('pre')).toHaveText(`'unsafe-hashes' ${HELLO_HASH}`);
+  expect(errors).toEqual([]);
+});
+
 test('console messages are explained in French on French pages', async ({ page }) => {
   await openAnalyzer(page, '/fr');
   await page.getByRole('textbox', { name: 'Collez une Content-Security-Policy' }).fill(CONSOLE);
@@ -762,6 +779,31 @@ test("the analyzer offers hashes in place of 'unsafe-inline', also from the secu
     `default-src 'self'; script-src 'self' 'unsafe-inline' ${HELLO_HASH}`,
   );
   await expect(page.locator('.hash-warning')).toContainText('Every other inline script');
+  expect(errors).toEqual([]);
+});
+
+test("the hashes offer takes onclick attributes and external scripts too, each where browsers look for it", async ({ page }) => {
+  const errors = watchErrors(page);
+  await openAnalyzer(page);
+  await page.getByRole('textbox', { name: 'Paste a Content-Security-Policy' }).fill("default-src 'self'; script-src 'self' 'unsafe-inline'");
+  await page.locator('.policy').getByRole('button', { name: "'unsafe-inline'" }).click();
+  await page.getByText('Replace it with hashes').click();
+  const sha384 = 'sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC';
+  await page
+    .getByRole('textbox', { name: /or elements with onclick/ })
+    .fill(`<script>${HELLO}</script>\n<button onclick="${HELLO}">Hi</button>\n<script src="/lib.js" integrity="${sha384}"></script>`);
+  await page.getByRole('button', { name: 'Get the hash' }).click();
+  const list = page.getByRole('list', { name: 'Hashes' });
+  await expect(list.getByRole('listitem')).toHaveCount(3);
+  // One code, two kinds: the same hash serves the block and the attribute.
+  await expect(list.getByRole('listitem').nth(0)).toContainText('a script');
+  await expect(list.getByRole('listitem').nth(1)).toContainText('an event handler');
+  await expect(list.getByRole('listitem').nth(2)).toContainText('<script src="/lib.js">');
+  await expect(page.getByRole('note').filter({ hasText: 'keep the attribute on the tag' })).toBeVisible();
+  await expect(page.locator('.code-block', { hasText: 'Your policy with the hashes' }).locator('pre')).toHaveText(
+    `default-src 'self'; script-src 'self' 'unsafe-inline' ${HELLO_HASH} '${sha384}'; script-src-attr 'unsafe-hashes' ${HELLO_HASH}`,
+  );
+  await expect(page.locator('.hash-warning').filter({ hasText: 'Event handlers go in script-src-attr' })).toBeVisible();
   expect(errors).toEqual([]);
 });
 

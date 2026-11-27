@@ -4,7 +4,7 @@ import { KEYWORDS, NONCE_PLACEHOLDER, type ResourceType } from './csp/directives
 import type { Policy } from './csp/model';
 import { classify, parse, parseSinglePolicy } from './csp/parser';
 import { buildPatches, type DirectiveChange } from './csp/patch';
-import { INLINE_TYPE, type InlineHash } from './csp/hash';
+import { HASH_TYPE, type InlineHash } from './csp/hash';
 import { evaluateSecurity, type SecurityFinding } from './csp/security';
 
 /**
@@ -55,8 +55,16 @@ export const SITE_NEEDS = {
 
 export type SiteNeed = keyof typeof SITE_NEEDS;
 
-/** Needs that can name each inline block by its hash instead of allowing them all with 'unsafe-inline'. */
-export const HASHABLE = { 'inline-scripts': 'inline-script', 'inline-styles': 'inline-style' } as const satisfies Partial<Record<SiteNeed, ResourceType>>;
+/**
+ * Needs that can name each piece of inline code by its hash instead of allowing all of it with 'unsafe-inline':
+ * blocks, and attributes (whose hashes the patch puts in their own rule, next to 'unsafe-hashes').
+ */
+export const HASHABLE = {
+  'inline-scripts': 'inline-script',
+  'inline-handlers': 'inline-handler',
+  'inline-styles': 'inline-style',
+  'style-attributes': 'style-attr',
+} as const satisfies Partial<Record<SiteNeed, ResourceType>>;
 export type HashableNeed = keyof typeof HASHABLE;
 export const isHashable = (need: SiteNeed): need is HashableNeed => need in HASHABLE;
 
@@ -201,14 +209,15 @@ export interface HashedPolicy {
   styleAttributes: boolean;
 }
 
-/** A policy with inline blocks listed by hash, as the analyzer offers in place of 'unsafe-inline'. */
+/** A policy with inline code listed by hash, as the analyzer offers in place of 'unsafe-inline'. */
 export function withHashes(policyText: string, hashes: InlineHash[], origin = DEFAULT_ORIGIN): HashedPolicy {
-  const requirements: Requirement[] = hashes.map((h) => ({ type: INLINE_TYPE[h.kind], source: h.source, reason: '' }));
-  // Style attributes allowed today would stop working once style-src lists a hash. Asked by verdict: a load that no
-  // directive restricts is allowed without a matching source, and a reported one isn't allowed today.
+  const requirements: Requirement[] = hashes.map((h) => ({ type: HASH_TYPE[h.kind], source: h.source, reason: '' }));
+  // Style attributes allowed today would stop working once style-src lists a hash, unless they are listed too. Asked
+  // by verdict: a load that no directive restricts is allowed without a matching source, and a reported one isn't
+  // allowed today.
   const styleAttr: Requirement = { type: 'style-attr', source: "'unsafe-inline'", reason: '' };
   const allowedToday = checkRequirement(parse(policyText), styleAttr, origin).verdict === 'allowed';
-  if (allowedToday && hashes.some((h) => h.kind === 'style')) requirements.push(styleAttr);
+  if (allowedToday && hashes.some((h) => h.kind === 'style') && !hashes.some((h) => h.kind === 'style-attr')) requirements.push(styleAttr);
   const built = buildPolicy(policyText, [{ by: { kind: 'site', id: 'site', label: 'site' }, requirements }], origin);
-  return { text: built.text, styleAttributes: built.changes.some((c) => c.directive === 'style-src-attr') };
+  return { text: built.text, styleAttributes: built.changes.some((c) => c.directive === 'style-src-attr' && c.added.includes("'unsafe-inline'")) };
 }
